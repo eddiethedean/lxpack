@@ -1,0 +1,208 @@
+:root {
+  --lxpack-bg: #0f1419;
+  --lxpack-surface: #1a2332;
+  --lxpack-border: #2d3a4f;
+  --lxpack-text: #e8edf4;
+  --lxpack-muted: #8b9cb3;
+  --lxpack-accent: #3b82f6;
+  --lxpack-accent-hover: #2563eb;
+  --lxpack-success: #22c55e;
+  --lxpack-radius: 8px;
+  --lxpack-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--lxpack-font);
+  background: var(--lxpack-bg);
+  color: var(--lxpack-text);
+  line-height: 1.6;
+}
+
+.lxpack-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.lxpack-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--lxpack-border);
+  background: var(--lxpack-surface);
+}
+
+.lxpack-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.lxpack-version {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--lxpack-muted);
+}
+
+.lxpack-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.lxpack-nav {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 1rem;
+  border-right: 1px solid var(--lxpack-border);
+  background: var(--lxpack-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-y: auto;
+}
+
+.lxpack-nav-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--lxpack-radius);
+  color: var(--lxpack-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.lxpack-nav-item:hover {
+  background: var(--lxpack-bg);
+}
+
+.lxpack-nav-item.active {
+  border-color: var(--lxpack-accent);
+  background: color-mix(in srgb, var(--lxpack-accent) 15%, transparent);
+}
+
+.lxpack-nav-item.completed::after {
+  content: " ✓";
+  color: var(--lxpack-success);
+}
+
+.lxpack-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.lxpack-markdown h1,
+.lxpack-markdown h2,
+.lxpack-markdown h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.lxpack-markdown h1:first-child {
+  margin-top: 0;
+}
+
+.lxpack-markdown code {
+  background: var(--lxpack-surface);
+  padding: 0.125em 0.375em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.lxpack-markdown pre {
+  background: var(--lxpack-surface);
+  padding: 1rem;
+  border-radius: var(--lxpack-radius);
+  overflow-x: auto;
+}
+
+.lxpack-interaction-frame {
+  width: 100%;
+  min-height: 480px;
+  border: 1px solid var(--lxpack-border);
+  border-radius: var(--lxpack-radius);
+  background: #fff;
+}
+
+.lxpack-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--lxpack-border);
+  background: var(--lxpack-surface);
+}
+
+.lxpack-progress-bar {
+  height: 6px;
+  background: var(--lxpack-bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.lxpack-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--lxpack-accent);
+  transition: width 0.3s ease;
+}
+
+.lxpack-nav-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.lxpack-nav-buttons button {
+  padding: 0.5rem 1rem;
+  font: inherit;
+  border-radius: var(--lxpack-radius);
+  border: 1px solid var(--lxpack-border);
+  background: var(--lxpack-bg);
+  color: var(--lxpack-text);
+  cursor: pointer;
+}
+
+.lxpack-nav-buttons button:hover:not(:disabled) {
+  border-color: var(--lxpack-accent);
+}
+
+.lxpack-nav-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lxpack-complete-btn {
+  margin-left: auto;
+  background: var(--lxpack-accent) !important;
+  border-color: var(--lxpack-accent) !important;
+}
+
+.lxpack-complete-btn:hover:not(:disabled) {
+  background: var(--lxpack-accent-hover) !important;
+}
+
+.lxpack-error {
+  color: #f87171;
+}
+
+@media (max-width: 768px) {
+  .lxpack-body {
+    flex-direction: column;
+  }
+
+  .lxpack-nav {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid var(--lxpack-border);
+  }
+}

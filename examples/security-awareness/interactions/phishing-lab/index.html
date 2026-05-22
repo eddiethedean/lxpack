@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishing Lab</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto; }
+    .email { border: 1px solid #ccc; padding: 1rem; border-radius: 8px; cursor: pointer; }
+    .email:hover { background: #f0f4ff; }
+    .result { margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none; }
+    .result.show { display: block; }
+    .danger { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+  <h1>Phishing Detection Lab</h1>
+  <p>Click the suspicious email below to report it.</p>
+  <div class="email" id="phishing-email" role="button" tabindex="0" aria-label="Suspicious email from unknown sender">
+    <strong>From:</strong> security@paypa1-verify.com<br>
+    <strong>Subject:</strong> URGENT: Your account will be suspended<br>
+    <p>Click here immediately to verify your identity...</p>
+  </div>
+  <div class="result" id="result"></div>
+  <script>
+    const email = document.getElementById('phishing-email');
+    const result = document.getElementById('result');
+    email.addEventListener('click', () => {
+      result.className = 'result show danger';
+      result.textContent = 'Correct! This is a phishing attempt. Look for misspelled domains and urgency tactics.';
+      if (window.parent.lxpack) {
+        window.parent.lxpack.track({ type: 'interaction', id: 'phishing_detected' });
+      }
+    });
+    email.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); email.click(); }
+    });
+  </script>
+</body>
+</html>
