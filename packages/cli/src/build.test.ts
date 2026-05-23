@@ -55,6 +55,43 @@ describe("buildCommand", () => {
     expect(existsSync(zipPath)).toBe(true);
   });
 
+  it("uses defaultTarget from lxpack.config.json when --target is omitted", async () => {
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(
+      join(workDir, "course", "lxpack.config.json"),
+      JSON.stringify({ exports: { defaultTarget: "standalone" } }),
+    );
+    await buildCommand({});
+    expect(
+      existsSync(
+        resolve(workDir, "course", ".lxpack", "minimal-valid-course-standalone.zip"),
+      ),
+    ).toBe(true);
+  });
+
+  it("falls back to scorm12 when config and target are omitted", async () => {
+    const { rm } = await import("node:fs/promises");
+    await rm(join(workDir, "course", "lxpack.config.json"));
+    await buildCommand({});
+    expect(
+      existsSync(
+        resolve(workDir, "course", ".lxpack", "minimal-valid-course-scorm12.zip"),
+      ),
+    ).toBe(true);
+  });
+
+  it("uses a fallback slug when the title has no alphanumeric characters", async () => {
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(
+      join(workDir, "course", "course.yaml"),
+      "title: '!!!'\nversion: 1.0.0\nlessons:\n  - id: intro\n    type: markdown\n    file: lessons/intro.md\n",
+    );
+    await buildCommand({ target: "scorm12" });
+    expect(
+      existsSync(resolve(workDir, "course", ".lxpack", "course-scorm12.zip")),
+    ).toBe(true);
+  });
+
   it("writes zip to a custom output path", async () => {
     const customZip = join(workDir, "custom-export.zip");
     await buildCommand({ target: "scorm12", output: customZip });

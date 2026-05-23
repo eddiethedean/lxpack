@@ -1,5 +1,8 @@
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import { LxpackRuntime } from "./runtime.js";
+import type { ScormData } from "./scorm-api.js";
+import * as scormApi from "./scorm-api.js";
+import { Scorm12Simulator } from "./scorm-api.js";
 
 const manifest = {
   title: "Test",
@@ -11,9 +14,20 @@ const manifest = {
   ],
 };
 
+function mockLms(initialData?: Partial<ScormData>): Scorm12Simulator {
+  const sim = new Scorm12Simulator({
+    persistToStorage: false,
+    initialData,
+  });
+  vi.spyOn(scormApi, "createScormConnection").mockReturnValue(sim);
+  return sim;
+}
+
 describe("LxpackRuntime", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     vi.spyOn(console, "debug").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
   });
 
   it("starts at first lesson with empty progress in preview mode", () => {
@@ -56,6 +70,172 @@ describe("LxpackRuntime", () => {
     expect(runtime.getCompletionRatio()).toBe(0.5);
   });
 
+  it("restores progress from localStorage in preview mode", () => {
+    const previewManifest = {
+      title: "Persist",
+      version: "2.0.0",
+      lessons: manifest.lessons,
+    };
+    const runtime1 = new LxpackRuntime({
+      manifest: previewManifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    runtime1.completeLesson("a");
+
+    const runtime2 = new LxpackRuntime({
+      manifest: previewManifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    expect(runtime2.isLessonComplete("a")).toBe(true);
+  });
+
+  it("ignores corrupt localStorage progress payloads", () => {
+    const badManifest = { ...manifest, title: "Bad", version: "9.9.9" };
+    const slug = `${badManifest.title}::${badManifest.version}`;
+    let hash = 0;
+    for (let i = 0; i < slug.length; i++) {
+      hash = (hash << 5) - hash + slug.charCodeAt(i);
+      hash |= 0;
+    }
+    localStorage.setItem(`lxpack_progress_${Math.abs(hash)}`, "{bad");
+    const runtime = new LxpackRuntime({
+      manifest: badManifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    expect(runtime.getProgress().currentLessonId).toBe("a");
+  });
+
+  it("defaults passing score when stored value is not numeric", () => {
+    const slug = `Test::1.0.0`;
+    let hash = 0;
+    for (let i = 0; i < slug.length; i++) {
+      hash = (hash << 5) - hash + slug.charCodeAt(i);
+      hash |= 0;
+    }
+    localStorage.setItem(
+      `lxpack_progress_${Math.abs(hash)}`,
+      JSON.stringify({
+        currentLessonId: "a",
+        completedLessons: [],
+        assessmentScores: { quiz: 0.8 },
+        suspendData: { assessment_passing_quiz: "not-a-number" },
+      }),
+    );
+    const runtime = new LxpackRuntime({
+      manifest: {
+        ...manifest,
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+      baseUrl: ".",
+      mode: "preview",
+    });
+    expect(runtime.isAssessmentPassed("quiz")).toBe(true);
+  });
+
+  it("restores progress in standalone mode", () => {
+    const slug = `Test::1.0.0`;
+    let hash = 0;
+    for (let i = 0; i < slug.length; i++) {
+      hash = (hash << 5) - hash + slug.charCodeAt(i);
+      hash |= 0;
+    }
+    localStorage.setItem(
+      `lxpack_progress_${Math.abs(hash)}`,
+      JSON.stringify({
+        currentLessonId: "b",
+        assessmentScores: { extra: 0.95 },
+        suspendData: { note: true },
+      }),
+    );
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "standalone",
+    });
+    expect(runtime.getProgress().currentLessonId).toBe("b");
+    expect(runtime.getProgress().completedLessons).toEqual([]);
+    expect(runtime.getProgress().assessmentScores.extra).toBe(0.95);
+  });
+
+  it("tracks interaction events in suspend data", () => {
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    runtime.track({ type: "interaction", id: "btn-1", data: { clicked: true } });
+    expect(runtime.getProgress().suspendData["interaction_btn-1"]).toEqual({
+      clicked: true,
+    });
+    runtime.track({ type: "interaction", id: "btn-2" });
+    expect(runtime.getProgress().suspendData["interaction_btn-2"]).toBe(true);
+  });
+
+  it("no-ops restoreScormProgress when scorm is unavailable", () => {
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    (runtime as unknown as { scorm: null; restoreScormProgress: () => void }).scorm =
+      null;
+    expect(() =>
+      (
+        runtime as unknown as { restoreScormProgress: () => void }
+      ).restoreScormProgress(),
+    ).not.toThrow();
+  });
+
+  it("uses default passing score for unknown assessment ids", () => {
+    const slug = `Test::1.0.0`;
+    let hash = 0;
+    for (let i = 0; i < slug.length; i++) {
+      hash = (hash << 5) - hash + slug.charCodeAt(i);
+      hash |= 0;
+    }
+    localStorage.setItem(
+      `lxpack_progress_${Math.abs(hash)}`,
+      JSON.stringify({
+        currentLessonId: "a",
+        completedLessons: [],
+        assessmentScores: { unknown: 0.75 },
+        suspendData: {},
+      }),
+    );
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    expect(runtime.isAssessmentPassed("unknown")).toBe(true);
+  });
+
+  it("restores lesson location when suspend_data is empty", () => {
+    mockLms({ lessonLocation: "b" });
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm12",
+    });
+    expect(runtime.getProgress().currentLessonId).toBe("b");
+  });
+
+  it("exposes submitAssessment through the public API", () => {
+    const runtime = new LxpackRuntime({
+      manifest: {
+        ...manifest,
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+      baseUrl: ".",
+      mode: "preview",
+    });
+    runtime.getAPI().submitAssessment("quiz", 1, 0.5);
+    expect(runtime.isAssessmentPassed("quiz")).toBe(true);
+  });
+
   it("completes lessons idempotently via API", () => {
     const runtime = new LxpackRuntime({
       manifest,
@@ -70,6 +250,16 @@ describe("LxpackRuntime", () => {
 
     api.completeLesson("b");
     expect(runtime.getCompletionRatio()).toBe(1);
+  });
+
+  it("ignores invalid lesson ids", () => {
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    runtime.completeLesson("invalid");
+    expect(runtime.getProgress().completedLessons).toEqual([]);
   });
 
   it("tracks events without interaction id", () => {
@@ -90,16 +280,20 @@ describe("LxpackRuntime", () => {
     });
     runtime.getAPI().track({ type: "interaction", id: "click-1", data: { x: 1 } });
     expect(console.debug).toHaveBeenCalled();
+    expect(runtime.getProgress().suspendData["interaction_click-1"]).toEqual({
+      x: 1,
+    });
   });
 
   it("updates SCORM lesson location when changing lessons", () => {
+    const sim = mockLms();
     const runtime = new LxpackRuntime({
       manifest,
       baseUrl: ".",
       mode: "scorm12",
     });
     runtime.setCurrentLesson("b");
-    expect(window.API!.LMSGetValue("cmi.core.lesson_location")).toBe("b");
+    expect(sim.LMSGetValue("cmi.core.lesson_location")).toBe("b");
   });
 
   it("stores variables in suspendData", () => {
@@ -126,6 +320,7 @@ describe("LxpackRuntime", () => {
   });
 
   it("marks SCORM completed when threshold is met", () => {
+    const sim = mockLms();
     const runtime = new LxpackRuntime({
       manifest: {
         ...manifest,
@@ -136,27 +331,16 @@ describe("LxpackRuntime", () => {
     });
 
     runtime.completeLesson("a");
-    const api = window.API!;
-    expect(api.LMSGetValue("cmi.core.lesson_status")).toBe("incomplete");
-    expect(api.LMSGetValue("cmi.core.score.raw")).toBe("50");
+    expect(sim.LMSGetValue("cmi.core.lesson_status")).toBe("incomplete");
+    expect(sim.LMSGetValue("cmi.core.score.raw")).toBe("50");
 
     runtime.completeLesson("b");
-    expect(api.LMSGetValue("cmi.core.lesson_status")).toBe("completed");
-    expect(api.LMSGetValue("cmi.core.score.raw")).toBe("100");
+    expect(sim.LMSGetValue("cmi.core.lesson_status")).toBe("completed");
+    expect(sim.LMSGetValue("cmi.core.score.raw")).toBe("100");
   });
 
   it("ignores corrupt suspend_data in scorm12 mode", () => {
-    localStorage.setItem(
-      "lxpack_scorm12",
-      JSON.stringify({
-        lessonStatus: "incomplete",
-        scoreRaw: 0,
-        scoreMin: 0,
-        scoreMax: 100,
-        suspendData: "not-json",
-        lessonLocation: "",
-      }),
-    );
+    mockLms({ suspendData: "not-json" });
 
     const runtime = new LxpackRuntime({
       manifest,
@@ -168,22 +352,14 @@ describe("LxpackRuntime", () => {
   });
 
   it("restores valid suspend_data in scorm12 mode", () => {
-    localStorage.setItem(
-      "lxpack_scorm12",
-      JSON.stringify({
-        lessonStatus: "incomplete",
-        scoreRaw: 0,
-        scoreMin: 0,
-        scoreMax: 100,
-        suspendData: JSON.stringify({
-          currentLessonId: "b",
-          completedLessons: ["a"],
-          assessmentScores: {},
-          suspendData: {},
-        }),
-        lessonLocation: "",
+    mockLms({
+      suspendData: JSON.stringify({
+        currentLessonId: "b",
+        completedLessons: ["a"],
+        assessmentScores: {},
+        suspendData: {},
       }),
-    );
+    });
 
     const runtime = new LxpackRuntime({
       manifest,
@@ -195,15 +371,83 @@ describe("LxpackRuntime", () => {
     expect(runtime.isLessonComplete("a")).toBe(true);
   });
 
-  it("terminates SCORM session", () => {
+  it("restores lesson_location when suspend_data is empty", () => {
+    mockLms({ lessonLocation: "b", suspendData: "" });
+
     const runtime = new LxpackRuntime({
       manifest,
       baseUrl: ".",
       mode: "scorm12",
     });
-    const api = window.API!;
+
+    expect(runtime.getProgress().currentLessonId).toBe("b");
+  });
+
+  it("submits assessments and updates completion", () => {
+    const sim = mockLms();
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "scorm12",
+    });
+
+    runtime.completeLesson("a");
+    runtime.completeLesson("b");
+    runtime.submitAssessment("quiz", 0.8, 0.7);
+
+    expect(runtime.isAssessmentPassed("quiz")).toBe(true);
+    expect(sim.LMSGetValue("cmi.core.lesson_status")).toBe("passed");
+  });
+
+  it("marks failed assessments in SCORM status", () => {
+    mockLms();
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "scorm12",
+    });
+
+    runtime.submitAssessment("quiz", 0.2, 0.7);
+    expect(runtime.isAssessmentPassed("quiz")).toBe(false);
+  });
+
+  it("restores passed assessments from saved progress", () => {
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime1 = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    runtime1.submitAssessment("quiz", 0.9, 0.5);
+
+    const runtime2 = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    expect(runtime2.isAssessmentPassed("quiz")).toBe(true);
+  });
+
+  it("terminates SCORM session", () => {
+    const sim = mockLms();
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm12",
+    });
     runtime.terminate();
-    expect(api.LMSFinish()).toBe("false");
+    expect(sim.LMSFinish()).toBe("false");
   });
 
   it("swallows localStorage errors when persisting progress", () => {
@@ -212,7 +456,7 @@ describe("LxpackRuntime", () => {
       value: {
         getItem: (key: string) => store.get(key) ?? null,
         setItem: (key: string, value: string) => {
-          if (key === "lxpack_progress") throw new Error("quota");
+          if (key.startsWith("lxpack_progress")) throw new Error("quota");
           store.set(key, value);
         },
         removeItem: (key: string) => {
@@ -236,9 +480,7 @@ describe("LxpackRuntime", () => {
   });
 
   it("swallows localStorage errors when persisting in scorm mode", () => {
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-      throw new Error("quota");
-    });
+    mockLms();
     const runtime = new LxpackRuntime({
       manifest,
       baseUrl: ".",

@@ -52,6 +52,9 @@ importers:
       yaml:
         specifier: ^2.7.0
         version: 2.9.0
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^22.13.10
@@ -77,6 +80,9 @@ importers:
       marked:
         specifier: ^15.0.7
         version: 15.0.12
+      yaml:
+        specifier: ^2.7.0
+        version: 2.9.0
     devDependencies:
       '@types/node':
         specifier: ^22.13.10

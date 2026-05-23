@@ -8,10 +8,11 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 
 - **Declarative manifests** — `course.yaml` defines lessons, interactions, assessments, and tracking rules
 - **Schema validation** — Zod-powered checks for manifest shape and on-disk assets before build
-- **Browser runtime** — lesson navigation, markdown rendering, HTML interactions, progress tracking
-- **SCORM 1.2 API** — LMS integration via a lightweight in-browser SCORM 1.2 shim
+- **Browser runtime** — lesson navigation, markdown rendering, HTML interactions, YAML assessments (MCQ), progress tracking
+- **SCORM 1.2** — discovers the LMS `API` in parent/opener frames; preview mode uses a local simulator with `localStorage`
 - **Local preview** — Fastify dev server serves the course and bundled runtime (default `http://127.0.0.1:3847`)
 - **Export targets** — SCORM 1.2 ZIP (`imsmanifest.xml`) or standalone HTML ZIP/directory
+- **Course config** — optional `lxpack.config.json` for default export target and output directory
 - **Monorepo packages** — publishable `@lxpack/*` modules with full test coverage
 
 ## Requirements
@@ -56,7 +57,7 @@ pnpm exec lxpack build --target scorm12
 
 | Command | Description |
 |---------|-------------|
-| `lxpack init <name>` | Scaffold a new course (`-d, --dir` for output path) |
+| `lxpack init <name>` | Scaffold a new course (`-d, --dir`, `-f, --force`) |
 | `lxpack preview` | Start local preview server (`-p, --port`, `-H, --host`) |
 | `lxpack validate` | Validate `course.yaml` and referenced files |
 | `lxpack build` | Package for LMS or standalone export |
@@ -84,12 +85,12 @@ Commands discover the course by walking up from the current directory until they
 ```text
 my-course/
   course.yaml          # Course manifest (required)
-  lxpack.config.ts     # Optional build hooks
+  lxpack.config.json   # Optional: defaultTarget, output dir
   lessons/             # Markdown lesson files
   interactions/        # HTML/JS interaction folders (index.html)
   assessments/         # Quiz YAML files
   assets/              # Static assets
-  theme/               # Optional theme assets
+  theme/               # Optional theme assets (not wired in 0.1.0)
   .lxpack/             # Build output (generated)
 ```
 
@@ -190,7 +191,7 @@ To publish a release:
 
 ## Roadmap
 
-Phase 1 (current) delivers init, preview, validate, SCORM 1.2 export, and standalone HTML export. Planned work includes xAPI/cmi5, richer interactions, themes, and AI authoring templates — see [ROADMAP.md](docs/ROADMAP.md).
+Phase 1 (current, **v0.1.0**) delivers init, preview, validate, minimal MCQ assessments, SCORM 1.2 export with real LMS API discovery, and standalone HTML export. Planned work includes SCORM 2004, xAPI/cmi5, hot reload, themes, and richer interactions — see [ROADMAP.md](docs/ROADMAP.md).
 
 ## Documentation
 

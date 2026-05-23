@@ -26,8 +26,14 @@ Creates:
 - lessons/
 - assets/
 - interactions/
+- assessments/
 - theme/
-- lxpack.config.ts
+- lxpack.config.json
+
+### Options
+
+- `--dir` — output directory (defaults to project name)
+- `--force` — overwrite existing `course.yaml`
 
 ---
 
@@ -41,11 +47,17 @@ The CLI SHALL provide a local preview server.
 lxpack preview
 ```
 
-### Features
+### Implemented (v0.1.0)
+
+- Static course + runtime serving
+- Schema validation before start (blocks on invalid manifest; warns on missing files)
+- Preview SCORM simulator (`localStorage`)
+- Port/host options (`-p`, `-H`)
+
+### Planned
 
 - hot reload
-- runtime debugging
-- interaction testing
+- runtime debugging UI
 - mobile preview
 - accessibility warnings
 
@@ -76,19 +88,25 @@ lxpack validate
 
 The CLI SHALL export LMS-compatible packages.
 
-### Supported Targets
+### Supported Targets (v0.1.0)
 
 - SCORM 1.2
+- standalone HTML
+
+### Planned Targets
+
 - SCORM 2004
 - xAPI
 - cmi5
-- standalone HTML
 
 ### Command
 
 ```bash
-lxpack build --target scorm2004
+lxpack build --target scorm12
+lxpack build --target standalone
 ```
+
+Default target and output directory may be set in `lxpack.config.json`.
 
 ---
 
@@ -163,18 +181,15 @@ window.lxpack.track({
 
 # Tracking Specification
 
-## SCORM
+## SCORM (v0.1.0 — SCORM 1.2)
 
-The runtime SHALL support:
-- lesson_status
-- score.raw
-- suspend_data
-- completion
-- bookmarking
+The runtime supports:
+- LMS API discovery (`window.API` in parent/opener chain)
+- `lesson_status`, `score.raw`, `suspend_data` (4096-char limit), `lesson_location`
+- Completion ratio from lessons + passed assessments
+- Preview mode: `localStorage`-backed simulator (not sent to a real LMS)
 
-## xAPI
-
-The runtime SHALL emit:
+## xAPI (planned)
 - launched
 - experienced
 - answered
@@ -184,7 +199,7 @@ The runtime SHALL emit:
 
 ---
 
-# Accessibility Requirements
+# Accessibility Requirements (planned for automated validation)
 
 ## WCAG
 
@@ -228,24 +243,23 @@ lxpack plugin install lxpack-plugin-moodle
 ## File
 
 ```text
-lxpack.config.ts
+lxpack.config.json
 ```
 
 ## Example
 
-```typescript
-export default {
-  runtime: {
-    theme: "modern"
+```json
+{
+  "exports": {
+    "defaultTarget": "scorm12"
   },
-
-  exports: {
-    scorm12: true,
-    scorm2004: true,
-    xapi: true
+  "output": {
+    "dir": ".lxpack"
   }
 }
 ```
+
+TypeScript config evaluation is planned for a later release.
 
 ---
 

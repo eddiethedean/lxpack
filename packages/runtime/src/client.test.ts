@@ -67,7 +67,7 @@ describe("client", () => {
     );
 
     const navItem = document.querySelector(
-      '[data-lesson-id="md"]',
+      '[data-nav-id="md"]',
     ) as HTMLButtonElement;
     navItem.click();
     await vi.waitFor(() =>
@@ -138,8 +138,13 @@ describe("client", () => {
   it("invokes nav handler only when lesson id is present", () => {
     const nav = document.createElement("nav");
     const onSelect = vi.fn();
-    renderNav(nav, manifest.lessons, "md", [], onSelect);
-    const btn = nav.querySelector("[data-lesson-id='html']") as HTMLButtonElement;
+    renderNav(nav, manifest.lessons.map((lesson) => ({
+      kind: "lesson" as const,
+      id: lesson.id,
+      title: lesson.title ?? lesson.id,
+      lesson,
+    })), "md", [], new Set(), onSelect);
+    const btn = nav.querySelector("[data-nav-id='html']") as HTMLButtonElement;
     btn.click();
     expect(onSelect).toHaveBeenCalledWith("html");
   });

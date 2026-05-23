@@ -2,7 +2,7 @@ import { mkdtemp } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, it, vi } from "vitest";
-import { createCliProgram, runCli } from "./cli.js";
+import { createCliProgram, printCliError, runCli } from "./cli.js";
 
 describe("cli", () => {
   it("registers all commands on the program", () => {
@@ -43,5 +43,13 @@ describe("cli", () => {
   it("invokes runCli for a help request", async () => {
     vi.spyOn(process, "exit").mockImplementation((() => {}) as typeof process.exit);
     await expect(runCli(["node", "lxpack", "-h"])).resolves.toBeUndefined();
+  });
+
+  it("prints friendly CLI errors", () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    printCliError(new Error("boom"));
+    printCliError("plain");
+    expect(err.mock.calls[0]?.[0]).toContain("boom");
+    expect(err.mock.calls[1]?.[0]).toContain("plain");
   });
 });

@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { initCommand } from "./commands/init.js";
 
 describe("initCommand", () => {
@@ -24,7 +24,7 @@ describe("initCommand", () => {
     await initCommand(projectName, { dir: targetDir });
 
     expect(existsSync(join(targetDir, "course.yaml"))).toBe(true);
-    expect(existsSync(join(targetDir, "lxpack.config.ts"))).toBe(true);
+    expect(existsSync(join(targetDir, "lxpack.config.json"))).toBe(true);
     expect(existsSync(join(targetDir, "lessons", "welcome.md"))).toBe(true);
     expect(
       existsSync(join(targetDir, "interactions", "phishing-lab", "index.html")),
@@ -44,5 +44,23 @@ describe("initCommand", () => {
     } finally {
       process.chdir(cwd);
     }
+  });
+
+  it("refuses to overwrite an existing course without --force", async () => {
+    const parent = await mkdtemp(join(tmpdir(), "lxpack-init-force-"));
+    dirs.push(parent);
+    const targetDir = join(parent, "existing");
+    await initCommand("existing", { dir: targetDir });
+
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(initCommand("existing", { dir: targetDir })).rejects.toThrow(
+      "exit:1",
+    );
+    exit.mockRestore();
   });
 });

@@ -7,6 +7,7 @@ import pc from "picocolors";
 import {
   findCourseDir,
   loadCourseManifest,
+  loadLxpackConfig,
   readRuntimeBundle,
 } from "../utils.js";
 
@@ -18,11 +19,16 @@ export async function buildCommand(options: {
   dir?: boolean;
 }): Promise<void> {
   const courseDir = findCourseDir();
-  const target = (options.target ?? "scorm12") as ExportTarget;
+  const config = await loadLxpackConfig(courseDir);
+  const target = (options.target ??
+    config?.exports?.defaultTarget ??
+    "scorm12") as ExportTarget;
 
   if (!VALID_TARGETS.includes(target)) {
     console.error(
-      pc.red(`Invalid target: ${target}. Valid targets: ${VALID_TARGETS.join(", ")}`),
+      pc.red(
+        `Invalid target: ${target}. Valid targets: ${VALID_TARGETS.join(", ")}`,
+      ),
     );
     process.exit(1);
   }
@@ -42,13 +48,14 @@ export async function buildCommand(options: {
   const slug = manifest.title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/^-|-$/g, "") || "course";
 
-  await mkdir(join(courseDir, ".lxpack"), { recursive: true });
+  const outputBase = config?.output?.dir ?? ".lxpack";
+  await mkdir(join(courseDir, outputBase), { recursive: true });
 
   if (options.dir) {
     const outputDir =
-      options.output ?? join(courseDir, ".lxpack", target);
+      options.output ?? join(courseDir, outputBase, target);
     const result = await packageStandaloneDir({
       courseDir,
       manifest,
@@ -64,7 +71,7 @@ export async function buildCommand(options: {
     const defaultName =
       target === "standalone" ? `${slug}-standalone.zip` : `${slug}-scorm12.zip`;
     const outputPath =
-      options.output ?? join(courseDir, ".lxpack", defaultName);
+      options.output ?? join(courseDir, outputBase, defaultName);
 
     const result = await packageCourse({
       courseDir,

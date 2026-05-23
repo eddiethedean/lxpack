@@ -181,17 +181,17 @@ Potential Rust components:
 
 Build a minimally viable AI-native course compiler.
 
-## Features
+## Features (shipped in v0.1.0)
 
-- CLI scaffolding
-- markdown lessons
-- HTML interactions
-- local preview
-- SCORM 1.2 export
-- course manifests
-- progress tracking
-- quiz support
-- ZIP packaging
+- CLI scaffolding (`lxpack init`, `--force`)
+- Markdown lessons and HTML interactions
+- Local preview server (Fastify)
+- Strict `course.yaml` validation (Zod, path containment)
+- SCORM 1.2 ZIP export (full `imsmanifest` file list, self-contained runtime bundle)
+- Standalone HTML ZIP/directory export
+- Progress tracking (preview/standalone `localStorage`; SCORM `suspend_data`)
+- Minimal quiz engine (YAML MCQ, passing score, SCORM passed/failed)
+- `lxpack.config.json` for default build target and output dir
 
 ## Example Commands
 

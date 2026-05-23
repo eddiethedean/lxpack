@@ -193,6 +193,44 @@ body {
   color: #f87171;
 }
 
+.lxpack-assessment {
+  max-width: 640px;
+}
+
+.lxpack-assessment h2 {
+  margin-top: 0;
+}
+
+.lxpack-question {
+  border: 1px solid var(--lxpack-border);
+  border-radius: var(--lxpack-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.lxpack-choice {
+  display: block;
+  margin: 0.5rem 0;
+  cursor: pointer;
+}
+
+.lxpack-assessment-feedback {
+  margin-top: 1rem;
+}
+
+.lxpack-success-text {
+  color: var(--lxpack-success);
+}
+
+.lxpack-nav-assessment {
+  font-style: italic;
+}
+
+.lxpack-description {
+  color: var(--lxpack-muted);
+  margin: 0.25rem 0 0;
+}
+
 @media (max-width: 768px) {
   .lxpack-body {
     flex-direction: column;

@@ -26,6 +26,11 @@ export interface LxpackAPI {
   getProgress: () => CourseProgress;
   setVariable: (key: string, value: unknown) => void;
   getVariable: (key: string) => unknown;
+  submitAssessment: (
+    assessmentId: string,
+    score: number,
+    passingScore: number,
+  ) => void;
 }
 
 export type { CourseManifest, Lesson };

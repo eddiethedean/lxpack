@@ -16,6 +16,12 @@ export interface PackageOptions {
   runtimeCss: string;
 }
 
+const SKIP_FILES = new Set([
+  "course.yaml",
+  "lxpack.config.ts",
+  "lxpack.config.json",
+]);
+
 export async function collectFiles(
   dir: string,
   baseDir: string,
@@ -31,18 +37,24 @@ export async function collectFiles(
     if (entry.isDirectory()) {
       files.push(...(await collectFiles(fullPath, baseDir)));
     } else if (entry.isFile()) {
-      const rel = relative(baseDir, fullPath);
-      if (
-        rel !== "course.yaml" &&
-        rel !== "lxpack.config.ts" &&
-        !rel.startsWith(".lxpack")
-      ) {
-        files.push({ path: rel.replace(/\\/g, "/"), fullPath });
+      const rel = relative(baseDir, fullPath).replace(/\\/g, "/");
+      if (SKIP_FILES.has(rel) || rel.startsWith(".lxpack")) {
+        continue;
       }
+      if (rel === "index.html") {
+        continue;
+      }
+      files.push({ path: rel, fullPath });
     }
   }
 
   return files;
+}
+
+export function buildManifestFileList(
+  courseFiles: Array<{ path: string }>,
+): string[] {
+  return ["index.html", "lxpack-runtime.js", ...courseFiles.map((f) => f.path)];
 }
 
 export async function packageCourse(
@@ -53,24 +65,27 @@ export async function packageCourse(
 
   const zip = new JSZip();
   const mode = target === "scorm12" ? "scorm12" : "standalone";
-
-  const indexHtml = buildIndexHtml({ manifest, runtimeCss, mode });
-
-  zip.file("index.html", indexHtml);
-  zip.file("lxpack-runtime.js", runtimeClientJs);
-
-  if (target === "scorm12") {
-    zip.file("imsmanifest.xml", generateImsManifest(manifest));
-  }
-
   const courseFiles = await collectFiles(courseDir, courseDir);
+
   for (const file of courseFiles) {
     const content = await readFile(file.fullPath);
     zip.file(file.path, content);
   }
 
+  const indexHtml = buildIndexHtml({ manifest, runtimeCss, mode });
+  zip.file("index.html", indexHtml);
+  zip.file("lxpack-runtime.js", runtimeClientJs);
+
+  if (target === "scorm12") {
+    const manifestFiles = buildManifestFileList(courseFiles);
+    zip.file(
+      "imsmanifest.xml",
+      generateImsManifest(manifest, manifestFiles),
+    );
+  }
+
   const buffer = await zip.generateAsync({
-    type: target === "scorm12" ? "nodebuffer" : "nodebuffer",
+    type: "nodebuffer",
     compression: "DEFLATE",
   });
 
@@ -95,20 +110,8 @@ export async function packageStandaloneDir(
   await mkdir(outputDir, { recursive: true });
 
   const mode = target === "scorm12" ? "scorm12" : "standalone";
-  const indexHtml = buildIndexHtml({ manifest, runtimeCss, mode });
-
-  await writeFile(join(outputDir, "index.html"), indexHtml);
-  await writeFile(join(outputDir, "lxpack-runtime.js"), runtimeClientJs);
-
-  if (target === "scorm12") {
-    await writeFile(
-      join(outputDir, "imsmanifest.xml"),
-      generateImsManifest(manifest),
-    );
-  }
-
   const courseFiles = await collectFiles(courseDir, courseDir);
-  let fileCount = 2 + (target === "scorm12" ? 1 : 0);
+  let fileCount = 0;
 
   for (const file of courseFiles) {
     const dest = join(outputDir, file.path);
@@ -117,6 +120,20 @@ export async function packageStandaloneDir(
       await mkdir(destDir, { recursive: true });
     }
     await cp(file.fullPath, dest);
+    fileCount++;
+  }
+
+  const indexHtml = buildIndexHtml({ manifest, runtimeCss, mode });
+  await writeFile(join(outputDir, "index.html"), indexHtml);
+  await writeFile(join(outputDir, "lxpack-runtime.js"), runtimeClientJs);
+  fileCount += 2;
+
+  if (target === "scorm12") {
+    const manifestFiles = buildManifestFileList(courseFiles);
+    await writeFile(
+      join(outputDir, "imsmanifest.xml"),
+      generateImsManifest(manifest, manifestFiles),
+    );
     fileCount++;
   }
 

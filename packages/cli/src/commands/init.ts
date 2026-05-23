@@ -1,8 +1,10 @@
+import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import pc from "picocolors";
+import { formatCourseTitleForYaml } from "../utils.js";
 
-const COURSE_YAML = `title: {{title}}
+const COURSE_YAML_TEMPLATE = `title: {{title}}
 version: 1.0.0
 description: An LXPack learning experience
 
@@ -113,27 +115,40 @@ questions:
         text: Forward it to all colleagues as a warning
 `;
 
-const LXPACK_CONFIG = `/** @type {import('@lxpack/cli').LxpackConfig} */
-export default {
-  runtime: {
-    theme: "modern",
+const LXPACK_CONFIG = `{
+  "exports": {
+    "defaultTarget": "scorm12"
   },
-  exports: {
-    scorm12: true,
-    standalone: true,
-  },
-};
+  "output": {
+    "dir": ".lxpack"
+  }
+}
 `;
+
+function formatTitle(projectName: string): string {
+  return projectName
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
 
 export async function initCommand(
   projectName: string,
-  options: { dir?: string } = {},
+  options: { dir?: string; force?: boolean } = {},
 ): Promise<void> {
   const targetDir = options.dir ?? projectName;
-  const title = projectName
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  const title = formatTitle(projectName);
+  const yamlTitle = formatCourseTitleForYaml(title);
+
+  if (existsSync(join(targetDir, "course.yaml")) && !options.force) {
+    console.error(
+      pc.red(
+        `Directory already contains a course. Use --force to overwrite: ${targetDir}`,
+      ),
+    );
+    process.exit(1);
+  }
 
   const dirs = [
     targetDir,
@@ -150,7 +165,7 @@ export async function initCommand(
 
   await writeFile(
     join(targetDir, "course.yaml"),
-    COURSE_YAML.replace("{{title}}", title),
+    COURSE_YAML_TEMPLATE.replace("{{title}}", yamlTitle),
   );
   await writeFile(join(targetDir, "lessons", "welcome.md"), WELCOME_MD);
   await writeFile(
@@ -158,14 +173,14 @@ export async function initCommand(
     PHISHING_HTML,
   );
   await writeFile(join(targetDir, "assessments", "final.yaml"), FINAL_ASSESSMENT);
-  await writeFile(join(targetDir, "lxpack.config.ts"), LXPACK_CONFIG);
+  await writeFile(join(targetDir, "lxpack.config.json"), LXPACK_CONFIG);
   await writeFile(join(targetDir, "theme", ".gitkeep"), "");
 
   console.log(pc.green(`✓ Created LXPack course: ${targetDir}`));
   console.log();
   console.log("Next steps:");
   console.log(`  cd ${targetDir}`);
-  console.log("  lxpack preview");
   console.log("  lxpack validate");
+  console.log("  lxpack preview");
   console.log("  lxpack build --target scorm12");
 }

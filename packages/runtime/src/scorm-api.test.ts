@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { Scorm12API, installScormAPI } from "./scorm-api.js";
+import { Scorm12Adapter, Scorm12API, Scorm12Simulator, createScormConnection, findLmsApi, installScormAPI, trimSuspendData } from "./scorm-api.js";
 
-const STORAGE_KEY = "lxpack_scorm12";
+const PREVIEW_STORAGE_KEY = "lxpack_scorm12_preview";
 
 describe("Scorm12API", () => {
   it("requires LMSInitialize before get/set", () => {
@@ -60,6 +60,8 @@ describe("Scorm12API", () => {
     expect(api.LMSInitialize()).toBe("false");
     expect(api.LMSFinish()).toBe("true");
     expect(api.LMSFinish()).toBe("false");
+    expect(api.LMSGetErrorString()).toBe("Already terminated");
+    expect(api.LMSGetErrorString("301")).toBe("Not initialized");
   });
 
   it("returns false for unknown LMSSetValue elements", () => {
@@ -69,7 +71,7 @@ describe("Scorm12API", () => {
   });
 
   it("loads corrupt localStorage without throwing", () => {
-    localStorage.setItem(STORAGE_KEY, "not-json{{{");
+    localStorage.setItem(PREVIEW_STORAGE_KEY, "not-json{{{");
     const api = new Scorm12API();
     api.LMSInitialize();
     expect(api.LMSGetValue("cmi.core.lesson_status")).toBe("not attempted");
@@ -109,9 +111,24 @@ describe("Scorm12API", () => {
     api.LMSInitialize();
     expect(() => api.setLessonStatus("completed")).not.toThrow();
   });
-  it("installs API on window", () => {
-    const api = installScormAPI();
+  it("installs API on window in preview mode", () => {
+    const api = installScormAPI("preview");
     expect(window.API).toBe(api);
+  });
+
+  it("finds LMS API in parent chain", () => {
+    const lms = new Scorm12Simulator({ persistToStorage: false });
+    (window as Window & { API?: typeof lms }).API = lms;
+    expect(findLmsApi()).toBe(lms);
+  });
+
+  it("sets exit and session time through LMSSetValue", () => {
+    const api = new Scorm12Simulator({ persistToStorage: false });
+    api.LMSInitialize();
+    expect(api.LMSSetValue("cmi.core.exit", "logout")).toBe("true");
+    expect(api.LMSSetValue("cmi.core.session_time", "00:05:00")).toBe("true");
+    expect(api.LMSGetValue("cmi.core.exit")).toBe("logout");
+    expect(api.LMSGetValue("cmi.core.session_time")).toBe("00:05:00");
   });
 
   it("sets lesson location via helper", () => {
@@ -128,5 +145,57 @@ describe("Scorm12API", () => {
     const api = new Scorm12API();
     api.LMSInitialize();
     expect(api.LMSGetValue("cmi.core.lesson_status")).toBe("not attempted");
+  });
+
+  it("uses in-memory simulator when no LMS API is found in scorm12 mode", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const conn = createScormConnection("scorm12");
+    conn.LMSInitialize();
+    expect(conn.LMSGetValue("cmi.core.lesson_status")).toBe("not attempted");
+  });
+
+  it("trims suspend_data that exceeds SCORM limits", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const long = "x".repeat(5000);
+    const trimmed = trimSuspendData(long);
+    expect(trimmed.length).toBe(4096);
+  });
+
+  it("creates standalone connections without preview storage", () => {
+    const conn = createScormConnection("standalone");
+    conn.LMSInitialize();
+    expect(conn.LMSGetValue("cmi.core.lesson_status")).toBe("not attempted");
+  });
+
+  it("wraps discovered LMS APIs with an adapter", () => {
+    const inner = new Scorm12Simulator({ persistToStorage: false });
+    (window as Window & { API?: typeof inner }).API = inner;
+    const conn = createScormConnection("scorm12");
+    expect(conn).toBeInstanceOf(Scorm12Adapter);
+    conn.LMSInitialize();
+    conn.LMSSetValue("cmi.core.lesson_status", "completed");
+    expect(inner.LMSGetValue("cmi.core.lesson_status")).toBe("completed");
+  });
+
+  it("supports simulator exit and session time fields", () => {
+    const api = new Scorm12Simulator({ persistToStorage: false });
+    api.LMSInitialize();
+    expect(api.LMSSetValue("cmi.core.exit", "suspend")).toBe("true");
+    expect(api.LMSSetValue("cmi.core.session_time", "00:01:00")).toBe("true");
+    expect(api.LMSGetValue("cmi.core.session_time")).toBe("00:01:00");
+    expect(api.LMSSetValue("cmi.unknown", "x")).toBe("false");
+  });
+
+  it("returns errors when committing before initialize", () => {
+    const api = new Scorm12Simulator({ persistToStorage: false });
+    expect(api.LMSCommit()).toBe("false");
+    expect(api.LMSGetLastError()).not.toBe("0");
+  });
+
+  it("installs preview API on window only in preview mode", () => {
+    const preview = installScormAPI("preview");
+    expect(window.API).toBe(preview);
+    const standalone = installScormAPI("standalone");
+    expect(standalone).not.toBe(preview);
   });
 });

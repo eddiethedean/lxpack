@@ -63,7 +63,7 @@ describe("assessmentSchema", () => {
         {
           id: "q1",
           prompt: "?",
-          choices: [{ id: "a", text: "A" }],
+          choices: [{ id: "a", text: "A", correct: true }],
         },
       ],
     });
@@ -99,6 +99,37 @@ describe("courseManifestSchema", () => {
       ],
     });
     expect(result.success).toBe(true);
+  });
+
+  it("rejects unknown keys in strict mode", () => {
+    expect(
+      courseManifestSchema.safeParse({
+        title: "Test",
+        version: "1.0.0",
+        typo: true,
+        lessons: [
+          { id: "intro", type: "markdown", file: "lessons/intro.md" },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("requires exactly one correct choice per question", () => {
+    expect(
+      assessmentSchema.safeParse({
+        id: "quiz",
+        questions: [
+          {
+            id: "q1",
+            prompt: "?",
+            choices: [
+              { id: "a", text: "A" },
+              { id: "b", text: "B" },
+            ],
+          },
+        ],
+      }).success,
+    ).toBe(false);
   });
 
   it("rejects empty title and empty lessons", () => {

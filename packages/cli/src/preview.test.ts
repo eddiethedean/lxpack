@@ -37,10 +37,8 @@ describe("resolvePreviewDeps", () => {
 
 describe("loadPreviewStyles", () => {
   it("returns fallback CSS when the styles file is missing", async () => {
-    const css = await previewCommands.loadPreviewStyles(
-      "/nonexistent/styles.css",
-    );
-    expect(css).toBe("body { margin: 0; }");
+    const css = await previewCommands.loadPreviewStyles("/nonexistent");
+    expect(css).toContain("body { margin: 0; }");
   });
 });
 
@@ -62,8 +60,11 @@ describe("createPreviewServer", () => {
   });
 
   it("serves course HTML and health endpoint", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
     app = await previewCommands.createPreviewServer(
       fixturePath("minimal-valid"),
+      manifest,
     );
     const home = await app.inject({ method: "GET", url: "/" });
     expect(home.statusCode).toBe(200);
@@ -86,6 +87,23 @@ describe("startPreview", () => {
       true,
     );
     await app.close();
+  });
+
+  it("exits when the manifest cannot be parsed", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      previewCommands.startPreview(fixturePath("invalid-yaml")),
+    ).rejects.toThrow("exit:1");
+    expect(error.mock.calls.some((c) => String(c[0]).includes("invalid"))).toBe(
+      true,
+    );
+    exit.mockRestore();
   });
 });
 
@@ -176,5 +194,92 @@ describe("previewCommand", () => {
     expect(listen).toHaveBeenCalledWith({ port: 3999, host: "127.0.0.1" });
     expect(logStarted).toHaveBeenCalledWith("127.0.0.1", 3999);
     expect(log.mock.calls.length).toBe(0);
+  });
+
+  it("rejects invalid preview ports", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      previewCommands.previewCommand(
+        { port: 70000, host: "127.0.0.1" },
+        {
+          findCourseDir: () => fixturePath("minimal-valid"),
+          startPreview: async () => ({
+            app: { listen: vi.fn(), close: vi.fn() },
+            validation: { valid: true, issues: [] },
+          }),
+          logPreviewStarted: vi.fn(),
+        },
+      ),
+    ).rejects.toThrow("exit:1");
+    expect(error.mock.calls[0]?.[0]).toContain("70000");
+    exit.mockRestore();
+  });
+
+  it("reports port-in-use errors", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      previewCommands.previewCommand(
+        { port: 4010, host: "127.0.0.1" },
+        {
+          findCourseDir: () => fixturePath("minimal-valid"),
+          startPreview: async () => ({
+            app: {
+              listen: vi.fn().mockRejectedValue(new Error("EADDRINUSE")),
+              close: vi.fn(),
+            },
+            validation: { valid: true, issues: [] },
+          }),
+          logPreviewStarted: vi.fn(),
+        },
+      ),
+    ).rejects.toThrow("exit:1");
+    expect(error.mock.calls.some((c) => String(c[0]).includes("in use"))).toBe(
+      true,
+    );
+    exit.mockRestore();
+  });
+
+  it("reports generic preview startup failures", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      previewCommands.previewCommand(
+        { port: 4011, host: "127.0.0.1" },
+        {
+          findCourseDir: () => fixturePath("minimal-valid"),
+          startPreview: async () => ({
+            app: {
+              listen: vi.fn().mockRejectedValue("network down"),
+              close: vi.fn(),
+            },
+            validation: { valid: true, issues: [] },
+          }),
+          logPreviewStarted: vi.fn(),
+        },
+      ),
+    ).rejects.toThrow("exit:1");
+    expect(
+      error.mock.calls.some((c) =>
+        String(c[0]).includes("Failed to start preview server"),
+      ),
+    ).toBe(true);
+    exit.mockRestore();
   });
 });

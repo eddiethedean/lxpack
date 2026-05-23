@@ -27,4 +27,15 @@ describe("collectFiles", () => {
       "nested/b.txt",
     ]);
   });
+
+  it("skips course root index.html and lxpack config files", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-collect-skip-"));
+    await writeFile(join(dir, "index.html"), "<html></html>");
+    await writeFile(join(dir, "lxpack.config.json"), "{}");
+    await writeFile(join(dir, "lxpack.config.ts"), "export default {}");
+    await writeFile(join(dir, "content.txt"), "ok");
+
+    const files = await collectFiles(dir, dir);
+    expect(files.map((f) => f.path)).toEqual(["content.txt"]);
+  });
 });

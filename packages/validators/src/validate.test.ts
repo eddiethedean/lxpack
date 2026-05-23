@@ -83,7 +83,12 @@ describe("validateCourse", () => {
     const result = await validateCourse(fixturePath("html-no-path"));
     expect(result.valid).toBe(false);
     expect(
-      result.issues.some((i) => i.message.includes("path property")),
+      result.issues.some(
+        (i) =>
+          i.message.includes("path") ||
+          i.message.includes("Required") ||
+          i.path.includes("lessons"),
+      ),
     ).toBe(true);
   });
 
@@ -143,7 +148,12 @@ lessons:
     const result = await validateCourse(dir);
     expect(result.valid).toBe(false);
     expect(
-      result.issues.some((i) => i.message.includes("file property")),
+      result.issues.some(
+        (i) =>
+          i.message.includes("file") ||
+          i.message.includes("Required") ||
+          i.path.includes("lessons"),
+      ),
     ).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
-import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync, statSync } from "node:fs";
+import { join, resolve, sep } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { readFile } from "node:fs/promises";
 import {
@@ -27,6 +27,25 @@ export interface ValidationResult {
   valid: boolean;
   manifest?: CourseManifest;
   issues: ValidationIssue[];
+}
+
+export function resolveCoursePath(
+  courseDir: string,
+  relativePath: string,
+): { ok: true; path: string } | { ok: false; message: string } {
+  if (relativePath.startsWith("/") || /^[a-zA-Z]:\\/.test(relativePath)) {
+    return { ok: false, message: "Absolute paths are not allowed" };
+  }
+
+  const resolvedDir = resolve(courseDir);
+  const resolvedPath = resolve(resolvedDir, relativePath);
+  const prefix = `${resolvedDir}${sep}`;
+
+  if (!resolvedPath.startsWith(prefix)) {
+    return { ok: false, message: "Path escapes course directory" };
+  }
+
+  return { ok: true, path: resolvedPath };
 }
 
 export async function loadManifest(
@@ -84,37 +103,69 @@ export async function validateCourse(
 
   for (const lesson of manifest.lessons) {
     if (lesson.type === "markdown") {
-      if (!lesson.file) {
+      const resolved = resolveCoursePath(resolvedDir, lesson.file);
+      if (!resolved.ok) {
         issues.push({
-          path: `lessons.${lesson.id}`,
-          message: "Markdown lessons require a file property",
+          path: `lessons.${lesson.id}.file`,
+          message: resolved.message,
           severity: "error",
         });
         continue;
       }
-      const filePath = join(resolvedDir, lesson.file);
-      if (!existsSync(filePath)) {
+      if (!existsSync(resolved.path)) {
         issues.push({
-          path: lesson.file,
+          path: `lessons.${lesson.id}.file`,
           message: `Lesson file not found: ${lesson.file}`,
+          severity: "error",
+        });
+        continue;
+      }
+      const stat = statSync(resolved.path);
+      if (!stat.isFile()) {
+        issues.push({
+          path: `lessons.${lesson.id}.file`,
+          message: `Lesson path is not a file: ${lesson.file}`,
           severity: "error",
         });
       }
     } else if (lesson.type === "html") {
-      if (!lesson.path) {
+      const resolved = resolveCoursePath(resolvedDir, lesson.path);
+      if (!resolved.ok) {
         issues.push({
-          path: `lessons.${lesson.id}`,
-          message: "HTML lessons require a path property",
+          path: `lessons.${lesson.id}.path`,
+          message: resolved.message,
           severity: "error",
         });
         continue;
       }
-      const interactionDir = join(resolvedDir, lesson.path);
-      const indexPath = join(interactionDir, "index.html");
+      if (!existsSync(resolved.path)) {
+        issues.push({
+          path: `lessons.${lesson.id}.path`,
+          message: `HTML interaction directory not found: ${lesson.path}`,
+          severity: "error",
+        });
+        continue;
+      }
+      const stat = statSync(resolved.path);
+      if (!stat.isDirectory()) {
+        issues.push({
+          path: `lessons.${lesson.id}.path`,
+          message: `HTML interaction path is not a directory: ${lesson.path}`,
+          severity: "error",
+        });
+        continue;
+      }
+      const indexPath = join(resolved.path, "index.html");
       if (!existsSync(indexPath)) {
         issues.push({
-          path: lesson.path,
+          path: `lessons.${lesson.id}.path`,
           message: `HTML interaction missing index.html: ${lesson.path}`,
+          severity: "error",
+        });
+      } else if (!statSync(indexPath).isFile()) {
+        issues.push({
+          path: `lessons.${lesson.id}.path`,
+          message: `index.html is not a file: ${lesson.path}/index.html`,
           severity: "error",
         });
       }
@@ -122,11 +173,29 @@ export async function validateCourse(
   }
 
   if (manifest.assessments) {
+    const assessmentIds = new Set<string>();
     for (const ref of manifest.assessments) {
-      const assessmentPath = join(resolvedDir, ref.file);
-      if (!existsSync(assessmentPath)) {
+      if (assessmentIds.has(ref.id)) {
         issues.push({
-          path: ref.file,
+          path: "assessments",
+          message: `Duplicate assessment ID: ${ref.id}`,
+          severity: "error",
+        });
+      }
+      assessmentIds.add(ref.id);
+
+      const resolved = resolveCoursePath(resolvedDir, ref.file);
+      if (!resolved.ok) {
+        issues.push({
+          path: `assessments.${ref.id}.file`,
+          message: resolved.message,
+          severity: "error",
+        });
+        continue;
+      }
+      if (!existsSync(resolved.path)) {
+        issues.push({
+          path: `assessments.${ref.id}.file`,
           message: `Assessment file not found: ${ref.file}`,
           severity: "error",
         });
@@ -134,17 +203,29 @@ export async function validateCourse(
       }
 
       try {
-        const content = await readFile(assessmentPath, "utf-8");
+        const content = await readFile(resolved.path, "utf-8");
         const raw = parseYaml(content);
         const parsed = assessmentSchema.safeParse(raw);
         if (!parsed.success) {
           for (const issue of parsed.error.issues) {
+            const subPath = issue.path.length
+              ? issue.path.join(".")
+              : "root";
             issues.push({
-              path: `${ref.file}:${issue.path.join(".")}`,
+              path: `${ref.file}:${subPath}`,
               message: issue.message,
               severity: "error",
             });
           }
+          continue;
+        }
+
+        if (parsed.data.id !== ref.id) {
+          issues.push({
+            path: `assessments.${ref.id}`,
+            message: `Assessment file id "${parsed.data.id}" does not match manifest ref id "${ref.id}"`,
+            severity: "error",
+          });
         }
       } catch (err) {
         issues.push({

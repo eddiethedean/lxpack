@@ -1,14 +1,35 @@
+import { existsSync } from "node:fs";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import JSZip from "jszip";
-import { fixturePath } from "../../../test/helpers/paths.js";
+import { fixturePath, REPO_ROOT } from "../../../test/helpers/paths.js";
 import { loadManifest } from "@lxpack/validators";
 import { packageCourse, packageStandaloneDir } from "./package.js";
 
 const RUNTIME_JS = "export const RUNTIME_STUB = true;";
 const RUNTIME_CSS = "body { margin: 0; }";
+
+async function loadBuiltRuntime(): Promise<{ clientJs: string; css: string }> {
+  const clientPath = join(
+    REPO_ROOT,
+    "packages/runtime/dist/client.js",
+  );
+  if (!existsSync(clientPath)) {
+    const { execSync } = await import("node:child_process");
+    execSync("pnpm --filter @lxpack/runtime build", {
+      cwd: REPO_ROOT,
+      stdio: "pipe",
+    });
+  }
+  const clientJs = await readFile(clientPath, "utf-8");
+  const css = await readFile(
+    join(dirname(clientPath), "styles.css"),
+    "utf-8",
+  );
+  return { clientJs, css };
+}
 
 describe("packageCourse", () => {
   let manifest: Awaited<ReturnType<typeof loadManifest>>;
@@ -62,6 +83,35 @@ describe("packageCourse", () => {
 
     const runtime = await zip.file("lxpack-runtime.js")?.async("string");
     expect(runtime).toBe(RUNTIME_JS);
+  });
+
+  it("ships a self-contained production runtime bundle", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-real-bundle-"));
+    const zipPath = join(outDir, "course.zip");
+    outputPaths.push(outDir);
+
+    const { clientJs, css } = await loadBuiltRuntime();
+    expect(clientJs.includes('from "./runtime.js"')).toBe(false);
+
+    await packageCourse({
+      courseDir: fixturePath("minimal-valid"),
+      manifest: manifest.manifest,
+      outputPath: zipPath,
+      target: "scorm12",
+      runtimeClientJs: clientJs,
+      runtimeCss: css,
+    });
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    const bundled = await zip.file("lxpack-runtime.js")?.async("string");
+    expect(bundled).toBeTruthy();
+    expect(bundled!.length).toBeGreaterThan(1000);
+    expect(bundled!.includes('from "./runtime.js"')).toBe(false);
+    expect(bundled!.includes("lxpack-app")).toBe(true);
+
+    const ims = await zip.file("imsmanifest.xml")?.async("string");
+    expect(ims).toContain('href="lxpack-runtime.js"');
+    expect(ims).toContain('href="lessons/intro.md"');
   });
 
   it("creates standalone zip without imsmanifest.xml", async () => {

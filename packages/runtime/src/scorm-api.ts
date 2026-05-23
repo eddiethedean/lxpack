@@ -1,5 +1,5 @@
 /**
- * Minimal SCORM 1.2 API implementation for LMS communication.
+ * SCORM 1.2 API — LMS discovery, adapter, and preview simulator.
  * @see https://scorm.com/scorm-explained/technical-scorm/run-time/
  */
 
@@ -10,11 +10,159 @@ export interface ScormData {
   scoreMax: number;
   suspendData: string;
   lessonLocation: string;
+  entry: string;
+  exit: string;
+  sessionTime: string;
 }
 
-const STORAGE_KEY = "lxpack_scorm12";
+export interface ScormApiLike {
+  LMSInitialize(param?: string): string;
+  LMSFinish(param?: string): string;
+  LMSGetValue(element: string): string;
+  LMSSetValue(element: string, value: string): string;
+  LMSCommit(param?: string): string;
+  LMSGetLastError(): string;
+  LMSGetErrorString(errorCode?: string): string;
+  LMSGetDiagnostic(errorCode?: string): string;
+}
 
-export class Scorm12API {
+const SCORM_ERROR_NONE = "0";
+const SCORM_ERROR_NOT_INITIALIZED = "301";
+const SCORM_ERROR_TERMINATED = "302";
+const SCORM_SUSPEND_DATA_MAX = 4096;
+const PREVIEW_STORAGE_KEY = "lxpack_scorm12_preview";
+
+export function findLmsApi(maxDepth = 500): ScormApiLike | null {
+  let win: Window | null = window;
+  let depth = 0;
+
+  while (win && depth < maxDepth) {
+    try {
+      const candidate = (win as Window & { API?: ScormApiLike }).API;
+      if (candidate && typeof candidate.LMSInitialize === "function") {
+        return candidate;
+      }
+    } catch {
+      // cross-origin frame
+    }
+
+    try {
+      if (win.parent && win.parent !== win) {
+        win = win.parent;
+      } else if (win.opener && !win.opener.closed) {
+        win = win.opener;
+      } else {
+        break;
+      }
+    } catch {
+      break;
+    }
+    depth++;
+  }
+
+  return null;
+}
+
+export class Scorm12Adapter implements ScormApiLike {
+  private api: ScormApiLike;
+  private initialized = false;
+  private terminated = false;
+  private lastError = SCORM_ERROR_NONE;
+
+  constructor(api: ScormApiLike) {
+    this.api = api;
+  }
+
+  LMSInitialize(): string {
+    if (this.initialized) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
+    const result = this.api.LMSInitialize("");
+    if (result === "true") {
+      this.initialized = true;
+      this.terminated = false;
+      this.lastError = SCORM_ERROR_NONE;
+    }
+    return result;
+  }
+
+  LMSFinish(): string {
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_TERMINATED;
+      return "false";
+    }
+    const result = this.api.LMSFinish("");
+    if (result === "true") {
+      this.terminated = true;
+      this.lastError = SCORM_ERROR_NONE;
+    }
+    return result;
+  }
+
+  LMSGetValue(element: string): string {
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "";
+    }
+    this.lastError = SCORM_ERROR_NONE;
+    return this.api.LMSGetValue(element);
+  }
+
+  LMSSetValue(element: string, value: string): string {
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
+    this.lastError = SCORM_ERROR_NONE;
+    return this.api.LMSSetValue(element, value);
+  }
+
+  LMSCommit(): string {
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
+    this.lastError = SCORM_ERROR_NONE;
+    return this.api.LMSCommit("");
+  }
+
+  LMSGetLastError(): string {
+    return this.lastError;
+  }
+
+  LMSGetErrorString(errorCode?: string): string {
+    const code = errorCode ?? this.lastError;
+    if (code === SCORM_ERROR_NOT_INITIALIZED) return "Not initialized";
+    if (code === SCORM_ERROR_TERMINATED) return "Already terminated";
+    return this.api.LMSGetErrorString(code);
+  }
+
+  LMSGetDiagnostic(errorCode?: string): string {
+    return this.api.LMSGetDiagnostic(errorCode ?? this.lastError);
+  }
+
+  setLessonStatus(status: ScormData["lessonStatus"]): void {
+    this.LMSSetValue("cmi.core.lesson_status", status);
+  }
+
+  setScore(raw: number, max = 100): void {
+    this.LMSSetValue("cmi.core.score.raw", String(raw));
+    this.LMSSetValue("cmi.core.score.max", String(max));
+    this.LMSSetValue("cmi.core.score.min", "0");
+  }
+
+  setSuspendData(data: string): void {
+    const trimmed = trimSuspendData(data);
+    this.LMSSetValue("cmi.suspend_data", trimmed);
+  }
+
+  setLessonLocation(location: string): void {
+    this.LMSSetValue("cmi.core.lesson_location", location);
+  }
+}
+
+export class Scorm12Simulator implements ScormApiLike {
   private data: ScormData = {
     lessonStatus: "not attempted",
     scoreRaw: 0,
@@ -22,31 +170,58 @@ export class Scorm12API {
     scoreMax: 100,
     suspendData: "",
     lessonLocation: "",
+    entry: "ab-initio",
+    exit: "",
+    sessionTime: "00:00:00",
   };
 
   private initialized = false;
   private terminated = false;
+  private lastError = SCORM_ERROR_NONE;
+  private persistToStorage: boolean;
 
-  constructor() {
-    this.loadFromStorage();
+  constructor(options: {
+    persistToStorage?: boolean;
+    initialData?: Partial<ScormData>;
+  } = {}) {
+    this.persistToStorage = options.persistToStorage ?? false;
+    if (options.initialData) {
+      this.data = { ...this.data, ...options.initialData };
+    }
+    if (this.persistToStorage) {
+      this.loadFromStorage();
+    }
   }
 
   LMSInitialize(): string {
-    if (this.initialized) return "false";
+    if (this.initialized) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
     this.initialized = true;
     this.terminated = false;
+    this.lastError = SCORM_ERROR_NONE;
     return "true";
   }
 
   LMSFinish(): string {
-    if (!this.initialized || this.terminated) return "false";
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_TERMINATED;
+      return "false";
+    }
+    this.data.exit = "suspend";
     this.terminated = true;
     this.saveToStorage();
+    this.lastError = SCORM_ERROR_NONE;
     return "true";
   }
 
   LMSGetValue(element: string): string {
-    if (!this.initialized) return "";
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "";
+    }
+    this.lastError = SCORM_ERROR_NONE;
     switch (element) {
       case "cmi.core.lesson_status":
         return this.data.lessonStatus;
@@ -64,13 +239,23 @@ export class Scorm12API {
         return "lxpack-learner";
       case "cmi.core.student_name":
         return "LXPack Learner";
+      case "cmi.core.entry":
+        return this.data.entry;
+      case "cmi.core.exit":
+        return this.data.exit;
+      case "cmi.core.session_time":
+        return this.data.sessionTime;
       default:
         return "";
     }
   }
 
   LMSSetValue(element: string, value: string): string {
-    if (!this.initialized) return "false";
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
+    this.lastError = SCORM_ERROR_NONE;
     switch (element) {
       case "cmi.core.lesson_status":
         this.data.lessonStatus = value as ScormData["lessonStatus"];
@@ -78,11 +263,23 @@ export class Scorm12API {
       case "cmi.core.score.raw":
         this.data.scoreRaw = Number(value);
         break;
+      case "cmi.core.score.min":
+        this.data.scoreMin = Number(value);
+        break;
+      case "cmi.core.score.max":
+        this.data.scoreMax = Number(value);
+        break;
       case "cmi.suspend_data":
-        this.data.suspendData = value;
+        this.data.suspendData = trimSuspendData(value);
         break;
       case "cmi.core.lesson_location":
         this.data.lessonLocation = value;
+        break;
+      case "cmi.core.exit":
+        this.data.exit = value;
+        break;
+      case "cmi.core.session_time":
+        this.data.sessionTime = value;
         break;
       default:
         return "false";
@@ -92,15 +289,23 @@ export class Scorm12API {
   }
 
   LMSCommit(): string {
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
     this.saveToStorage();
+    this.lastError = SCORM_ERROR_NONE;
     return "true";
   }
 
   LMSGetLastError(): string {
-    return "0";
+    return this.lastError;
   }
 
-  LMSGetErrorString(): string {
+  LMSGetErrorString(errorCode?: string): string {
+    const code = errorCode ?? this.lastError;
+    if (code === SCORM_ERROR_NOT_INITIALIZED) return "Not initialized";
+    if (code === SCORM_ERROR_TERMINATED) return "Already terminated";
     return "No error";
   }
 
@@ -116,11 +321,12 @@ export class Scorm12API {
   setScore(raw: number, max = 100): void {
     this.data.scoreRaw = raw;
     this.data.scoreMax = max;
+    this.data.scoreMin = 0;
     this.saveToStorage();
   }
 
   setSuspendData(data: string): void {
-    this.data.suspendData = data;
+    this.data.suspendData = trimSuspendData(data);
     this.saveToStorage();
   }
 
@@ -131,7 +337,7 @@ export class Scorm12API {
 
   private loadFromStorage(): void {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(PREVIEW_STORAGE_KEY);
       if (stored) {
         this.data = { ...this.data, ...JSON.parse(stored) };
       }
@@ -141,20 +347,62 @@ export class Scorm12API {
   }
 
   private saveToStorage(): void {
+    if (!this.persistToStorage) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+      localStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify(this.data));
     } catch {
       void 0;
     }
   }
 }
 
-export function installScormAPI(): Scorm12API {
-  const api = new Scorm12API();
-  const win = window as Window & {
-    API?: Scorm12API;
-    API_1484_11?: Scorm12API;
-  };
-  win.API = api;
-  return api;
+/** @deprecated Use createScormConnection */
+export class Scorm12API extends Scorm12Simulator {
+  constructor() {
+    super({ persistToStorage: true });
+  }
 }
+
+export type ScormConnection = Scorm12Adapter | Scorm12Simulator;
+
+export function trimSuspendData(data: string): string {
+  if (data.length <= SCORM_SUSPEND_DATA_MAX) return data;
+  console.warn(
+    `[lxpack] suspend_data exceeds ${SCORM_SUSPEND_DATA_MAX} chars; truncating`,
+  );
+  return data.slice(0, SCORM_SUSPEND_DATA_MAX);
+}
+
+export function createScormConnection(
+  mode: "preview" | "standalone" | "scorm12",
+): ScormConnection {
+  if (mode === "preview") {
+    return new Scorm12Simulator({ persistToStorage: true });
+  }
+
+  if (mode === "scorm12") {
+    const lmsApi = findLmsApi();
+    if (lmsApi) {
+      return new Scorm12Adapter(lmsApi);
+    }
+    console.warn(
+      "[lxpack] No LMS SCORM API found; using in-memory simulator (progress will not persist to LMS)",
+    );
+    return new Scorm12Simulator({ persistToStorage: false });
+  }
+
+  return new Scorm12Simulator({ persistToStorage: false });
+}
+
+export function installScormAPI(
+  mode: "preview" | "standalone" | "scorm12" = "preview",
+): ScormConnection {
+  const connection = createScormConnection(mode);
+  if (mode === "preview") {
+    const win = window as Window & { API?: ScormConnection };
+    win.API = connection;
+  }
+  return connection;
+}
+
+export { SCORM_SUSPEND_DATA_MAX };
