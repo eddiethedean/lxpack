@@ -8,6 +8,15 @@ import {
   type CourseManifest,
 } from "./schemas.js";
 
+export function formatErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
+export function formatIssuePath(path: PropertyKey[]): string {
+  const joined = path.map(String).join(".");
+  return joined || "course.yaml";
+}
+
 export interface ValidationIssue {
   path: string;
   message: string;
@@ -42,7 +51,7 @@ export async function loadManifest(
     return [
       {
         path: "course.yaml",
-        message: `Failed to parse YAML: ${err instanceof Error ? err.message : String(err)}`,
+        message: `Failed to parse YAML: ${formatErrorMessage(err)}`,
         severity: "error",
       },
     ];
@@ -51,7 +60,7 @@ export async function loadManifest(
   const parsed = courseManifestSchema.safeParse(raw);
   if (!parsed.success) {
     return parsed.error.issues.map((issue) => ({
-      path: issue.path.join(".") || "course.yaml",
+      path: formatIssuePath(issue.path),
       message: issue.message,
       severity: "error" as const,
     }));
@@ -140,7 +149,7 @@ export async function validateCourse(
       } catch (err) {
         issues.push({
           path: ref.file,
-          message: `Failed to parse assessment: ${err instanceof Error ? err.message : String(err)}`,
+          message: `Failed to parse assessment: ${formatErrorMessage(err)}`,
           severity: "error",
         });
       }

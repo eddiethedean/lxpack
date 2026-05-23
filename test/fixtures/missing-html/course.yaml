@@ -1,0 +1,6 @@
+title: Missing HTML
+version: 1.0.0
+lessons:
+  - id: lab
+    type: html
+    path: interactions/no-index

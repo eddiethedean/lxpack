@@ -1,0 +1,6 @@
+title: Missing Markdown
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/does-not-exist.md

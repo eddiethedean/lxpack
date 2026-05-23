@@ -114,7 +114,7 @@ export class LxpackRuntime {
     try {
       localStorage.setItem("lxpack_progress", data);
     } catch {
-      // ignore
+      void 0;
     }
     if (this.scorm) {
       this.scorm.setSuspendData(data);

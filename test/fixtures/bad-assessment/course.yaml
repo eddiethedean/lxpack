@@ -1,0 +1,9 @@
+title: Bad Assessment
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+assessments:
+  - id: quiz
+    file: assessments/broken.yaml

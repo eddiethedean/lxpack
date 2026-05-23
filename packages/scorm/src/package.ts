@@ -16,7 +16,7 @@ export interface PackageOptions {
   runtimeCss: string;
 }
 
-async function collectFiles(
+export async function collectFiles(
   dir: string,
   baseDir: string,
 ): Promise<Array<{ path: string; fullPath: string }>> {

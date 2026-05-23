@@ -136,7 +136,7 @@ export class Scorm12API {
         this.data = { ...this.data, ...JSON.parse(stored) };
       }
     } catch {
-      // ignore corrupt storage
+      void 0;
     }
   }
 
@@ -144,7 +144,7 @@ export class Scorm12API {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
     } catch {
-      // storage full or unavailable
+      void 0;
     }
   }
 }

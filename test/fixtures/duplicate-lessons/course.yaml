@@ -1,0 +1,9 @@
+title: Duplicate IDs
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+  - id: intro
+    type: markdown
+    file: lessons/intro.md

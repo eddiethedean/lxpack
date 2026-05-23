@@ -18,7 +18,9 @@
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly",
     "dev": "vite build --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@lxpack/validators": "workspace:*",
@@ -26,7 +28,9 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
+    "happy-dom": "^17.4.4",
     "typescript": "^5.8.3",
-    "vite": "^6.2.2"
+    "vite": "^6.2.2",
+    "vitest": "^3.1.1"
   }
 }

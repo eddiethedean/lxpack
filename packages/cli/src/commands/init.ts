@@ -127,7 +127,7 @@ export default {
 
 export async function initCommand(
   projectName: string,
-  options: { dir?: string },
+  options: { dir?: string } = {},
 ): Promise<void> {
   const targetDir = options.dir ?? projectName;
   const title = projectName

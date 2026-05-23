@@ -59,7 +59,7 @@ function escapeHtml(text: string): string {
   return div.innerHTML;
 }
 
-async function renderMarkdown(
+export async function renderMarkdown(
   contentEl: HTMLElement,
   baseUrl: string,
   file: string,
@@ -70,7 +70,7 @@ async function renderMarkdown(
   contentEl.innerHTML = `<article class="lxpack-markdown">${await marked.parse(md)}</article>`;
 }
 
-function renderHtmlInteraction(
+export function renderHtmlInteraction(
   contentEl: HTMLElement,
   baseUrl: string,
   path: string,
@@ -85,7 +85,7 @@ function renderHtmlInteraction(
   `;
 }
 
-function renderNav(
+export function renderNav(
   navEl: HTMLElement,
   lessons: Lesson[],
   currentId: string,
@@ -140,7 +140,7 @@ async function renderLesson(
   }
 }
 
-function init(): void {
+export function init(): void {
   const config = getConfig();
   const runtime = new LxpackRuntime({
     manifest: config.manifest,
@@ -217,8 +217,22 @@ function init(): void {
   void showLesson(currentIndex);
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
+export function bootstrapClient(): void {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 }
+
+/* v8 ignore start -- entry guard: auto-bootstrap only outside test */
+const isTestEnv =
+  (typeof import.meta !== "undefined" &&
+    "vitest" in import.meta &&
+    Boolean(import.meta.vitest)) ||
+  process.env.VITEST === "true";
+
+if (!isTestEnv) {
+  bootstrapClient();
+}
+/* v8 ignore end */

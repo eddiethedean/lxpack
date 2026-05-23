@@ -1,0 +1,13 @@
+title: Minimal Valid Course
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+  - id: lab
+    type: html
+    path: interactions/lab
+
+assessments:
+  - id: quiz
+    file: assessments/quiz.yaml

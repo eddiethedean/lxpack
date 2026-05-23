@@ -35,6 +35,22 @@ export function getRuntimeAssetsDir(): string {
   return resolve(__dirname, "../../runtime/dist");
 }
 
+export function getEmbeddedStyles(): string {
+  return `:root { --lxpack-bg: #0f1419; } body { margin: 0; }`;
+}
+
+export async function loadRuntimeStyles(assetsDir: string): Promise<string> {
+  try {
+    return await readFile(join(assetsDir, "../src/styles.css"), "utf-8");
+  } catch {
+    try {
+      return await readFile(join(assetsDir, "styles.css"), "utf-8");
+    } catch {
+      return getEmbeddedStyles();
+    }
+  }
+}
+
 export async function readRuntimeBundle(): Promise<{
   clientJs: string;
   css: string;
@@ -42,17 +58,9 @@ export async function readRuntimeBundle(): Promise<{
   const assetsDir = getRuntimeAssetsDir();
   const [clientJs, css] = await Promise.all([
     readFile(join(assetsDir, "client.js"), "utf-8"),
-    readFile(join(assetsDir, "../src/styles.css"), "utf-8").catch(() =>
-      readFile(join(assetsDir, "styles.css"), "utf-8").catch(
-        () => getEmbeddedStyles(),
-      ),
-    ),
+    loadRuntimeStyles(assetsDir),
   ]);
   return { clientJs, css };
-}
-
-function getEmbeddedStyles(): string {
-  return `:root { --lxpack-bg: #0f1419; } body { margin: 0; }`;
 }
 
 export interface LxpackConfig {
