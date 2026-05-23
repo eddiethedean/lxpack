@@ -416,11 +416,7 @@ export function bootstrapClient(): void {
 }
 
 /* v8 ignore start -- entry guard: auto-bootstrap only outside test */
-const isTestEnv =
-  (typeof import.meta !== "undefined" &&
-    "vitest" in import.meta &&
-    Boolean(import.meta.vitest)) ||
-  process.env.VITEST === "true";
+const isTestEnv = process.env.VITEST === "true";
 
 if (!isTestEnv) {
   bootstrapClient();
