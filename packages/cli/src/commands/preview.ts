@@ -78,7 +78,7 @@ export async function createPreviewServer(
 
 export async function startPreview(
   courseDir: string,
-  options: { port?: number; host?: string } = {},
+  _options: { port?: number; host?: string } = {},
 ): Promise<{ app: FastifyInstance; validation: Awaited<ReturnType<typeof validateCourse>> }> {
   const validation = await validateCourse(courseDir);
   if (!validation.valid) {

@@ -2,8 +2,7 @@ import { existsSync, realpathSync } from "node:fs";
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { tmpdir } from "node:os";
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { fixturePath, REPO_ROOT } from "../../../test/helpers/paths.js";
 import { findCourseDir, getRuntimeAssetsDir, loadCourseManifest } from "./utils.js";
 

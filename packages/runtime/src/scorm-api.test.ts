@@ -1,4 +1,4 @@
-import { beforeEach, describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { Scorm12API, installScormAPI } from "./scorm-api.js";
 
 const STORAGE_KEY = "lxpack_scorm12";
