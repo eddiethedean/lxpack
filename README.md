@@ -18,9 +18,24 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 ## Requirements
 
 - [Node.js](https://nodejs.org/) **20+**
-- [pnpm](https://pnpm.io/) **9.15** (see `packageManager` in `package.json`)
+- [pnpm](https://pnpm.io/) **9.15** (see `packageManager` in `package.json`) — for developing LXPack from source
 
-## Quick start
+## Install
+
+```bash
+npm install -g @lxpack/cli
+# or: pnpm add -g @lxpack/cli
+```
+
+Then scaffold a course from any directory:
+
+```bash
+lxpack init my-course
+cd my-course
+lxpack preview
+```
+
+## Quick start (from source)
 
 From the repository root:
 
@@ -181,13 +196,18 @@ pnpm --filter @lxpack/cli build
 
 | Workflow | Trigger | Steps |
 |----------|---------|--------|
-| [CI](.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, typecheck, build, test |
-| [Release](.github/workflows/release.yml) | Tag `v*.*.*` | build and publish `@lxpack/*` to npm |
+| [CI](.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test (separate jobs) |
+| [Release](.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish `@lxpack/*` to npm |
 
-To publish a release:
+Published packages: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`.
 
-1. Add an npm automation token as the GitHub secret `NPM_TOKEN`.
-2. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
+To publish **v0.1.0**:
+
+1. Create the [`@lxpack` npm organization](https://www.npmjs.com/org/create) (or ensure your account can publish scoped packages).
+2. Add an npm automation token as the GitHub secret `NPM_TOKEN`.
+3. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
+
+The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Roadmap
 
@@ -195,6 +215,7 @@ Phase 1 (current, **v0.1.0**) delivers init, preview, validate, minimal MCQ asse
 
 ## Documentation
 
+- [Changelog](CHANGELOG.md)
 - [Technical Specification](docs/SPEC.md)
 - [Product Plan](docs/PLAN.md)
 - [Roadmap](docs/ROADMAP.md)

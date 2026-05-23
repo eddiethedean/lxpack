@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "description": "CLI for building, validating, and packaging LXPack courses",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eddiethedean/lxpack.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/eddiethedean/lxpack/issues"
+  },
+  "homepage": "https://github.com/eddiethedean/lxpack#readme",
+  "keywords": ["lxpack", "cli", "scorm", "lms", "elearning"],
+  "engines": {
+    "node": ">=20"
+  },
   "publishConfig": {
     "access": "public"
   },

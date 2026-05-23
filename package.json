@@ -4,6 +4,10 @@
   "private": true,
   "description": "AI-native learning experience compiler and runtime",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eddiethedean/lxpack.git"
+  },
   "type": "module",
   "scripts": {
     "build": "pnpm -r --filter './packages/*' run build",
