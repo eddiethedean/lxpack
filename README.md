@@ -196,8 +196,8 @@ pnpm --filter @lxpack/cli build
 
 | Workflow | Trigger | Steps |
 |----------|---------|--------|
-| [CI](.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test (separate jobs) |
-| [Release](.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish `@lxpack/*` to npm |
+| [CI](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test (separate jobs) |
+| [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish `@lxpack/*` to npm |
 
 Published packages: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`.
 
@@ -207,18 +207,18 @@ To publish **v0.1.0**:
 2. Add an npm automation token as the GitHub secret `NPM_TOKEN`.
 3. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
 
-The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The release workflow runs all CI checks before publishing. See [CHANGELOG.md](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) for release notes.
 
 ## Roadmap
 
-Phase 1 (current, **v0.1.0**) delivers init, preview, validate, minimal MCQ assessments, SCORM 1.2 export with real LMS API discovery, and standalone HTML export. Planned work includes SCORM 2004, xAPI/cmi5, hot reload, themes, and richer interactions — see [ROADMAP.md](docs/ROADMAP.md).
+Phase 1 (current, **v0.1.0**) delivers init, preview, validate, minimal MCQ assessments, SCORM 1.2 export with real LMS API discovery, and standalone HTML export. Planned work includes SCORM 2004, xAPI/cmi5, hot reload, themes, and richer interactions — see [ROADMAP.md](https://github.com/eddiethedean/lxpack/blob/main/docs/ROADMAP.md).
 
 ## Documentation
 
-- [Changelog](CHANGELOG.md)
-- [Technical Specification](docs/SPEC.md)
-- [Product Plan](docs/PLAN.md)
-- [Roadmap](docs/ROADMAP.md)
+- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
+- [Technical Specification](https://github.com/eddiethedean/lxpack/blob/main/docs/SPEC.md)
+- [Product Plan](https://github.com/eddiethedean/lxpack/blob/main/docs/PLAN.md)
+- [Roadmap](https://github.com/eddiethedean/lxpack/blob/main/docs/ROADMAP.md)
 
 ## License
 
