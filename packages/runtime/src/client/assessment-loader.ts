@@ -15,6 +15,11 @@ export async function loadAssessment(
   payload?: RuntimeAssessmentPayload;
 }> {
   const embedded = config.assessments?.[assessmentId];
+  const exportMode =
+    config.mode === "scorm12" ||
+    config.mode === "scorm2004" ||
+    config.mode === "standalone";
+
   if (embedded) {
     const answerKey = config.answerKeys?.[assessmentId] ?? {};
     const assessmentConfig = config.assessmentConfigs?.[assessmentId] ?? {
@@ -31,6 +36,12 @@ export async function loadAssessment(
         feedback: config.assessmentFeedback?.[assessmentId],
       },
     };
+  }
+
+  if (exportMode) {
+    throw new Error(
+      `Assessment "${assessmentId}" is not embedded in this package. Rebuild the course with lxpack build.`,
+    );
   }
 
   const res = await fetch(joinUrl(baseUrl, file));

@@ -247,8 +247,13 @@ describe("packageCourse", () => {
     const introSco = await zip.file("sco/intro/index.html")?.async("string");
     const quizSco = await zip.file("sco/final_quiz/index.html")?.async("string");
     expect(introSco).not.toContain('"answerKeys"');
+    expect(introSco).not.toMatch(/"assessments":\{/);
+    expect(introSco).not.toContain('"assessmentFeedback"');
+    expect(introSco).not.toContain("What does LXPack compile?");
     expect(quizSco).toContain('"answerKeys"');
+    expect(quizSco).toMatch(/"assessments":\{/);
     expect(quizSco).toContain('"final_quiz"');
+    expect(quizSco).toContain("What does LXPack compile?");
     expect(introSco).toContain('"baseUrl":"../.."');
   });
 });

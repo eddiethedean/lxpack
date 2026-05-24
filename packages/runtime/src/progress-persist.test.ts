@@ -135,21 +135,33 @@ describe("progress-persist", () => {
     expect(serialized).not.toContain("interaction_0");
   });
 
-  it("truncates with a warning when pruning is insufficient", () => {
+  it("emits parseable minimal progress when pruning is insufficient", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const suspendData: Record<string, unknown> = {
       blob: "y".repeat(5000),
+      ...Object.fromEntries(
+        Array.from({ length: 40 }, (_, i) => [`extra_${i}`, "z".repeat(120)]),
+      ),
     };
     const progress: CourseProgress = {
       currentLessonId: "a",
-      completedLessons: Array.from({ length: 50 }, (_, i) => `lesson-${i}`),
+      completedLessons: Array.from({ length: 120 }, (_, i) => `lesson-${i}`),
       assessmentScores: Object.fromEntries(
-        Array.from({ length: 50 }, (_, i) => [`a${i}`, 0.5]),
+        Array.from({ length: 120 }, (_, i) => [`assessment-${i}`, 0.5]),
       ),
       suspendData,
     };
-    const serialized = serializeProgressForStorage(progress);
-    expect(serialized.length).toBe(4096);
+    const serialized = serializeProgressForStorage(progress, 512);
+    expect(serialized.length).toBeLessThanOrEqual(512);
+    expect(() => JSON.parse(serialized)).not.toThrow();
+    const { progress: restored, parsed } = parseStoredProgress(serialized, {
+      currentLessonId: "fallback",
+      completedLessons: [],
+      assessmentScores: {},
+      suspendData: {},
+    });
+    expect(parsed).toBe(true);
+    expect(restored.currentLessonId).toBe("a");
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });

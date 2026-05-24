@@ -3,7 +3,8 @@ import fastifyStatic from "@fastify/static";
 import pc from "picocolors";
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
-import { validateCourse, buildRuntimeAssessmentBundle } from "@lxpack/validators";
+import { validateCourse } from "@lxpack/validators";
+import { loadValidatedCourseContext } from "../lib/validated-course.js";
 import { buildLearnerPageHtml, safeJsonForHtml } from "@lxpack/scorm";
 import {
   findCourseDir,
@@ -99,17 +100,17 @@ export async function startPreview(
   app: FastifyInstance;
   validation: Awaited<ReturnType<typeof validateCourse>>;
 }> {
-  const validation = await validateCourse(courseDir);
+  const ctx = await loadValidatedCourseContext(courseDir);
 
-  if (!validation.manifest) {
-    console.error(pc.red("Cannot preview: course manifest is invalid"));
-    for (const issue of validation.issues) {
-      console.error(`  ${issue.path}: ${issue.message}`);
+  if (!ctx) {
+    const validation = await validateCourse(courseDir);
+    if (!validation.manifest) {
+      console.error(pc.red("Cannot preview: course manifest is invalid"));
+      for (const issue of validation.issues) {
+        console.error(`  ${issue.path}: ${issue.message}`);
+      }
+      process.exit(1);
     }
-    process.exit(1);
-  }
-
-  if (!validation.valid) {
     console.error(pc.red("Cannot preview: course validation failed"));
     for (const issue of validation.issues) {
       console.error(`  ${issue.path}: ${issue.message}`);
@@ -117,14 +118,11 @@ export async function startPreview(
     process.exit(1);
   }
 
-  const assessmentBundle = await buildRuntimeAssessmentBundle(
-    courseDir,
-    validation.manifest,
-  );
+  const { validation, manifest, assessmentBundle } = ctx;
 
   const app = await createPreviewServer(
     courseDir,
-    validation.manifest,
+    manifest,
     assessmentBundle,
   );
   return { app, validation };

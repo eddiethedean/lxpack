@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SCORM status no longer marks the course failed while quiz retries remain
 - SCORM 2004 SCO pages use correct asset `baseUrl` and honor `activityId` on first launch
 - SCORM 2004 exports no longer embed all answer keys in every SCO; manifest omits missing `lxpack-components.js`
+- SCORM 2004 lesson SCOs no longer embed quiz questions, feedback, or configs (assessment content only on assessment launch pages)
+- SCORM `suspend_data` serialization uses a parse-safe minimal snapshot instead of byte-truncating JSON
+- Exported packages error clearly when an assessment is missing from embedded config (no silent YAML fetch)
+- Preview reuses validated assessment bundle from a single `validateCourse` pass (same as build)
 - `lxpack build --dir --target scorm2004` produces a valid multi-SCO tree; directory builds include the components bundle when used
 - Flow cycles, duplicate lesson/assessment IDs, and invalid flow references fail validation
 - Preview blocks direct access to `assessments/*.yaml` source files

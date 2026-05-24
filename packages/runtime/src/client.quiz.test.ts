@@ -232,6 +232,16 @@ questions:
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it("throws when export mode has no embedded assessment", async () => {
+    const config: RuntimeConfig = {
+      ...emptyConfig,
+      mode: "scorm12",
+    };
+    await expect(
+      loadAssessment(config, "/course", "quiz", "assessments/quiz.yaml"),
+    ).rejects.toThrow("not embedded in this package");
+  });
+
   it("throws when assessment fetch fails", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: false,

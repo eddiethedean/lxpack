@@ -16,7 +16,9 @@ describe("sliceAssessmentBundleForActivity", () => {
     );
     const sliced = sliceAssessmentBundleForActivity(bundle, "intro", "lesson");
     expect(sliced.answerKeys).toEqual({});
-    expect(sliced.assessments.quiz).toBeDefined();
+    expect(sliced.assessments).toEqual({});
+    expect(sliced.configs).toEqual({});
+    expect(sliced.feedback).toEqual({});
   });
 
   it("keeps only the target assessment answer key", async () => {

@@ -13,7 +13,7 @@ Internal layout after the SOLID refactor. Public behavior and package versions r
 
 ## Runtime (`@lxpack/runtime`)
 
-- **`LxpackRuntime`** — facade wiring config, `ProgressState`, `CompletionEvaluator`, and one **`LmsBridge`** (`scorm12`, `scorm2004`, `local`, `noop`).
+- **`LxpackRuntime`** — facade wiring config, `ProgressState`, `CompletionEvaluator`, and one **`LmsBridge`** (`scorm12`, `scorm2004`, `local`).
 - **`progress/`** — `ProgressCodec`, size policy, `SCORM_SUSPEND_DATA_MAX` (no import from SCORM API in persistence).
 - **`quiz/`** — `AssessmentHost` port; `render.ts` depends on the port, not the facade.
 - **`client/`** — shell, nav, lesson renderer registry, `app.ts` orchestration; **`client.ts`** entry re-exports and auto-bootstraps.

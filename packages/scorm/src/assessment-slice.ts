@@ -1,6 +1,6 @@
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
 
-/** Strip answer keys from lesson SCOs; limit assessment SCOs to one quiz. */
+/** Omit embedded quiz data from lesson SCOs; limit assessment SCOs to one quiz. */
 export function sliceAssessmentBundleForActivity(
   bundle: RuntimeAssessmentBundle,
   activityId: string,
@@ -26,9 +26,9 @@ export function sliceAssessmentBundleForActivity(
   }
 
   return {
-    assessments: bundle.assessments,
+    assessments: {},
     answerKeys: {},
-    configs: bundle.configs,
-    feedback: bundle.feedback,
+    configs: {},
+    feedback: {},
   };
 }

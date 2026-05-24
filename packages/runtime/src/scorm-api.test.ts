@@ -156,9 +156,15 @@ describe("Scorm12API", () => {
 
   it("trims suspend_data that exceeds SCORM limits", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    const long = "x".repeat(5000);
+    const long = JSON.stringify({
+      currentLessonId: "intro",
+      completedLessons: Array.from({ length: 80 }, (_, i) => `lesson-${i}`),
+      assessmentScores: {},
+      suspendData: { blob: "x".repeat(5000) },
+    });
     const trimmed = trimSuspendData(long);
-    expect(trimmed.length).toBe(4096);
+    expect(trimmed.length).toBeLessThanOrEqual(4096);
+    expect(() => JSON.parse(trimmed)).not.toThrow();
   });
 
   it("creates standalone connections without preview storage", () => {
