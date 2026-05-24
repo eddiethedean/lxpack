@@ -7,7 +7,7 @@
 
 Command-line tool for scaffolding, previewing, validating, and packaging LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.0**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.1**).
 
 | Related | Package |
 |---------|---------|
@@ -59,7 +59,7 @@ Output lands in `.lxpack/` unless overridden by `-o` or `lxpack.config.json`.
 
 **SCORM 2004** builds produce a multi-SCO ZIP: one launch page per activity under `sco/<activityId>/index.html`, plus shared `lxpack-runtime.js` and `lxpack-components.js`.
 
-**Preview** serves the runtime client, optional components bundle at `/runtime/components.js`, and installs SCORM API simulators (1.2 and 2004) for local testing.
+**Preview** serves the runtime client, optional components bundle at `/runtime/components.js`, and installs SCORM API simulators (1.2 and 2004) for local testing. Direct HTTP access to `assessments/*.yaml` under `/course/` returns 404; quiz content is embedded in the preview page config only.
 
 ### Course discovery
 

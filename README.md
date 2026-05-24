@@ -10,7 +10,7 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.2.0](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#020---2026-05-23)
+**Current release:** [v0.2.1](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#021---2026-05-24)
 
 ## Packages
 

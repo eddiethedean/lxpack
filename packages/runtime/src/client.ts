@@ -320,9 +320,12 @@ export function init(): void {
     manifest: config.manifest,
     baseUrl: config.baseUrl,
     mode: config.mode,
+    activityId: config.activityId,
     progress: config.progress,
     assessments: config.assessments,
     answerKeys: config.answerKeys,
+    assessmentConfigs: config.assessmentConfigs,
+    assessmentFeedback: config.assessmentFeedback,
   });
 
   const lxpackApi = runtime.getAPI();
@@ -349,14 +352,16 @@ export function init(): void {
 
   let renderSeq = 0;
 
-  function applyFlowJump(): void {
+  function applyFlowJump(): boolean {
     const target = runtime.resolveFlowNavigation();
     if (target && target !== navItems[currentIndex]?.id) {
       const idx = navItems.findIndex((n) => n.id === target);
       if (idx >= 0) {
         void showItem(idx);
+        return true;
       }
     }
+    return false;
   }
 
   function getPassedAssessments(): Set<string> {
@@ -455,8 +460,9 @@ export function init(): void {
     const item = navItems[currentIndex];
     if (item?.kind === "lesson") {
       runtime.completeLesson(item.id);
-      applyFlowJump();
-      void showItem(currentIndex);
+      if (!applyFlowJump()) {
+        void showItem(currentIndex);
+      }
     }
   });
 

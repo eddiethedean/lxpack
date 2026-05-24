@@ -6,7 +6,11 @@ import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import JSZip from "jszip";
 import { fixturePath, REPO_ROOT } from "../../../test/helpers/paths.js";
 import { loadManifest } from "@lxpack/validators";
-import { packageCourse, packageStandaloneDir } from "./package.js";
+import {
+  packageCourse,
+  packageScorm2004Dir,
+  packageStandaloneDir,
+} from "./package.js";
 
 const RUNTIME_JS = "export const RUNTIME_STUB = true;";
 const RUNTIME_CSS = "body { margin: 0; }";
@@ -212,6 +216,40 @@ describe("packageCourse", () => {
     expect(zip.file("lxpack-components.js")).toBeNull();
     const sco = await zip.file("sco/intro/index.html")?.async("string");
     expect(sco).not.toContain("lxpack-components");
+    const ims = await zip.file("imsmanifest.xml")?.async("string");
+    expect(ims).not.toContain("lxpack-components.js");
+  });
+
+  it("embeds per-SCO answer keys only on assessment launch pages", async () => {
+    const loaded = await loadManifest(fixturePath("branching-demo"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const { buildRuntimeAssessmentBundle } = await import("@lxpack/validators");
+    const assessmentBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("branching-demo"),
+      loaded.manifest,
+    );
+
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-scorm2004-keys-"));
+    const zipPath = join(outDir, "branching.zip");
+    outputPaths.push(outDir);
+
+    await packageCourse({
+      courseDir: fixturePath("branching-demo"),
+      manifest: loaded.manifest,
+      outputPath: zipPath,
+      target: "scorm2004",
+      runtimeClientJs: RUNTIME_JS,
+      runtimeCss: RUNTIME_CSS,
+      assessmentBundle,
+    });
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    const introSco = await zip.file("sco/intro/index.html")?.async("string");
+    const quizSco = await zip.file("sco/final_quiz/index.html")?.async("string");
+    expect(introSco).not.toContain('"answerKeys"');
+    expect(quizSco).toContain('"answerKeys"');
+    expect(quizSco).toContain('"final_quiz"');
+    expect(introSco).toContain('"baseUrl":"../.."');
   });
 });
 
@@ -261,6 +299,33 @@ describe("packageStandaloneDir", () => {
     const ims = await readFile(join(outDir, "imsmanifest.xml"), "utf-8");
     expect(ims).toContain("1.2");
 
+    await rm(outDir, { recursive: true, force: true });
+  });
+
+  it("writes SCORM 2004 multi-SCO directory layout", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-scorm2004-dir-"));
+    const loaded = await loadManifest(fixturePath("branching-demo"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+
+    const result = await packageScorm2004Dir({
+      courseDir: fixturePath("branching-demo"),
+      manifest: loaded.manifest,
+      outputDir: outDir,
+      target: "scorm2004",
+      runtimeClientJs: RUNTIME_JS,
+      runtimeCss: RUNTIME_CSS,
+    });
+
+    expect(result.outputDir).toBe(outDir);
+    expect(result.fileCount).toBeGreaterThan(5);
+    const introSco = await readFile(
+      join(outDir, "sco/intro/index.html"),
+      "utf-8",
+    );
+    expect(introSco).toContain('"mode":"scorm2004"');
+    expect(introSco).toContain('"baseUrl":"../.."');
+    const ims = await readFile(join(outDir, "imsmanifest.xml"), "utf-8");
+    expect(ims).toContain("2004 4th Edition");
     await rm(outDir, { recursive: true, force: true });
   });
 });

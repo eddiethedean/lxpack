@@ -611,6 +611,51 @@ describe("LxpackRuntime", () => {
     expect(runtime.isAssessmentPassed("quiz")).toBe(false);
   });
 
+  it("persists assessment attempt counts across submits", () => {
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "preview",
+      assessmentConfigs: {
+        quiz: { maxAttempts: 3, shuffleChoices: false, showFeedback: "never" },
+      },
+    });
+
+    runtime.submitAssessment("quiz", 0.2, 0.7);
+    expect(runtime.getAssessmentAttemptCount("quiz")).toBe(1);
+    runtime.submitAssessment("quiz", 0.2, 0.7);
+    expect(runtime.getAssessmentAttemptCount("quiz")).toBe(2);
+  });
+
+  it("does not mark SCORM failed until quiz attempts are exhausted", () => {
+    const sim = mockLms();
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "scorm12",
+      assessmentConfigs: {
+        quiz: { maxAttempts: 3, shuffleChoices: false, showFeedback: "never" },
+      },
+    });
+
+    runtime.submitAssessment("quiz", 0.2, 0.7);
+    expect(sim.LMSGetValue("cmi.core.lesson_status")).not.toBe("failed");
+
+    runtime.submitAssessment("quiz", 0.2, 0.7);
+    expect(sim.LMSGetValue("cmi.core.lesson_status")).not.toBe("failed");
+
+    runtime.submitAssessment("quiz", 0.2, 0.7);
+    expect(sim.LMSGetValue("cmi.core.lesson_status")).toBe("failed");
+  });
+
   it("restores passed assessments from saved progress", () => {
     const manifestWithQuiz = {
       ...manifest,

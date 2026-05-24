@@ -17,12 +17,13 @@ export function scoLaunchPath(activityId: string): string {
 export function buildScorm2004ManifestFiles(
   manifest: CourseManifest,
   courseFiles: string[],
+  hasComponentsBundle = false,
 ): string[] {
   const activities = listCourseActivities(manifest);
   const scoFiles = activities.map((a) => scoLaunchPath(a.id));
   return [
     "lxpack-runtime.js",
-    "lxpack-components.js",
+    ...(hasComponentsBundle ? ["lxpack-components.js"] : []),
     ...scoFiles,
     ...courseFiles,
   ];
@@ -31,7 +32,9 @@ export function buildScorm2004ManifestFiles(
 export function generateScorm2004Manifest(
   manifest: CourseManifest,
   courseFiles: string[],
+  options?: { hasComponentsBundle?: boolean },
 ): string {
+  const hasComponentsBundle = options?.hasComponentsBundle ?? false;
   const identifier = manifestIdentifier(manifest);
   const orgId = `${identifier}-org`;
   const activities = listCourseActivities(manifest);
@@ -61,10 +64,12 @@ export function generateScorm2004Manifest(
     .map((activity) => {
       const resourceId = `res_${activity.id}`;
       const href = scoLaunchPath(activity.id);
+      const componentFile = hasComponentsBundle
+        ? `\n      <file href="lxpack-components.js"/>`
+        : "";
       return `    <resource identifier="${escapeXml(resourceId)}" type="webcontent" adlcp:scormType="sco" href="${escapeXml(href)}">
       <file href="${escapeXml(href)}"/>
-      <file href="lxpack-runtime.js"/>
-      <file href="lxpack-components.js"/>
+      <file href="lxpack-runtime.js"/>${componentFile}
     </resource>`;
     })
     .join("\n");
@@ -93,7 +98,8 @@ export function generateScorm2004Manifest(
     <schemaversion>2004 4th Edition</schemaversion>
   </metadata>
   <organizations default="${escapeXml(orgId)}">
-    <organization identifier="${escapeXml(orgId)}">${orgSequencing}
+    <organization identifier="${escapeXml(orgId)}">
+      <title>${escapeXml(manifest.title)}</title>${orgSequencing}
 ${itemEntries}
     </organization>
   </organizations>
@@ -101,8 +107,7 @@ ${itemEntries}
 ${resources}
     <resource identifier="shared_assets" type="webcontent" adlcp:scormType="asset">
 ${uniqueCourseFiles}
-      <file href="lxpack-runtime.js"/>
-      <file href="lxpack-components.js"/>
+      <file href="lxpack-runtime.js"/>${hasComponentsBundle ? '\n      <file href="lxpack-components.js"/>' : ""}
     </resource>
   </resources>
 </manifest>`;

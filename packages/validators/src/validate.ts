@@ -3,7 +3,7 @@ import { isAbsolute, join, relative, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { readFile } from "node:fs/promises";
 import { isBuiltinComponentId } from "./components.js";
-import { validateFlow } from "./flow-validate.js";
+import { detectFlowCycles, validateFlow } from "./flow-validate.js";
 import {
   assessmentSchema,
   courseManifestSchema,
@@ -194,6 +194,15 @@ export async function validateCourse(
             message: contained.message,
             severity: "error",
           });
+          continue;
+        }
+        const componentStat = statSync(resolved.path);
+        if (!componentStat.isFile()) {
+          issues.push({
+            path: `lessons.${lesson.id}.component`,
+            message: `Component override path is not a file: components/${lesson.component}`,
+            severity: "error",
+          });
         }
       }
     } else if (lesson.type === "html") {
@@ -361,7 +370,31 @@ export async function validateCourse(
     }
   }
 
+  const assessmentIdSet = new Set<string>();
+  for (const ref of manifest.assessments ?? []) {
+    assessmentIdSet.add(ref.id);
+  }
+  for (const lesson of manifest.lessons) {
+    if (assessmentIdSet.has(lesson.id)) {
+      issues.push({
+        path: "lessons",
+        message: `Lesson ID "${lesson.id}" conflicts with an assessment ID`,
+        severity: "error",
+      });
+    }
+  }
+
   issues.push(...validateFlow(manifest));
+
+  if (manifest.flow?.length) {
+    for (const message of detectFlowCycles(manifest.flow)) {
+      issues.push({
+        path: "flow",
+        message,
+        severity: "error",
+      });
+    }
+  }
 
   if (manifest.variables) {
     for (const [name, def] of Object.entries(manifest.variables)) {

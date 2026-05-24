@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { fixturePath } from "../../../test/helpers/paths.js";
 import { loadManifest, validateCourse } from "./validate.js";
 
@@ -155,5 +155,86 @@ lessons:
           i.path.includes("lessons"),
       ),
     ).toBe(true);
+  });
+
+  it("rejects lesson and assessment id collision", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-id-collision-"));
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await writeFile(join(dir, "lessons/intro.md"), "# Hi");
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: quiz
+    type: markdown
+    file: lessons/intro.md
+assessments:
+  - id: quiz
+    file: assessments/quiz.yaml
+`,
+    );
+    await mkdir(join(dir, "assessments"), { recursive: true });
+    await writeFile(
+      join(dir, "assessments/quiz.yaml"),
+      `id: quiz
+passingScore: 0.5
+questions:
+  - id: q1
+    prompt: P
+    choices:
+      - id: a
+        text: A
+        correct: true
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) => i.message.includes("conflicts with an assessment")),
+    ).toBe(true);
+  });
+
+  it("rejects flow cycles", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-flow-cycle-"));
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await writeFile(join(dir, "lessons/intro.md"), "# Hi");
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+variables:
+  track:
+    default: a
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+  - id: lab
+    type: markdown
+    file: lessons/intro.md
+flow:
+  - when:
+      variable:
+        eq: [track, a]
+    goto: lab
+  - when:
+      variable:
+        eq: [track, b]
+    goto: lab
+`,
+    );
+
+    const flowValidate = await import("./flow-validate.js");
+    const spy = vi
+      .spyOn(flowValidate, "detectFlowCycles")
+      .mockReturnValue(["Flow rule cycle detected involving flow[1]"]);
+
+    const result = await validateCourse(dir);
+    spy.mockRestore();
+
+    expect(result.valid).toBe(false);
+    expect(result.issues.some((i) => i.message.includes("cycle"))).toBe(true);
   });
 });

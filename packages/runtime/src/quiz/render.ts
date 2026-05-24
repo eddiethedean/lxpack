@@ -3,12 +3,7 @@ import {
   DEFAULT_ASSESSMENT_CONFIG,
   type RuntimeAssessmentPayload,
 } from "./types.js";
-import {
-  getAttemptCount,
-  incrementAttemptCount,
-  scoreAssessmentForm,
-  shuffleQuestions,
-} from "./score.js";
+import { scoreAssessmentForm, shuffleQuestions } from "./score.js";
 
 function escapeHtml(text: string): string {
   const div = document.createElement("div");
@@ -28,7 +23,7 @@ export function renderAssessment(
   const progress = runtime.getProgress();
   const existingScore = progress.assessmentScores[assessment.id];
   const passed = runtime.isAssessmentPassed(assessment.id);
-  const attempts = getAttemptCount(progress.suspendData, assessment.id);
+  const attempts = runtime.getAssessmentAttemptCount(assessment.id);
   const effectiveAttempts =
     existingScore !== undefined ? Math.max(attempts, 1) : attempts;
   const retakesRemaining = config.maxAttempts - effectiveAttempts;
@@ -121,8 +116,6 @@ export function renderAssessment(
     e.preventDefault();
     const score = scoreAssessmentForm(assessment, answerKey, form);
     const passedNow = score >= assessment.passingScore;
-    incrementAttemptCount(progress.suspendData, assessment.id);
-
     runtime.submitAssessment(assessment.id, score, assessment.passingScore);
 
     if (config.showFeedback === "end" || config.showFeedback === "immediate") {
@@ -145,7 +138,8 @@ export function renderAssessment(
     }
 
     const canRetry =
-      !passedNow && getAttemptCount(progress.suspendData, assessment.id) < config.maxAttempts;
+      !passedNow &&
+      runtime.getAssessmentAttemptCount(assessment.id) < config.maxAttempts;
 
     if (!canRetry) {
       form.querySelector("button[type=submit]")?.remove();

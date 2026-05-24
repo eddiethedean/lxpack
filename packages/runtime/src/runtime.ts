@@ -24,6 +24,8 @@ import {
 } from "./variables.js";
 import type { FlowContext } from "./flow.js";
 import { resolveFlowGoto } from "./flow.js";
+import type { AssessmentRuntimeConfig } from "@lxpack/validators";
+import { getAttemptCount, incrementAttemptCount } from "./quiz/score.js";
 
 function progressStorageKey(manifest: CourseManifest): string {
   const slug = `${manifest.title}::${manifest.version}`;
@@ -45,6 +47,7 @@ export class LxpackRuntime {
   private mode: RuntimeConfig["mode"];
   private passedAssessments = new Set<string>();
   private defaultPassingScores: Record<string, number>;
+  private assessmentConfigs: Record<string, AssessmentRuntimeConfig>;
   private terminated = false;
 
   constructor(config: RuntimeConfig) {
@@ -57,6 +60,7 @@ export class LxpackRuntime {
     for (const [id, assessment] of Object.entries(config.assessments ?? {})) {
       this.defaultPassingScores[id] = assessment.passingScore;
     }
+    this.assessmentConfigs = config.assessmentConfigs ?? {};
 
     const firstLesson =
       config.activityId ?? config.manifest.lessons[0]?.id ?? "";
@@ -118,7 +122,7 @@ export class LxpackRuntime {
       this.restoreLessonLocation();
     }
 
-    this.syncPassedAssessments();
+    this.finalizeProgressRestore();
   }
 
   private restoreScormProgress(): void {
@@ -136,7 +140,7 @@ export class LxpackRuntime {
       this.restoreLessonLocation();
     }
 
-    this.syncPassedAssessments();
+    this.finalizeProgressRestore();
   }
 
   private restoreLocalProgress(): void {
@@ -153,6 +157,11 @@ export class LxpackRuntime {
       void 0;
     }
     /* v8 ignore end */
+    this.finalizeProgressRestore();
+  }
+
+  private finalizeProgressRestore(): void {
+    initManifestVariables(this.manifest, this.progress.suspendData);
     this.syncPassedAssessments();
   }
 
@@ -245,11 +254,28 @@ export class LxpackRuntime {
     }
   }
 
+  recordAssessmentAttempt(assessmentId: string): number {
+    return incrementAttemptCount(this.progress.suspendData, assessmentId);
+  }
+
+  getAssessmentAttemptCount(assessmentId: string): number {
+    return getAttemptCount(this.progress.suspendData, assessmentId);
+  }
+
+  private hasExhaustedAssessmentAttempts(assessmentId: string): boolean {
+    const maxAttempts =
+      this.assessmentConfigs[assessmentId]?.maxAttempts ?? 1;
+    return (
+      this.getAssessmentAttemptCount(assessmentId) >= maxAttempts
+    );
+  }
+
   submitAssessment(
     assessmentId: string,
     score: number,
     passingScore: number,
   ): void {
+    this.recordAssessmentAttempt(assessmentId);
     this.applyAssessmentResult(assessmentId, score, passingScore);
     this.updateCompletion();
     this.persist();
@@ -325,7 +351,8 @@ export class LxpackRuntime {
     const anyAssessmentFailed = this.manifest.assessments?.some(
       (a) =>
         a.id in this.progress.assessmentScores &&
-        !this.passedAssessments.has(a.id),
+        !this.passedAssessments.has(a.id) &&
+        this.hasExhaustedAssessmentAttempts(a.id),
     );
 
     if (this.scorm) {

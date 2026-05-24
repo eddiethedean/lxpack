@@ -19,16 +19,26 @@ const assessment = {
 };
 
 function mockRuntime(overrides: Partial<ReturnType<LxpackRuntime["getProgress"]>> = {}) {
+  const progress = {
+    assessmentScores: {},
+    completedLessons: [],
+    currentLessonId: "quiz",
+    suspendData: {},
+    ...overrides,
+  };
   return {
-    getProgress: () => ({
-      assessmentScores: {},
-      completedLessons: [],
-      currentLessonId: "quiz",
-      suspendData: {},
-      ...overrides,
-    }),
+    getProgress: () => progress,
+    getAssessmentAttemptCount: (id: string) => {
+      const raw = progress.suspendData[`assessment_attempts_${id}`];
+      return typeof raw === "number" ? raw : 0;
+    },
     isAssessmentPassed: () => false,
-    submitAssessment: vi.fn(),
+    submitAssessment: vi.fn(() => {
+      const key = "assessment_attempts_quiz";
+      const current = progress.suspendData[key];
+      progress.suspendData[key] =
+        (typeof current === "number" ? current : 0) + 1;
+    }),
   } as unknown as LxpackRuntime;
 }
 
@@ -43,15 +53,12 @@ describe("renderAssessment", () => {
       },
       { q1: "a" },
       {
-        getProgress: () => ({
+        ...mockRuntime({
           assessmentScores: { quiz: 0.8 },
-          completedLessons: [],
-          currentLessonId: "quiz",
           suspendData: { assessment_attempts_quiz: 2 },
         }),
         isAssessmentPassed: () => true,
-        submitAssessment: vi.fn(),
-      } as unknown as LxpackRuntime,
+      },
       vi.fn(),
     );
     expect(contentEl.textContent).toContain("Attempts: 2");

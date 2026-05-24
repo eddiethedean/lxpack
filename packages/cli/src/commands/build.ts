@@ -1,6 +1,11 @@
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { packageCourse, packageStandaloneDir, courseSlug } from "@lxpack/scorm";
+import {
+  packageCourse,
+  packageScorm2004Dir,
+  packageStandaloneDir,
+  courseSlug,
+} from "@lxpack/scorm";
 import type { ExportTarget } from "@lxpack/scorm";
 import {
   validateCourse,
@@ -75,10 +80,16 @@ export async function buildCommand(options: {
   if (options.dir) {
     const outputDir =
       options.output ?? join(outputRoot, target);
-    const result = await packageStandaloneDir({
-      ...packageOptions,
-      outputDir,
-    });
+    const result =
+      target === "scorm2004"
+        ? await packageScorm2004Dir({
+            ...packageOptions,
+            outputDir,
+          })
+        : await packageStandaloneDir({
+            ...packageOptions,
+            outputDir,
+          });
     console.log(pc.green(`✓ Built ${target} package`));
     console.log(`  Output: ${result.outputDir}`);
     console.log(`  Files: ${result.fileCount}`);

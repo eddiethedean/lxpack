@@ -95,6 +95,20 @@ describe("createPreviewServer", () => {
     if (app) await app.close();
   });
 
+  it("blocks direct access to author assessment YAML", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
+    app = await previewCommands.createPreviewServer(
+      fixturePath("minimal-valid"),
+      manifest,
+    );
+    const blocked = await app.inject({
+      method: "GET",
+      url: "/course/assessments/quiz.yaml",
+    });
+    expect(blocked.statusCode).toBe(404);
+  });
+
   it("serves course HTML and health endpoint", async () => {
     const { loadCourseManifest } = await import("./utils.js");
     const manifest = await loadCourseManifest(fixturePath("minimal-valid"));

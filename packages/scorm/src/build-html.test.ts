@@ -73,6 +73,7 @@ describe("buildIndexHtml", () => {
       componentsScript: "../../lxpack-components.js",
     });
     expect(html).toContain('"activityId":"intro"');
+    expect(html).toContain('"baseUrl":"../.."');
     expect(html).toContain("../../lxpack-runtime.js");
     expect(html).toContain("lxpack-components.js");
   });

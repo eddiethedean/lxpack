@@ -13,6 +13,14 @@ export function collectActivityIds(manifest: CourseManifest): Set<string> {
   return ids;
 }
 
+export function collectAssessmentIds(manifest: CourseManifest): Set<string> {
+  const ids = new Set<string>();
+  for (const ref of manifest.assessments ?? []) {
+    ids.add(ref.id);
+  }
+  return ids;
+}
+
 function collectConditionRefs(
   condition: Condition,
   refs: {
@@ -46,6 +54,7 @@ export function validateFlow(
   if (!flow?.length) return issues;
 
   const activityIds = collectActivityIds(manifest);
+  const assessmentIds = collectAssessmentIds(manifest);
   const manifestVars = new Set(Object.keys(manifest.variables ?? {}));
 
   flow.forEach((rule: FlowRule, index: number) => {
@@ -76,7 +85,7 @@ export function validateFlow(
       }
     }
     for (const a of refs.assessments) {
-      if (!activityIds.has(a)) {
+      if (!assessmentIds.has(a)) {
         issues.push({
           path: `${path}.when`,
           message: `Unknown assessment in condition: ${a}`,
@@ -89,7 +98,7 @@ export function validateFlow(
         issues.push({
           path: `${path}.when`,
           message: `Unknown interaction/lesson id in condition: ${i}`,
-          severity: "warning",
+          severity: "error",
         });
       }
     }

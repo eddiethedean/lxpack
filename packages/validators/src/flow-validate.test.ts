@@ -64,12 +64,22 @@ describe("validateFlow", () => {
     );
   });
 
-  it("warns on unknown interaction id", () => {
+  it("rejects unknown interaction id", () => {
     const issues = validateFlow({
       ...baseManifest,
       flow: [{ when: { interaction: { done: "ghost" } }, goto: "lab" }],
     });
-    expect(issues.some((i) => i.severity === "warning")).toBe(true);
+    expect(issues.some((i) => i.severity === "error")).toBe(true);
+  });
+
+  it("rejects lesson id in assessment.passed condition", () => {
+    const issues = validateFlow({
+      ...baseManifest,
+      flow: [{ when: { assessment: { passed: "intro" } }, goto: "lab" }],
+    });
+    expect(issues.some((i) => i.message.includes("Unknown assessment"))).toBe(
+      true,
+    );
   });
 
   it("validates nested all/any conditions", () => {

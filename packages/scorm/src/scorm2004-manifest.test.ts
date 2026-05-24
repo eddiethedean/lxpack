@@ -24,5 +24,19 @@ describe("generateScorm2004Manifest", () => {
     expect(xml).toContain("<imsss:sequencing>");
     expect(xml).toContain('identifier="item_intro"');
     expect(xml).toContain('identifier="item_final_quiz"');
+    expect(xml).toContain("<title>Branching Demo</title>");
+  });
+
+  it("omits lxpack-components.js when no components bundle is shipped", async () => {
+    const loaded = await loadManifest(fixturePath("branching-demo"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+
+    const files = buildScorm2004ManifestFiles(loaded.manifest, [], false);
+    const xml = generateScorm2004Manifest(loaded.manifest, files, {
+      hasComponentsBundle: false,
+    });
+
+    expect(files).not.toContain("lxpack-components.js");
+    expect(xml).not.toContain("lxpack-components.js");
   });
 });

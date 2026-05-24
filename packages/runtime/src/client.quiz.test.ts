@@ -27,6 +27,33 @@ questions:
         text: Wrong
 `;
 
+function quizRuntimeMock(
+  progressOverrides: Record<string, unknown> = {},
+  options: { isAssessmentPassed?: () => boolean } = {},
+) {
+  const progress = {
+    assessmentScores: {},
+    completedLessons: [],
+    currentLessonId: "quiz",
+    suspendData: {},
+    ...progressOverrides,
+  };
+  return {
+    getProgress: () => progress,
+    getAssessmentAttemptCount: (id: string) => {
+      const raw = progress.suspendData[`assessment_attempts_${id}`];
+      return typeof raw === "number" ? raw : 0;
+    },
+    isAssessmentPassed: options.isAssessmentPassed ?? (() => false),
+    submitAssessment: vi.fn(() => {
+      const key = "assessment_attempts_quiz";
+      const current = progress.suspendData[key];
+      progress.suspendData[key] =
+        (typeof current === "number" ? current : 0) + 1;
+    }),
+  } as unknown as import("./runtime.js").LxpackRuntime;
+}
+
 describe("quiz client", () => {
   beforeEach(() => {
     vi.spyOn(console, "debug").mockImplementation(() => {});
@@ -218,11 +245,7 @@ questions:
 
   it("renders and submits an assessment", () => {
     const contentEl = document.createElement("div");
-    const runtime = {
-      getProgress: () => ({ assessmentScores: {}, completedLessons: [], currentLessonId: "quiz", suspendData: {} }),
-      isAssessmentPassed: () => false,
-      submitAssessment: vi.fn(),
-    } as unknown as import("./runtime.js").LxpackRuntime;
+    const runtime = quizRuntimeMock();
 
     renderAssessment(
       contentEl,
@@ -259,16 +282,10 @@ questions:
 
   it("shows prior assessment results", () => {
     const contentEl = document.createElement("div");
-    const runtime = {
-      getProgress: () => ({
-        assessmentScores: { quiz: 1 },
-        completedLessons: [],
-        currentLessonId: "quiz",
-        suspendData: {},
-      }),
-      isAssessmentPassed: () => true,
-      submitAssessment: vi.fn(),
-    } as unknown as import("./runtime.js").LxpackRuntime;
+    const runtime = quizRuntimeMock(
+      { assessmentScores: { quiz: 1 } },
+      { isAssessmentPassed: () => true },
+    );
 
     renderAssessment(
       contentEl,
@@ -293,16 +310,7 @@ questions:
 
   it("shows failed prior assessment results", () => {
     const contentEl = document.createElement("div");
-    const runtime = {
-      getProgress: () => ({
-        assessmentScores: { quiz: 0.2 },
-        completedLessons: [],
-        currentLessonId: "quiz",
-        suspendData: {},
-      }),
-      isAssessmentPassed: () => false,
-      submitAssessment: vi.fn(),
-    } as unknown as import("./runtime.js").LxpackRuntime;
+    const runtime = quizRuntimeMock({ assessmentScores: { quiz: 0.2 } });
 
     renderAssessment(
       contentEl,
@@ -328,16 +336,7 @@ questions:
   it("invokes onSubmitted after assessment submit", () => {
     const contentEl = document.createElement("div");
     const onSubmitted = vi.fn();
-    const runtime = {
-      getProgress: () => ({
-        assessmentScores: {},
-        completedLessons: [],
-        currentLessonId: "quiz",
-        suspendData: {},
-      }),
-      isAssessmentPassed: () => false,
-      submitAssessment: vi.fn(),
-    } as unknown as import("./runtime.js").LxpackRuntime;
+    const runtime = quizRuntimeMock();
 
     renderAssessment(
       contentEl,
@@ -472,16 +471,7 @@ questions:
 
   it("scores zero when an assessment has no questions", () => {
     const contentEl = document.createElement("div");
-    const runtime = {
-      getProgress: () => ({
-        assessmentScores: {},
-        completedLessons: [],
-        currentLessonId: "quiz",
-        suspendData: {},
-      }),
-      isAssessmentPassed: () => false,
-      submitAssessment: vi.fn(),
-    } as unknown as import("./runtime.js").LxpackRuntime;
+    const runtime = quizRuntimeMock();
 
     renderAssessment(
       contentEl,

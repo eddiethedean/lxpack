@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-05-24
+
+### Fixed
+
+- Quiz `maxAttempts` now persists across submits and navigation
+- SCORM status no longer marks the course failed while quiz retries remain
+- SCORM 2004 SCO pages use correct asset `baseUrl` and honor `activityId` on first launch
+- SCORM 2004 exports no longer embed all answer keys in every SCO; manifest omits missing `lxpack-components.js`
+- `lxpack build --dir --target scorm2004` produces a valid multi-SCO tree; directory builds include the components bundle when used
+- Flow cycles, duplicate lesson/assessment IDs, and invalid flow references fail validation
+- Preview blocks direct access to `assessments/*.yaml` source files
+- Flow navigation race after “Mark complete” corrected; manifest variables restored after suspend data load
+
 ## [0.2.0] - 2026-05-23
 
 ### Added
@@ -65,6 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 3+ covers xAPI, cmi5, themes, hot reload, and plugins.
 - The runtime browser bundle is ESM (`client.js`); legacy LMS environments without module support are not targeted in this release.
 
+[0.2.1]: https://github.com/eddiethedean/lxpack/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/eddiethedean/lxpack/releases/tag/v0.2.0
 [0.1.1]: https://github.com/eddiethedean/lxpack/releases/tag/v0.1.1
 [0.1.0]: https://github.com/eddiethedean/lxpack/releases/tag/v0.1.0

@@ -3,7 +3,10 @@ import { existsSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import JSZip from "jszip";
 import type { CourseManifest } from "@lxpack/validators";
-import type { RuntimeAssessmentBundle } from "@lxpack/validators";
+import {
+  sliceAssessmentBundleForActivity,
+  type RuntimeAssessmentBundle,
+} from "@lxpack/validators";
 import { generateImsManifest } from "./manifest.js";
 import { buildIndexHtml, buildScoIndexHtml } from "./build-html.js";
 import { listCourseActivities } from "./activities.js";
@@ -76,50 +79,88 @@ export function buildManifestFileList(
   return ["index.html", "lxpack-runtime.js", ...courseFiles.map((f) => f.path)];
 }
 
-export async function packageScorm2004(
-  options: PackageOptions,
-): Promise<{ outputPath: string; fileCount: number }> {
+async function writeScorm2004Artifacts(
+  options: Omit<PackageOptions, "outputPath"> & {
+    writeFile: (relPath: string, content: string | Buffer) => Promise<void>;
+  },
+): Promise<{ fileCount: number }> {
   const {
     courseDir,
     manifest,
-    outputPath,
     runtimeClientJs,
     runtimeCss,
     componentsBundleJs,
     assessmentBundle,
+    writeFile: writeArtifact,
   } = options;
 
-  const zip = new JSZip();
   const courseFiles = await collectFiles(courseDir, courseDir);
+  let fileCount = 0;
 
   for (const file of courseFiles) {
     const content = await readFile(file.fullPath);
-    zip.file(file.path, content);
+    await writeArtifact(file.path, content);
+    fileCount++;
   }
 
-  zip.file("lxpack-runtime.js", runtimeClientJs);
+  await writeArtifact("lxpack-runtime.js", runtimeClientJs);
+  fileCount++;
+
   if (componentsBundleJs) {
-    zip.file("lxpack-components.js", componentsBundleJs);
+    await writeArtifact("lxpack-components.js", componentsBundleJs);
+    fileCount++;
   }
 
   const activities = listCourseActivities(manifest);
   for (const activity of activities) {
+    const scoBundle =
+      assessmentBundle != null
+        ? sliceAssessmentBundleForActivity(
+            assessmentBundle,
+            activity.id,
+            activity.kind,
+          )
+        : undefined;
     const html = buildScoIndexHtml({
       manifest,
       runtimeCss,
       mode: "scorm2004",
       activityId: activity.id,
-      assessmentBundle,
+      assessmentBundle: scoBundle,
       componentsScript: componentsBundleJs ? "../../lxpack-components.js" : undefined,
     });
-    zip.file(`sco/${activity.id}/index.html`, html);
+    await writeArtifact(`sco/${activity.id}/index.html`, html);
+    fileCount++;
   }
 
   const manifestFiles = buildScorm2004ManifestFiles(
     manifest,
     courseFiles.map((f) => f.path),
+    Boolean(componentsBundleJs),
   );
-  zip.file("imsmanifest.xml", generateScorm2004Manifest(manifest, manifestFiles));
+  await writeArtifact(
+    "imsmanifest.xml",
+    generateScorm2004Manifest(manifest, manifestFiles, {
+      hasComponentsBundle: Boolean(componentsBundleJs),
+    }),
+  );
+  fileCount++;
+
+  return { fileCount };
+}
+
+export async function packageScorm2004(
+  options: PackageOptions,
+): Promise<{ outputPath: string; fileCount: number }> {
+  const { outputPath, ...rest } = options;
+  const zip = new JSZip();
+
+  const { fileCount } = await writeScorm2004Artifacts({
+    ...rest,
+    writeFile: async (relPath, content) => {
+      zip.file(relPath, content);
+    },
+  });
 
   const buffer = await zip.generateAsync({
     type: "nodebuffer",
@@ -130,8 +171,30 @@ export async function packageScorm2004(
 
   return {
     outputPath,
-    fileCount: Object.keys(zip.files).length,
+    fileCount: Object.keys(zip.files).length || fileCount,
   };
+}
+
+export async function packageScorm2004Dir(
+  options: Omit<PackageOptions, "outputPath"> & { outputDir: string },
+): Promise<{ outputDir: string; fileCount: number }> {
+  const { outputDir, ...rest } = options;
+
+  await mkdir(outputDir, { recursive: true });
+
+  const { fileCount } = await writeScorm2004Artifacts({
+    ...rest,
+    writeFile: async (relPath, content) => {
+      const dest = join(outputDir, relPath);
+      const destDir = dirname(dest);
+      if (!existsSync(destDir)) {
+        await mkdir(destDir, { recursive: true });
+      }
+      await writeFile(dest, content);
+    },
+  });
+
+  return { outputDir, fileCount };
 }
 
 export async function packageCourse(
@@ -206,6 +269,7 @@ export async function packageStandaloneDir(
     runtimeClientJs,
     runtimeCss,
     assessmentBundle,
+    componentsBundleJs,
   } = options;
 
   await mkdir(outputDir, { recursive: true });
@@ -229,10 +293,16 @@ export async function packageStandaloneDir(
     runtimeCss,
     mode,
     assessmentBundle,
+    componentsScript: componentsBundleJs ? "./lxpack-components.js" : undefined,
   });
   await writeFile(join(outputDir, "index.html"), indexHtml);
   await writeFile(join(outputDir, "lxpack-runtime.js"), runtimeClientJs);
   fileCount += 2;
+
+  if (componentsBundleJs) {
+    await writeFile(join(outputDir, "lxpack-components.js"), componentsBundleJs);
+    fileCount++;
+  }
 
   if (target === "scorm12") {
     const manifestFiles = buildManifestFileList(courseFiles);

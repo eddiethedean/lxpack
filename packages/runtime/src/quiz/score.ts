@@ -32,7 +32,11 @@ export function getAttemptCount(
   assessmentId: string,
 ): number {
   const raw = suspendData[`assessment_attempts_${assessmentId}`];
-  return typeof raw === "number" ? raw : 0;
+  if (typeof raw === "number") return raw;
+  if (typeof raw === "string" && raw !== "" && !Number.isNaN(Number(raw))) {
+    return Number(raw);
+  }
+  return 0;
 }
 
 export function incrementAttemptCount(

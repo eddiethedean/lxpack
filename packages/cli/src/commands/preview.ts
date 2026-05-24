@@ -47,6 +47,13 @@ export async function createPreviewServer(
 
   const app = Fastify({ logger: false });
 
+  app.addHook("onRequest", async (request, reply) => {
+    const path = request.url.split("?")[0] ?? "";
+    if (path.startsWith("/course/assessments/")) {
+      return reply.code(404).send("Not found");
+    }
+  });
+
   await app.register(fastifyStatic, {
     root: courseDir,
     prefix: "/course/",

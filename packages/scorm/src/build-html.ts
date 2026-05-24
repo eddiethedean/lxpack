@@ -15,15 +15,23 @@ export function buildRuntimeConfig(options: BuildHtmlOptions): Record<string, un
   const { manifest, mode, assessmentBundle, activityId } = options;
   return {
     manifest,
-    baseUrl: ".",
+    baseUrl: activityId ? "../.." : ".",
     mode,
     ...(activityId ? { activityId } : {}),
     ...(assessmentBundle
       ? {
-          assessments: assessmentBundle.assessments,
-          answerKeys: assessmentBundle.answerKeys,
-          assessmentConfigs: assessmentBundle.configs,
-          assessmentFeedback: assessmentBundle.feedback,
+          ...(Object.keys(assessmentBundle.assessments).length
+            ? { assessments: assessmentBundle.assessments }
+            : {}),
+          ...(Object.keys(assessmentBundle.answerKeys).length
+            ? { answerKeys: assessmentBundle.answerKeys }
+            : {}),
+          ...(Object.keys(assessmentBundle.configs ?? {}).length
+            ? { assessmentConfigs: assessmentBundle.configs }
+            : {}),
+          ...(Object.keys(assessmentBundle.feedback ?? {}).length
+            ? { assessmentFeedback: assessmentBundle.feedback }
+            : {}),
         }
       : {}),
   };
