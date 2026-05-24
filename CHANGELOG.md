@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-05-23
+
+### Fixed
+
+- Escape `<` in embedded JSON config (preview + export) to prevent script-breakout
+- Stop shipping assessment answer keys as fetchable YAML; embed sanitized assessments in runtime config
+- Path containment for `lxpack init --dir` and `lxpack.config.json` output directory
+- Symlink path traversal in course validation
+- SCORM progress: compact suspend data, safe truncation, `lesson_location` fallback
+- SCORM status committed after assessment submission
+- Assessment `track()` parity, navigation race guard, double `LMSFinish`
+- Stricter assessment sub-schemas; preview fails on validation errors like build
+- SCORM manifest identifier collisions; build reuses validated manifest
+
+### Security
+
+- Markdown sanitization remains basic; only use trusted author content until DOMPurify support lands
+
 ## [0.1.0] - 2026-05-23
 
 ### Added

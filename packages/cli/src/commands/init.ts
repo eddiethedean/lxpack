@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import pc from "picocolors";
-import { formatCourseTitleForYaml } from "../utils.js";
+import { formatCourseTitleForYaml, resolvePathInCwd } from "../utils.js";
 
 const COURSE_YAML_TEMPLATE = `title: {{title}}
 version: 1.0.0
@@ -137,7 +137,7 @@ export async function initCommand(
   projectName: string,
   options: { dir?: string; force?: boolean } = {},
 ): Promise<void> {
-  const targetDir = options.dir ?? projectName;
+  const targetDir = resolvePathInCwd(options.dir ?? projectName);
   const title = formatTitle(projectName);
   const yamlTitle = formatCourseTitleForYaml(title);
 

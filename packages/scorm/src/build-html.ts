@@ -1,18 +1,38 @@
 import type { CourseManifest } from "@lxpack/validators";
+import type { RuntimeAssessmentBundle } from "@lxpack/validators";
+import { safeJsonForHtml } from "./safe-json.js";
 
 export interface BuildHtmlOptions {
   manifest: CourseManifest;
   runtimeCss: string;
   mode: "standalone" | "scorm12";
+  assessmentBundle?: RuntimeAssessmentBundle;
 }
 
-export function buildIndexHtml(options: BuildHtmlOptions): string {
-  const { manifest, runtimeCss, mode } = options;
-  const config = JSON.stringify({
+export function buildRuntimeConfig(options: BuildHtmlOptions): {
+  manifest: CourseManifest;
+  baseUrl: string;
+  mode: BuildHtmlOptions["mode"];
+  assessments?: RuntimeAssessmentBundle["assessments"];
+  answerKeys?: RuntimeAssessmentBundle["answerKeys"];
+} {
+  const { manifest, mode, assessmentBundle } = options;
+  return {
     manifest,
     baseUrl: ".",
     mode,
-  });
+    ...(assessmentBundle
+      ? {
+          assessments: assessmentBundle.assessments,
+          answerKeys: assessmentBundle.answerKeys,
+        }
+      : {}),
+  };
+}
+
+export function buildIndexHtml(options: BuildHtmlOptions): string {
+  const { manifest, runtimeCss } = options;
+  const config = safeJsonForHtml(buildRuntimeConfig(options));
 
   return `<!DOCTYPE html>
 <html lang="en">

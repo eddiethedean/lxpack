@@ -2,7 +2,9 @@ import Fastify, { type FastifyInstance } from "fastify";
 import fastifyStatic from "@fastify/static";
 import pc from "picocolors";
 import type { CourseManifest } from "@lxpack/validators";
-import { validateCourse } from "@lxpack/validators";
+import type { RuntimeAssessmentBundle } from "@lxpack/validators";
+import { validateCourse, buildRuntimeAssessmentBundle } from "@lxpack/validators";
+import { safeJsonForHtml } from "@lxpack/scorm";
 import {
   escapeHtml,
   findCourseDir,
@@ -16,9 +18,27 @@ export async function loadPreviewStyles(
   return loadRuntimeStyles(assetsDir);
 }
 
+export function buildPreviewConfig(
+  manifest: CourseManifest,
+  assessmentBundle?: RuntimeAssessmentBundle,
+): string {
+  return safeJsonForHtml({
+    manifest,
+    baseUrl: "/course",
+    mode: "preview",
+    ...(assessmentBundle
+      ? {
+          assessments: assessmentBundle.assessments,
+          answerKeys: assessmentBundle.answerKeys,
+        }
+      : {}),
+  });
+}
+
 export async function createPreviewServer(
   courseDir: string,
   manifest: CourseManifest,
+  assessmentBundle?: RuntimeAssessmentBundle,
 ): Promise<FastifyInstance> {
   const runtimeDir = getRuntimeAssetsDir();
 
@@ -37,14 +57,9 @@ export async function createPreviewServer(
   });
 
   const stylesCss = await loadPreviewStyles(runtimeDir);
+  const config = buildPreviewConfig(manifest, assessmentBundle);
 
   app.get("/", async (_req, reply) => {
-    const config = JSON.stringify({
-      manifest,
-      baseUrl: "/course",
-      mode: "preview",
-    });
-
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,8 +70,9 @@ export async function createPreviewServer(
 </head>
 <body>
   <div id="lxpack-app"></div>
+  <script type="application/json" id="lxpack-config">${config}</script>
   <script>
-    window.__LXPACK_CONFIG__ = ${config};
+    window.__LXPACK_CONFIG__ = JSON.parse(document.getElementById('lxpack-config').textContent);
   </script>
   <script type="module" src="/runtime/client.js"></script>
 </body>
@@ -88,14 +104,23 @@ export async function startPreview(
   }
 
   if (!validation.valid) {
-    console.log(pc.yellow("Warning: course has validation issues:"));
+    console.error(pc.red("Cannot preview: course validation failed"));
     for (const issue of validation.issues) {
-      console.log(`  ${issue.path}: ${issue.message}`);
+      console.error(`  ${issue.path}: ${issue.message}`);
     }
-    console.log();
+    process.exit(1);
   }
 
-  const app = await createPreviewServer(courseDir, validation.manifest);
+  const assessmentBundle = await buildRuntimeAssessmentBundle(
+    courseDir,
+    validation.manifest,
+  );
+
+  const app = await createPreviewServer(
+    courseDir,
+    validation.manifest,
+    assessmentBundle,
+  );
   return { app, validation };
 }
 

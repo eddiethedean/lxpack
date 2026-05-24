@@ -1,10 +1,12 @@
 import { z } from "zod";
 
-const choiceSchema = z.object({
-  id: z.string().min(1),
-  text: z.string().min(1),
-  correct: z.boolean().optional(),
-});
+const choiceSchema = z
+  .object({
+    id: z.string().min(1),
+    text: z.string().min(1),
+    correct: z.boolean().optional(),
+  })
+  .strict();
 
 export const assessmentQuestionSchema = z
   .object({
@@ -13,6 +15,7 @@ export const assessmentQuestionSchema = z
     choices: z.array(choiceSchema).min(1),
     explanation: z.string().optional(),
   })
+  .strict()
   .superRefine((question, ctx) => {
     const correctCount = question.choices.filter((c) => c.correct === true).length;
     if (correctCount !== 1) {

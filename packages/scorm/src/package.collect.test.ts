@@ -28,6 +28,20 @@ describe("collectFiles", () => {
     ]);
   });
 
+  it("skips assessments directory files", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-collect-assess-"));
+    await mkdir(join(dir, "assessments"), { recursive: true });
+    await writeFile(
+      join(dir, "assessments", "quiz.yaml"),
+      "id: quiz\nquestions: []\n",
+    );
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await writeFile(join(dir, "lessons", "intro.md"), "# Hi");
+
+    const files = await collectFiles(dir, dir);
+    expect(files.map((f) => f.path)).toEqual(["lessons/intro.md"]);
+  });
+
   it("skips course root index.html and lxpack config files", async () => {
     const dir = await mkdtemp(join(tmpdir(), "lxpack-collect-skip-"));
     await writeFile(join(dir, "index.html"), "<html></html>");

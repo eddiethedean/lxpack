@@ -101,6 +101,20 @@ describe("courseManifestSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("rejects unknown keys in assessment questions", () => {
+    const result = assessmentSchema.safeParse({
+      id: "quiz",
+      questions: [
+        {
+          id: "q1",
+          prompts: "Typo",
+          choices: [{ id: "a", text: "A", correct: true }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("rejects unknown keys in strict mode", () => {
     expect(
       courseManifestSchema.safeParse({

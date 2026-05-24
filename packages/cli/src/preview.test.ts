@@ -35,6 +35,35 @@ describe("resolvePreviewDeps", () => {
   });
 });
 
+describe("buildPreviewConfig", () => {
+  it("includes assessment bundles when provided", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
+    const { buildRuntimeAssessmentBundle } = await import("@lxpack/validators");
+    const bundle = await buildRuntimeAssessmentBundle(
+      fixturePath("minimal-valid"),
+      manifest,
+    );
+    const json = previewCommands.buildPreviewConfig(manifest, bundle);
+    expect(json).toContain('"assessments"');
+    expect(json).toContain('"answerKeys"');
+    expect(json).not.toContain('"correct"');
+  });
+});
+
+describe("startPreview with assessments", () => {
+  it("builds a preview server for valid courses with quizzes", async () => {
+    const { app, validation } = await previewCommands.startPreview(
+      fixturePath("minimal-valid"),
+    );
+    expect(validation.valid).toBe(true);
+    const home = await app.inject({ method: "GET", url: "/" });
+    expect(home.body).toContain("lxpack-config");
+    expect(home.body).not.toContain('"correct"');
+    await app.close();
+  });
+});
+
 describe("loadPreviewStyles", () => {
   it("returns fallback CSS when the styles file is missing", async () => {
     const css = await previewCommands.loadPreviewStyles("/nonexistent");
@@ -77,16 +106,21 @@ describe("createPreviewServer", () => {
 });
 
 describe("startPreview", () => {
-  it("logs validation warnings for invalid courses", async () => {
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    const { app, validation } = await previewCommands.startPreview(
-      fixturePath("missing-markdown"),
-    );
-    expect(validation.valid).toBe(false);
-    expect(log.mock.calls.some((c) => String(c[0]).includes("Warning"))).toBe(
-      true,
-    );
-    await app.close();
+  it("exits when course validation fails", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      previewCommands.startPreview(fixturePath("missing-markdown")),
+    ).rejects.toThrow("exit:1");
+    expect(
+      error.mock.calls.some((c) => String(c[0]).includes("validation failed")),
+    ).toBe(true);
+    exit.mockRestore();
   });
 
   it("exits when the manifest cannot be parsed", async () => {

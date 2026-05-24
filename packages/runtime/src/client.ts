@@ -1,20 +1,15 @@
 import { marked } from "marked";
 import { parse as parseYaml } from "yaml";
-import type { Assessment, CourseManifest, Lesson } from "@lxpack/validators";
+import type { CourseManifest, LearnerAssessment, Lesson } from "@lxpack/validators";
 import { LxpackRuntime } from "./runtime.js";
-import type { CourseProgress } from "./types.js";
+import type { RuntimeConfig } from "./types.js";
 
 marked.setOptions({ gfm: true, breaks: true });
 
 declare global {
   interface Window {
     lxpack?: ReturnType<LxpackRuntime["getAPI"]>;
-    __LXPACK_CONFIG__?: {
-      manifest: CourseManifest;
-      baseUrl: string;
-      mode: "preview" | "standalone" | "scorm12";
-      progress?: CourseProgress;
-    };
+    __LXPACK_CONFIG__?: RuntimeConfig;
   }
 }
 
@@ -42,12 +37,17 @@ export function buildNavItems(manifest: CourseManifest): NavItem[] {
   return items;
 }
 
-function getConfig() {
+function getConfig(): RuntimeConfig {
   const config = window.__LXPACK_CONFIG__;
   if (!config) {
     throw new Error("LXPack runtime config not found");
   }
   return config;
+}
+
+function joinUrl(baseUrl: string, path: string): string {
+  const base = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+  return `${base}/${path}`;
 }
 
 function renderShell(manifest: CourseManifest): HTMLElement {
@@ -102,7 +102,7 @@ export async function renderMarkdown(
   baseUrl: string,
   file: string,
 ): Promise<void> {
-  const res = await fetch(`${baseUrl}/${file}`);
+  const res = await fetch(joinUrl(baseUrl, file));
   if (!res.ok) throw new Error(`Failed to load lesson: ${file}`);
   const md = await res.text();
   const parsed = await marked.parse(md);
@@ -117,7 +117,7 @@ export function renderHtmlInteraction(
   contentEl.innerHTML = `
     <iframe
       class="lxpack-interaction-frame"
-      src="${baseUrl}/${path}/index.html"
+      src="${joinUrl(baseUrl, `${path}/index.html`)}"
       title="Interaction"
       sandbox="allow-scripts allow-same-origin allow-forms"
     ></iframe>
@@ -125,18 +125,74 @@ export function renderHtmlInteraction(
 }
 
 export async function loadAssessment(
+  config: RuntimeConfig,
   baseUrl: string,
+  assessmentId: string,
   file: string,
-): Promise<Assessment> {
-  const res = await fetch(`${baseUrl}/${file}`);
+): Promise<{ assessment: LearnerAssessment; answerKey: Record<string, string> }> {
+  const embedded = config.assessments?.[assessmentId];
+  if (embedded) {
+    const answerKey = config.answerKeys?.[assessmentId] ?? {};
+    return { assessment: embedded, answerKey };
+  }
+
+  const res = await fetch(joinUrl(baseUrl, file));
   if (!res.ok) throw new Error(`Failed to load assessment: ${file}`);
   const text = await res.text();
-  return parseYaml(text) as Assessment;
+  const raw = parseYaml(text) as LearnerAssessment & {
+    questions: Array<{
+      id: string;
+      prompt: string;
+      choices: Array<{ id: string; text: string; correct?: boolean }>;
+    }>;
+  };
+
+  const answerKey: Record<string, string> = {};
+  for (const q of raw.questions ?? []) {
+    const correct = q.choices?.find(
+      (c) => "correct" in c && c.correct === true,
+    );
+    if (correct) {
+      answerKey[q.id] = correct.id;
+    }
+  }
+
+  const assessment: LearnerAssessment = {
+    id: raw.id ?? assessmentId,
+    title: raw.title,
+    passingScore: raw.passingScore ?? 0.7,
+    questions: (raw.questions ?? []).map((q) => ({
+      id: q.id,
+      prompt: q.prompt,
+      choices: q.choices.map((c) => ({ id: c.id, text: c.text })),
+    })),
+  };
+
+  return { assessment, answerKey };
+}
+
+export function scoreAssessment(
+  assessment: LearnerAssessment,
+  answerKey: Record<string, string>,
+  form: HTMLFormElement,
+): number {
+  let correct = 0;
+  for (const q of assessment.questions) {
+    const selected = form.querySelector(
+      `input[name="q-${q.id}"]:checked`,
+    ) as HTMLInputElement | null;
+    const correctId = answerKey[q.id];
+    if (selected && correctId && selected.value === correctId) {
+      correct++;
+    }
+  }
+  return assessment.questions.length ? correct / assessment.questions.length : 0;
 }
 
 export function renderAssessment(
   contentEl: HTMLElement,
-  assessment: Assessment,
+  assessment: LearnerAssessment,
+  answerKey: Record<string, string>,
   runtime: LxpackRuntime,
   onSubmitted: () => void,
 ): void {
@@ -195,25 +251,7 @@ export function renderAssessment(
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    let correct = 0;
-    const explanations: string[] = [];
-
-    for (const q of assessment.questions) {
-      const selected = form.querySelector(
-        `input[name="q-${q.id}"]:checked`,
-      ) as HTMLInputElement | null;
-      const correctChoice = q.choices.find((c) => c.correct);
-      if (selected && correctChoice && selected.value === correctChoice.id) {
-        correct++;
-      }
-      if (q.explanation) {
-        explanations.push(q.explanation);
-      }
-    }
-
-    const score = assessment.questions.length
-      ? correct / assessment.questions.length
-      : 0;
+    const score = scoreAssessment(assessment, answerKey, form);
     const passedNow = score >= assessment.passingScore;
 
     runtime.submitAssessment(assessment.id, score, assessment.passingScore);
@@ -225,7 +263,6 @@ export function renderAssessment(
         ${passedNow ? "Passed!" : "Not passed."}
         (required: ${Math.round(assessment.passingScore * 100)}%)
       </p>
-      ${explanations.map((ex) => `<p class="lxpack-muted">${escapeHtml(ex)}</p>`).join("")}
     `;
 
     form.querySelector("button[type=submit]")?.remove();
@@ -284,6 +321,7 @@ function updateProgressBar(ratio: number): void {
 }
 
 async function renderItem(
+  config: RuntimeConfig,
   runtime: LxpackRuntime,
   contentEl: HTMLElement,
   baseUrl: string,
@@ -300,8 +338,13 @@ async function renderItem(
       contentEl.innerHTML = `<p class="lxpack-error">Invalid lesson configuration</p>`;
     }
   } else {
-    const assessment = await loadAssessment(baseUrl, item.file);
-    renderAssessment(contentEl, assessment, runtime, onSubmitted);
+    const { assessment, answerKey } = await loadAssessment(
+      config,
+      baseUrl,
+      item.id,
+      item.file,
+    );
+    renderAssessment(contentEl, assessment, answerKey, runtime, onSubmitted);
   }
 }
 
@@ -312,6 +355,8 @@ export function init(): void {
     baseUrl: config.baseUrl,
     mode: config.mode,
     progress: config.progress,
+    assessments: config.assessments,
+    answerKeys: config.answerKeys,
   });
 
   window.lxpack = runtime.getAPI();
@@ -331,6 +376,8 @@ export function init(): void {
   );
   if (currentIndex < 0) currentIndex = 0;
 
+  let renderSeq = 0;
+
   function getPassedAssessments(): Set<string> {
     const passed = new Set<string>();
     for (const ref of config.manifest.assessments ?? []) {
@@ -345,17 +392,22 @@ export function init(): void {
     const item = navItems[index];
     if (!item) return;
 
+    const seq = ++renderSeq;
     runtime.setCurrentLesson(item.id);
     currentIndex = index;
 
     try {
-      await renderItem(runtime, contentEl, config.baseUrl, item, () => {
+      await renderItem(config, runtime, contentEl, config.baseUrl, item, () => {
         void showItem(currentIndex);
       });
     } catch (err) {
+      /* v8 ignore next -- stale async navigation */
+      if (seq !== renderSeq) return;
       const message = err instanceof Error ? err.message : String(err);
       contentEl.innerHTML = `<p class="lxpack-error">${escapeHtml(message)}</p>`;
     }
+
+    if (seq !== renderSeq) return;
 
     renderNav(
       navEl,

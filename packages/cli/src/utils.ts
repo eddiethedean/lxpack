@@ -5,7 +5,11 @@ import { dirname, join, resolve } from "node:path";
 import { stringify as stringifyYaml } from "yaml";
 import { z } from "zod";
 import type { CourseManifest } from "@lxpack/validators";
-import { loadManifest, formatErrorMessage } from "@lxpack/validators";
+import {
+  loadManifest,
+  formatErrorMessage,
+  isPathContained,
+} from "@lxpack/validators";
 
 const require = createRequire(import.meta.url);
 
@@ -137,4 +141,29 @@ export function formatCourseTitleForYaml(title: string): string {
 export function getCliVersion(): string {
   const pkg = require("../package.json") as { version: string };
   return pkg.version;
+}
+
+/** Resolve init/build output path relative to cwd; blocks `..` traversal. */
+export function resolvePathInCwd(relativePath: string): string {
+  const cwd = resolve(process.cwd());
+  if (relativePath.startsWith("/") || /^[a-zA-Z]:\\/.test(relativePath)) {
+    throw new Error(
+      "Use a relative path for the output directory (must stay inside the current working directory)",
+    );
+  }
+  const target = resolve(cwd, relativePath);
+  if (!isPathContained(cwd, target)) {
+    throw new Error("Path must be inside the current working directory");
+  }
+  return target;
+}
+
+/** Resolve output dir relative to course root; must stay inside course. */
+export function resolveOutputDir(courseDir: string, outputDir: string): string {
+  const root = resolve(courseDir);
+  const target = resolve(root, outputDir);
+  if (!isPathContained(root, target)) {
+    throw new Error("output.dir in lxpack.config.json must stay inside the course directory");
+  }
+  return target;
 }

@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect } from "vitest";
@@ -278,6 +278,125 @@ assessments:
     expect(result.issues.some((i) => i.path.includes("quiz.yaml:root"))).toBe(
       true,
     );
+  });
+
+  it("rejects symlinked html interaction directories outside the course", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-outside-html-"));
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-symlink-html-dir-"));
+    await mkdir(join(outside, "lab"), { recursive: true });
+    await writeFile(join(outside, "lab", "index.html"), "<html></html>");
+    await mkdir(join(dir, "interactions"), { recursive: true });
+    await symlink(join(outside, "lab"), join(dir, "interactions", "lab"));
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: lab
+    type: html
+    path: interactions/lab
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) => i.path === "lessons.lab.path"),
+    ).toBe(true);
+  });
+
+  it("rejects symlinked index.html outside the course", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-outside-index-"));
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-symlink-index-"));
+    await mkdir(join(outside), { recursive: true });
+    await writeFile(join(outside, "index.html"), "<html></html>");
+    await mkdir(join(dir, "interactions", "lab"), { recursive: true });
+    await symlink(
+      join(outside, "index.html"),
+      join(dir, "interactions", "lab", "index.html"),
+    );
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: lab
+    type: html
+    path: interactions/lab
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) => i.message.includes("escapes course directory")),
+    ).toBe(true);
+  });
+
+  it("rejects symlinked markdown lesson files outside the course", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-outside-"));
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-symlink-lesson-"));
+    await writeFile(join(outside, "secret.md"), "secret");
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await symlink(join(outside, "secret.md"), join(dir, "lessons", "intro.md"));
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) => i.message.includes("escapes course directory")),
+    ).toBe(true);
+  });
+
+  it("rejects symlinked assessment files outside the course", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-outside-assess-"));
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-symlink-assess-"));
+    await mkdir(join(outside), { recursive: true });
+    await writeFile(
+      join(outside, "quiz.yaml"),
+      `id: quiz
+passingScore: 0.7
+questions:
+  - id: q1
+    prompt: P
+    choices:
+      - id: a
+        text: A
+        correct: true
+`,
+    );
+    await mkdir(join(dir, "assessments"), { recursive: true });
+    await symlink(join(outside, "quiz.yaml"), join(dir, "assessments", "quiz.yaml"));
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await writeFile(join(dir, "lessons", "intro.md"), "# I");
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+assessments:
+  - id: quiz
+    file: assessments/quiz.yaml
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) => i.path.startsWith("assessments.quiz")),
+    ).toBe(true);
   });
 
   it("passes minimal-valid fixture", async () => {

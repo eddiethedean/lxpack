@@ -3,8 +3,11 @@ import {
   bootstrapClient,
   init,
   renderHtmlInteraction,
+  renderMarkdown,
   renderNav,
+  scoreAssessment,
 } from "./client.js";
+import type { LearnerAssessment } from "@lxpack/validators";
 
 const manifest = {
   title: "Client Test",
@@ -173,6 +176,34 @@ describe("client", () => {
     const prev = document.getElementById("lxpack-prev") as HTMLButtonElement;
     prev.click();
     await vi.waitFor(() => expect(prev.disabled).toBe(true));
+  });
+
+  it("loads markdown from base URLs with trailing slashes", async () => {
+    const el = document.createElement("div");
+    await renderMarkdown(el, "/course/", "lessons/a.md");
+    expect(el.querySelector(".lxpack-markdown")).toBeTruthy();
+  });
+
+  it("scores assessments using answer keys", () => {
+    const assessment: LearnerAssessment = {
+      id: "quiz",
+      passingScore: 0.5,
+      questions: [
+        {
+          id: "q1",
+          prompt: "P",
+          choices: [
+            { id: "a", text: "A" },
+            { id: "b", text: "B" },
+          ],
+        },
+      ],
+    };
+    const form = document.createElement("form");
+    form.innerHTML = `
+      <input type="radio" name="q-q1" value="a" checked />
+    `;
+    expect(scoreAssessment(assessment, { q1: "a" }, form)).toBe(1);
   });
 
   it("registers DOMContentLoaded when document is loading", () => {

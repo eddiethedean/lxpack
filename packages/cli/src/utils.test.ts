@@ -10,6 +10,8 @@ import {
   getRuntimeAssetsDir,
   loadCourseManifest,
   loadLxpackConfig,
+  resolveOutputDir,
+  resolvePathInCwd,
 } from "./utils.js";
 import * as utils from "./utils.js";
 
@@ -144,6 +146,49 @@ describe("loadLxpackConfig", () => {
     );
     await expect(loadLxpackConfig(dir)).rejects.toThrow(
       /Failed to load lxpack.config.json/,
+    );
+  });
+});
+
+describe("resolvePathInCwd", () => {
+  const originalCwd = process.cwd();
+
+  afterEach(() => {
+    process.chdir(originalCwd);
+  });
+
+  it("resolves relative paths inside cwd", async () => {
+    const parent = await mkdtemp(join(tmpdir(), "lxpack-resolve-cwd-"));
+    await mkdir(join(parent, "child"), { recursive: true });
+    process.chdir(parent);
+    expect(resolvePathInCwd("child")).toContain("child");
+  });
+
+  it("rejects absolute paths", () => {
+    expect(() => resolvePathInCwd("/tmp/outside")).toThrow(
+      "Use a relative path",
+    );
+  });
+
+  it("rejects traversal paths", () => {
+    expect(() => resolvePathInCwd("../outside")).toThrow(
+      "inside the current working directory",
+    );
+  });
+});
+
+describe("resolveOutputDir", () => {
+  it("resolves output inside the course directory", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-output-dir-"));
+    expect(resolveOutputDir(courseDir, ".lxpack/out")).toBe(
+      join(courseDir, ".lxpack/out"),
+    );
+  });
+
+  it("rejects output paths that escape the course", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-output-escape-"));
+    expect(() => resolveOutputDir(courseDir, "../outside")).toThrow(
+      "must stay inside the course directory",
     );
   });
 });

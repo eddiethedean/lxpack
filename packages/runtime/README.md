@@ -63,7 +63,7 @@ const runtime = new LxpackRuntime({
 });
 
 runtime.completeLesson("intro");
-runtime.recordAssessmentScore("quiz", 0.85);
+runtime.getAPI().submitAssessment("quiz", 0.85, 0.7);
 runtime.getProgress();
 ```
 

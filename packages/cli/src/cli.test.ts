@@ -32,12 +32,20 @@ describe("cli", () => {
   });
 
   it("runs init through the program action", async () => {
-    const dir = await mkdtemp(join(tmpdir(), "lxpack-cli-init-"));
-    const program = createCliProgram();
-    const init = program.commands.find((c) => c.name() === "init");
-    await init?.parseAsync(["demo-course", "-d", dir], { from: "user" });
-    const { existsSync } = await import("node:fs");
-    expect(existsSync(join(dir, "course.yaml"))).toBe(true);
+    const parent = await mkdtemp(join(tmpdir(), "lxpack-cli-init-"));
+    const cwd = process.cwd();
+    process.chdir(parent);
+    try {
+      const program = createCliProgram();
+      const init = program.commands.find((c) => c.name() === "init");
+      await init?.parseAsync(["demo-course", "-d", "demo-course"], {
+        from: "user",
+      });
+      const { existsSync } = await import("node:fs");
+      expect(existsSync(join(parent, "demo-course", "course.yaml"))).toBe(true);
+    } finally {
+      process.chdir(cwd);
+    }
   });
 
   it("invokes runCli for a help request", async () => {

@@ -18,7 +18,7 @@ describe("manifestIdentifier", () => {
 
   it("falls back to hash for non-latin titles", () => {
     expect(manifestIdentifier({ ...baseManifest, title: "!!!" })).toMatch(
-      /^course-\d+$/,
+      /^course-[a-z0-9]+$/,
     );
   });
 });

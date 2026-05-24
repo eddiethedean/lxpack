@@ -110,7 +110,7 @@ my-course/
   interactions/        # HTML/JS interaction folders (index.html)
   assessments/         # Quiz YAML files
   assets/              # Static assets
-  theme/               # Optional theme assets (not wired in 0.1.0)
+  theme/               # Optional theme assets (not wired in 0.1.1)
   .lxpack/             # Build output (generated)
 ```
 
@@ -217,7 +217,7 @@ The release workflow runs all CI checks before publishing. See [CHANGELOG.md](ht
 
 ## Roadmap
 
-Phase 1 (current, **v0.1.0**) delivers init, preview, validate, minimal MCQ assessments, SCORM 1.2 export with real LMS API discovery, and standalone HTML export. Planned work includes SCORM 2004, xAPI/cmi5, hot reload, themes, and richer interactions — see [ROADMAP.md](https://github.com/eddiethedean/lxpack/blob/main/docs/ROADMAP.md).
+Phase 1 (current, **v0.1.1**) delivers init, preview, validate, minimal MCQ assessments, SCORM 1.2 export with real LMS API discovery, and standalone HTML export. Built packages embed assessments in the runtime config (author `assessments/*.yaml` files are not shipped). Planned work includes SCORM 2004, xAPI/cmi5, hot reload, themes, and richer interactions — see [ROADMAP.md](https://github.com/eddiethedean/lxpack/blob/main/docs/ROADMAP.md).
 
 ## Documentation
 

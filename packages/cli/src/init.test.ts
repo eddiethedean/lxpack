@@ -7,8 +7,10 @@ import { initCommand } from "./commands/init.js";
 
 describe("initCommand", () => {
   const dirs: string[] = [];
+  const originalCwd = process.cwd();
 
   afterEach(async () => {
+    process.chdir(originalCwd);
     await Promise.all(
       dirs.map((d) => rm(d, { recursive: true, force: true }).catch(() => {})),
     );
@@ -17,12 +19,12 @@ describe("initCommand", () => {
 
   it("scaffolds a complete course directory", async () => {
     const parent = await mkdtemp(join(tmpdir(), "lxpack-init-"));
-    const projectName = "test-course";
-    const targetDir = join(parent, projectName);
     dirs.push(parent);
+    process.chdir(parent);
 
-    await initCommand(projectName, { dir: targetDir });
+    await initCommand("test-course", { dir: "test-course" });
 
+    const targetDir = join(parent, "test-course");
     expect(existsSync(join(targetDir, "course.yaml"))).toBe(true);
     expect(existsSync(join(targetDir, "lxpack.config.json"))).toBe(true);
     expect(existsSync(join(targetDir, "lessons", "welcome.md"))).toBe(true);
@@ -32,25 +34,27 @@ describe("initCommand", () => {
     expect(existsSync(join(targetDir, "assessments", "final.yaml"))).toBe(true);
   });
 
+  it("rejects directory paths that escape cwd", async () => {
+    await expect(
+      initCommand("escape", { dir: "../outside-lxpack-init" }),
+    ).rejects.toThrow("inside the current working directory");
+  });
+
   it("uses project name as directory when dir option is omitted", async () => {
     const parent = await mkdtemp(join(tmpdir(), "lxpack-init-default-"));
     dirs.push(parent);
-    const cwd = process.cwd();
     process.chdir(parent);
 
-    try {
-      await initCommand("my-lx-course");
-      expect(existsSync(join(parent, "my-lx-course", "course.yaml"))).toBe(true);
-    } finally {
-      process.chdir(cwd);
-    }
+    await initCommand("my-lx-course");
+    expect(existsSync(join(parent, "my-lx-course", "course.yaml"))).toBe(true);
   });
 
   it("refuses to overwrite an existing course without --force", async () => {
     const parent = await mkdtemp(join(tmpdir(), "lxpack-init-force-"));
     dirs.push(parent);
-    const targetDir = join(parent, "existing");
-    await initCommand("existing", { dir: targetDir });
+    process.chdir(parent);
+
+    await initCommand("existing", { dir: "existing" });
 
     const exit = vi
       .spyOn(process, "exit")
@@ -58,7 +62,7 @@ describe("initCommand", () => {
         throw new Error(`exit:${code ?? 0}`);
       });
 
-    await expect(initCommand("existing", { dir: targetDir })).rejects.toThrow(
+    await expect(initCommand("existing", { dir: "existing" })).rejects.toThrow(
       "exit:1",
     );
     exit.mockRestore();

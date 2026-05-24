@@ -64,7 +64,7 @@ describe("validateCourse", () => {
     const result = await validateCourse(fixturePath("duplicate-lessons"));
     expect(result.valid).toBe(false);
     expect(
-      result.issues.some((i) => i.message.includes("Duplicate lesson IDs")),
+      result.issues.some((i) => i.message.includes("Duplicate lesson ID:")),
     ).toBe(true);
   });
 
@@ -130,7 +130,7 @@ assessments:
     const result = await validateCourse(dir);
     expect(result.valid).toBe(false);
     expect(
-      result.issues.some((i) => i.message.includes("Failed to parse assessment")),
+      result.issues.some((i) => i.message.includes("Assessment path is not a file")),
     ).toBe(true);
   });
 

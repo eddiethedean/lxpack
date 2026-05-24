@@ -8,8 +8,11 @@ import type {
 import {
   type ScormConnection,
   createScormConnection,
-  trimSuspendData,
 } from "./scorm-api.js";
+import {
+  parseStoredProgress,
+  serializeProgressForStorage,
+} from "./progress-persist.js";
 
 function progressStorageKey(manifest: CourseManifest): string {
   const slug = `${manifest.title}::${manifest.version}`;
@@ -21,25 +24,6 @@ function progressStorageKey(manifest: CourseManifest): string {
   return `lxpack_progress_${Math.abs(hash)}`;
 }
 
-function mergeProgress(
-  base: CourseProgress,
-  saved: Partial<CourseProgress>,
-): CourseProgress {
-  return {
-    ...base,
-    ...saved,
-    completedLessons: saved.completedLessons ?? base.completedLessons,
-    assessmentScores: {
-      ...base.assessmentScores,
-      ...saved.assessmentScores,
-    },
-    suspendData: {
-      ...base.suspendData,
-      ...saved.suspendData,
-    },
-  };
-}
-
 export class LxpackRuntime {
   private manifest: CourseManifest;
   private progress: CourseProgress;
@@ -48,6 +32,8 @@ export class LxpackRuntime {
   private storageKey: string;
   private mode: RuntimeConfig["mode"];
   private passedAssessments = new Set<string>();
+  private defaultPassingScores: Record<string, number>;
+  private terminated = false;
 
   constructor(config: RuntimeConfig) {
     this.manifest = config.manifest;
@@ -55,6 +41,10 @@ export class LxpackRuntime {
     this.completionThreshold =
       config.manifest.tracking?.completion?.threshold ?? 0.9;
     this.storageKey = progressStorageKey(config.manifest);
+    this.defaultPassingScores = {};
+    for (const [id, assessment] of Object.entries(config.assessments ?? {})) {
+      this.defaultPassingScores[id] = assessment.passingScore;
+    }
 
     const firstLesson = config.manifest.lessons[0]?.id ?? "";
     this.progress = config.progress ?? {
@@ -73,22 +63,27 @@ export class LxpackRuntime {
     }
   }
 
+  private restoreLessonLocation(): void {
+    if (!this.scorm) return;
+    const location = this.scorm.LMSGetValue("cmi.core.lesson_location");
+    if (location) {
+      this.progress.currentLessonId = location;
+    }
+  }
+
   private restoreScormProgress(): void {
     if (!this.scorm) return;
 
     const saved = this.scorm.LMSGetValue("cmi.suspend_data");
     if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as Partial<CourseProgress>;
-        this.progress = mergeProgress(this.progress, parsed);
-      } catch {
-        // use defaults
+      const { progress, parsed } = parseStoredProgress(saved, this.progress);
+      if (parsed) {
+        this.progress = progress;
+      } else {
+        this.restoreLessonLocation();
       }
     } else {
-      const location = this.scorm.LMSGetValue("cmi.core.lesson_location");
-      if (location) {
-        this.progress.currentLessonId = location;
-      }
+      this.restoreLessonLocation();
     }
 
     this.syncPassedAssessments();
@@ -98,12 +93,16 @@ export class LxpackRuntime {
     try {
       const stored = localStorage.getItem(this.storageKey);
       if (stored) {
-        const parsed = JSON.parse(stored) as Partial<CourseProgress>;
-        this.progress = mergeProgress(this.progress, parsed);
+        const { progress, parsed } = parseStoredProgress(stored, this.progress);
+        if (parsed) {
+          this.progress = progress;
+        }
       }
+    /* v8 ignore start -- storage may be unavailable in hardened browsers */
     } catch {
       void 0;
     }
+    /* v8 ignore end */
     this.syncPassedAssessments();
   }
 
@@ -117,10 +116,11 @@ export class LxpackRuntime {
   }
 
   private getAssessmentPassingScore(assessmentId: string): number {
-    const ref = this.manifest.assessments?.find((a) => a.id === assessmentId);
-    if (!ref) return 0.7;
     const stored = this.progress.suspendData[`assessment_passing_${assessmentId}`];
     if (typeof stored === "number") return stored;
+    if (assessmentId in this.defaultPassingScores) {
+      return this.defaultPassingScores[assessmentId];
+    }
     return 0.7;
   }
 
@@ -128,7 +128,12 @@ export class LxpackRuntime {
     return {
       track: (event) => this.track(event),
       completeLesson: (lessonId) => this.completeLesson(lessonId),
-      getProgress: () => ({ ...this.progress }),
+      getProgress: () => ({
+        ...this.progress,
+        completedLessons: [...this.progress.completedLessons],
+        assessmentScores: { ...this.progress.assessmentScores },
+        suspendData: { ...this.progress.suspendData },
+      }),
       setVariable: (key, value) => {
         this.progress.suspendData[key] = value;
         this.persist();
@@ -139,20 +144,34 @@ export class LxpackRuntime {
     };
   }
 
-  track(event: TrackEvent): void {
+  track(event: TrackEvent, options?: { persist?: boolean }): void {
     if (event.type === "interaction" && event.id) {
       this.progress.suspendData[`interaction_${event.id}`] =
         event.data ?? true;
       console.debug("[lxpack] interaction:", event.id, event.data);
     }
-    if (event.type === "assessment" && event.id && event.data?.score != null) {
-      const score = Number(event.data.score);
-      this.progress.assessmentScores[event.id] = score;
+    if (event.type === "assessment" && event.id) {
+      const passingScore =
+        typeof event.data?.passingScore === "number"
+          ? Number(event.data.passingScore)
+          : this.getAssessmentPassingScore(event.id);
+      const score =
+        event.data?.score != null ? Number(event.data.score) : undefined;
+      if (score != null && !Number.isNaN(score)) {
+        this.applyAssessmentResult(event.id, score, passingScore);
+        if (options?.persist !== false) {
+          this.updateCompletion();
+          this.persist();
+        }
+        return;
+      }
     }
-    this.persist();
+    if (options?.persist !== false) {
+      this.persist();
+    }
   }
 
-  submitAssessment(
+  private applyAssessmentResult(
     assessmentId: string,
     score: number,
     passingScore: number,
@@ -165,12 +184,16 @@ export class LxpackRuntime {
     } else {
       this.passedAssessments.delete(assessmentId);
     }
-    this.track({
-      type: "assessment",
-      id: assessmentId,
-      data: { score, passingScore, passed: score >= passingScore },
-    });
+  }
+
+  submitAssessment(
+    assessmentId: string,
+    score: number,
+    passingScore: number,
+  ): void {
+    this.applyAssessmentResult(assessmentId, score, passingScore);
     this.updateCompletion();
+    this.persist();
   }
 
   completeLesson(lessonId: string): void {
@@ -193,7 +216,7 @@ export class LxpackRuntime {
   }
 
   getProgress(): CourseProgress {
-    return { ...this.progress };
+    return this.getAPI().getProgress();
   }
 
   getManifest(): CourseManifest {
@@ -262,7 +285,7 @@ export class LxpackRuntime {
   }
 
   private persist(): void {
-    const data = trimSuspendData(JSON.stringify(this.progress));
+    const data = serializeProgressForStorage(this.progress);
 
     if (this.mode === "preview" || this.mode === "standalone") {
       try {
@@ -279,6 +302,8 @@ export class LxpackRuntime {
   }
 
   terminate(): void {
+    if (this.terminated) return;
+    this.terminated = true;
     if (this.scorm) {
       this.scorm.LMSFinish();
     }

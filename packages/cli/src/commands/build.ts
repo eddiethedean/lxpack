@@ -1,14 +1,17 @@
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { packageCourse, packageStandaloneDir } from "@lxpack/scorm";
+import { packageCourse, packageStandaloneDir, courseSlug } from "@lxpack/scorm";
 import type { ExportTarget } from "@lxpack/scorm";
-import { validateCourse } from "@lxpack/validators";
+import {
+  validateCourse,
+  buildRuntimeAssessmentBundle,
+} from "@lxpack/validators";
 import pc from "picocolors";
 import {
   findCourseDir,
-  loadCourseManifest,
   loadLxpackConfig,
   readRuntimeBundle,
+  resolveOutputDir,
 } from "../utils.js";
 
 const VALID_TARGETS: ExportTarget[] = ["scorm12", "standalone"];
@@ -34,7 +37,7 @@ export async function buildCommand(options: {
   }
 
   const validation = await validateCourse(courseDir);
-  if (!validation.valid) {
+  if (!validation.valid || !validation.manifest) {
     console.error(pc.red("Cannot build: course validation failed"));
     for (const issue of validation.issues) {
       console.error(`  ${issue.path}: ${issue.message}`);
@@ -42,27 +45,34 @@ export async function buildCommand(options: {
     process.exit(1);
   }
 
-  const manifest = await loadCourseManifest(courseDir);
+  const manifest = validation.manifest;
+  const assessmentBundle = await buildRuntimeAssessmentBundle(
+    courseDir,
+    manifest,
+  );
   const { clientJs, css } = await readRuntimeBundle();
 
-  const slug = manifest.title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || "course";
+  const slug = courseSlug(manifest);
 
   const outputBase = config?.output?.dir ?? ".lxpack";
-  await mkdir(join(courseDir, outputBase), { recursive: true });
+  const outputRoot = resolveOutputDir(courseDir, outputBase);
+  await mkdir(outputRoot, { recursive: true });
+
+  const packageOptions = {
+    courseDir,
+    manifest,
+    target,
+    runtimeClientJs: clientJs,
+    runtimeCss: css,
+    assessmentBundle,
+  };
 
   if (options.dir) {
     const outputDir =
-      options.output ?? join(courseDir, outputBase, target);
+      options.output ?? join(outputRoot, target);
     const result = await packageStandaloneDir({
-      courseDir,
-      manifest,
+      ...packageOptions,
       outputDir,
-      target,
-      runtimeClientJs: clientJs,
-      runtimeCss: css,
     });
     console.log(pc.green(`✓ Built ${target} package`));
     console.log(`  Output: ${result.outputDir}`);
@@ -70,16 +80,11 @@ export async function buildCommand(options: {
   } else {
     const defaultName =
       target === "standalone" ? `${slug}-standalone.zip` : `${slug}-scorm12.zip`;
-    const outputPath =
-      options.output ?? join(courseDir, outputBase, defaultName);
+    const outputPath = options.output ?? join(outputRoot, defaultName);
 
     const result = await packageCourse({
-      courseDir,
-      manifest,
+      ...packageOptions,
       outputPath,
-      target,
-      runtimeClientJs: clientJs,
-      runtimeCss: css,
     });
 
     console.log(pc.green(`✓ Built ${target} package`));

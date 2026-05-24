@@ -1,4 +1,9 @@
-import type { CourseManifest, Lesson } from "@lxpack/validators";
+import type {
+  CourseManifest,
+  LearnerAssessment,
+  Lesson,
+  RuntimeAssessmentBundle,
+} from "@lxpack/validators";
 
 export interface CourseProgress {
   currentLessonId: string;
@@ -12,6 +17,8 @@ export interface RuntimeConfig {
   baseUrl: string;
   mode: "preview" | "standalone" | "scorm12";
   progress?: CourseProgress;
+  assessments?: RuntimeAssessmentBundle["assessments"];
+  answerKeys?: RuntimeAssessmentBundle["answerKeys"];
 }
 
 export interface TrackEvent {
@@ -33,4 +40,4 @@ export interface LxpackAPI {
   ) => void;
 }
 
-export type { CourseManifest, Lesson };
+export type { CourseManifest, LearnerAssessment, Lesson };

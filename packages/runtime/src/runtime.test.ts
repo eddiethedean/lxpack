@@ -28,6 +28,7 @@ describe("LxpackRuntime", () => {
     vi.restoreAllMocks();
     vi.spyOn(console, "debug").mockImplementation(() => {});
     vi.spyOn(console, "warn").mockImplementation(() => {});
+    localStorage.clear();
   });
 
   it("starts at first lesson with empty progress in preview mode", () => {
@@ -89,6 +90,42 @@ describe("LxpackRuntime", () => {
       mode: "preview",
     });
     expect(runtime2.isLessonComplete("a")).toBe(true);
+  });
+
+  it("ignores invalid completedLessons shapes in localStorage", () => {
+    const slug = `${manifest.title}::${manifest.version}`;
+    let hash = 0;
+    for (let i = 0; i < slug.length; i++) {
+      hash = (hash << 5) - hash + slug.charCodeAt(i);
+      hash |= 0;
+    }
+    localStorage.setItem(
+      `lxpack_progress_${Math.abs(hash)}`,
+      JSON.stringify({
+        currentLessonId: "b",
+        completedLessons: "invalid",
+        assessmentScores: {},
+        suspendData: {},
+      }),
+    );
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    expect(runtime.getProgress().completedLessons).toEqual([]);
+  });
+
+  it("ignores localStorage failures during restore", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("storage blocked");
+    });
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    expect(runtime.getProgress().currentLessonId).toBe("a");
   });
 
   it("ignores corrupt localStorage progress payloads", () => {
@@ -160,6 +197,114 @@ describe("LxpackRuntime", () => {
     expect(runtime.getProgress().assessmentScores.extra).toBe(0.95);
   });
 
+  it("tracks assessment scores using configured default passing thresholds", () => {
+    const runtime = new LxpackRuntime({
+      manifest: {
+        ...manifest,
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+      baseUrl: ".",
+      mode: "preview",
+      assessments: {
+        quiz: {
+          id: "quiz",
+          passingScore: 0.5,
+          questions: [{ id: "q1", prompt: "P", choices: [{ id: "a", text: "A" }] }],
+        },
+      },
+      answerKeys: { quiz: { q1: "a" } },
+    });
+    runtime.track({ type: "assessment", id: "quiz", data: { score: 0.6 } });
+    expect(runtime.isAssessmentPassed("quiz")).toBe(true);
+  });
+
+  it("tracks assessment events with passing scores", () => {
+    const runtime = new LxpackRuntime({
+      manifest: {
+        ...manifest,
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+      baseUrl: ".",
+      mode: "preview",
+      assessments: {
+        quiz: {
+          id: "quiz",
+          passingScore: 0.5,
+          questions: [{ id: "q1", prompt: "P", choices: [{ id: "a", text: "A" }] }],
+        },
+      },
+      answerKeys: { quiz: { q1: "a" } },
+    });
+    runtime.track({
+      type: "assessment",
+      id: "quiz",
+      data: { score: 0.9, passingScore: 0.5 },
+    });
+    expect(runtime.isAssessmentPassed("quiz")).toBe(true);
+  });
+
+  it("tracks assessment events without persisting when disabled", () => {
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
+    runtime.track(
+      { type: "assessment", id: "quiz", data: { score: 0.5, passingScore: 0.4 } },
+      { persist: false },
+    );
+    expect(setItem).not.toHaveBeenCalled();
+    setItem.mockRestore();
+  });
+
+  it("uses configured default passing scores on restore", () => {
+    const slug = `Test::1.0.0`;
+    let hash = 0;
+    for (let i = 0; i < slug.length; i++) {
+      hash = (hash << 5) - hash + slug.charCodeAt(i);
+      hash |= 0;
+    }
+    localStorage.setItem(
+      `lxpack_progress_${Math.abs(hash)}`,
+      JSON.stringify({
+        currentLessonId: "a",
+        completedLessons: [],
+        assessmentScores: { quiz: 0.6 },
+        suspendData: {},
+      }),
+    );
+    const runtime = new LxpackRuntime({
+      manifest: {
+        ...manifest,
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+      baseUrl: ".",
+      mode: "preview",
+      assessments: {
+        quiz: {
+          id: "quiz",
+          passingScore: 0.5,
+          questions: [{ id: "q1", prompt: "P", choices: [{ id: "a", text: "A" }] }],
+        },
+      },
+      answerKeys: { quiz: { q1: "a" } },
+    });
+    expect(runtime.isAssessmentPassed("quiz")).toBe(true);
+  });
+
+  it("terminates only once", () => {
+    const sim = mockLms();
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm12",
+    });
+    runtime.terminate();
+    runtime.terminate();
+    expect(sim.LMSGetValue("cmi.core.lesson_status")).toBeDefined();
+  });
+
   it("tracks interaction events in suspend data", () => {
     const runtime = new LxpackRuntime({
       manifest,
@@ -186,6 +331,21 @@ describe("LxpackRuntime", () => {
       (
         runtime as unknown as { restoreScormProgress: () => void }
       ).restoreScormProgress(),
+    ).not.toThrow();
+  });
+
+  it("no-ops restoreLessonLocation without scorm", () => {
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    (runtime as unknown as { scorm: null; restoreLessonLocation: () => void }).scorm =
+      null;
+    expect(() =>
+      (
+        runtime as unknown as { restoreLessonLocation: () => void }
+      ).restoreLessonLocation(),
     ).not.toThrow();
   });
 
@@ -349,6 +509,24 @@ describe("LxpackRuntime", () => {
     });
 
     expect(runtime.getProgress().currentLessonId).toBe("a");
+  });
+
+  it("ignores invalid completedLessons in SCORM suspend_data", () => {
+    mockLms({
+      suspendData: JSON.stringify({
+        currentLessonId: "b",
+        completedLessons: "invalid",
+        assessmentScores: {},
+        suspendData: {},
+      }),
+    });
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm12",
+    });
+    expect(runtime.getProgress().completedLessons).toEqual([]);
+    expect(runtime.getProgress().currentLessonId).toBe("b");
   });
 
   it("restores valid suspend_data in scorm12 mode", () => {

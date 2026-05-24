@@ -1,19 +1,8 @@
 import type { CourseManifest } from "@lxpack/validators";
+import { courseSlug } from "./slug.js";
 
 export function manifestIdentifier(manifest: CourseManifest): string {
-  const slug = manifest.title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-  if (slug) return slug;
-
-  let hash = 0;
-  for (let i = 0; i < manifest.title.length; i++) {
-    hash = (hash << 5) - hash + manifest.title.charCodeAt(i);
-    hash |= 0;
-  }
-  return `course-${Math.abs(hash)}`;
+  return courseSlug(manifest);
 }
 
 export function generateImsManifest(

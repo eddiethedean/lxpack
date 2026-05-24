@@ -87,9 +87,11 @@ describe("buildCommand", () => {
       "title: '!!!'\nversion: 1.0.0\nlessons:\n  - id: intro\n    type: markdown\n    file: lessons/intro.md\n",
     );
     await buildCommand({ target: "scorm12" });
-    expect(
-      existsSync(resolve(workDir, "course", ".lxpack", "course-scorm12.zip")),
-    ).toBe(true);
+    const { readdir } = await import("node:fs/promises");
+    const outputs = await readdir(resolve(workDir, "course", ".lxpack"));
+    expect(outputs.some((f) => /^course-[a-z0-9]+-scorm12\.zip$/.test(f))).toBe(
+      true,
+    );
   });
 
   it("writes zip to a custom output path", async () => {

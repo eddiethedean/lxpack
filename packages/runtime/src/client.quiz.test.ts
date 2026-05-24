@@ -1,10 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { RuntimeConfig } from "./types.js";
 import {
   buildNavItems,
   init,
   loadAssessment,
   renderAssessment,
 } from "./client.js";
+
+const emptyConfig: RuntimeConfig = {
+  manifest: { title: "T", version: "1.0.0", lessons: [] },
+  baseUrl: "/course",
+  mode: "preview",
+};
 
 const assessmentYaml = `id: quiz
 title: Quiz
@@ -49,8 +56,153 @@ describe("quiz client", () => {
       text: async () => assessmentYaml,
     } as Response);
 
-    const assessment = await loadAssessment("/course", "assessments/quiz.yaml");
+    const { assessment } = await loadAssessment(
+      emptyConfig,
+      "/course",
+      "quiz",
+      "assessments/quiz.yaml",
+    );
     expect(assessment.id).toBe("quiz");
+  });
+
+  it("uses an empty answer key when embedded keys are omitted", async () => {
+    const config: RuntimeConfig = {
+      ...emptyConfig,
+      assessments: {
+        quiz: {
+          id: "quiz",
+          passingScore: 0.5,
+          questions: [{ id: "q1", prompt: "P", choices: [{ id: "a", text: "A" }] }],
+        },
+      },
+    };
+    const { answerKey } = await loadAssessment(
+      config,
+      "/course",
+      "quiz",
+      "assessments/quiz.yaml",
+    );
+    expect(answerKey).toEqual({});
+  });
+
+  it("builds answer keys from fetched assessment YAML", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      text: async () => `id: quiz
+passingScore: 0.5
+questions:
+  - id: q1
+    prompt: P
+    choices:
+      - id: a
+        text: A
+        correct: true
+      - id: b
+        text: B
+  - id: q2
+    prompt: P2
+    choices:
+      - id: only
+        text: Only
+`,
+    } as Response);
+    const { assessment, answerKey } = await loadAssessment(
+      emptyConfig,
+      "/course",
+      "quiz",
+      "assessments/quiz.yaml",
+    );
+    expect(assessment.id).toBe("quiz");
+    expect(answerKey.q1).toBe("a");
+    expect(answerKey.q2).toBeUndefined();
+  });
+
+  it("defaults missing fields when fetching assessment YAML", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      text: async () => `questions:
+  - id: q1
+    prompt: P
+    choices:
+      - id: a
+        text: A
+        correct: true
+`,
+    } as Response);
+    const { assessment } = await loadAssessment(
+      emptyConfig,
+      "/course",
+      "custom-id",
+      "assessments/quiz.yaml",
+    );
+    expect(assessment.id).toBe("custom-id");
+    expect(assessment.passingScore).toBe(0.7);
+  });
+
+  it("handles assessments without questions in fetched YAML", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      text: async () => "passingScore: 0.5\n",
+    } as Response);
+    const { assessment, answerKey } = await loadAssessment(
+      emptyConfig,
+      "/course",
+      "quiz",
+      "assessments/empty.yaml",
+    );
+    expect(assessment.questions).toEqual([]);
+    expect(answerKey).toEqual({});
+  });
+
+  it("skips answer keys for choices without a correct flag", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      text: async () => `id: quiz
+questions:
+  - id: q1
+    prompt: P
+    choices:
+      - id: a
+        text: A
+`,
+    } as Response);
+    const { answerKey } = await loadAssessment(
+      emptyConfig,
+      "/course",
+      "quiz",
+      "assessments/no-correct.yaml",
+    );
+    expect(answerKey.q1).toBeUndefined();
+  });
+
+  it("loads embedded assessments from config", async () => {
+    const config: RuntimeConfig = {
+      ...emptyConfig,
+      assessments: {
+        quiz: {
+          id: "quiz",
+          passingScore: 0.5,
+          questions: [
+            {
+              id: "q1",
+              prompt: "Pick",
+              choices: [{ id: "a", text: "A" }],
+            },
+          ],
+        },
+      },
+      answerKeys: { quiz: { q1: "a" } },
+    };
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const { assessment, answerKey } = await loadAssessment(
+      config,
+      "/course",
+      "quiz",
+      "assessments/quiz.yaml",
+    );
+    expect(assessment.id).toBe("quiz");
+    expect(answerKey.q1).toBe("a");
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it("throws when assessment fetch fails", async () => {
@@ -60,7 +212,7 @@ describe("quiz client", () => {
     } as Response);
 
     await expect(
-      loadAssessment("/course", "assessments/missing.yaml"),
+      loadAssessment(emptyConfig, "/course", "quiz", "assessments/missing.yaml"),
     ).rejects.toThrow("Failed to load assessment");
   });
 
@@ -83,12 +235,13 @@ describe("quiz client", () => {
             id: "q1",
             prompt: "Pick",
             choices: [
-              { id: "a", text: "Correct", correct: true },
+              { id: "a", text: "Correct" },
               { id: "b", text: "Wrong" },
             ],
           },
         ],
       },
+      { q1: "a" },
       runtime,
       vi.fn(),
     );
@@ -126,10 +279,11 @@ describe("quiz client", () => {
           {
             id: "q1",
             prompt: "Pick",
-            choices: [{ id: "a", text: "Correct", correct: true }],
+            choices: [{ id: "a", text: "Correct" }],
           },
         ],
       },
+      { q1: "a" },
       runtime,
       vi.fn(),
     );
@@ -159,10 +313,11 @@ describe("quiz client", () => {
           {
             id: "q1",
             prompt: "Pick",
-            choices: [{ id: "a", text: "Correct", correct: true }],
+            choices: [{ id: "a", text: "Correct" }],
           },
         ],
       },
+      { q1: "a" },
       runtime,
       vi.fn(),
     );
@@ -194,13 +349,13 @@ describe("quiz client", () => {
             id: "q1",
             prompt: "Pick",
             choices: [
-              { id: "a", text: "Correct", correct: true },
+              { id: "a", text: "Correct" },
               { id: "b", text: "Wrong" },
             ],
-            explanation: "Because A",
           },
         ],
       },
+      { q1: "a" },
       runtime,
       onSubmitted,
     );
@@ -335,6 +490,7 @@ describe("quiz client", () => {
         passingScore: 0.5,
         questions: [],
       },
+      {},
       runtime,
       vi.fn(),
     );

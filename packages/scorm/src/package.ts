@@ -1,7 +1,9 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, writeFile, mkdir, cp } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import JSZip from "jszip";
 import type { CourseManifest } from "@lxpack/validators";
+import type { RuntimeAssessmentBundle } from "@lxpack/validators";
 import { generateImsManifest } from "./manifest.js";
 import { buildIndexHtml } from "./build-html.js";
 
@@ -14,6 +16,7 @@ export interface PackageOptions {
   target: ExportTarget;
   runtimeClientJs: string;
   runtimeCss: string;
+  assessmentBundle?: RuntimeAssessmentBundle;
 }
 
 const SKIP_FILES = new Set([
@@ -21,6 +24,19 @@ const SKIP_FILES = new Set([
   "lxpack.config.ts",
   "lxpack.config.json",
 ]);
+
+export function shouldSkipCourseFile(rel: string): boolean {
+  if (SKIP_FILES.has(rel) || rel.startsWith(".lxpack")) {
+    return true;
+  }
+  if (rel === "index.html") {
+    return true;
+  }
+  if (rel.startsWith("assessments/")) {
+    return true;
+  }
+  return false;
+}
 
 export async function collectFiles(
   dir: string,
@@ -38,10 +54,7 @@ export async function collectFiles(
       files.push(...(await collectFiles(fullPath, baseDir)));
     } else if (entry.isFile()) {
       const rel = relative(baseDir, fullPath).replace(/\\/g, "/");
-      if (SKIP_FILES.has(rel) || rel.startsWith(".lxpack")) {
-        continue;
-      }
-      if (rel === "index.html") {
+      if (shouldSkipCourseFile(rel)) {
         continue;
       }
       files.push({ path: rel, fullPath });
@@ -60,8 +73,15 @@ export function buildManifestFileList(
 export async function packageCourse(
   options: PackageOptions,
 ): Promise<{ outputPath: string; fileCount: number }> {
-  const { courseDir, manifest, outputPath, target, runtimeClientJs, runtimeCss } =
-    options;
+  const {
+    courseDir,
+    manifest,
+    outputPath,
+    target,
+    runtimeClientJs,
+    runtimeCss,
+    assessmentBundle,
+  } = options;
 
   const zip = new JSZip();
   const mode = target === "scorm12" ? "scorm12" : "standalone";
@@ -72,7 +92,12 @@ export async function packageCourse(
     zip.file(file.path, content);
   }
 
-  const indexHtml = buildIndexHtml({ manifest, runtimeCss, mode });
+  const indexHtml = buildIndexHtml({
+    manifest,
+    runtimeCss,
+    mode,
+    assessmentBundle,
+  });
   zip.file("index.html", indexHtml);
   zip.file("lxpack-runtime.js", runtimeClientJs);
 
@@ -89,7 +114,6 @@ export async function packageCourse(
     compression: "DEFLATE",
   });
 
-  const { writeFile } = await import("node:fs/promises");
   await writeFile(outputPath, buffer);
 
   return {
@@ -101,11 +125,15 @@ export async function packageCourse(
 export async function packageStandaloneDir(
   options: Omit<PackageOptions, "outputPath"> & { outputDir: string },
 ): Promise<{ outputDir: string; fileCount: number }> {
-  const { courseDir, manifest, outputDir, target, runtimeClientJs, runtimeCss } =
-    options;
-
-  const { mkdir, writeFile, cp } = await import("node:fs/promises");
-  const { existsSync } = await import("node:fs");
+  const {
+    courseDir,
+    manifest,
+    outputDir,
+    target,
+    runtimeClientJs,
+    runtimeCss,
+    assessmentBundle,
+  } = options;
 
   await mkdir(outputDir, { recursive: true });
 
@@ -123,7 +151,12 @@ export async function packageStandaloneDir(
     fileCount++;
   }
 
-  const indexHtml = buildIndexHtml({ manifest, runtimeCss, mode });
+  const indexHtml = buildIndexHtml({
+    manifest,
+    runtimeCss,
+    mode,
+    assessmentBundle,
+  });
   await writeFile(join(outputDir, "index.html"), indexHtml);
   await writeFile(join(outputDir, "lxpack-runtime.js"), runtimeClientJs);
   fileCount += 2;
