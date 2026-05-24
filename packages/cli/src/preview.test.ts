@@ -82,6 +82,13 @@ describe("createPreviewServer", () => {
         stdio: "pipe",
       });
     }
+    const components = `${REPO_ROOT}/packages/components/dist/bundle.js`;
+    if (!existsSync(components)) {
+      execSync("pnpm --filter @lxpack/components build", {
+        cwd: REPO_ROOT,
+        stdio: "pipe",
+      });
+    }
   });
 
   afterEach(async () => {
@@ -102,6 +109,24 @@ describe("createPreviewServer", () => {
 
     const health = await app.inject({ method: "GET", url: "/health" });
     expect(health.json()).toEqual({ status: "ok" });
+  });
+
+  it("serves the components bundle route when available", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
+    app = await previewCommands.createPreviewServer(
+      fixturePath("minimal-valid"),
+      manifest,
+    );
+    const home = await app.inject({ method: "GET", url: "/" });
+    expect(home.body).toContain("/runtime/components.js");
+
+    const components = await app.inject({
+      method: "GET",
+      url: "/runtime/components.js",
+    });
+    expect(components.statusCode).toBe(200);
+    expect(components.body).toContain("__LXPACK_COMPONENTS__");
   });
 });
 

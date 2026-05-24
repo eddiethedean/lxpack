@@ -3,6 +3,8 @@ import { LxpackRuntime } from "./runtime.js";
 import type { ScormData } from "./scorm-api.js";
 import * as scormApi from "./scorm-api.js";
 import { Scorm12Simulator } from "./scorm-api.js";
+import * as scorm2004Api from "./scorm2004-api.js";
+import { Scorm2004Simulator } from "./scorm2004-api.js";
 
 const manifest = {
   title: "Test",
@@ -20,6 +22,18 @@ function mockLms(initialData?: Partial<ScormData>): Scorm12Simulator {
     initialData,
   });
   vi.spyOn(scormApi, "createScormConnection").mockReturnValue(sim);
+  return sim;
+}
+
+function mockScorm2004(initial?: Record<string, string>): Scorm2004Simulator {
+  const sim = new Scorm2004Simulator({ persistToStorage: false });
+  if (initial) {
+    sim.Initialize();
+    for (const [key, value] of Object.entries(initial)) {
+      sim.SetValue(key, value);
+    }
+  }
+  vi.spyOn(scorm2004Api, "createScorm2004Connection").mockReturnValue(sim);
   return sim;
 }
 
@@ -665,5 +679,84 @@ describe("LxpackRuntime", () => {
       mode: "scorm12",
     });
     expect(() => runtime.completeLesson("a")).not.toThrow();
+  });
+
+  it("honors activityId override in SCORM 2004 mode", () => {
+    mockScorm2004();
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm2004",
+      activityId: "b",
+    });
+    expect(runtime.getProgress().currentLessonId).toBe("b");
+  });
+
+  it("restores SCORM 2004 suspend data and activity id", () => {
+    mockScorm2004({
+      "cmi.suspend_data": JSON.stringify({
+        currentLessonId: "b",
+        completedLessons: ["a"],
+        assessmentScores: {},
+        suspendData: {},
+      }),
+    });
+
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm2004",
+    });
+
+    expect(runtime.getProgress().currentLessonId).toBe("b");
+    expect(runtime.isLessonComplete("a")).toBe(true);
+  });
+
+  it("updates SCORM 2004 status on assessment submit", () => {
+    const sim = mockScorm2004();
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "scorm2004",
+    });
+
+    runtime.completeLesson("a");
+    runtime.completeLesson("b");
+    runtime.submitAssessment("quiz", 0.9, 0.7);
+    expect(sim.GetValue("cmi.success_status")).toBe("passed");
+    expect(sim.GetValue("cmi.completion_status")).toBe("completed");
+
+    runtime.submitAssessment("quiz", 0.2, 0.7);
+    expect(sim.GetValue("cmi.success_status")).toBe("failed");
+  });
+
+  it("falls back to cmi.location when SCORM 2004 suspend data is corrupt", () => {
+    mockScorm2004({
+      "cmi.suspend_data": "not-json",
+      "cmi.location": "b",
+    });
+
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm2004",
+    });
+
+    expect(runtime.getProgress().currentLessonId).toBe("b");
+  });
+
+  it("terminates SCORM 2004 session", () => {
+    const sim = mockScorm2004();
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm2004",
+    });
+    runtime.terminate();
+    expect(sim.Terminate()).toBe("false");
   });
 });

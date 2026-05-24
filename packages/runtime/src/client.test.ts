@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   bootstrapClient,
   init,
+  renderComponentLesson,
   renderHtmlInteraction,
   renderMarkdown,
   renderNav,
@@ -204,6 +205,46 @@ describe("client", () => {
       <input type="radio" name="q-q1" value="a" checked />
     `;
     expect(scoreAssessment(assessment, { q1: "a" }, form)).toBe(1);
+  });
+
+  it("renders component lessons via the components registry", () => {
+    const el = document.createElement("div");
+    const mount = vi.fn();
+    window.__LXPACK_COMPONENTS__ = { mount };
+    renderComponentLesson(el, "callout", { body: "Hi" }, "/course");
+    expect(mount).toHaveBeenCalledWith(el, "callout", { body: "Hi" }, "/course");
+    delete window.__LXPACK_COMPONENTS__;
+  });
+
+  it("renders component lessons through init", async () => {
+    const mount = vi.fn();
+    window.__LXPACK_COMPONENTS__ = { mount };
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "Components",
+        version: "1.0.0",
+        lessons: [
+          {
+            id: "tip",
+            type: "component",
+            component: "callout",
+            props: { body: "Hello" },
+          },
+        ],
+      },
+      baseUrl: "/course",
+      mode: "preview",
+    };
+    init();
+    await vi.waitFor(() => expect(mount).toHaveBeenCalled());
+    delete window.__LXPACK_COMPONENTS__;
+  });
+
+  it("shows an error when the components bundle is missing", () => {
+    const el = document.createElement("div");
+    delete window.__LXPACK_COMPONENTS__;
+    renderComponentLesson(el, "callout", undefined, "/course");
+    expect(el.textContent).toContain("requires the LXPack components bundle");
   });
 
   it("registers DOMContentLoaded when document is loading", () => {

@@ -5,6 +5,14 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts"],
     testTimeout: 30_000,
-    coverage: coverageConfig,
+    coverage: {
+      ...coverageConfig,
+      thresholds: {
+        ...coverageConfig.thresholds,
+        lines: 99,
+        statements: 99,
+        branches: 97,
+      },
+    },
   },
 });

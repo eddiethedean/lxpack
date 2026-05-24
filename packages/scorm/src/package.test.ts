@@ -85,6 +85,27 @@ describe("packageCourse", () => {
     expect(runtime).toBe(RUNTIME_JS);
   });
 
+  it("includes components bundle when provided", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-components-"));
+    const zipPath = join(outDir, "course.zip");
+    outputPaths.push(outDir);
+
+    await packageCourse({
+      courseDir: fixturePath("minimal-valid"),
+      manifest: manifest.manifest,
+      outputPath: zipPath,
+      target: "scorm12",
+      runtimeClientJs: RUNTIME_JS,
+      runtimeCss: RUNTIME_CSS,
+      componentsBundleJs: "window.__LXPACK_COMPONENTS__={};",
+    });
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    expect(zip.file("lxpack-components.js")).toBeTruthy();
+    const index = await zip.file("index.html")?.async("string");
+    expect(index).toContain("lxpack-components.js");
+  });
+
   it("ships a self-contained production runtime bundle", async () => {
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-real-bundle-"));
     const zipPath = join(outDir, "course.zip");
@@ -133,6 +154,64 @@ describe("packageCourse", () => {
     expect(zip.file("index.html")).toBeTruthy();
     const index = await zip.file("index.html")?.async("string");
     expect(index).toContain('"mode":"standalone"');
+  });
+
+  it("creates SCORM 2004 multi-SCO zip with per-activity launch pages", async () => {
+    const loaded = await loadManifest(fixturePath("branching-demo"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-scorm2004-"));
+    const zipPath = join(outDir, "branching.zip");
+    outputPaths.push(outDir);
+
+    await packageCourse({
+      courseDir: fixturePath("branching-demo"),
+      manifest: loaded.manifest,
+      outputPath: zipPath,
+      target: "scorm2004",
+      runtimeClientJs: RUNTIME_JS,
+      runtimeCss: RUNTIME_CSS,
+      componentsBundleJs: "window.__LXPACK_COMPONENTS__={};",
+    });
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    expect(zip.file("imsmanifest.xml")).toBeTruthy();
+    expect(zip.file("index.html")).toBeNull();
+    expect(zip.file("sco/intro/index.html")).toBeTruthy();
+    expect(zip.file("sco/final_quiz/index.html")).toBeTruthy();
+    expect(zip.file("assessments/final.yaml")).toBeNull();
+
+    const sco = await zip.file("sco/intro/index.html")?.async("string");
+    expect(sco).toContain('"mode":"scorm2004"');
+    expect(sco).toContain('"activityId":"intro"');
+    expect(sco).toContain("../../lxpack-runtime.js");
+
+    const ims = await zip.file("imsmanifest.xml")?.async("string");
+    expect(ims).toContain("2004 4th Edition");
+    expect(ims).toContain("imsss:sequencing");
+  });
+
+  it("builds SCORM 2004 without optional components bundle", async () => {
+    const loaded = await loadManifest(fixturePath("branching-demo"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-scorm2004-no-comp-"));
+    const zipPath = join(outDir, "branching.zip");
+    outputPaths.push(outDir);
+
+    await packageCourse({
+      courseDir: fixturePath("branching-demo"),
+      manifest: loaded.manifest,
+      outputPath: zipPath,
+      target: "scorm2004",
+      runtimeClientJs: RUNTIME_JS,
+      runtimeCss: RUNTIME_CSS,
+    });
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    expect(zip.file("lxpack-components.js")).toBeNull();
+    const sco = await zip.file("sco/intro/index.html")?.async("string");
+    expect(sco).not.toContain("lxpack-components");
   });
 });
 

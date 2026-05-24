@@ -5,9 +5,14 @@ import JSZip from "jszip";
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
 import { generateImsManifest } from "./manifest.js";
-import { buildIndexHtml } from "./build-html.js";
+import { buildIndexHtml, buildScoIndexHtml } from "./build-html.js";
+import { listCourseActivities } from "./activities.js";
+import {
+  buildScorm2004ManifestFiles,
+  generateScorm2004Manifest,
+} from "./scorm2004-manifest.js";
 
-export type ExportTarget = "scorm12" | "standalone";
+export type ExportTarget = "scorm12" | "scorm2004" | "standalone";
 
 export interface PackageOptions {
   courseDir: string;
@@ -16,6 +21,7 @@ export interface PackageOptions {
   target: ExportTarget;
   runtimeClientJs: string;
   runtimeCss: string;
+  componentsBundleJs?: string;
   assessmentBundle?: RuntimeAssessmentBundle;
 }
 
@@ -70,9 +76,71 @@ export function buildManifestFileList(
   return ["index.html", "lxpack-runtime.js", ...courseFiles.map((f) => f.path)];
 }
 
+export async function packageScorm2004(
+  options: PackageOptions,
+): Promise<{ outputPath: string; fileCount: number }> {
+  const {
+    courseDir,
+    manifest,
+    outputPath,
+    runtimeClientJs,
+    runtimeCss,
+    componentsBundleJs,
+    assessmentBundle,
+  } = options;
+
+  const zip = new JSZip();
+  const courseFiles = await collectFiles(courseDir, courseDir);
+
+  for (const file of courseFiles) {
+    const content = await readFile(file.fullPath);
+    zip.file(file.path, content);
+  }
+
+  zip.file("lxpack-runtime.js", runtimeClientJs);
+  if (componentsBundleJs) {
+    zip.file("lxpack-components.js", componentsBundleJs);
+  }
+
+  const activities = listCourseActivities(manifest);
+  for (const activity of activities) {
+    const html = buildScoIndexHtml({
+      manifest,
+      runtimeCss,
+      mode: "scorm2004",
+      activityId: activity.id,
+      assessmentBundle,
+      componentsScript: componentsBundleJs ? "../../lxpack-components.js" : undefined,
+    });
+    zip.file(`sco/${activity.id}/index.html`, html);
+  }
+
+  const manifestFiles = buildScorm2004ManifestFiles(
+    manifest,
+    courseFiles.map((f) => f.path),
+  );
+  zip.file("imsmanifest.xml", generateScorm2004Manifest(manifest, manifestFiles));
+
+  const buffer = await zip.generateAsync({
+    type: "nodebuffer",
+    compression: "DEFLATE",
+  });
+
+  await writeFile(outputPath, buffer);
+
+  return {
+    outputPath,
+    fileCount: Object.keys(zip.files).length,
+  };
+}
+
 export async function packageCourse(
   options: PackageOptions,
 ): Promise<{ outputPath: string; fileCount: number }> {
+  if (options.target === "scorm2004") {
+    return packageScorm2004(options);
+  }
+
   const {
     courseDir,
     manifest,
@@ -81,6 +149,7 @@ export async function packageCourse(
     runtimeClientJs,
     runtimeCss,
     assessmentBundle,
+    componentsBundleJs,
   } = options;
 
   const zip = new JSZip();
@@ -97,9 +166,13 @@ export async function packageCourse(
     runtimeCss,
     mode,
     assessmentBundle,
+    componentsScript: componentsBundleJs ? "./lxpack-components.js" : undefined,
   });
   zip.file("index.html", indexHtml);
   zip.file("lxpack-runtime.js", runtimeClientJs);
+  if (componentsBundleJs) {
+    zip.file("lxpack-components.js", componentsBundleJs);
+  }
 
   if (target === "scorm12") {
     const manifestFiles = buildManifestFileList(courseFiles);

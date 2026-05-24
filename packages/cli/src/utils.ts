@@ -80,11 +80,22 @@ export async function readRuntimeBundle(
   return { clientJs, css };
 }
 
+export async function readComponentsBundle(): Promise<string | undefined> {
+  try {
+    const bundlePath = require.resolve("@lxpack/components/bundle");
+    return await readFile(bundlePath, "utf-8");
+  } catch {
+    return undefined;
+  }
+}
+
 const lxpackConfigSchema = z
   .object({
     exports: z
       .object({
-        defaultTarget: z.enum(["scorm12", "standalone"]).optional(),
+        defaultTarget: z
+          .enum(["scorm12", "scorm2004", "standalone"])
+          .optional(),
       })
       .optional(),
     output: z

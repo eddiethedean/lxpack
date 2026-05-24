@@ -10,6 +10,7 @@ import {
   findCourseDir,
   getRuntimeAssetsDir,
   loadRuntimeStyles,
+  readComponentsBundle,
 } from "../utils.js";
 
 export async function loadPreviewStyles(
@@ -30,6 +31,8 @@ export function buildPreviewConfig(
       ? {
           assessments: assessmentBundle.assessments,
           answerKeys: assessmentBundle.answerKeys,
+          assessmentConfigs: assessmentBundle.configs,
+          assessmentFeedback: assessmentBundle.feedback,
         }
       : {}),
   });
@@ -58,6 +61,13 @@ export async function createPreviewServer(
 
   const stylesCss = await loadPreviewStyles(runtimeDir);
   const config = buildPreviewConfig(manifest, assessmentBundle);
+  const componentsJs = await readComponentsBundle();
+
+  if (componentsJs) {
+    app.get("/runtime/components.js", async (_req, reply) => {
+      return reply.type("application/javascript").send(componentsJs);
+    });
+  }
 
   app.get("/", async (_req, reply) => {
     const html = `<!DOCTYPE html>
@@ -74,6 +84,7 @@ export async function createPreviewServer(
   <script>
     window.__LXPACK_CONFIG__ = JSON.parse(document.getElementById('lxpack-config').textContent);
   </script>
+  ${componentsJs ? '<script type="module" src="/runtime/components.js"></script>' : ""}
   <script type="module" src="/runtime/client.js"></script>
 </body>
 </html>`;

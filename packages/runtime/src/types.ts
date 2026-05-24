@@ -1,7 +1,9 @@
 import type {
+  AssessmentRuntimeConfig,
   CourseManifest,
   LearnerAssessment,
   Lesson,
+  QuestionFeedback,
   RuntimeAssessmentBundle,
 } from "@lxpack/validators";
 
@@ -15,10 +17,13 @@ export interface CourseProgress {
 export interface RuntimeConfig {
   manifest: CourseManifest;
   baseUrl: string;
-  mode: "preview" | "standalone" | "scorm12";
+  mode: "preview" | "standalone" | "scorm12" | "scorm2004";
+  activityId?: string;
   progress?: CourseProgress;
   assessments?: RuntimeAssessmentBundle["assessments"];
   answerKeys?: RuntimeAssessmentBundle["answerKeys"];
+  assessmentConfigs?: Record<string, AssessmentRuntimeConfig>;
+  assessmentFeedback?: Record<string, QuestionFeedback>;
 }
 
 export interface TrackEvent {

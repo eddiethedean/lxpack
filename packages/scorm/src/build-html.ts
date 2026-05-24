@@ -5,34 +5,66 @@ import { safeJsonForHtml } from "./safe-json.js";
 export interface BuildHtmlOptions {
   manifest: CourseManifest;
   runtimeCss: string;
-  mode: "standalone" | "scorm12";
+  mode: "standalone" | "scorm12" | "scorm2004";
+  activityId?: string;
   assessmentBundle?: RuntimeAssessmentBundle;
+  componentsScript?: string;
 }
 
-export function buildRuntimeConfig(options: BuildHtmlOptions): {
-  manifest: CourseManifest;
-  baseUrl: string;
-  mode: BuildHtmlOptions["mode"];
-  assessments?: RuntimeAssessmentBundle["assessments"];
-  answerKeys?: RuntimeAssessmentBundle["answerKeys"];
-} {
-  const { manifest, mode, assessmentBundle } = options;
+export function buildRuntimeConfig(options: BuildHtmlOptions): Record<string, unknown> {
+  const { manifest, mode, assessmentBundle, activityId } = options;
   return {
     manifest,
     baseUrl: ".",
     mode,
+    ...(activityId ? { activityId } : {}),
     ...(assessmentBundle
       ? {
           assessments: assessmentBundle.assessments,
           answerKeys: assessmentBundle.answerKeys,
+          assessmentConfigs: assessmentBundle.configs,
+          assessmentFeedback: assessmentBundle.feedback,
         }
       : {}),
   };
 }
 
+export function buildScoIndexHtml(
+  options: BuildHtmlOptions & { activityId: string },
+): string {
+  const { manifest, runtimeCss, activityId, componentsScript } = options;
+  const config = safeJsonForHtml(buildRuntimeConfig({ ...options, activityId }));
+
+  const componentsTag = componentsScript
+    ? `<script type="module" src="${escapeHtml(componentsScript)}"></script>`
+    : "";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(manifest.title)} — ${escapeHtml(activityId)}</title>
+  <style>${runtimeCss}</style>
+</head>
+<body>
+  <div id="lxpack-app"></div>
+  <script type="application/json" id="lxpack-config">${config}</script>
+  <script>
+    window.__LXPACK_CONFIG__ = JSON.parse(document.getElementById('lxpack-config').textContent);
+  </script>
+  ${componentsTag}
+  <script type="module" src="../../lxpack-runtime.js"></script>
+</body>
+</html>`;
+}
+
 export function buildIndexHtml(options: BuildHtmlOptions): string {
-  const { manifest, runtimeCss } = options;
+  const { manifest, runtimeCss, componentsScript } = options;
   const config = safeJsonForHtml(buildRuntimeConfig(options));
+  const componentsTag = componentsScript
+    ? `<script type="module" src="${escapeHtml(componentsScript)}"></script>`
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -48,6 +80,7 @@ export function buildIndexHtml(options: BuildHtmlOptions): string {
   <script>
     window.__LXPACK_CONFIG__ = JSON.parse(document.getElementById('lxpack-config').textContent);
   </script>
+  ${componentsTag}
   <script type="module" src="./lxpack-runtime.js"></script>
 </body>
 </html>`;

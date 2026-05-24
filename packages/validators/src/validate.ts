@@ -2,6 +2,8 @@ import { existsSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { readFile } from "node:fs/promises";
+import { isBuiltinComponentId } from "./components.js";
+import { validateFlow } from "./flow-validate.js";
 import {
   assessmentSchema,
   courseManifestSchema,
@@ -162,6 +164,37 @@ export async function validateCourse(
           message: `Lesson path is not a file: ${lesson.file}`,
           severity: "error",
         });
+      }
+    } else if (lesson.type === "component") {
+      if (!isBuiltinComponentId(lesson.component)) {
+        const resolved = resolveCoursePath(
+          resolvedDir,
+          join("components", lesson.component),
+        );
+        if (!resolved.ok) {
+          issues.push({
+            path: `lessons.${lesson.id}.component`,
+            message: resolved.message,
+            severity: "error",
+          });
+          continue;
+        }
+        if (!existsSync(resolved.path)) {
+          issues.push({
+            path: `lessons.${lesson.id}.component`,
+            message: `Unknown component "${lesson.component}" and no override at components/${lesson.component}`,
+            severity: "error",
+          });
+          continue;
+        }
+        const contained = assertResolvedPathContained(resolvedDir, resolved.path);
+        if (!contained.ok) {
+          issues.push({
+            path: `lessons.${lesson.id}.component`,
+            message: contained.message,
+            severity: "error",
+          });
+        }
       }
     } else if (lesson.type === "html") {
       const resolved = resolveCoursePath(resolvedDir, lesson.path);
@@ -325,6 +358,35 @@ export async function validateCourse(
         message: `Duplicate lesson ID: ${id}`,
         severity: "error",
       });
+    }
+  }
+
+  issues.push(...validateFlow(manifest));
+
+  if (manifest.variables) {
+    for (const [name, def] of Object.entries(manifest.variables)) {
+      const t = def.type;
+      if (t === "string" && typeof def.default !== "string") {
+        issues.push({
+          path: `variables.${name}.default`,
+          message: "Default must be a string when type is string",
+          severity: "error",
+        });
+      }
+      if (t === "number" && typeof def.default !== "number") {
+        issues.push({
+          path: `variables.${name}.default`,
+          message: "Default must be a number when type is number",
+          severity: "error",
+        });
+      }
+      if (t === "boolean" && typeof def.default !== "boolean") {
+        issues.push({
+          path: `variables.${name}.default`,
+          message: "Default must be a boolean when type is boolean",
+          severity: "error",
+        });
+      }
     }
   }
 

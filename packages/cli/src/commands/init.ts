@@ -29,6 +29,17 @@ lessons:
 assessments:
   - id: final_quiz
     file: assessments/final.yaml
+
+# Optional Phase 2 features (see examples/branching-demo):
+# variables:
+#   path:
+#     default: intro
+#     type: string
+# flow:
+#   - when:
+#       variable:
+#         eq: [path, advanced]
+#     goto: component_lesson
 `;
 
 const WELCOME_MD = `# Welcome
@@ -157,6 +168,7 @@ export async function initCommand(
     join(targetDir, "assets"),
     join(targetDir, "assessments"),
     join(targetDir, "theme"),
+    join(targetDir, "components"),
   ];
 
   for (const dir of dirs) {
@@ -175,6 +187,7 @@ export async function initCommand(
   await writeFile(join(targetDir, "assessments", "final.yaml"), FINAL_ASSESSMENT);
   await writeFile(join(targetDir, "lxpack.config.json"), LXPACK_CONFIG);
   await writeFile(join(targetDir, "theme", ".gitkeep"), "");
+  await writeFile(join(targetDir, "components", ".gitkeep"), "");
 
   console.log(pc.green(`✓ Created LXPack course: ${targetDir}`));
   console.log();

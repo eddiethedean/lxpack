@@ -1,6 +1,13 @@
 import { marked } from "marked";
 import { parse as parseYaml } from "yaml";
 import type { CourseManifest, LearnerAssessment, Lesson } from "@lxpack/validators";
+import {
+  buildActivityOrder,
+  resolveNextActivityId,
+  resolvePreviousActivityId,
+} from "./flow.js";
+import { renderAssessment } from "./quiz/index.js";
+import type { RuntimeAssessmentPayload } from "./quiz/types.js";
 import { LxpackRuntime } from "./runtime.js";
 import type { RuntimeConfig } from "./types.js";
 
@@ -10,6 +17,14 @@ declare global {
   interface Window {
     lxpack?: ReturnType<LxpackRuntime["getAPI"]>;
     __LXPACK_CONFIG__?: RuntimeConfig;
+    __LXPACK_COMPONENTS__?: {
+      mount: (
+        el: HTMLElement,
+        componentId: string,
+        props: Record<string, unknown>,
+        baseUrl: string,
+      ) => void;
+    };
   }
 }
 
@@ -129,11 +144,28 @@ export async function loadAssessment(
   baseUrl: string,
   assessmentId: string,
   file: string,
-): Promise<{ assessment: LearnerAssessment; answerKey: Record<string, string> }> {
+): Promise<{
+  assessment: LearnerAssessment;
+  answerKey: Record<string, string>;
+  payload?: RuntimeAssessmentPayload;
+}> {
   const embedded = config.assessments?.[assessmentId];
   if (embedded) {
     const answerKey = config.answerKeys?.[assessmentId] ?? {};
-    return { assessment: embedded, answerKey };
+    const assessmentConfig = config.assessmentConfigs?.[assessmentId] ?? {
+      maxAttempts: 1,
+      shuffleChoices: false,
+      showFeedback: "never" as const,
+    };
+    return {
+      assessment: embedded,
+      answerKey,
+      payload: {
+        ...embedded,
+        config: assessmentConfig,
+        feedback: config.assessmentFeedback?.[assessmentId],
+      },
+    };
   }
 
   const res = await fetch(joinUrl(baseUrl, file));
@@ -169,105 +201,6 @@ export async function loadAssessment(
   };
 
   return { assessment, answerKey };
-}
-
-export function scoreAssessment(
-  assessment: LearnerAssessment,
-  answerKey: Record<string, string>,
-  form: HTMLFormElement,
-): number {
-  let correct = 0;
-  for (const q of assessment.questions) {
-    const selected = form.querySelector(
-      `input[name="q-${q.id}"]:checked`,
-    ) as HTMLInputElement | null;
-    const correctId = answerKey[q.id];
-    if (selected && correctId && selected.value === correctId) {
-      correct++;
-    }
-  }
-  return assessment.questions.length ? correct / assessment.questions.length : 0;
-}
-
-export function renderAssessment(
-  contentEl: HTMLElement,
-  assessment: LearnerAssessment,
-  answerKey: Record<string, string>,
-  runtime: LxpackRuntime,
-  onSubmitted: () => void,
-): void {
-  const existingScore = runtime.getProgress().assessmentScores[assessment.id];
-  const passed = runtime.isAssessmentPassed(assessment.id);
-
-  if (existingScore !== undefined) {
-    contentEl.innerHTML = `
-      <article class="lxpack-assessment lxpack-assessment-result">
-        <h2>${escapeHtml(assessment.title ?? assessment.id)}</h2>
-        <p class="${passed ? "lxpack-success-text" : "lxpack-error"}">
-          Score: ${Math.round(existingScore * 100)}% —
-          ${passed ? "Passed" : "Not passed"}
-          (required: ${Math.round(assessment.passingScore * 100)}%)
-        </p>
-      </article>
-    `;
-    return;
-  }
-
-  const questionsHtml = assessment.questions
-    .map(
-      (q, qi) => `
-      <fieldset class="lxpack-question" data-question-id="${escapeHtml(q.id)}">
-        <legend>${qi + 1}. ${escapeHtml(q.prompt)}</legend>
-        ${q.choices
-          .map(
-            (c) => `
-          <label class="lxpack-choice">
-            <input type="radio" name="q-${escapeHtml(q.id)}" value="${escapeHtml(c.id)}" />
-            ${escapeHtml(c.text)}
-          </label>
-        `,
-          )
-          .join("")}
-      </fieldset>
-    `,
-    )
-    .join("");
-
-  contentEl.innerHTML = `
-    <article class="lxpack-assessment">
-      <h2>${escapeHtml(assessment.title ?? assessment.id)}</h2>
-      <form id="lxpack-assessment-form">
-        ${questionsHtml}
-        <button type="submit" class="lxpack-complete-btn">Submit assessment</button>
-      </form>
-      <div id="lxpack-assessment-feedback" class="lxpack-assessment-feedback" hidden></div>
-    </article>
-  `;
-
-  const form = contentEl.querySelector("#lxpack-assessment-form") as HTMLFormElement;
-  const feedback = contentEl.querySelector(
-    "#lxpack-assessment-feedback",
-  ) as HTMLElement;
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const score = scoreAssessment(assessment, answerKey, form);
-    const passedNow = score >= assessment.passingScore;
-
-    runtime.submitAssessment(assessment.id, score, assessment.passingScore);
-
-    feedback.hidden = false;
-    feedback.innerHTML = `
-      <p class="${passedNow ? "lxpack-success-text" : "lxpack-error"}">
-        Score: ${Math.round(score * 100)}% —
-        ${passedNow ? "Passed!" : "Not passed."}
-        (required: ${Math.round(assessment.passingScore * 100)}%)
-      </p>
-    `;
-
-    form.querySelector("button[type=submit]")?.remove();
-    onSubmitted();
-  });
 }
 
 export function renderNav(
@@ -320,6 +253,24 @@ function updateProgressBar(ratio: number): void {
   }
 }
 
+export function renderComponentLesson(
+  contentEl: HTMLElement,
+  componentId: string,
+  props: Record<string, unknown> | undefined,
+  baseUrl: string,
+): void {
+  const registry = window.__LXPACK_COMPONENTS__;
+  if (registry) {
+    registry.mount(contentEl, componentId, props ?? {}, baseUrl);
+    return;
+  }
+  contentEl.innerHTML = `
+    <article class="lxpack-component lxpack-error">
+      <p>Component "${escapeHtml(componentId)}" requires the LXPack components bundle.</p>
+    </article>
+  `;
+}
+
 async function renderItem(
   config: RuntimeConfig,
   runtime: LxpackRuntime,
@@ -334,17 +285,32 @@ async function renderItem(
       await renderMarkdown(contentEl, baseUrl, lesson.file);
     } else if (lesson.type === "html" && lesson.path) {
       renderHtmlInteraction(contentEl, baseUrl, lesson.path);
+    } else if (lesson.type === "component") {
+      renderComponentLesson(
+        contentEl,
+        lesson.component,
+        lesson.props,
+        baseUrl,
+      );
     } else {
       contentEl.innerHTML = `<p class="lxpack-error">Invalid lesson configuration</p>`;
     }
   } else {
-    const { assessment, answerKey } = await loadAssessment(
+    const { assessment, answerKey, payload } = await loadAssessment(
       config,
       baseUrl,
       item.id,
       item.file,
     );
-    renderAssessment(contentEl, assessment, answerKey, runtime, onSubmitted);
+    renderAssessment(contentEl, payload ?? {
+      ...assessment,
+      config: config.assessmentConfigs?.[item.id] ?? {
+        maxAttempts: 1,
+        shuffleChoices: false,
+        showFeedback: "never",
+      },
+      feedback: config.assessmentFeedback?.[item.id],
+    }, answerKey, runtime, onSubmitted);
   }
 }
 
@@ -359,7 +325,8 @@ export function init(): void {
     answerKeys: config.answerKeys,
   });
 
-  window.lxpack = runtime.getAPI();
+  const lxpackApi = runtime.getAPI();
+  window.lxpack = lxpackApi;
   renderShell(config.manifest);
 
   const navEl = document.querySelector(".lxpack-nav") as HTMLElement;
@@ -371,12 +338,26 @@ export function init(): void {
   ) as HTMLButtonElement;
 
   const navItems = buildNavItems(config.manifest);
-  let currentIndex = navItems.findIndex(
-    (item) => item.id === runtime.getProgress().currentLessonId,
-  );
-  if (currentIndex < 0) currentIndex = 0;
+  const activityOrder = buildActivityOrder(config.manifest);
+
+  function indexForId(id: string): number {
+    const idx = navItems.findIndex((n) => n.id === id);
+    return idx >= 0 ? idx : 0;
+  }
+
+  let currentIndex = indexForId(runtime.getProgress().currentLessonId);
 
   let renderSeq = 0;
+
+  function applyFlowJump(): void {
+    const target = runtime.resolveFlowNavigation();
+    if (target && target !== navItems[currentIndex]?.id) {
+      const idx = navItems.findIndex((n) => n.id === target);
+      if (idx >= 0) {
+        void showItem(idx);
+      }
+    }
+  }
 
   function getPassedAssessments(): Set<string> {
     const passed = new Set<string>();
@@ -423,8 +404,14 @@ export function init(): void {
 
     updateProgressBar(runtime.getCompletionRatio());
 
-    prevBtn.disabled = index === 0;
-    nextBtn.disabled = index === navItems.length - 1;
+    const currentId = navItems[index]?.id ?? "";
+    const hasFlow = Boolean(config.manifest.flow?.length);
+    const atStart = activityOrder.indexOf(currentId) <= 0;
+    const atEnd =
+      activityOrder.indexOf(currentId) >= activityOrder.length - 1 &&
+      !hasFlow;
+    prevBtn.disabled = atStart;
+    nextBtn.disabled = atEnd && !hasFlow;
 
     const isLesson = item.kind === "lesson";
     completeBtn.hidden = !isLesson;
@@ -437,10 +424,30 @@ export function init(): void {
   }
 
   prevBtn.addEventListener("click", () => {
+    const id = navItems[currentIndex]?.id;
+    if (!id) return;
+    const prevId = resolvePreviousActivityId(config.manifest, id);
+    if (prevId) {
+      const idx = navItems.findIndex((n) => n.id === prevId);
+      if (idx >= 0) void showItem(idx);
+      return;
+    }
     if (currentIndex > 0) void showItem(currentIndex - 1);
   });
 
   nextBtn.addEventListener("click", () => {
+    const id = navItems[currentIndex]?.id;
+    if (!id) return;
+    const nextId = resolveNextActivityId(
+      config.manifest,
+      id,
+      runtime.getFlowContext(),
+    );
+    if (nextId) {
+      const idx = navItems.findIndex((n) => n.id === nextId);
+      if (idx >= 0) void showItem(idx);
+      return;
+    }
     if (currentIndex < navItems.length - 1) void showItem(currentIndex + 1);
   });
 
@@ -448,9 +455,18 @@ export function init(): void {
     const item = navItems[currentIndex];
     if (item?.kind === "lesson") {
       runtime.completeLesson(item.id);
+      applyFlowJump();
       void showItem(currentIndex);
     }
   });
+
+  const originalTrack = lxpackApi.track.bind(lxpackApi);
+  lxpackApi.track = (event) => {
+    originalTrack(event);
+    if (event.type === "interaction" || event.type === "assessment") {
+      applyFlowJump();
+    }
+  };
 
   const terminate = () => runtime.terminate();
   window.addEventListener("beforeunload", terminate);
@@ -466,6 +482,8 @@ export function bootstrapClient(): void {
     init();
   }
 }
+
+export { renderAssessment, scoreAssessmentForm as scoreAssessment } from "./quiz/index.js";
 
 /* v8 ignore start -- entry guard: auto-bootstrap only outside test */
 const isTestEnv = process.env.VITEST === "true";

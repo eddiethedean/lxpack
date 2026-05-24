@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Choose path</title>
+</head>
+<body>
+  <p>Pick a learning path:</p>
+  <button type="button" id="basic">Basic</button>
+  <button type="button" id="advanced">Advanced</button>
+  <script>
+    document.getElementById("basic").onclick = () => {
+      window.lxpack?.setVariable("path", "intro");
+      window.lxpack?.track({ type: "interaction", id: "choose_path", data: { path: "basic" } });
+    };
+    document.getElementById("advanced").onclick = () => {
+      window.lxpack?.setVariable("path", "advanced");
+      window.lxpack?.track({ type: "interaction", id: "choose_path", data: { path: "advanced" } });
+    };
+  </script>
+</body>
+</html>

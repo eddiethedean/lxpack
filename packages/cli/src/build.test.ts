@@ -21,6 +21,13 @@ describe("buildCommand", () => {
         stdio: "pipe",
       });
     }
+    const components = join(REPO_ROOT, "packages/components/dist/bundle.js");
+    if (!existsSync(components)) {
+      execSync("pnpm --filter @lxpack/components build", {
+        cwd: REPO_ROOT,
+        stdio: "pipe",
+      });
+    }
   });
 
   beforeEach(async () => {
@@ -114,6 +121,24 @@ describe("buildCommand", () => {
     const zip = await JSZip.loadAsync(await readFile(zipPath));
     expect(zip.file("imsmanifest.xml")).toBeTruthy();
     expect(zip.file("index.html")).toBeTruthy();
+  });
+
+  it("builds SCORM 2004 multi-SCO zip", async () => {
+    const { cp } = await import("node:fs/promises");
+    const branchDir = join(workDir, "branching");
+    await cp(fixturePath("branching-demo"), branchDir, { recursive: true });
+    process.chdir(branchDir);
+
+    await buildCommand({ target: "scorm2004" });
+
+    const zipPath = join(branchDir, ".lxpack", "branching-demo-scorm2004.zip");
+    expect(existsSync(zipPath)).toBe(true);
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    expect(zip.file("sco/intro/index.html")).toBeTruthy();
+    const ims = await zip.file("imsmanifest.xml")?.async("string");
+    expect(ims).toContain("2004 4th Edition");
+    process.chdir(join(workDir, "course"));
   });
 
   it("builds standalone zip when requested", async () => {

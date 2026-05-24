@@ -109,6 +109,7 @@ lxpack build --target <target>
 | Target | Description |
 |--------|-------------|
 | `scorm12` | SCORM 1.2 ZIP with `imsmanifest.xml`, single SCO launch |
+| `scorm2004` | SCORM 2004 4th Edition multi-SCO ZIP with IMS Simple Sequencing subset |
 | `standalone` | HTML ZIP or directory (no SCORM manifest) |
 
 Default target and output directory: `lxpack.config.json`.
@@ -117,7 +118,6 @@ Default target and output directory: `lxpack.config.json`.
 
 | Target | Phase |
 |--------|-------|
-| `scorm2004` | Multi-SCO ZIP with IMS sequencing/navigation | 2 |
 | xAPI | 3 |
 | cmi5 | 3 |
 
@@ -319,7 +319,7 @@ docs/
 |-----------|-------|---------|--------|
 | MVP core | 1 | v0.1.0 | Shipped |
 | Security & SCORM fixes | 1 | v0.1.1 | Shipped |
-| Runtime expansion | 2 | v0.2.x | Planned |
+| Runtime expansion | 2 | v0.2.0 | Shipped |
 | Modern standards | 3 | v0.3.x | Planned |
 | AI tooling | 4 | TBD | Planned |
 

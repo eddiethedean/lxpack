@@ -98,8 +98,36 @@ describe("toLearnerAssessment", () => {
         },
       ],
     });
-    const { learner, answerKey } = toLearnerAssessment(assessment);
+    const { learner, answerKey, feedback, config } =
+      toLearnerAssessment(assessment);
     expect(answerKey.q1).toBe("a");
     expect(learner.questions[0]?.choices[0]).toEqual({ id: "a", text: "A" });
+    expect(feedback.q1).toBeUndefined();
+    expect(config.maxAttempts).toBe(1);
+  });
+
+  it("embeds explanations and assessment options in bundle metadata", () => {
+    const assessment = assessmentSchema.parse({
+      id: "quiz",
+      passingScore: 0.8,
+      maxAttempts: 3,
+      shuffleChoices: true,
+      showFeedback: "immediate",
+      questions: [
+        {
+          id: "q1",
+          prompt: "P",
+          explanation: "Because.",
+          choices: [{ id: "a", text: "A", correct: true }],
+        },
+      ],
+    });
+    const { feedback, config } = toLearnerAssessment(assessment);
+    expect(feedback.q1).toBe("Because.");
+    expect(config).toEqual({
+      maxAttempts: 3,
+      shuffleChoices: true,
+      showFeedback: "immediate",
+    });
   });
 });

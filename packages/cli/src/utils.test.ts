@@ -110,6 +110,15 @@ describe("readRuntimeBundle", () => {
   });
 });
 
+describe("readComponentsBundle", () => {
+  it("loads the built components bundle when installed", async () => {
+    const bundle = await utils.readComponentsBundle();
+    expect(bundle === undefined || bundle.includes("__LXPACK_COMPONENTS__")).toBe(
+      true,
+    );
+  });
+});
+
 describe("loadRuntimeStyles", () => {
   it("returns embedded CSS when styles.css is missing", async () => {
     const css = await utils.loadRuntimeStyles("/nonexistent/runtime");

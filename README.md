@@ -239,7 +239,7 @@ The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CH
 | Phase | Version | Status |
 |-------|---------|--------|
 | 1 — MVP | **v0.1.x** (latest **v0.1.1**) | Shipped — CLI, validation, preview, SCORM 1.2, standalone HTML, MCQ assessments |
-| 2 — Runtime expansion | **v0.2.x** | Planned — SCORM 2004 sequencing, branching, variables, quiz engine, `@lxpack/components` |
+| 2 — Runtime expansion | **v0.2.0** | Shipped — SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
 | 3 — Modern standards | v0.3.x | Planned — xAPI, cmi5, analytics |
 | 4–6 | TBD | AI tooling, ecosystem, enterprise platform |
 

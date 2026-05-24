@@ -10,9 +10,20 @@ import {
   createScormConnection,
 } from "./scorm-api.js";
 import {
+  type Scorm2004Connection,
+  createScorm2004Connection,
+} from "./scorm2004-api.js";
+import {
   parseStoredProgress,
   serializeProgressForStorage,
 } from "./progress-persist.js";
+import {
+  initManifestVariables,
+  readManifestVariable,
+  writeManifestVariable,
+} from "./variables.js";
+import type { FlowContext } from "./flow.js";
+import { resolveFlowGoto } from "./flow.js";
 
 function progressStorageKey(manifest: CourseManifest): string {
   const slug = `${manifest.title}::${manifest.version}`;
@@ -28,6 +39,7 @@ export class LxpackRuntime {
   private manifest: CourseManifest;
   private progress: CourseProgress;
   private scorm: ScormConnection | null = null;
+  private scorm2004: Scorm2004Connection | null = null;
   private completionThreshold: number;
   private storageKey: string;
   private mode: RuntimeConfig["mode"];
@@ -46,7 +58,8 @@ export class LxpackRuntime {
       this.defaultPassingScores[id] = assessment.passingScore;
     }
 
-    const firstLesson = config.manifest.lessons[0]?.id ?? "";
+    const firstLesson =
+      config.activityId ?? config.manifest.lessons[0]?.id ?? "";
     this.progress = config.progress ?? {
       currentLessonId: firstLesson,
       completedLessons: [],
@@ -54,21 +67,58 @@ export class LxpackRuntime {
       suspendData: {},
     };
 
+    initManifestVariables(this.manifest, this.progress.suspendData);
+
     if (config.mode === "scorm12") {
       this.scorm = createScormConnection("scorm12");
       this.scorm.LMSInitialize();
       this.restoreScormProgress();
+    } else if (config.mode === "scorm2004") {
+      this.scorm2004 = createScorm2004Connection("scorm2004");
+      this.scorm2004.Initialize();
+      this.restoreScorm2004Progress();
     } else if (config.mode === "preview" || config.mode === "standalone") {
       this.restoreLocalProgress();
+    }
+
+    if (config.activityId) {
+      this.progress.currentLessonId = config.activityId;
     }
   }
 
   private restoreLessonLocation(): void {
-    if (!this.scorm) return;
-    const location = this.scorm.LMSGetValue("cmi.core.lesson_location");
-    if (location) {
-      this.progress.currentLessonId = location;
+    if (this.scorm) {
+      const location = this.scorm.LMSGetValue("cmi.core.lesson_location");
+      if (location) {
+        this.progress.currentLessonId = location;
+      }
+      return;
     }
+    if (this.scorm2004) {
+      const location = this.scorm2004.GetValue("cmi.location");
+      if (location) {
+        this.progress.currentLessonId = location;
+      }
+    }
+  }
+
+  private restoreScorm2004Progress(): void {
+    /* v8 ignore next -- only called after scorm2004 connection is created */
+    if (!this.scorm2004) return;
+
+    const saved = this.scorm2004.GetValue("cmi.suspend_data");
+    if (saved) {
+      const { progress, parsed } = parseStoredProgress(saved, this.progress);
+      if (parsed) {
+        this.progress = progress;
+      } else {
+        this.restoreLessonLocation();
+      }
+    } else {
+      this.restoreLessonLocation();
+    }
+
+    this.syncPassedAssessments();
   }
 
   private restoreScormProgress(): void {
@@ -135,10 +185,19 @@ export class LxpackRuntime {
         suspendData: { ...this.progress.suspendData },
       }),
       setVariable: (key, value) => {
-        this.progress.suspendData[key] = value;
+        if (this.manifest.variables && key in this.manifest.variables) {
+          writeManifestVariable(this.progress.suspendData, key, value);
+        } else {
+          this.progress.suspendData[key] = value;
+        }
         this.persist();
       },
-      getVariable: (key) => this.progress.suspendData[key],
+      getVariable: (key) => {
+        if (this.manifest.variables && key in this.manifest.variables) {
+          return readManifestVariable(this.progress.suspendData, key);
+        }
+        return this.progress.suspendData[key];
+      },
       submitAssessment: (assessmentId, score, passingScore) =>
         this.submitAssessment(assessmentId, score, passingScore),
     };
@@ -212,6 +271,9 @@ export class LxpackRuntime {
     if (this.scorm) {
       this.scorm.setLessonLocation(lessonId);
     }
+    if (this.scorm2004) {
+      this.scorm2004.setLocation(lessonId);
+    }
     this.persist();
   }
 
@@ -254,20 +316,20 @@ export class LxpackRuntime {
     const ratio = this.getCompletionRatio();
     const score = Math.round(ratio * 100);
 
+    const allLessonsComplete = this.manifest.lessons.every((l) =>
+      this.progress.completedLessons.includes(l.id),
+    );
+    const allAssessmentsPassed =
+      !this.manifest.assessments?.length ||
+      this.manifest.assessments.every((a) => this.passedAssessments.has(a.id));
+    const anyAssessmentFailed = this.manifest.assessments?.some(
+      (a) =>
+        a.id in this.progress.assessmentScores &&
+        !this.passedAssessments.has(a.id),
+    );
+
     if (this.scorm) {
       this.scorm.setScore(score);
-      const allLessonsComplete = this.manifest.lessons.every((l) =>
-        this.progress.completedLessons.includes(l.id),
-      );
-      const allAssessmentsPassed =
-        !this.manifest.assessments?.length ||
-        this.manifest.assessments.every((a) => this.passedAssessments.has(a.id));
-      const anyAssessmentFailed = this.manifest.assessments?.some(
-        (a) =>
-          a.id in this.progress.assessmentScores &&
-          !this.passedAssessments.has(a.id),
-      );
-
       if (anyAssessmentFailed) {
         this.scorm.setLessonStatus("failed");
       } else if (
@@ -280,6 +342,24 @@ export class LxpackRuntime {
         );
       } else if (score > 0) {
         this.scorm.setLessonStatus("incomplete");
+      }
+    }
+
+    if (this.scorm2004) {
+      this.scorm2004.setScoreScaled(ratio);
+      if (anyAssessmentFailed) {
+        this.scorm2004.setSuccessStatus("failed");
+        this.scorm2004.setCompletionStatus("completed");
+      } else if (
+        ratio >= this.completionThreshold &&
+        allLessonsComplete &&
+        allAssessmentsPassed
+      ) {
+        this.scorm2004.setSuccessStatus("passed");
+        this.scorm2004.setCompletionStatus("completed");
+      } else if (ratio > 0) {
+        this.scorm2004.setCompletionStatus("incomplete");
+        this.scorm2004.setSuccessStatus("unknown");
       }
     }
   }
@@ -299,6 +379,23 @@ export class LxpackRuntime {
       this.scorm.setSuspendData(data);
       this.scorm.LMSCommit();
     }
+    if (this.scorm2004) {
+      this.scorm2004.setSuspendData(data);
+      this.scorm2004.Commit();
+    }
+  }
+
+  getFlowContext(): FlowContext {
+    return {
+      getVariable: (name) => readManifestVariable(this.progress.suspendData, name),
+      isAssessmentPassed: (id) => this.isAssessmentPassed(id),
+      isInteractionDone: (id) =>
+        this.progress.suspendData[`interaction_${id}`] !== undefined,
+    };
+  }
+
+  resolveFlowNavigation(): string | null {
+    return resolveFlowGoto(this.manifest, this.getFlowContext());
   }
 
   terminate(): void {
@@ -306,6 +403,9 @@ export class LxpackRuntime {
     this.terminated = true;
     if (this.scorm) {
       this.scorm.LMSFinish();
+    }
+    if (this.scorm2004) {
+      this.scorm2004.Terminate();
     }
   }
 }

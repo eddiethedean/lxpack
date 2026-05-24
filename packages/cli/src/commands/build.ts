@@ -10,11 +10,12 @@ import pc from "picocolors";
 import {
   findCourseDir,
   loadLxpackConfig,
+  readComponentsBundle,
   readRuntimeBundle,
   resolveOutputDir,
 } from "../utils.js";
 
-const VALID_TARGETS: ExportTarget[] = ["scorm12", "standalone"];
+const VALID_TARGETS: ExportTarget[] = ["scorm12", "scorm2004", "standalone"];
 
 export async function buildCommand(options: {
   target?: string;
@@ -50,7 +51,10 @@ export async function buildCommand(options: {
     courseDir,
     manifest,
   );
-  const { clientJs, css } = await readRuntimeBundle();
+  const [{ clientJs, css }, componentsBundleJs] = await Promise.all([
+    readRuntimeBundle(),
+    readComponentsBundle(),
+  ]);
 
   const slug = courseSlug(manifest);
 
@@ -64,6 +68,7 @@ export async function buildCommand(options: {
     target,
     runtimeClientJs: clientJs,
     runtimeCss: css,
+    componentsBundleJs,
     assessmentBundle,
   };
 
@@ -79,7 +84,11 @@ export async function buildCommand(options: {
     console.log(`  Files: ${result.fileCount}`);
   } else {
     const defaultName =
-      target === "standalone" ? `${slug}-standalone.zip` : `${slug}-scorm12.zip`;
+      target === "standalone"
+        ? `${slug}-standalone.zip`
+        : target === "scorm2004"
+          ? `${slug}-scorm2004.zip`
+          : `${slug}-scorm12.zip`;
     const outputPath = options.output ?? join(outputRoot, defaultName);
 
     const result = await packageCourse({

@@ -5,6 +5,29 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-05-23
+
+### Added
+
+- Manifest `variables` and `flow` with a small condition AST (`variable.eq`, `assessment.passed`, `interaction.done`, `all` / `any`)
+- Flow-aware navigation in `@lxpack/runtime` (linear fallback when `flow` is omitted)
+- Quiz engine upgrades: `maxAttempts`, `shuffleChoices`, `showFeedback` (immediate | end | never)
+- `@lxpack/components` — built-in widgets (`callout`, `image-card`, `checklist`), registry, and browser bundle
+- Lesson type `component` with optional `props`
+- SCORM 2004 multi-SCO export (`lxpack build --target scorm2004`) with per-activity launch pages and IMS Simple Sequencing subset
+- SCORM 2004 Run-Time API adapter (`API_1484_11`) and preview simulator
+- Example course at `examples/branching-demo`
+
+### Changed
+
+- Assessment configs and feedback text are embedded in runtime config at build time (author YAML still excluded from ZIPs)
+- `lxpack init` scaffolds a `components/` directory and documents optional `variables` / `flow` keys
+
+### Notes
+
+- Completes Phase 2 (runtime expansion). Phase 3+ covers xAPI, cmi5, themes, hot reload, and plugins.
+- SCORM 2004 sequencing uses a supported rule subset; validate packages in SCORM Cloud or Moodle before production rollout.
+
 ## [0.1.1] - 2026-05-23
 
 ### Fixed
@@ -38,9 +61,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Notes
 
-- Completes Phase 1 (MVP). Phase 2 (v0.2.x) targets SCORM 2004 sequencing, branching, variables, quiz engine upgrades, and `@lxpack/components` — see [docs/ROADMAP.md](docs/ROADMAP.md).
+- Completes Phase 1 (MVP). Phase 2 shipped in v0.2.0 — see [docs/ROADMAP.md](docs/ROADMAP.md).
 - Phase 3+ covers xAPI, cmi5, themes, hot reload, and plugins.
 - The runtime browser bundle is ESM (`client.js`); legacy LMS environments without module support are not targeted in this release.
 
+[0.2.0]: https://github.com/eddiethedean/lxpack/releases/tag/v0.2.0
 [0.1.1]: https://github.com/eddiethedean/lxpack/releases/tag/v0.1.1
 [0.1.0]: https://github.com/eddiethedean/lxpack/releases/tag/v0.1.0

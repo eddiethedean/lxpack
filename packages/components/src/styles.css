@@ -1,0 +1,26 @@
+.lxpack-callout {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  background: #eff6ff;
+  margin: 1rem 0;
+}
+
+.lxpack-callout-warning {
+  border-left-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.lxpack-image-card img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.lxpack-checklist {
+  list-style: none;
+  padding: 0;
+}
+
+.lxpack-checklist li::before {
+  content: "☐ ";
+}
