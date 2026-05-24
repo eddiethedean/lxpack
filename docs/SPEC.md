@@ -1,7 +1,7 @@
 
 # LXPack Technical Specification
 
-> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.1.1. See [docs/README.md](README.md).
+> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.2.0. See [docs/README.md](README.md).
 
 ## Overview
 
@@ -29,7 +29,8 @@ Creates:
 - `assets/`
 - `interactions/`
 - `assessments/`
-- `theme/` (reserved; not wired in v0.1.x)
+- `components/` (optional overrides for `@lxpack/components`)
+- `theme/` (reserved; not wired in v0.2.x)
 - `lxpack.config.json`
 
 ### Options
@@ -159,11 +160,11 @@ assessments:
     file: assessments/final.yaml
 ```
 
-## Planned extensions (Phase 2)
+## v0.2 extensions (shipped)
 
-- `variables:` — default values and types
-- `flow:` — branching rules between lessons/assessments
-- Lesson type `component` — reference to `@lxpack/components` widgets
+- `variables:` — default values and types; persisted with `v:` prefix in suspend data
+- `flow:` — branching rules between lessons/assessments (condition AST)
+- Lesson type `component` — reference to `@lxpack/components` widgets (`callout`, `image-card`, `checklist`)
 
 ---
 
@@ -171,14 +172,15 @@ assessments:
 
 ## Responsibilities
 
-| Responsibility | v0.1.x | Phase 2 |
-|----------------|--------|---------|
+| Responsibility | v0.1.x | v0.2.0 |
+|----------------|--------|--------|
 | Linear navigation (lessons + assessments) | Yes | Extended with flow |
 | Progress persistence | Yes | Yes |
-| MCQ assessments | Yes | Quiz engine upgrades |
+| MCQ assessments | Yes | Quiz engine upgrades (retakes, shuffle, feedback) |
 | `window.lxpack` interaction API | Yes | Yes |
-| `setVariable` / `getVariable` | Yes (suspend data only) | + manifest defaults |
+| `setVariable` / `getVariable` | Suspend data only | + manifest defaults |
 | Branching logic | No | Yes |
+| Component lessons | No | Yes |
 | SCORM 1.2 LMS API | Yes | Yes |
 | SCORM 2004 LMS API | No | Yes |
 
@@ -196,7 +198,7 @@ window.lxpack.track({
 });
 ```
 
-Phase 2: flow rules MAY consume interaction and assessment events for navigation.
+Flow rules MAY consume interaction and assessment events for navigation (v0.2.0).
 
 ---
 
@@ -211,11 +213,12 @@ Phase 2: flow rules MAY consume interaction and assessment events for navigation
 - Assessment submission updates status before `LMSCommit`
 - Preview / standalone: `localStorage` (no real LMS)
 
-## SCORM 2004 (Phase 2)
+## SCORM 2004 (v0.2.0)
 
-- Run-Time Environment API (`API_1484_11`)
-- Multi-SCO manifest with sequencing/navigation
-- Per-SCO progress and package-level flow mapping
+- Run-Time Environment API (`API_1484_11`) with preview simulator
+- Multi-SCO manifest with IMS Simple Sequencing subset
+- Per-activity launch pages at `sco/<activityId>/index.html`
+- Shared `lxpack-runtime.js` and `lxpack-components.js`
 
 ## xAPI (Phase 3)
 
@@ -266,17 +269,16 @@ Not implemented in v0.1.x.
 
 ---
 
-# Build Pipeline (v0.1.x)
+# Build Pipeline
 
 1. Discover `course.yaml` (walk up from cwd)
-2. `validateCourse` — schema + filesystem + assessments
-3. `buildRuntimeAssessmentBundle` — learner assessments + answer keys
-4. Bundle `@lxpack/runtime` client + CSS
-5. `packageCourse` — collect assets (skip `assessments/`, configs, `.lxpack/`), write `index.html` with `safeJsonForHtml` config
-6. For SCORM 1.2: generate `imsmanifest.xml`
-7. Write ZIP or directory under `.lxpack/` (unless `-o` / `--dir`)
-
-Phase 2 adds SCORM 2004 multi-SCO layout and sequencing XML generation.
+2. `validateCourse` — schema, flow, variables, components, filesystem, assessments
+3. `buildRuntimeAssessmentBundle` — learner assessments, answer keys, configs, feedback
+4. Bundle `@lxpack/runtime` client + CSS; optional `@lxpack/components` bundle
+5. `packageCourse` / `packageScorm2004` — collect assets (skip `assessments/`, configs, `.lxpack/`), write HTML with `safeJsonForHtml` config
+6. SCORM 1.2: single-SCO `index.html` + `imsmanifest.xml`
+7. SCORM 2004: per-SCO HTML + `generateScorm2004Manifest`
+8. Write ZIP or directory under `.lxpack/` (unless `-o` / `--dir`)
 
 ---
 
@@ -306,7 +308,10 @@ packages/
   runtime/
   validators/
   scorm/
+  components/
 examples/
+  security-awareness/
+  branching-demo/
 test/fixtures/
 docs/
 ```

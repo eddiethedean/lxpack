@@ -39,7 +39,7 @@ LXPack enables learning experience developers (LXDs) to:
 - Improve accessibility (automated checks in Phase 3+)
 - Improve version control friendliness
 - Improve collaboration workflows
-- Support reusable learning components (Phase 2)
+- Support reusable learning components (shipped v0.2.0)
 - Enable technical and simulation-based training
 - Support custom JavaScript interactions
 
@@ -95,15 +95,15 @@ Plugins, custom interactions, export targets, and analytics providers are planne
 | CLI | `@lxpack/cli` | Shipped |
 | Runtime | `@lxpack/runtime` | Shipped |
 | Validation | `@lxpack/validators` | Shipped |
-| Packaging | `@lxpack/scorm` | Shipped (SCORM 1.2 + standalone) |
-| Components | `@lxpack/components` | Phase 2 |
+| Packaging | `@lxpack/scorm` | Shipped (SCORM 1.2, SCORM 2004, standalone) |
+| Components | `@lxpack/components` | Shipped (v0.2.0) |
 | Preview server | part of `@lxpack/cli` | Shipped (Fastify) |
 
 ### Responsibilities
 
 **CLI** — scaffolding, validation, packaging, previews, export management.
 
-**Runtime** — navigation, progress, SCORM 1.2 LMS communication, assessments, interaction API (`window.lxpack.track`). Phase 2 adds branching, manifest variables, SCORM 2004 API.
+**Runtime** — navigation, flow-aware branching, manifest variables, quiz engine, component lessons, SCORM 1.2 / 2004 APIs, assessments, interaction API (`window.lxpack.track`).
 
 **Packaging** — ZIP artifacts, `imsmanifest.xml`, embedded runtime bundle, assessment config injection.
 
@@ -161,13 +161,24 @@ lxpack build --target scorm12
 
 ---
 
-## Phase 2 — Runtime expansion (planned — v0.2.x)
+## Phase 2 — Runtime expansion (shipped — v0.2.0)
+
+**Latest release:** v0.2.0
+
+### Shipped features
 
 - SCORM 2004 export with **multi-SCO sequencing/navigation** in `imsmanifest`
-- **Branching** — declarative flow rules in the manifest
+- **Branching** — declarative `flow` rules in the manifest
 - **Variables** — declared defaults in `course.yaml`; persisted via runtime API and suspend data
-- **Quiz engine** — enhancements beyond v0.1.x MCQ (retakes, feedback, scoring modes)
+- **Quiz engine** — `maxAttempts`, `shuffleChoices`, `showFeedback` (immediate | end | never)
 - **`@lxpack/components`** — built-in widgets with per-course overrides
+- Example course: `examples/branching-demo`
+
+### Example commands
+
+```bash
+lxpack build --target scorm2004
+```
 
 Out of scope for v0.2: xAPI, cmi5, hot reload, theme wiring, plugin marketplace.
 
@@ -217,11 +228,10 @@ course/
   interactions/
   assets/
   assessments/
-  theme/          # reserved (not wired in v0.1.x)
+  components/     # optional widget overrides (v0.2.0)
+  theme/          # reserved (not wired in v0.2.x)
   .lxpack/
 ```
-
-Phase 2 may add `components/` for overrides of `@lxpack/components` widgets.
 
 ---
 

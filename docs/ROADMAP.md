@@ -127,11 +127,11 @@ Goals:
 - MCQ scoring / passed-failed
 - sanitized assessment embedding (no answer YAML in ZIPs)
 
-## SCORM 2004 (Phase 2 — v0.2.x)
+## SCORM 2004 (shipped — v0.2.0)
 
-- multi-SCO packages with IMS sequencing/navigation in `imsmanifest`
-- SCORM 2004 Run-Time API (`API_1484_11`)
-- mapping course flow (branching, assessments) to sequencing rules
+- multi-SCO packages with IMS Simple Sequencing subset in `imsmanifest`
+- SCORM 2004 Run-Time API (`API_1484_11`) and preview simulator
+- per-activity launch pages and shared runtime/components bundles
 
 ## xAPI (Phase 3)
 
@@ -171,12 +171,15 @@ packages/
   runtime/
   validators/
   scorm/
+  components/
 examples/
+  security-awareness/
+  branching-demo/
 test/fixtures/
 docs/
 ```
 
-Future packages: `components/` (Phase 2), `xapi/`, `cmi5/` (Phase 3).
+Future packages: `xapi/`, `cmi5/` (Phase 3).
 
 ---
 
@@ -189,12 +192,13 @@ course/
   lessons/
   interactions/
   assets/
-  assessments/     # authoring only; not shipped in export ZIPs (v0.1.x)
-  theme/             # reserved; not wired in v0.1.x
-  .lxpack/           # build output
+  assessments/     # authoring only; not shipped in export ZIPs
+  components/      # optional widget overrides (v0.2.0)
+  theme/           # reserved; not wired in v0.2.x
+  .lxpack/         # build output
 ```
 
-Phase 2 may add `components/` overrides and manifest `variables` / `flow` sections.
+Manifest may include `variables` and `flow` for branching (v0.2.0).
 
 ---
 
@@ -213,14 +217,17 @@ Features:
 - path containment and safe embedded JSON
 - monorepo packages on npm: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`
 
-## Phase 2 — Runtime expansion (planned — v0.2.x)
+## Phase 2 — Runtime expansion (shipped — v0.2.0)
+
+**Latest release:** v0.2.0
 
 Features:
 - **SCORM 2004** — multi-SCO export with sequencing/navigation in the manifest
 - **Branching** — declarative flow in `course.yaml` (conditions on variables, assessment results, interaction events)
 - **Variables** — manifest defaults + runtime `setVariable` / `getVariable` persisted in suspend data
-- **Quiz engine** — richer MCQ behavior (retakes, feedback modes, optional question types)
-- **Reusable components** — new `@lxpack/components` package with built-in widgets and per-course overrides
+- **Quiz engine** — retakes, choice shuffle, feedback modes (`immediate` | `end` | `never`)
+- **Reusable components** — `@lxpack/components` with built-in widgets and per-course overrides
+- Example: `examples/branching-demo`
 
 Not in Phase 2: xAPI, cmi5, hot reload, themes, plugins (see Phase 3+).
 
