@@ -1,5 +1,10 @@
 # LXPack
 
+[![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
+[![Release](https://github.com/eddiethedean/lxpack/actions/workflows/release.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/release.yml)
+[![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+
 **AI-native learning experience compiler and runtime** — build web-native courses from declarative manifests, preview them locally, validate structure with schemas, and export SCORM 1.2 or standalone packages for your LMS.
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
@@ -145,10 +150,10 @@ Lesson types:
 
 ```text
 packages/
-  cli/          @lxpack/cli       — lxpack CLI (init, preview, validate, build)
-  runtime/      @lxpack/runtime   — browser client, routing, SCORM API
-  validators/   @lxpack/validators — Zod schemas + validateCourse
-  scorm/        @lxpack/scorm     — imsmanifest.xml + ZIP packaging
+  cli/          @lxpack/cli       — lxpack CLI (init, preview, validate, build) — [README](packages/cli/README.md)
+  runtime/      @lxpack/runtime   — browser client, routing, SCORM API — [README](packages/runtime/README.md)
+  validators/   @lxpack/validators — Zod schemas + validateCourse — [README](packages/validators/README.md)
+  scorm/        @lxpack/scorm     — imsmanifest.xml + ZIP packaging — [README](packages/scorm/README.md)
 examples/
   security-awareness/   — sample course
 test/
@@ -197,36 +202,18 @@ pnpm --filter @lxpack/cli build
 | Workflow | Trigger | Steps |
 |----------|---------|--------|
 | [CI](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test (separate jobs) |
-| [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then stage `@lxpack/*` on npm for approval |
+| [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish `@lxpack/*` to npm |
 
-Packages: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`.
+Published packages: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`.
 
 To cut a release:
 
-1. Create the [`@lxpack` npm organization](https://www.npmjs.com/org/create) (or ensure your account can publish scoped packages).
-2. Add an npm token with **Read and write** access as the GitHub secret `NPM_TOKEN`. Staging does not require a 2FA-bypass token — [`npm stage publish`](https://docs.npmjs.com/cli/v11/commands/npm-stage/) defers 2FA to approval.
-3. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`
-4. The Release workflow runs CI checks, builds, and stages each package on npm.
-5. Review and approve the staged versions on [npm → Staged packages](https://www.npmjs.com/settings/eddiethedean/staged-packages), or with the CLI:
+1. Add an npm token as the GitHub secret `NPM_TOKEN`:
+   - **Granular access token** — enable **Bypass 2FA for publish** and grant **Read and write** on `@lxpack/*`, or
+   - **Classic automation token** — type **Automation**.
+2. Tag and push: `git tag v0.1.1 && git push origin v0.1.1`
 
-```bash
-npm stage list
-npm stage approve <stage-id>
-```
-
-**First release only:** npm requires each package to already exist on the registry before it can be staged. Publish v0.1.0 once with 2FA (dependency order):
-
-```bash
-pnpm build
-pnpm --filter @lxpack/validators publish --access public --no-git-checks
-pnpm --filter @lxpack/runtime publish --access public --no-git-checks
-pnpm --filter @lxpack/scorm publish --access public --no-git-checks
-pnpm --filter @lxpack/cli publish --access public --no-git-checks
-```
-
-After that, subsequent releases can use CI staging + npm approval.
-
-The release workflow runs all CI checks before staging. See [CHANGELOG.md](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) for release notes.
+The release workflow runs all CI checks before publishing. See [CHANGELOG.md](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) for release notes.
 
 ## Roadmap
 
