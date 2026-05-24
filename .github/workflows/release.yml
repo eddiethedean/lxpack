@@ -6,14 +6,14 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   checks:
     uses: ./.github/workflows/checks.yml
 
-  publish:
-    name: Publish to npm
+  stage:
+    name: Stage release packages
     runs-on: ubuntu-latest
     needs: checks
     steps:
@@ -29,7 +29,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org
           cache: pnpm
 
       - name: Install dependencies
@@ -42,7 +41,7 @@ jobs:
             echo "Could not parse version from tag: ${GITHUB_REF_NAME}"
             exit 1
           fi
-          echo "Publishing version: $VERSION"
+          echo "Staging version: $VERSION"
           for pkg in packages/*/package.json; do
             npm pkg set "version=${VERSION}" --prefix "$(dirname "$pkg")"
           done
@@ -50,7 +49,31 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Publish packages
-        run: pnpm -r --filter "./packages/*" publish --access public --no-git-checks
+      - name: Pack npm tarballs
+        run: |
+          mkdir -p release
+          for pkg in packages/*; do
+            (cd "$pkg" && pnpm pack --pack-destination "$GITHUB_WORKSPACE/release")
+          done
+          ls -la release/
+
+      - name: Upload staged packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: lxpack-packages-${{ github.ref_name }}
+          path: release/*.tgz
+          retention-days: 90
+
+      - name: Attach packages to GitHub release
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release/*.tgz --clobber
+          else
+            gh release create "$TAG" \
+              --title "$TAG" \
+              --generate-notes \
+              release/*.tgz
+          fi

@@ -197,17 +197,24 @@ pnpm --filter @lxpack/cli build
 | Workflow | Trigger | Steps |
 |----------|---------|--------|
 | [CI](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test (separate jobs) |
-| [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish `@lxpack/*` to npm |
+| [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then stage npm tarballs on the GitHub release |
 
-Published packages: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`.
+Packages: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`.
 
-To publish **v0.1.0**:
+To cut a release:
 
-1. Create the [`@lxpack` npm organization](https://www.npmjs.com/org/create) (or ensure your account can publish scoped packages).
-2. Add an npm automation token as the GitHub secret `NPM_TOKEN`.
-3. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
+1. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`
+2. The Release workflow runs CI checks, builds, packs each `@lxpack/*` package, and attaches `.tgz` files to the [GitHub release](https://github.com/eddiethedean/lxpack/releases).
+3. Download the staged tarballs from the release page or workflow artifacts, then publish manually when ready:
 
-The release workflow runs all CI checks before publishing. See [CHANGELOG.md](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) for release notes.
+```bash
+npm publish lxpack-validators-0.1.0.tgz --access public
+npm publish lxpack-runtime-0.1.0.tgz --access public
+npm publish lxpack-scorm-0.1.0.tgz --access public
+npm publish lxpack-cli-0.1.0.tgz --access public
+```
+
+The release workflow runs all CI checks before staging. See [CHANGELOG.md](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) for release notes.
 
 ## Roadmap
 
