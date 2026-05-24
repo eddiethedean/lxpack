@@ -162,12 +162,12 @@ Lesson types:
 
 ```mermaid
 flowchart LR
-  course[course.yaml + assets]
-  cli[@lxpack/cli]
-  validators[@lxpack/validators]
-  runtime[@lxpack/runtime]
-  scorm[@lxpack/scorm]
-  lms[LMS / browser]
+  course["course.yaml + assets"]
+  cli["@lxpack/cli"]
+  validators["@lxpack/validators"]
+  runtime["@lxpack/runtime"]
+  scorm["@lxpack/scorm"]
+  lms["LMS / browser"]
 
   course --> cli
   cli --> validators
