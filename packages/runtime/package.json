@@ -25,7 +25,15 @@
       "types": "./dist/runtime.d.ts",
       "import": "./dist/runtime.js"
     },
-    "./client": "./dist/client.js"
+    "./client": "./dist/client.js",
+    "./scorm12": {
+      "types": "./dist/scorm12.d.ts",
+      "import": "./dist/scorm12.js"
+    },
+    "./scorm2004": {
+      "types": "./dist/scorm2004.d.ts",
+      "import": "./dist/scorm2004.js"
+    }
   },
   "files": ["dist"],
   "scripts": {

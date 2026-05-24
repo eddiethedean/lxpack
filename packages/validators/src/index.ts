@@ -4,4 +4,15 @@ export * from "./components.js";
 export * from "./flow-validate.js";
 export * from "./validate.js";
 export * from "./assessments.js";
-export { resolveCoursePath, isPathContained } from "./validate.js";
+export {
+  loadParsedAssessments,
+  buildRuntimeAssessmentBundleFromParsed,
+  buildRuntimeAssessmentBundle,
+} from "./course-assessments.js";
+export {
+  resolveCoursePath,
+  isPathContained,
+  assertResolvedPathContained,
+} from "./course-paths.js";
+export { enumerateActivities, type CourseActivity } from "./activities.js";
+export { escapeHtml } from "./html.js";

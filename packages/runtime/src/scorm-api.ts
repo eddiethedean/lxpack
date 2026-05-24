@@ -29,7 +29,8 @@ export interface ScormApiLike {
 const SCORM_ERROR_NONE = "0";
 const SCORM_ERROR_NOT_INITIALIZED = "301";
 const SCORM_ERROR_TERMINATED = "302";
-const SCORM_SUSPEND_DATA_MAX = 4096;
+import { SCORM_SUSPEND_DATA_MAX } from "./progress/constants.js";
+import { trimSuspendData as trimSuspendDataPolicy } from "./progress/size-policy.js";
 const PREVIEW_STORAGE_KEY = "lxpack_scorm12_preview";
 
 export function findLmsApi(maxDepth = 500): ScormApiLike | null {
@@ -366,11 +367,7 @@ export class Scorm12API extends Scorm12Simulator {
 export type ScormConnection = Scorm12Adapter | Scorm12Simulator;
 
 export function trimSuspendData(data: string): string {
-  if (data.length <= SCORM_SUSPEND_DATA_MAX) return data;
-  console.warn(
-    `[lxpack] suspend_data exceeds ${SCORM_SUSPEND_DATA_MAX} chars; truncating`,
-  );
-  return data.slice(0, SCORM_SUSPEND_DATA_MAX);
+  return trimSuspendDataPolicy(data);
 }
 
 export function createScormConnection(

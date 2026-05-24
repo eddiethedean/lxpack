@@ -1,6 +1,7 @@
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
 import { safeJsonForHtml } from "./safe-json.js";
+import { buildLearnerPageHtml } from "./page-template.js";
 
 export interface BuildHtmlOptions {
   manifest: CourseManifest;
@@ -43,61 +44,24 @@ export function buildScoIndexHtml(
   const { manifest, runtimeCss, activityId, componentsScript } = options;
   const config = safeJsonForHtml(buildRuntimeConfig({ ...options, activityId }));
 
-  const componentsTag = componentsScript
-    ? `<script type="module" src="${escapeHtml(componentsScript)}"></script>`
-    : "";
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(manifest.title)} — ${escapeHtml(activityId)}</title>
-  <style>${runtimeCss}</style>
-</head>
-<body>
-  <div id="lxpack-app"></div>
-  <script type="application/json" id="lxpack-config">${config}</script>
-  <script>
-    window.__LXPACK_CONFIG__ = JSON.parse(document.getElementById('lxpack-config').textContent);
-  </script>
-  ${componentsTag}
-  <script type="module" src="../../lxpack-runtime.js"></script>
-</body>
-</html>`;
+  return buildLearnerPageHtml({
+    title: `${manifest.title} — ${activityId}`,
+    runtimeCss,
+    configJson: config,
+    runtimeScript: "../../lxpack-runtime.js",
+    componentsScript,
+  });
 }
 
 export function buildIndexHtml(options: BuildHtmlOptions): string {
   const { manifest, runtimeCss, componentsScript } = options;
   const config = safeJsonForHtml(buildRuntimeConfig(options));
-  const componentsTag = componentsScript
-    ? `<script type="module" src="${escapeHtml(componentsScript)}"></script>`
-    : "";
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(manifest.title)}</title>
-  <style>${runtimeCss}</style>
-</head>
-<body>
-  <div id="lxpack-app"></div>
-  <script type="application/json" id="lxpack-config">${config}</script>
-  <script>
-    window.__LXPACK_CONFIG__ = JSON.parse(document.getElementById('lxpack-config').textContent);
-  </script>
-  ${componentsTag}
-  <script type="module" src="./lxpack-runtime.js"></script>
-</body>
-</html>`;
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return buildLearnerPageHtml({
+    title: manifest.title,
+    runtimeCss,
+    configJson: config,
+    runtimeScript: "./lxpack-runtime.js",
+    componentsScript,
+  });
 }

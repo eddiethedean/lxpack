@@ -1,4 +1,5 @@
-import type { Condition, CourseManifest, FlowRule } from "@lxpack/validators";
+import type { CourseManifest, FlowRule } from "@lxpack/validators";
+import { evaluateCondition } from "./flow-conditions.js";
 
 export interface FlowContext {
   getVariable: (name: string) => unknown;
@@ -6,28 +7,7 @@ export interface FlowContext {
   isInteractionDone: (id: string) => boolean;
 }
 
-export function evaluateCondition(
-  condition: Condition,
-  ctx: FlowContext,
-): boolean {
-  if ("variable" in condition && condition.variable?.eq) {
-    const [name, expected] = condition.variable.eq;
-    return ctx.getVariable(name) === expected;
-  }
-  if ("assessment" in condition && condition.assessment?.passed) {
-    return ctx.isAssessmentPassed(condition.assessment.passed);
-  }
-  if ("interaction" in condition && condition.interaction?.done) {
-    return ctx.isInteractionDone(condition.interaction.done);
-  }
-  if ("all" in condition && condition.all) {
-    return condition.all.every((c) => evaluateCondition(c, ctx));
-  }
-  if ("any" in condition && condition.any) {
-    return condition.any.some((c) => evaluateCondition(c, ctx));
-  }
-  return false;
-}
+export { evaluateCondition } from "./flow-conditions.js";
 
 export function resolveFlowGoto(
   manifest: CourseManifest,

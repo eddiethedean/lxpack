@@ -1,0 +1,16 @@
+import { marked } from "marked";
+import { joinUrl, sanitizeHtml } from "../html-utils.js";
+
+marked.setOptions({ gfm: true, breaks: true });
+
+export async function renderMarkdown(
+  contentEl: HTMLElement,
+  baseUrl: string,
+  file: string,
+): Promise<void> {
+  const res = await fetch(joinUrl(baseUrl, file));
+  if (!res.ok) throw new Error(`Failed to load lesson: ${file}`);
+  const md = await res.text();
+  const parsed = await marked.parse(md);
+  contentEl.innerHTML = `<article class="lxpack-markdown">${sanitizeHtml(String(parsed))}</article>`;
+}

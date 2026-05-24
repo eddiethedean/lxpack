@@ -1,16 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import {
-  packageCourse,
-  packageScorm2004Dir,
-  packageStandaloneDir,
-  courseSlug,
-} from "@lxpack/scorm";
-import type { ExportTarget } from "@lxpack/scorm";
-import {
-  validateCourse,
-  buildRuntimeAssessmentBundle,
-} from "@lxpack/validators";
+import { courseSlug, type ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
 import {
   findCourseDir,
@@ -19,6 +9,12 @@ import {
   readRuntimeBundle,
   resolveOutputDir,
 } from "../utils.js";
+import {
+  loadValidatedCourseContext,
+  printValidationIssues,
+} from "../lib/validated-course.js";
+import { getDirPackager, getZipPackager } from "../packagers/index.js";
+import { validateCourse } from "@lxpack/validators";
 
 const VALID_TARGETS: ExportTarget[] = ["scorm12", "scorm2004", "standalone"];
 
@@ -42,20 +38,15 @@ export async function buildCommand(options: {
     process.exit(1);
   }
 
-  const validation = await validateCourse(courseDir);
-  if (!validation.valid || !validation.manifest) {
+  const ctx = await loadValidatedCourseContext(courseDir);
+  if (!ctx) {
     console.error(pc.red("Cannot build: course validation failed"));
-    for (const issue of validation.issues) {
-      console.error(`  ${issue.path}: ${issue.message}`);
-    }
+    const validation = await validateCourse(courseDir);
+    printValidationIssues(validation);
     process.exit(1);
   }
 
-  const manifest = validation.manifest;
-  const assessmentBundle = await buildRuntimeAssessmentBundle(
-    courseDir,
-    manifest,
-  );
+  const { manifest, assessmentBundle } = ctx;
   const [{ clientJs, css }, componentsBundleJs] = await Promise.all([
     readRuntimeBundle(),
     readComponentsBundle(),
@@ -80,16 +71,10 @@ export async function buildCommand(options: {
   if (options.dir) {
     const outputDir =
       options.output ?? join(outputRoot, target);
-    const result =
-      target === "scorm2004"
-        ? await packageScorm2004Dir({
-            ...packageOptions,
-            outputDir,
-          })
-        : await packageStandaloneDir({
-            ...packageOptions,
-            outputDir,
-          });
+    const result = await getDirPackager(target).package({
+      ...packageOptions,
+      outputDir,
+    });
     console.log(pc.green(`✓ Built ${target} package`));
     console.log(`  Output: ${result.outputDir}`);
     console.log(`  Files: ${result.fileCount}`);
@@ -102,7 +87,7 @@ export async function buildCommand(options: {
           : `${slug}-scorm12.zip`;
     const outputPath = options.output ?? join(outputRoot, defaultName);
 
-    const result = await packageCourse({
+    const result = await getZipPackager(target).package({
       ...packageOptions,
       outputPath,
     });

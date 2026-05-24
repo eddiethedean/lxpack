@@ -1,12 +1,4 @@
-import { readFile } from "node:fs/promises";
-import { parse as parseYaml } from "yaml";
-import { resolveCoursePath } from "./validate.js";
-import {
-  assessmentSchema,
-  type Assessment,
-  type CourseManifest,
-  type ShowFeedback,
-} from "./schemas.js";
+import type { Assessment, ShowFeedback } from "./schemas.js";
 
 export interface LearnerChoice {
   id: string;
@@ -83,72 +75,3 @@ export function toLearnerAssessment(assessment: Assessment): {
   };
 }
 
-export async function buildRuntimeAssessmentBundle(
-  courseDir: string,
-  manifest: CourseManifest,
-): Promise<RuntimeAssessmentBundle> {
-  const assessments: Record<string, LearnerAssessment> = {};
-  const answerKeys: Record<string, Record<string, string>> = {};
-  const configs: Record<string, AssessmentRuntimeConfig> = {};
-  const feedback: Record<string, QuestionFeedback> = {};
-
-  for (const ref of manifest.assessments ?? []) {
-    const resolved = resolveCoursePath(courseDir, ref.file);
-    if (!resolved.ok) {
-      throw new Error(resolved.message);
-    }
-    const content = await readFile(resolved.path, "utf-8");
-    const raw = parseYaml(content);
-    const parsed = assessmentSchema.safeParse(raw);
-    if (!parsed.success) {
-      throw new Error(
-        `Invalid assessment ${ref.file}: ${parsed.error.issues.map((i) => i.message).join("; ")}`,
-      );
-    }
-    if (parsed.data.id !== ref.id) {
-      throw new Error(
-        `Assessment file id "${parsed.data.id}" does not match manifest ref "${ref.id}"`,
-      );
-    }
-    const built = toLearnerAssessment(parsed.data);
-    assessments[ref.id] = built.learner;
-    answerKeys[ref.id] = built.answerKey;
-    configs[ref.id] = built.config;
-    feedback[ref.id] = built.feedback;
-  }
-
-  return { assessments, answerKeys, configs, feedback };
-}
-
-/** Strip answer keys from lesson SCOs; limit assessment SCOs to one quiz. */
-export function sliceAssessmentBundleForActivity(
-  bundle: RuntimeAssessmentBundle,
-  activityId: string,
-  activityKind: "lesson" | "assessment",
-): RuntimeAssessmentBundle {
-  if (activityKind === "assessment") {
-    const assessment = bundle.assessments[activityId];
-    if (!assessment) {
-      return { assessments: {}, answerKeys: {}, configs: {}, feedback: {} };
-    }
-    return {
-      assessments: { [activityId]: assessment },
-      answerKeys: bundle.answerKeys[activityId]
-        ? { [activityId]: bundle.answerKeys[activityId]! }
-        : {},
-      configs: bundle.configs[activityId]
-        ? { [activityId]: bundle.configs[activityId]! }
-        : {},
-      feedback: bundle.feedback[activityId]
-        ? { [activityId]: bundle.feedback[activityId]! }
-        : {},
-    };
-  }
-
-  return {
-    assessments: bundle.assessments,
-    answerKeys: {},
-    configs: bundle.configs,
-    feedback: bundle.feedback,
-  };
-}

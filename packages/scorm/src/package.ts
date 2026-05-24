@@ -1,12 +1,10 @@
-import { readFile, readdir, writeFile, mkdir, cp } from "node:fs/promises";
+import { readFile, readdir, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import JSZip from "jszip";
 import type { CourseManifest } from "@lxpack/validators";
-import {
-  sliceAssessmentBundleForActivity,
-  type RuntimeAssessmentBundle,
-} from "@lxpack/validators";
+import type { RuntimeAssessmentBundle } from "@lxpack/validators";
+import { sliceAssessmentBundleForActivity } from "./assessment-slice.js";
 import { generateImsManifest } from "./manifest.js";
 import { buildIndexHtml, buildScoIndexHtml } from "./build-html.js";
 import { listCourseActivities } from "./activities.js";
@@ -77,6 +75,74 @@ export function buildManifestFileList(
   courseFiles: Array<{ path: string }>,
 ): string[] {
   return ["index.html", "lxpack-runtime.js", ...courseFiles.map((f) => f.path)];
+}
+
+export interface PackageSink {
+  writeFile(relPath: string, content: string | Buffer): Promise<void>;
+}
+
+async function writeSingleScoArtifacts(
+  options: Omit<PackageOptions, "outputPath"> & {
+    writeFile: PackageSink["writeFile"];
+  },
+): Promise<{ fileCount: number }> {
+  const {
+    courseDir,
+    manifest,
+    target,
+    runtimeClientJs,
+    runtimeCss,
+    assessmentBundle,
+    componentsBundleJs,
+    writeFile: writeArtifact,
+  } = options;
+
+  const mode = target === "scorm12" ? "scorm12" : "standalone";
+  const courseFiles = await collectFiles(courseDir, courseDir);
+  let fileCount = 0;
+
+  for (const file of courseFiles) {
+    const content = await readFile(file.fullPath);
+    await writeArtifact(file.path, content);
+    fileCount++;
+  }
+
+  const indexHtml = buildIndexHtml({
+    manifest,
+    runtimeCss,
+    mode,
+    assessmentBundle,
+    componentsScript: componentsBundleJs ? "./lxpack-components.js" : undefined,
+  });
+  await writeArtifact("index.html", indexHtml);
+  await writeArtifact("lxpack-runtime.js", runtimeClientJs);
+  fileCount += 2;
+
+  if (componentsBundleJs) {
+    await writeArtifact("lxpack-components.js", componentsBundleJs);
+    fileCount++;
+  }
+
+  if (target === "scorm12") {
+    const manifestFiles = buildManifestFileList(courseFiles);
+    await writeArtifact(
+      "imsmanifest.xml",
+      generateImsManifest(manifest, manifestFiles),
+    );
+    fileCount++;
+  }
+
+  return { fileCount };
+}
+
+export async function assemblePackage(
+  options: Omit<PackageOptions, "outputPath">,
+  sink: PackageSink,
+): Promise<{ fileCount: number }> {
+  if (options.target === "scorm2004") {
+    return writeScorm2004Artifacts({ ...options, writeFile: sink.writeFile });
+  }
+  return writeSingleScoArtifacts({ ...options, writeFile: sink.writeFile });
 }
 
 async function writeScorm2004Artifacts(
@@ -204,46 +270,14 @@ export async function packageCourse(
     return packageScorm2004(options);
   }
 
-  const {
-    courseDir,
-    manifest,
-    outputPath,
-    target,
-    runtimeClientJs,
-    runtimeCss,
-    assessmentBundle,
-    componentsBundleJs,
-  } = options;
-
+  const { outputPath, ...rest } = options;
   const zip = new JSZip();
-  const mode = target === "scorm12" ? "scorm12" : "standalone";
-  const courseFiles = await collectFiles(courseDir, courseDir);
 
-  for (const file of courseFiles) {
-    const content = await readFile(file.fullPath);
-    zip.file(file.path, content);
-  }
-
-  const indexHtml = buildIndexHtml({
-    manifest,
-    runtimeCss,
-    mode,
-    assessmentBundle,
-    componentsScript: componentsBundleJs ? "./lxpack-components.js" : undefined,
+  const { fileCount } = await assemblePackage(rest, {
+    writeFile: async (relPath, content) => {
+      zip.file(relPath, content);
+    },
   });
-  zip.file("index.html", indexHtml);
-  zip.file("lxpack-runtime.js", runtimeClientJs);
-  if (componentsBundleJs) {
-    zip.file("lxpack-components.js", componentsBundleJs);
-  }
-
-  if (target === "scorm12") {
-    const manifestFiles = buildManifestFileList(courseFiles);
-    zip.file(
-      "imsmanifest.xml",
-      generateImsManifest(manifest, manifestFiles),
-    );
-  }
 
   const buffer = await zip.generateAsync({
     type: "nodebuffer",
@@ -254,7 +288,7 @@ export async function packageCourse(
 
   return {
     outputPath,
-    fileCount: Object.keys(zip.files).length,
+    fileCount: Object.keys(zip.files).length || fileCount,
   };
 }
 
@@ -274,44 +308,31 @@ export async function packageStandaloneDir(
 
   await mkdir(outputDir, { recursive: true });
 
-  const mode = target === "scorm12" ? "scorm12" : "standalone";
-  const courseFiles = await collectFiles(courseDir, courseDir);
-  let fileCount = 0;
-
-  for (const file of courseFiles) {
-    const dest = join(outputDir, file.path);
-    const destDir = dirname(dest);
-    if (!existsSync(destDir)) {
-      await mkdir(destDir, { recursive: true });
-    }
-    await cp(file.fullPath, dest);
-    fileCount++;
-  }
-
-  const indexHtml = buildIndexHtml({
-    manifest,
-    runtimeCss,
-    mode,
-    assessmentBundle,
-    componentsScript: componentsBundleJs ? "./lxpack-components.js" : undefined,
-  });
-  await writeFile(join(outputDir, "index.html"), indexHtml);
-  await writeFile(join(outputDir, "lxpack-runtime.js"), runtimeClientJs);
-  fileCount += 2;
-
-  if (componentsBundleJs) {
-    await writeFile(join(outputDir, "lxpack-components.js"), componentsBundleJs);
-    fileCount++;
-  }
-
-  if (target === "scorm12") {
-    const manifestFiles = buildManifestFileList(courseFiles);
-    await writeFile(
-      join(outputDir, "imsmanifest.xml"),
-      generateImsManifest(manifest, manifestFiles),
-    );
-    fileCount++;
-  }
+  const { fileCount } = await assemblePackage(
+    {
+      courseDir,
+      manifest,
+      target,
+      runtimeClientJs,
+      runtimeCss,
+      assessmentBundle,
+      componentsBundleJs,
+    },
+    {
+      writeFile: async (relPath, content) => {
+        const dest = join(outputDir, relPath);
+        const destDir = dirname(dest);
+        if (!existsSync(destDir)) {
+          await mkdir(destDir, { recursive: true });
+        }
+        if (typeof content === "string") {
+          await writeFile(dest, content);
+        } else {
+          await writeFile(dest, content);
+        }
+      },
+    },
+  );
 
   return { outputDir, fileCount };
 }

@@ -88,7 +88,31 @@ export const variableDefSchema = z
     default: z.union([z.string(), z.number(), z.boolean()]),
     type: z.enum(["string", "number", "boolean"]).optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((def, ctx) => {
+    const t = def.type;
+    if (t === "string" && typeof def.default !== "string") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Default must be a string when type is string",
+        path: ["default"],
+      });
+    }
+    if (t === "number" && typeof def.default !== "number") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Default must be a number when type is number",
+        path: ["default"],
+      });
+    }
+    if (t === "boolean" && typeof def.default !== "boolean") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Default must be a boolean when type is boolean",
+        path: ["default"],
+      });
+    }
+  });
 
 export const trackingSchema = z
   .object({

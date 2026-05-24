@@ -1,4 +1,4 @@
-import type { LxpackRuntime } from "../runtime.js";
+import type { AssessmentHost } from "./host.js";
 import {
   DEFAULT_ASSESSMENT_CONFIG,
   type RuntimeAssessmentPayload,
@@ -15,7 +15,7 @@ export function renderAssessment(
   contentEl: HTMLElement,
   payload: RuntimeAssessmentPayload,
   answerKey: Record<string, string>,
-  runtime: LxpackRuntime,
+  runtime: AssessmentHost,
   onSubmitted: () => void,
 ): void {
   const { config: configOverrides, feedback, ...assessment } = payload;

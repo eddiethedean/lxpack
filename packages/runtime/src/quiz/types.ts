@@ -1,14 +1,10 @@
-import type { LearnerAssessment, ShowFeedback } from "@lxpack/validators";
+import type {
+  AssessmentRuntimeConfig,
+  LearnerAssessment,
+  QuestionFeedback,
+} from "@lxpack/validators";
 
-export interface AssessmentRuntimeConfig {
-  maxAttempts: number;
-  shuffleChoices: boolean;
-  showFeedback: ShowFeedback;
-}
-
-export interface QuestionFeedback {
-  [questionId: string]: string | undefined;
-}
+export type { AssessmentRuntimeConfig, QuestionFeedback };
 
 export const DEFAULT_ASSESSMENT_CONFIG: AssessmentRuntimeConfig = {
   maxAttempts: 1,

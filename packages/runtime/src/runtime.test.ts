@@ -333,34 +333,20 @@ describe("LxpackRuntime", () => {
     expect(runtime.getProgress().suspendData["interaction_btn-2"]).toBe(true);
   });
 
-  it("no-ops restoreScormProgress when scorm is unavailable", () => {
+  it("restores progress via local bridge in preview mode without SCORM", () => {
     const runtime = new LxpackRuntime({
       manifest,
       baseUrl: ".",
       mode: "preview",
+      progress: {
+        currentLessonId: "b",
+        completedLessons: ["a"],
+        assessmentScores: {},
+        suspendData: {},
+      },
     });
-    (runtime as unknown as { scorm: null; restoreScormProgress: () => void }).scorm =
-      null;
-    expect(() =>
-      (
-        runtime as unknown as { restoreScormProgress: () => void }
-      ).restoreScormProgress(),
-    ).not.toThrow();
-  });
-
-  it("no-ops restoreLessonLocation without scorm", () => {
-    const runtime = new LxpackRuntime({
-      manifest,
-      baseUrl: ".",
-      mode: "preview",
-    });
-    (runtime as unknown as { scorm: null; restoreLessonLocation: () => void }).scorm =
-      null;
-    expect(() =>
-      (
-        runtime as unknown as { restoreLessonLocation: () => void }
-      ).restoreLessonLocation(),
-    ).not.toThrow();
+    expect(runtime.getProgress().currentLessonId).toBe("b");
+    expect(runtime.getProgress().completedLessons).toContain("a");
   });
 
   it("uses default passing score for unknown assessment ids", () => {

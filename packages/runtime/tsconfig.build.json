@@ -5,5 +5,10 @@
     "emitDeclarationOnly": true,
     "declarationDir": "dist"
   },
-  "include": ["src/runtime.ts", "src/types.ts"]
+  "include": [
+    "src/runtime.ts",
+    "src/types.ts",
+    "src/scorm12.ts",
+    "src/scorm2004.ts"
+  ]
 }

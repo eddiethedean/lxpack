@@ -4,9 +4,8 @@ import pc from "picocolors";
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
 import { validateCourse, buildRuntimeAssessmentBundle } from "@lxpack/validators";
-import { safeJsonForHtml } from "@lxpack/scorm";
+import { buildLearnerPageHtml, safeJsonForHtml } from "@lxpack/scorm";
 import {
-  escapeHtml,
   findCourseDir,
   getRuntimeAssetsDir,
   loadRuntimeStyles,
@@ -77,24 +76,13 @@ export async function createPreviewServer(
   }
 
   app.get("/", async (_req, reply) => {
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(manifest.title)} — Preview</title>
-  <style>${stylesCss}</style>
-</head>
-<body>
-  <div id="lxpack-app"></div>
-  <script type="application/json" id="lxpack-config">${config}</script>
-  <script>
-    window.__LXPACK_CONFIG__ = JSON.parse(document.getElementById('lxpack-config').textContent);
-  </script>
-  ${componentsJs ? '<script type="module" src="/runtime/components.js"></script>' : ""}
-  <script type="module" src="/runtime/client.js"></script>
-</body>
-</html>`;
+    const html = buildLearnerPageHtml({
+      title: `${manifest.title} — Preview`,
+      runtimeCss: stylesCss,
+      configJson: config,
+      runtimeScript: "/runtime/client.js",
+      componentsScript: componentsJs ? "/runtime/components.js" : undefined,
+    });
 
     return reply.type("text/html").send(html);
   });

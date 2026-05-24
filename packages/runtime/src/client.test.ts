@@ -64,6 +64,10 @@ describe("client", () => {
     );
     expect(window.lxpack).toBeDefined();
 
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-nav-id="md"]')).toBeTruthy(),
+    );
+
     const next = document.getElementById("lxpack-next") as HTMLButtonElement;
     next.click();
     await vi.waitFor(() =>
