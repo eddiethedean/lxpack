@@ -9,6 +9,12 @@ SCORM 1.2 and standalone HTML export for LXPack courses.
 
 Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
 
+| Related | Package |
+|---------|---------|
+| CLI | [`@lxpack/cli`](../cli/README.md) |
+| Manifest validation | [`@lxpack/validators`](../validators/README.md) |
+| Embedded client | [`@lxpack/runtime`](../runtime/README.md) |
+
 ## Install
 
 ```bash
@@ -20,73 +26,96 @@ Requires Node.js 20+.
 ## Usage
 
 ```ts
+import { readFile } from "node:fs/promises";
+import type { CourseManifest } from "@lxpack/validators";
+import { buildRuntimeAssessmentBundle } from "@lxpack/validators";
 import {
   packageCourse,
   packageStandaloneDir,
-  generateImsManifest,
   buildIndexHtml,
   collectFiles,
-  type ExportTarget,
-  type PackageOptions,
+  safeJsonForHtml,
+  courseSlug,
 } from "@lxpack/scorm";
-```
 
-### SCORM 1.2 ZIP
+const courseDir = "/path/to/my-course";
+const manifest: CourseManifest = /* from validateCourse */;
+const assessmentBundle = await buildRuntimeAssessmentBundle(courseDir, manifest);
 
-```ts
+const runtimeClientJs = await readFile("path/to/client.js", "utf8");
+const runtimeCss = await readFile("path/to/styles.css", "utf8");
+
 await packageCourse({
-  courseDir: "/path/to/my-course",
+  courseDir,
   manifest,
   target: "scorm12",
   outputPath: "/path/to/output/course-scorm12.zip",
-  runtimeBundle: "<embedded client.js>",
-  styles: "<embedded styles.css>",
+  runtimeClientJs,
+  runtimeCss,
+  assessmentBundle,
 });
 ```
 
-Produces a ZIP containing `imsmanifest.xml`, `index.html`, course assets, and the embedded runtime.
-
-### Standalone HTML
+### Standalone directory
 
 ```ts
-await packageCourse({
-  courseDir: "/path/to/my-course",
-  manifest,
-  target: "standalone",
-  outputPath: "/path/to/output/course.zip",
-  runtimeBundle,
-  styles,
-});
-
-// Or write an unpacked directory:
 await packageStandaloneDir({
   courseDir,
   manifest,
+  target: "standalone",
   outputDir: "/path/to/output/standalone",
-  runtimeBundle,
-  styles,
+  runtimeClientJs,
+  runtimeCss,
+  assessmentBundle,
 });
 ```
+
+Most users should use `lxpack build` from [`@lxpack/cli`](../cli/README.md) instead of calling these APIs directly.
 
 ## Exports
 
 | Export | Description |
 |--------|-------------|
 | `packageCourse(options)` | Build a SCORM 1.2 or standalone ZIP |
-| `packageStandaloneDir(options)` | Write an unpacked standalone directory |
-| `generateImsManifest(manifest, files)` | Generate SCORM 1.2 `imsmanifest.xml` |
-| `buildIndexHtml(options)` | Build the course shell HTML page |
-| `collectFiles(courseDir, manifest)` | Collect course assets for packaging |
-| `buildManifestFileList(manifest, files)` | Build the manifest file reference list |
+| `packageStandaloneDir(options)` | Write an unpacked directory (ZIP or SCORM layout) |
+| `generateImsManifest(manifest, files)` | SCORM 1.2 `imsmanifest.xml` |
+| `buildIndexHtml(options)` | Course shell HTML with embedded config |
+| `buildRuntimeConfig(options)` | Config object passed to `safeJsonForHtml` |
+| `collectFiles(courseDir, baseDir)` | Course assets for packaging (respects skip rules) |
+| `shouldSkipCourseFile(rel)` | Whether a relative path is omitted from exports |
+| `buildManifestFileList(courseFiles)` | File list for `imsmanifest.xml` |
+| `safeJsonForHtml(value)` | JSON safe for `<script type="application/json">` blocks |
+| `courseSlug(manifest)` | Stable slug for ZIP names and manifest identifiers |
 | `ExportTarget` | `"scorm12"` \| `"standalone"` |
+
+### `PackageOptions`
+
+| Field | Description |
+|-------|-------------|
+| `courseDir` | Course root directory |
+| `manifest` | Parsed `course.yaml` |
+| `outputPath` | Destination ZIP path (`packageCourse`) |
+| `target` | `scorm12` or `standalone` |
+| `runtimeClientJs` | Contents of `@lxpack/runtime/client` bundle |
+| `runtimeCss` | Runtime stylesheet |
+| `assessmentBundle` | Optional; from `buildRuntimeAssessmentBundle()` |
 
 ## What gets packaged
 
-- All assets referenced by the course manifest (lessons, interactions, assessments)
-- Embedded `@lxpack/runtime` client bundle and styles
-- SCORM API wrapper for LMS communication (SCORM 1.2 target only)
+**Included**
 
-The CLI `lxpack build` command wraps this package — most users interact via `@lxpack/cli` rather than calling these APIs directly.
+- Lessons, interactions, and assets referenced by the manifest
+- `index.html` — shell with embedded manifest + assessment config
+- `lxpack-runtime.js` — browser client bundle
+- `imsmanifest.xml` — SCORM 1.2 target only
+
+**Excluded** (`shouldSkipCourseFile`)
+
+- `course.yaml`, `lxpack.config.json`, `.lxpack/`
+- `assessments/**` — author YAML; assessments are embedded in config instead
+- Root `index.html` if present (packager generates the entry page)
+
+Answer keys are only present inside the JSON config block (with `<` escaped via `safeJsonForHtml`), not as downloadable files.
 
 ## Development
 
@@ -95,7 +124,13 @@ From the monorepo root:
 ```bash
 pnpm --filter @lxpack/scorm build
 pnpm --filter @lxpack/scorm test
+pnpm --filter @lxpack/scorm typecheck
 ```
+
+## Links
+
+- [LXPack repository](https://github.com/eddiethedean/lxpack)
+- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 
 ## License
 

@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![Release](https://github.com/eddiethedean/lxpack/actions/workflows/release.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/release.yml)
+[![npm](https://img.shields.io/npm/v/@lxpack/cli)](https://www.npmjs.com/package/@lxpack/cli)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
@@ -9,16 +10,27 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
+**Current release:** [v0.1.1](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#011---2026-05-23)
+
+## Packages
+
+| Package | npm | README |
+|---------|-----|--------|
+| `@lxpack/cli` | [npm](https://www.npmjs.com/package/@lxpack/cli) | [packages/cli](packages/cli/README.md) |
+| `@lxpack/runtime` | [npm](https://www.npmjs.com/package/@lxpack/runtime) | [packages/runtime](packages/runtime/README.md) |
+| `@lxpack/validators` | [npm](https://www.npmjs.com/package/@lxpack/validators) | [packages/validators](packages/validators/README.md) |
+| `@lxpack/scorm` | [npm](https://www.npmjs.com/package/@lxpack/scorm) | [packages/scorm](packages/scorm/README.md) |
+
 ## Features
 
 - **Declarative manifests** — `course.yaml` defines lessons, interactions, assessments, and tracking rules
-- **Schema validation** — Zod-powered checks for manifest shape and on-disk assets before build
-- **Browser runtime** — lesson navigation, markdown rendering, HTML interactions, YAML assessments (MCQ), progress tracking
-- **SCORM 1.2** — discovers the LMS `API` in parent/opener frames; preview mode uses a local simulator with `localStorage`
-- **Local preview** — Fastify dev server serves the course and bundled runtime (default `http://127.0.0.1:3847`)
+- **Schema validation** — Zod-powered checks for manifest shape, symlink-safe path containment, and on-disk assets
+- **Browser runtime** — lesson navigation, markdown rendering, HTML interactions, MCQ assessments, progress tracking
+- **Secure packaging** — assessment answer keys are embedded in the runtime config at build time; author `assessments/*.yaml` files are not shipped in exported ZIPs
+- **SCORM 1.2** — discovers the LMS `API` in parent/opener frames; compact `suspend_data` within the 4096-character limit; preview uses a local simulator with `localStorage`
+- **Local preview** — Fastify dev server with strict validation (same rules as `build`)
 - **Export targets** — SCORM 1.2 ZIP (`imsmanifest.xml`) or standalone HTML ZIP/directory
 - **Course config** — optional `lxpack.config.json` for default export target and output directory
-- **Monorepo packages** — publishable `@lxpack/*` modules with full test coverage
 
 ## Requirements
 
@@ -98,7 +110,7 @@ lxpack build --target standalone -o ./dist/course.zip
 lxpack build --target standalone --dir -o ./dist/standalone
 ```
 
-Commands discover the course by walking up from the current directory until they find `course.yaml`.
+Commands discover the course by walking up from the current directory until they find `course.yaml`. `init --dir` and `lxpack.config.json` `output.dir` are resolved with path containment (no escapes outside the project).
 
 ## Course structure
 
@@ -108,9 +120,9 @@ my-course/
   lxpack.config.json   # Optional: defaultTarget, output dir
   lessons/             # Markdown lesson files
   interactions/        # HTML/JS interaction folders (index.html)
-  assessments/         # Quiz YAML files
+  assessments/         # Quiz YAML (authoring only — not in export ZIPs)
   assets/              # Static assets
-  theme/               # Optional theme assets (not wired in 0.1.1)
+  theme/               # Optional theme assets (not wired in v0.1.1)
   .lxpack/             # Build output (generated)
 ```
 
@@ -146,21 +158,7 @@ Lesson types:
 - **markdown** — `file` points to a `.md` lesson
 - **html** — `path` points to a folder containing `index.html`
 
-## Monorepo layout
-
-```text
-packages/
-  cli/          @lxpack/cli       — lxpack CLI (init, preview, validate, build) — [README](packages/cli/README.md)
-  runtime/      @lxpack/runtime   — browser client, routing, SCORM API — [README](packages/runtime/README.md)
-  validators/   @lxpack/validators — Zod schemas + validateCourse — [README](packages/validators/README.md)
-  scorm/        @lxpack/scorm     — imsmanifest.xml + ZIP packaging — [README](packages/scorm/README.md)
-examples/
-  security-awareness/   — sample course
-test/
-  fixtures/             — shared validation/build test courses
-docs/
-  SPEC.md, PLAN.md, ROADMAP.md
-```
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -178,6 +176,27 @@ flowchart LR
   scorm --> lms
   runtime --> lms
 ```
+
+```text
+packages/
+  cli/          @lxpack/cli       — init, preview, validate, build
+  runtime/      @lxpack/runtime   — browser client, SCORM API, progress
+  validators/   @lxpack/validators — Zod schemas, validateCourse, assessment bundle
+  scorm/        @lxpack/scorm     — imsmanifest.xml, HTML shell, ZIP packaging
+examples/
+  security-awareness/   — sample course
+test/
+  fixtures/             — shared validation/build test courses
+docs/
+  SPEC.md, PLAN.md, ROADMAP.md
+```
+
+## Security notes
+
+- **Assessments:** Author YAML under `assessments/` stays in the repo for editing. Exports embed learner-safe questions plus answer keys in the HTML config JSON (not as fetchable files).
+- **Embedded JSON:** Config injected into `index.html` escapes `<` to prevent `</script>` breakout.
+- **Path containment:** Validation and CLI resolve paths inside the course directory; symlinks that escape the course root are rejected.
+- **Markdown:** Rendering uses a basic sanitizer. Only use trusted author content until DOMPurify support lands.
 
 ## Development
 
@@ -201,30 +220,27 @@ pnpm --filter @lxpack/cli build
 
 | Workflow | Trigger | Steps |
 |----------|---------|--------|
-| [CI](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test (separate jobs) |
+| [CI](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test |
 | [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish `@lxpack/*` to npm |
-
-Published packages: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`.
 
 To cut a release:
 
-1. Add an npm token as the GitHub secret `NPM_TOKEN`:
-   - **Granular access token** — enable **Bypass 2FA for publish** and grant **Read and write** on `@lxpack/*`, or
-   - **Classic automation token** — type **Automation**.
-2. Tag and push: `git tag v0.1.1 && git push origin v0.1.1`
+1. Bump versions and update [CHANGELOG.md](CHANGELOG.md).
+2. Ensure the GitHub secret `NPM_TOKEN` is set (granular token with publish on `@lxpack/*`, or classic **Automation** token).
+3. Tag and push: `git tag v0.1.2 && git push origin v0.1.2`
 
-The release workflow runs all CI checks before publishing. See [CHANGELOG.md](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) for release notes.
+The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Roadmap
 
-Phase 1 (current, **v0.1.1**) delivers init, preview, validate, minimal MCQ assessments, SCORM 1.2 export with real LMS API discovery, and standalone HTML export. Built packages embed assessments in the runtime config (author `assessments/*.yaml` files are not shipped). Planned work includes SCORM 2004, xAPI/cmi5, hot reload, themes, and richer interactions — see [ROADMAP.md](https://github.com/eddiethedean/lxpack/blob/main/docs/ROADMAP.md).
+Phase 1 (**v0.1.x**) delivers init, preview, validate, MCQ assessments, SCORM 1.2 export, and standalone HTML export. Planned work includes SCORM 2004, xAPI/cmi5, hot reload, themes, and richer interactions — see [ROADMAP.md](docs/ROADMAP.md).
 
 ## Documentation
 
-- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
-- [Technical Specification](https://github.com/eddiethedean/lxpack/blob/main/docs/SPEC.md)
-- [Product Plan](https://github.com/eddiethedean/lxpack/blob/main/docs/PLAN.md)
-- [Roadmap](https://github.com/eddiethedean/lxpack/blob/main/docs/ROADMAP.md)
+- [Changelog](CHANGELOG.md)
+- [Technical Specification](docs/SPEC.md)
+- [Product Plan](docs/PLAN.md)
+- [Roadmap](docs/ROADMAP.md)
 
 ## License
 

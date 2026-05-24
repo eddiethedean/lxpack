@@ -9,6 +9,12 @@ Zod schemas and filesystem validation for LXPack course manifests.
 
 Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
 
+| Related | Package |
+|---------|---------|
+| CLI | [`@lxpack/cli`](../cli/README.md) |
+| Packaging | [`@lxpack/scorm`](../scorm/README.md) |
+| Runtime | [`@lxpack/runtime`](../runtime/README.md) |
+
 ## Install
 
 ```bash
@@ -23,8 +29,8 @@ Requires Node.js 20+.
 import {
   validateCourse,
   loadManifest,
+  buildRuntimeAssessmentBundle,
   courseManifestSchema,
-  type CourseManifest,
   type ValidationResult,
 } from "@lxpack/validators";
 
@@ -34,6 +40,11 @@ if (!result.valid) {
   for (const issue of result.issues) {
     console.error(`${issue.path}: ${issue.message}`);
   }
+} else {
+  const { manifest } = result;
+  const bundle = await buildRuntimeAssessmentBundle("/path/to/my-course", manifest);
+  // bundle.assessments — learner-facing questions (no correct flags)
+  // bundle.answerKeys — scoring keys for the runtime (embedded at build time)
 }
 ```
 
@@ -54,24 +65,47 @@ if (Array.isArray(loaded)) {
 const parsed = courseManifestSchema.safeParse(manifestObject);
 ```
 
+### Safe path resolution
+
+```ts
+import { resolveCoursePath, isPathContained } from "@lxpack/validators";
+
+const abs = resolveCoursePath(courseDir, "lessons/intro.md");
+isPathContained(courseDir, abs); // true if inside course root
+```
+
 ## Exports
 
 | Export | Description |
 |--------|-------------|
-| `validateCourse(dir)` | Parse `course.yaml`, validate schema, and check referenced files exist |
-| `loadManifest(courseDir)` | Load and parse `course.yaml` in a course directory |
-| `resolveCoursePath(dir, relativePath)` | Resolve a path safely within the course directory |
+| `validateCourse(dir)` | Parse `course.yaml`, validate schema, check files, symlink containment |
+| `loadManifest(courseDir)` | Load and parse `course.yaml` |
+| `buildRuntimeAssessmentBundle(dir, manifest)` | Load assessments; split learner view vs answer keys |
+| `toLearnerAssessment(assessment)` | Strip `correct` / `explanation` from one assessment |
+| `resolveCoursePath(dir, relativePath)` | Resolve a path safely inside the course directory |
+| `isPathContained(root, target)` | Whether `target` stays under `root` |
 | `courseManifestSchema` | Zod schema for the full course manifest |
-| `lessonSchema`, `assessmentSchema`, … | Sub-schemas for manifest sections |
-| `CourseManifest`, `Lesson`, `Assessment` | Inferred TypeScript types |
+| `lessonSchema`, `assessmentSchema`, … | Strict sub-schemas for manifest sections |
+| `CourseManifest`, `Lesson`, `Assessment`, `LearnerAssessment`, `RuntimeAssessmentBundle` | TypeScript types |
 
 ## What gets validated
 
 - Manifest shape (lessons, assessments, tracking rules)
 - Lesson types: `markdown` (`file`) and `html` (`path`)
-- Assessment YAML structure (MCQ questions, scoring)
-- Path containment — referenced files must stay inside the course directory
-- On-disk assets referenced by the manifest
+- Assessment YAML: strict MCQ schemas (`correct` on exactly one choice per question)
+- Duplicate lesson IDs
+- Path containment — referenced files must stay inside the course directory (including via symlinks)
+- On-disk assets: files exist and assessments paths are regular files
+
+## Assessment packaging
+
+Author assessments live as YAML under `assessments/` in the course repo. At build/preview time:
+
+1. `buildRuntimeAssessmentBundle()` reads each assessment file.
+2. **Learner payload** — questions and choices without `correct` or `explanation`.
+3. **Answer keys** — `questionId → choiceId` map for scoring.
+
+The CLI and [`@lxpack/scorm`](../scorm/README.md) embed both in the HTML config JSON. Exported ZIPs **do not** include `assessments/` files, so answer keys are not fetchable as static assets.
 
 ## Development
 
@@ -80,7 +114,13 @@ From the monorepo root:
 ```bash
 pnpm --filter @lxpack/validators build
 pnpm --filter @lxpack/validators test
+pnpm --filter @lxpack/validators typecheck
 ```
+
+## Links
+
+- [LXPack repository](https://github.com/eddiethedean/lxpack)
+- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 
 ## License
 
