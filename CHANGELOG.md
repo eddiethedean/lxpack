@@ -38,7 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Notes
 
-- Phase 1 MVP: SCORM 2004, xAPI, cmi5, themes, and hot reload are planned for later releases.
+- Completes Phase 1 (MVP). Phase 2 (v0.2.x) targets SCORM 2004 sequencing, branching, variables, quiz engine upgrades, and `@lxpack/components` — see [docs/ROADMAP.md](docs/ROADMAP.md).
+- Phase 3+ covers xAPI, cmi5, themes, hot reload, and plugins.
 - The runtime browser bundle is ESM (`client.js`); legacy LMS environments without module support are not targeted in this release.
 
+[0.1.1]: https://github.com/eddiethedean/lxpack/releases/tag/v0.1.1
 [0.1.0]: https://github.com/eddiethedean/lxpack/releases/tag/v0.1.0

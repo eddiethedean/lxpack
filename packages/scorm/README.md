@@ -130,6 +130,8 @@ pnpm --filter @lxpack/scorm typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
+- [Documentation index](https://github.com/eddiethedean/lxpack/blob/main/docs/README.md)
+- [Roadmap & phases](https://github.com/eddiethedean/lxpack/blob/main/docs/ROADMAP.md)
 - [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 
 ## License

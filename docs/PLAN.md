@@ -1,6 +1,8 @@
 
 # LXPack Plan Document
 
+> **Doc sync:** Phases and version targets match [ROADMAP.md](ROADMAP.md). See [docs/README.md](README.md) for the release-phase table.
+
 ## Vision
 
 LXPack is an AI-native CLI framework for building, validating, previewing, packaging, and deploying interactive learning experience (LX) courses without relying on legacy slide-centric tools such as Articulate Storyline.
@@ -34,10 +36,10 @@ LXPack enables learning experience developers (LXDs) to:
 
 ## Secondary Goals
 
-- Improve accessibility
+- Improve accessibility (automated checks in Phase 3+)
 - Improve version control friendliness
 - Improve collaboration workflows
-- Support reusable learning components
+- Support reusable learning components (Phase 2)
 - Enable technical and simulation-based training
 - Support custom JavaScript interactions
 
@@ -50,16 +52,12 @@ LXPack enables learning experience developers (LXDs) to:
 - Instructional Designers
 - Learning Experience Designers
 - Technical Trainers
-- Corporate Training Teams
-- Government Training Teams
+- Corporate and government training teams
 - eLearning Developers
 
 ## Secondary Users
 
 - Software Developers
-- Curriculum Designers
-- Cybersecurity Training Teams
-- Developer Enablement Teams
 - LMS Administrators
 
 ---
@@ -76,80 +74,46 @@ Courses are modern web applications, not PowerPoint slide exports.
 
 ## Standards-Compatible
 
-Enterprise LMS compatibility is mandatory.
+Enterprise LMS compatibility is mandatory. SCORM 1.2 is shipped; SCORM 2004, xAPI, and cmi5 follow the phased roadmap.
 
 ## Developer-Friendly
 
-Courses should work naturally with:
-- Git
-- CI/CD
-- testing
-- version control
-- reusable components
+Courses work with Git, CI/CD, testing, and reusable components.
 
 ## Extensible
 
-Developers should be able to:
-- write plugins
-- build custom interactions
-- extend tracking
-- add export targets
+Plugins, custom interactions, export targets, and analytics providers are planned for later phases.
 
 ---
 
 # Architecture Overview
 
-## Major Components
+## Major Components (current monorepo)
 
-### 1. CLI
+| Component | Package | Status |
+|-----------|---------|--------|
+| CLI | `@lxpack/cli` | Shipped |
+| Runtime | `@lxpack/runtime` | Shipped |
+| Validation | `@lxpack/validators` | Shipped |
+| Packaging | `@lxpack/scorm` | Shipped (SCORM 1.2 + standalone) |
+| Components | `@lxpack/components` | Phase 2 |
+| Preview server | part of `@lxpack/cli` | Shipped (Fastify) |
 
-Responsibilities:
-- project scaffolding
-- validation
-- packaging
-- previews
-- export management
+### Responsibilities
 
-### 2. Runtime Engine
+**CLI** — scaffolding, validation, packaging, previews, export management.
 
-Responsibilities:
-- course navigation
-- progress tracking
-- state management
-- branching
-- quiz handling
-- interaction APIs
+**Runtime** — navigation, progress, SCORM 1.2 LMS communication, assessments, interaction API (`window.lxpack.track`). Phase 2 adds branching, manifest variables, SCORM 2004 API.
 
-### 3. Packaging Engine
+**Packaging** — ZIP artifacts, `imsmanifest.xml`, embedded runtime bundle, assessment config injection.
 
-Responsibilities:
-- SCORM packaging
-- xAPI packaging
-- cmi5 packaging
-- ZIP generation
-- manifest generation
+**Validation** — Zod schemas, filesystem checks, path/symlink containment, assessment bundles for export.
 
-### 4. Validation Engine
-
-Responsibilities:
-- schema validation
-- accessibility validation
-- tracking validation
-- package integrity checks
-
-### 5. Preview Server
-
-Responsibilities:
-- local course preview
-- hot reload
-- interaction testing
-- debugging
+**Preview** — serves course + runtime; strict validation; SCORM 1.2 simulator (`localStorage`).
 
 ---
 
-# Proposed Tech Stack
-
-## Initial Stack
+# Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -158,42 +122,35 @@ Responsibilities:
 | Bundler | Vite |
 | Validation | Zod |
 | Packaging | JSZip |
-| Testing | Playwright |
-| Markdown Rendering | MDX |
-| Dev Server | Express/Fastify |
+| Preview | Fastify |
+| Testing | Vitest |
 
-## Future Rust Opportunities
-
-Potential Rust components:
-- SCORM compiler
-- package validation
-- asset optimization
-- accessibility scanning
-- high-performance build system
+Future: Playwright for e2e; optional Rust accelerators for packaging/a11y (see [ROADMAP.md](ROADMAP.md)).
 
 ---
 
 # Project Phases
 
-# Phase 1 — MVP
+Aligned with [ROADMAP.md](ROADMAP.md) development phases.
 
-## Goals
+## Phase 1 — MVP (shipped — v0.1.x)
 
-Build a minimally viable AI-native course compiler.
+**Latest release:** v0.1.1
 
-## Features (shipped in v0.1.0)
+### Shipped features
 
-- CLI scaffolding (`lxpack init`, `--force`)
-- Markdown lessons and HTML interactions
-- Local preview server (Fastify)
-- Strict `course.yaml` validation (Zod, path containment)
-- SCORM 1.2 ZIP export (full `imsmanifest` file list, self-contained runtime bundle)
-- Standalone HTML ZIP/directory export
-- Progress tracking (preview/standalone `localStorage`; SCORM `suspend_data`)
-- Minimal quiz engine (YAML MCQ, passing score, SCORM passed/failed)
-- `lxpack.config.json` for default build target and output dir
+- CLI: `lxpack init`, `preview`, `validate`, `build` (`--dir`, `--force`, path containment on init/output)
+- Markdown lessons and HTML interaction folders
+- Local preview (Fastify); validation errors block preview and build
+- Strict `course.yaml` validation (Zod, symlink-safe path containment)
+- SCORM 1.2 ZIP export and standalone HTML ZIP/directory export
+- MCQ assessments (YAML authoring; learner config + answer keys embedded at build; no `assessments/` in export ZIPs)
+- Progress: `localStorage` in preview/standalone; SCORM 1.2 `suspend_data` / `lesson_location` with compact JSON
+- `lxpack.config.json` for default export target and output directory
+- Example course: `examples/security-awareness`
+- CI (lint, build, typecheck, test) and npm publish on tag
 
-## Example Commands
+### Example commands
 
 ```bash
 lxpack init my-course
@@ -204,51 +161,49 @@ lxpack build --target scorm12
 
 ---
 
-# Phase 2 — Enterprise Readiness
+## Phase 2 — Runtime expansion (planned — v0.2.x)
 
-## Features
+- SCORM 2004 export with **multi-SCO sequencing/navigation** in `imsmanifest`
+- **Branching** — declarative flow rules in the manifest
+- **Variables** — declared defaults in `course.yaml`; persisted via runtime API and suspend data
+- **Quiz engine** — enhancements beyond v0.1.x MCQ (retakes, feedback, scoring modes)
+- **`@lxpack/components`** — built-in widgets with per-course overrides
 
-- SCORM 2004
-- xAPI
-- cmi5
-- branching logic
-- variables
-- reusable components
-- accessibility validation
-- analytics hooks
-- CI/CD support
+Out of scope for v0.2: xAPI, cmi5, hot reload, theme wiring, plugin marketplace.
 
 ---
 
-# Phase 3 — AI Workflow Optimization
+## Phase 3 — Modern standards (planned — v0.3.x)
 
-## Features
-
-- Claude prompt generation
-- AI repair tooling
-- AI course optimization
-- AI-generated assessments
-- AI accessibility remediation
-- AI interaction generation
-
-Example:
-
-```bash
-lxpack ask "why is my course not completing?"
-```
+- xAPI export and runtime statement helpers
+- cmi5 packaging
+- analytics and simulation tracking hooks
+- automated accessibility validation (WCAG-oriented)
 
 ---
 
-# Phase 4 — Ecosystem
+## Phase 4 — AI tooling
 
-## Features
+- Claude prompt generation and repair workflows
+- AI-generated assessments and interactions
+- Example: `lxpack ask "why is my course not completing?"`
+
+---
+
+## Phase 5 — Ecosystem
 
 - plugin marketplace
 - component marketplace
-- LMS integrations
+- LMS integrations and hosted review environments
+
+---
+
+## Phase 6 — Enterprise platform
+
 - cloud deployment
-- collaborative editing
-- hosted review environments
+- analytics dashboards
+- hosted runtime
+- compliance tooling
 
 ---
 
@@ -257,12 +212,16 @@ lxpack ask "why is my course not completing?"
 ```text
 course/
   course.yaml
+  lxpack.config.json
   lessons/
-  assets/
   interactions/
-  theme/
+  assets/
   assessments/
+  theme/          # reserved (not wired in v0.1.x)
+  .lxpack/
 ```
+
+Phase 2 may add `components/` for overrides of `@lxpack/components` widgets.
 
 ---
 
@@ -275,7 +234,7 @@ course/
 | AI-native | No | Yes |
 | Git-friendly | Weak | Strong |
 | Web-native | Partial | Yes |
-| Open ecosystem | Limited | Planned |
+| Open ecosystem | Limited | Planned (Phase 5+) |
 | Developer extensibility | Limited | Strong |
 | Custom interactions | Difficult | Easy |
 
@@ -283,11 +242,4 @@ course/
 
 # Long-Term Vision
 
-LXPack evolves into:
-- an open eLearning runtime
-- an AI-assisted instructional design ecosystem
-- a modern alternative to slide-centric authoring tools
-- a programmable learning experience platform
-
-The long-term opportunity is to become:
-"the Next.js/Vite of AI-generated learning experiences."
+LXPack evolves into an open eLearning runtime and programmable learning experience platform — **the Next.js/Vite of AI-generated learning experiences** (see [ROADMAP.md](ROADMAP.md)).

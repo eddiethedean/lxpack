@@ -1,6 +1,8 @@
 
 # LXPack Full Product Roadmap
 
+> **Doc sync:** Phase names and version targets match [PLAN.md](PLAN.md), [SPEC.md](SPEC.md), and [README.md](../README.md). See [docs/README.md](README.md) for the release-phase table.
+
 ## Vision Statement
 
 LXPack is an AI-native learning experience application framework and packaging ecosystem.
@@ -59,11 +61,11 @@ Goals:
 ## LMS Compatibility
 
 Standards:
-- SCORM 1.2
-- SCORM 2004
-- xAPI
-- cmi5
-- standalone HTML
+- SCORM 1.2 (shipped)
+- SCORM 2004 (Phase 2)
+- xAPI (Phase 3)
+- cmi5 (Phase 3)
+- standalone HTML (shipped)
 
 ## Developer Experience
 
@@ -71,8 +73,8 @@ Goals:
 - Git-friendly
 - CI/CD support
 - npm ecosystem integration
-- plugin system
-- reusable components
+- plugin system (later phases)
+- reusable components (Phase 2)
 
 ---
 
@@ -90,61 +92,60 @@ Goals:
 ### Runtime
 - routing
 - tracking
-- branching
+- branching (Phase 2)
 - scoring
 - LMS communication
 
-### Packaging Engine
-- SCORM generation
-- xAPI packaging
-- cmi5 packaging
-- ZIP artifacts
+### Packaging Engine (`@lxpack/scorm` today)
+- SCORM 1.2 generation (shipped)
+- SCORM 2004 + sequencing (Phase 2)
+- standalone HTML ZIP
+- xAPI / cmi5 packaging (Phase 3)
 
-### Validation Engine
+### Validation Engine (`@lxpack/validators`)
 - schema validation
-- accessibility validation
-- package integrity
+- path containment
+- assessment packaging
+- accessibility validation (Phase 3+)
 
 ### Preview Environment
-- hot reload
-- mobile preview
-- debugging
-- LMS simulation
+- local server (shipped)
+- strict validation (shipped)
+- hot reload (future)
+- mobile preview (future)
+- LMS simulation (SCORM 1.2 preview today)
 
 ---
 
 # Standards Support Roadmap
 
-## SCORM 1.2
-MVP support:
+## SCORM 1.2 (shipped — v0.1.x)
+
 - completion tracking
-- bookmarking
-- suspend_data
-- scoring
+- bookmarking (`lesson_location`)
+- compact `suspend_data` (4096-char limit)
+- MCQ scoring / passed-failed
+- sanitized assessment embedding (no answer YAML in ZIPs)
 
-## SCORM 2004
-Enterprise support:
-- sequencing
-- navigation APIs
-- advanced completion states
+## SCORM 2004 (Phase 2 — v0.2.x)
 
-## xAPI
-Advanced analytics:
+- multi-SCO packages with IMS sequencing/navigation in `imsmanifest`
+- SCORM 2004 Run-Time API (`API_1484_11`)
+- mapping course flow (branching, assessments) to sequencing rules
+
+## xAPI (Phase 3)
+
 - learner events
 - simulation analytics
 - adaptive tracking
 
-## cmi5
-Modern LMS launch support.
+## cmi5 (Phase 3)
 
-## H5P Interoperability
-Long-term reusable interaction compatibility.
+- modern LMS launch profiles
 
-## QTI Support
-Assessment interoperability.
+## H5P / QTI / LTI
 
-## LTI Support
-External tool launch support.
+Long-term interoperability — not scheduled for v0.2.
 
 ---
 
@@ -158,204 +159,95 @@ External tool launch support.
 | Validation | Zod |
 | Packaging | JSZip |
 | Preview Server | Fastify |
-| Testing | Playwright |
+| Testing | Vitest (unit); Playwright (future e2e) |
 
 ---
 
-# Rust Opportunities
+# Repository Structure (current)
 
-Potential future Rust modules:
-- package compiler
-- accessibility scanner
-- asset optimizer
-- manifest validator
-
-Long-term:
-- TypeScript ecosystem with Rust acceleration.
-
----
-
-# Repository Structure
-
+```text
 packages/
   cli/
   runtime/
   validators/
-  exporters/
-  plugins/
-  components/
-
+  scorm/
 examples/
+test/fixtures/
+docs/
+```
+
+Future packages: `components/` (Phase 2), `xapi/`, `cmi5/` (Phase 3).
 
 ---
 
 # Course Structure
 
+```text
 course/
   course.yaml
+  lxpack.config.json
   lessons/
   interactions/
   assets/
-  assessments/
-  theme/
+  assessments/     # authoring only; not shipped in export ZIPs (v0.1.x)
+  theme/             # reserved; not wired in v0.1.x
+  .lxpack/           # build output
+```
 
----
-
-# Manifest Philosophy
-
-Declarative and AI-friendly.
-
-Example:
-
-title: Security Awareness
-version: 1.0.0
-
-runtime:
-  theme: modern
-
-tracking:
-  completion:
-    threshold: 0.9
-
----
-
-# Runtime Philosophy
-
-The runtime replaces Storyline’s runtime layer.
-
-Responsibilities:
-- progress persistence
-- bookmarking
-- LMS communication
-- state management
-- analytics
-- scoring
-
----
-
-# Interaction Types
-
-Supported interactions:
-- quizzes
-- branching scenarios
-- coding labs
-- dashboards
-- simulations
-- fake terminals
-- React apps
-- canvas/WebGL
-
----
-
-# Accessibility
-
-Target:
-- WCAG 2.1 AA
-
-Checks:
-- alt text
-- contrast
-- keyboard navigation
-- ARIA validation
-
----
-
-# AI Workflow Features
-
-Commands:
-
-lxpack prompt
-lxpack fix
-lxpack ask
-
-Goals:
-- prompt generation
-- AI remediation
-- AI interaction generation
-- accessibility repair
-
----
-
-# Plugin System
-
-Plugin categories:
-- exporters
-- themes
-- runtime extensions
-- analytics providers
-- assessment engines
-
-Example:
-
-lxpack plugin install @lxpack/plugin-moodle
-
----
-
-# Packaging Philosophy
-
-LXPack packages learning web applications, not slide decks.
-
----
-
-# Analytics Roadmap
-
-Features:
-- xAPI dashboards
-- learner analytics
-- heatmaps
-- adaptive metrics
-
----
-
-# Security Goals
-
-- sandbox interactions
-- CSP enforcement
-- signed plugins
-- offline mode
+Phase 2 may add `components/` overrides and manifest `variables` / `flow` sections.
 
 ---
 
 # Development Phases
 
-## Phase 1 — MVP
-Features:
-- project scaffolding
-- markdown lessons
-- HTML interactions
-- local preview
-- SCORM 1.2 export
-- standalone HTML export
+## Phase 1 — MVP (shipped — v0.1.x)
 
-## Phase 2 — Runtime Expansion
-Features:
-- SCORM 2004
-- branching
-- variables
-- quiz engine
-- reusable components
+**Latest release:** v0.1.1
 
-## Phase 3 — Modern Standards
 Features:
-- xAPI
-- cmi5
-- analytics
+- project scaffolding (`lxpack init`)
+- markdown lessons and HTML interactions
+- local preview with strict validation
+- SCORM 1.2 ZIP and standalone HTML export
+- YAML MCQ assessments with embedded runtime config
+- path containment and safe embedded JSON
+- monorepo packages on npm: `@lxpack/cli`, `@lxpack/runtime`, `@lxpack/validators`, `@lxpack/scorm`
+
+## Phase 2 — Runtime expansion (planned — v0.2.x)
+
+Features:
+- **SCORM 2004** — multi-SCO export with sequencing/navigation in the manifest
+- **Branching** — declarative flow in `course.yaml` (conditions on variables, assessment results, interaction events)
+- **Variables** — manifest defaults + runtime `setVariable` / `getVariable` persisted in suspend data
+- **Quiz engine** — richer MCQ behavior (retakes, feedback modes, optional question types)
+- **Reusable components** — new `@lxpack/components` package with built-in widgets and per-course overrides
+
+Not in Phase 2: xAPI, cmi5, hot reload, themes, plugins (see Phase 3+).
+
+## Phase 3 — Modern standards (planned — v0.3.x)
+
+Features:
+- xAPI export and statement helpers
+- cmi5 packaging
+- analytics hooks
 - simulation tracking
 
-## Phase 4 — AI Tooling
+## Phase 4 — AI tooling
+
 Features:
 - Claude integration
-- AI repair
-- AI accessibility remediation
+- AI repair and accessibility remediation
 - AI-generated interactions
 
 ## Phase 5 — Ecosystem
+
 Features:
 - plugin marketplace
 - component marketplace
 - hosted previews
 
-## Phase 6 — Enterprise Platform
+## Phase 6 — Enterprise platform
+
 Features:
 - cloud deployment
 - analytics dashboards
@@ -366,51 +258,33 @@ Features:
 
 # npm Package Plan
 
-@lxpack/cli
-@lxpack/runtime
-@lxpack/scorm
-@lxpack/xapi
-@lxpack/cmi5
-@lxpack/components
+| Package | Phase |
+|---------|-------|
+| `@lxpack/cli` | 1 (shipped) |
+| `@lxpack/runtime` | 1 (shipped) |
+| `@lxpack/validators` | 1 (shipped) |
+| `@lxpack/scorm` | 1 (shipped); extended in 2 for SCORM 2004 |
+| `@lxpack/components` | 2 |
+| `@lxpack/xapi` | 3 |
+| `@lxpack/cmi5` | 3 |
 
 ---
 
 # Distribution Strategy
 
-Primary:
-- npm
-
-Secondary:
-- GitHub Releases
-- Homebrew
-- Docker images
-
-Future:
-- crates.io
-- hosted SaaS platform
+Primary: npm (`@lxpack/*`). Secondary: GitHub Releases. CI: lint, build, typecheck, test; publish on tag `v*.*.*`.
 
 ---
 
 # Initial Target Users
 
-Primary:
 - technical training teams
 - cybersecurity trainers
 - AI-native LXD teams
-
-Secondary:
-- instructional designers
-- LMS administrators
+- instructional designers and LMS administrators
 
 ---
 
 # Long-Term Vision
 
-LXPack becomes:
-- an open learning runtime
-- an AI-native course compiler
-- a programmable learning ecosystem
-
-Strategic vision:
-
-"The Vite/Next.js ecosystem for AI-generated learning experiences."
+LXPack becomes an open learning runtime and AI-native course compiler — **the Vite/Next.js-style ecosystem for AI-generated learning experiences.**

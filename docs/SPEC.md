@@ -1,9 +1,11 @@
 
 # LXPack Technical Specification
 
+> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.1.1. See [docs/README.md](README.md).
+
 ## Overview
 
-LXPack is a CLI-driven learning experience compiler and runtime system designed to package AI-generated courses into standards-compliant LMS deliverables.
+LXPack is a CLI-driven learning experience compiler and runtime that packages AI-generated courses into standards-compliant LMS deliverables.
 
 ---
 
@@ -22,24 +24,22 @@ lxpack init <project-name>
 ### Output
 
 Creates:
-- course.yaml
-- lessons/
-- assets/
-- interactions/
-- assessments/
-- theme/
-- lxpack.config.json
+- `course.yaml`
+- `lessons/`
+- `assets/`
+- `interactions/`
+- `assessments/`
+- `theme/` (reserved; not wired in v0.1.x)
+- `lxpack.config.json`
 
 ### Options
 
-- `--dir` — output directory (defaults to project name)
-- `--force` — overwrite existing `course.yaml`
+- `--dir` — relative output directory (must stay inside cwd; v0.1.1+)
+- `--force` — overwrite existing course directory
 
 ---
 
 ## FR-002 — Local Preview
-
-The CLI SHALL provide a local preview server.
 
 ### Command
 
@@ -47,25 +47,27 @@ The CLI SHALL provide a local preview server.
 lxpack preview
 ```
 
-### Implemented (v0.1.0)
+### Implemented (v0.1.x)
 
-- Static course + runtime serving
-- Schema validation before start (blocks on invalid manifest; warns on missing files)
-- Preview SCORM simulator (`localStorage`)
-- Port/host options (`-p`, `-H`)
+- Fastify static server for course assets + bundled runtime
+- **Strict validation** before start (same failure mode as `build`)
+- Embedded assessment bundle in HTML config (no fetch of author YAML)
+- Preview SCORM 1.2 simulator (`localStorage`)
+- Options: `-p` / `--port`, `-H` / `--host`
 
 ### Planned
 
-- hot reload
-- runtime debugging UI
-- mobile preview
-- accessibility warnings
+| Feature | Phase |
+|---------|-------|
+| Hot reload | Post–2 |
+| Runtime debugging UI | Post–2 |
+| Mobile preview | Post–2 |
+| SCORM 2004 preview simulator | 2 |
+| Accessibility warnings in preview | 3+ |
 
 ---
 
 ## FR-003 — Course Validation
-
-The CLI SHALL validate course structure and metadata.
 
 ### Command
 
@@ -73,40 +75,51 @@ The CLI SHALL validate course structure and metadata.
 lxpack validate
 ```
 
-### Validation Areas
+### Implemented (v0.1.x)
 
-- schema compliance
-- missing assets
-- invalid interaction references
-- broken lesson links
-- accessibility issues
-- invalid tracking configuration
+- `course.yaml` schema (Zod, strict)
+- Lesson types: `markdown` (`file`), `html` (`path`)
+- Assessment YAML structure (MCQ; one correct choice per question)
+- Duplicate lesson ID detection
+- Referenced files exist on disk
+- Path containment (including symlink escape checks)
+- Assessment refs must be regular files under the course root
+
+### Planned
+
+| Area | Phase |
+|------|-------|
+| Branching / flow graph validation | 2 |
+| Manifest variables schema | 2 |
+| Component reference validation | 2 |
+| Automated accessibility rules | 3+ |
 
 ---
 
 ## FR-004 — Packaging
 
-The CLI SHALL export LMS-compatible packages.
-
-### Supported Targets (v0.1.0)
-
-- SCORM 1.2
-- standalone HTML
-
-### Planned Targets
-
-- SCORM 2004
-- xAPI
-- cmi5
-
 ### Command
 
 ```bash
-lxpack build --target scorm12
-lxpack build --target standalone
+lxpack build --target <target>
 ```
 
-Default target and output directory may be set in `lxpack.config.json`.
+### Supported targets (v0.1.x)
+
+| Target | Description |
+|--------|-------------|
+| `scorm12` | SCORM 1.2 ZIP with `imsmanifest.xml`, single SCO launch |
+| `standalone` | HTML ZIP or directory (no SCORM manifest) |
+
+Default target and output directory: `lxpack.config.json`.
+
+### Planned targets
+
+| Target | Phase |
+|--------|-------|
+| `scorm2004` | Multi-SCO ZIP with IMS sequencing/navigation | 2 |
+| xAPI | 3 |
+| cmi5 | 3 |
 
 ---
 
@@ -114,18 +127,17 @@ Default target and output directory may be set in `lxpack.config.json`.
 
 ## File
 
-```text
-course.yaml
-```
+`course.yaml`
 
-## Example
+## Example (v0.1.x)
 
 ```yaml
 title: Security Awareness
 version: 1.0.0
+description: Optional summary
 
 runtime:
-  theme: modern
+  theme: modern   # reserved; not applied in v0.1.x
 
 tracking:
   completion:
@@ -133,10 +145,12 @@ tracking:
 
 lessons:
   - id: intro
+    title: Introduction
     type: markdown
     file: lessons/intro.md
 
   - id: phishing_lab
+    title: Phishing lab
     type: html
     path: interactions/phishing-lab
 
@@ -145,96 +159,87 @@ assessments:
     file: assessments/final.yaml
 ```
 
+## Planned extensions (Phase 2)
+
+- `variables:` — default values and types
+- `flow:` — branching rules between lessons/assessments
+- Lesson type `component` — reference to `@lxpack/components` widgets
+
 ---
 
 # Runtime Specification
 
 ## Responsibilities
 
-The runtime SHALL provide:
-- routing
-- progress persistence
-- variable storage
-- branching logic
-- assessment scoring
-- LMS communication
-- interaction APIs
+| Responsibility | v0.1.x | Phase 2 |
+|----------------|--------|---------|
+| Linear navigation (lessons + assessments) | Yes | Extended with flow |
+| Progress persistence | Yes | Yes |
+| MCQ assessments | Yes | Quiz engine upgrades |
+| `window.lxpack` interaction API | Yes | Yes |
+| `setVariable` / `getVariable` | Yes (suspend data only) | + manifest defaults |
+| Branching logic | No | Yes |
+| SCORM 1.2 LMS API | Yes | Yes |
+| SCORM 2004 LMS API | No | Yes |
 
 ---
 
 # Interaction API
 
-## Event API
-
-Interactions SHALL emit runtime events.
-
-## Example
+Interactions MAY emit runtime events:
 
 ```javascript
 window.lxpack.track({
   type: "interaction",
-  id: "phishing_click"
-})
+  id: "phishing_click",
+  data: { clicked: true }
+});
 ```
+
+Phase 2: flow rules MAY consume interaction and assessment events for navigation.
 
 ---
 
 # Tracking Specification
 
-## SCORM (v0.1.0 — SCORM 1.2)
+## SCORM 1.2 (v0.1.x)
 
-The runtime supports:
-- LMS API discovery (`window.API` in parent/opener chain)
-- `lesson_status`, `score.raw`, `suspend_data` (4096-char limit), `lesson_location`
-- Completion ratio from lessons + passed assessments
-- Preview mode: `localStorage`-backed simulator (not sent to a real LMS)
+- LMS API discovery (`window.API` in parent/opener frames)
+- `cmi.core.lesson_status`, `cmi.core.score.raw`, `cmi.core.lesson_location`
+- `cmi.suspend_data` — compact JSON (4096-character limit); legacy parse fallback
+- Completion ratio from completed lessons + passed assessments
+- Assessment submission updates status before `LMSCommit`
+- Preview / standalone: `localStorage` (no real LMS)
 
-## xAPI (planned)
-- launched
-- experienced
-- answered
-- completed
-- passed
-- failed
+## SCORM 2004 (Phase 2)
 
----
+- Run-Time Environment API (`API_1484_11`)
+- Multi-SCO manifest with sequencing/navigation
+- Per-SCO progress and package-level flow mapping
 
-# Accessibility Requirements (planned for automated validation)
+## xAPI (Phase 3)
 
-## WCAG
-
-The platform SHALL target WCAG 2.1 AA compliance.
-
-## Validation
-
-Accessibility validation SHALL include:
-- missing alt text
-- contrast checks
-- keyboard navigation
-- ARIA validation
+Planned verbs: launched, experienced, answered, completed, passed, failed.
 
 ---
 
-# Plugin System
+# Accessibility (Phase 3+)
 
-## Goals
+Target: WCAG 2.1 AA for authored content. Automated checks (alt text, contrast, keyboard, ARIA) are not implemented in v0.1.x.
 
-Allow third-party extension development.
+Until DOMPurify lands, treat markdown and HTML lesson content as **trusted author input**.
 
-## Plugin Types
+---
 
-- export targets
-- runtime extensions
-- assessment types
-- analytics providers
-- themes
-- interaction libraries
+# Plugin System (Phase 5+)
 
-## Example
+Planned plugin types: export targets, runtime extensions, assessment types, analytics, themes.
 
 ```bash
-lxpack plugin install lxpack-plugin-moodle
+lxpack plugin install @lxpack/plugin-example
 ```
+
+Not implemented in v0.1.x.
 
 ---
 
@@ -242,9 +247,7 @@ lxpack plugin install lxpack-plugin-moodle
 
 ## File
 
-```text
-lxpack.config.json
-```
+`lxpack.config.json`
 
 ## Example
 
@@ -259,101 +262,69 @@ lxpack.config.json
 }
 ```
 
-TypeScript config evaluation is planned for a later release.
+`output.dir` is resolved with path containment (v0.1.1+). TypeScript config is planned for a later release.
 
 ---
 
-# Build Pipeline
+# Build Pipeline (v0.1.x)
 
-## Stages
+1. Discover `course.yaml` (walk up from cwd)
+2. `validateCourse` — schema + filesystem + assessments
+3. `buildRuntimeAssessmentBundle` — learner assessments + answer keys
+4. Bundle `@lxpack/runtime` client + CSS
+5. `packageCourse` — collect assets (skip `assessments/`, configs, `.lxpack/`), write `index.html` with `safeJsonForHtml` config
+6. For SCORM 1.2: generate `imsmanifest.xml`
+7. Write ZIP or directory under `.lxpack/` (unless `-o` / `--dir`)
 
-1. Parse manifests
-2. Validate schema
-3. Resolve assets
-4. Bundle interactions
-5. Generate runtime
-6. Build LMS manifests
-7. Package ZIP artifacts
+Phase 2 adds SCORM 2004 multi-SCO layout and sequencing XML generation.
 
 ---
 
 # Security Requirements
 
-## Requirements
+## Implemented (v0.1.x)
 
-- no remote code execution
-- sandbox interactions
-- CSP enforcement
-- optional offline mode
-- signed plugin support
-
----
-
-# Future Features
+- Path containment for course assets, init `--dir`, and config output paths
+- Assessment answer keys not shipped as static YAML in exports
+- `<` escaped in embedded JSON config (`safeJsonForHtml`)
+- Basic HTML sanitization in markdown/interaction rendering (not a full XSS policy)
 
 ## Planned
 
-- adaptive learning
-- AI tutoring
-- live analytics
-- collaborative editing
-- visual builder
-- simulation engine
-- multiplayer exercises
+- DOMPurify for markdown/HTML (post–1.x)
+- CSP enforcement for interactions
+- Sandboxed interaction iframes
+- Signed plugins (Phase 5+)
 
 ---
 
-# Recommended Repository Structure
+# Repository Structure (current)
 
 ```text
 packages/
   cli/
   runtime/
   validators/
-  exporters/
-  plugins/
-  docs/
-
+  scorm/
 examples/
+test/fixtures/
+docs/
 ```
 
 ---
 
-# Suggested Open Source License
+# Release Milestones (aligned with roadmap)
 
-Recommended:
-- Apache 2.0
-or
-- MIT
-
-Apache 2.0 is recommended if enterprise adoption is a major goal.
+| Milestone | Phase | Version | Status |
+|-----------|-------|---------|--------|
+| MVP core | 1 | v0.1.0 | Shipped |
+| Security & SCORM fixes | 1 | v0.1.1 | Shipped |
+| Runtime expansion | 2 | v0.2.x | Planned |
+| Modern standards | 3 | v0.3.x | Planned |
+| AI tooling | 4 | TBD | Planned |
 
 ---
 
-# Suggested Initial Milestones
+# License
 
-## Milestone 1
-
-- CLI scaffolding
-- preview server
-- markdown lessons
-- SCORM 1.2 export
-
-## Milestone 2
-
-- variables
-- branching
-- quiz engine
-- xAPI support
-
-## Milestone 3
-
-- cmi5
-- plugin system
-- accessibility engine
-
-## Milestone 4
-
-- AI tooling
-- Claude integration
-- analytics dashboard
+Apache-2.0 (see repository [LICENSE](../LICENSE)).

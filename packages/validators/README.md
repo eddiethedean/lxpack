@@ -120,6 +120,8 @@ pnpm --filter @lxpack/validators typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
+- [Documentation index](https://github.com/eddiethedean/lxpack/blob/main/docs/README.md)
+- [Technical specification](https://github.com/eddiethedean/lxpack/blob/main/docs/SPEC.md)
 - [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 
 ## License
