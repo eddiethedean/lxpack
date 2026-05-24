@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
-Zod schemas and filesystem validation for LXPack course manifests.
+Zod schemas and filesystem validation for LXPack course manifests — including flow, variables, and component lessons (v0.2.0).
 
 Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
 
@@ -14,6 +14,7 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learni
 | CLI | [`@lxpack/cli`](../cli/README.md) |
 | Packaging | [`@lxpack/scorm`](../scorm/README.md) |
 | Runtime | [`@lxpack/runtime`](../runtime/README.md) |
+| Components | [`@lxpack/components`](../components/README.md) |
 
 ## Install
 
@@ -44,7 +45,9 @@ if (!result.valid) {
   const { manifest } = result;
   const bundle = await buildRuntimeAssessmentBundle("/path/to/my-course", manifest);
   // bundle.assessments — learner-facing questions (no correct flags)
-  // bundle.answerKeys — scoring keys for the runtime (embedded at build time)
+  // bundle.answerKeys — scoring keys for the runtime
+  // bundle.configs — maxAttempts, shuffleChoices, showFeedback per assessment
+  // bundle.feedback — questionId → explanation text for feedback modes
 }
 ```
 
@@ -65,6 +68,14 @@ if (Array.isArray(loaded)) {
 const parsed = courseManifestSchema.safeParse(manifestObject);
 ```
 
+### Flow validation
+
+```ts
+import { validateFlow, detectFlowCycles, collectActivityIds } from "@lxpack/validators";
+```
+
+`validateCourse` runs flow checks when `manifest.flow` is present: valid `goto` targets, known condition shapes, and cycle detection.
+
 ### Safe path resolution
 
 ```ts
@@ -78,34 +89,43 @@ isPathContained(courseDir, abs); // true if inside course root
 
 | Export | Description |
 |--------|-------------|
-| `validateCourse(dir)` | Parse `course.yaml`, validate schema, check files, symlink containment |
+| `validateCourse(dir)` | Parse `course.yaml`, validate schema, flow, files, symlink containment |
 | `loadManifest(courseDir)` | Load and parse `course.yaml` |
-| `buildRuntimeAssessmentBundle(dir, manifest)` | Load assessments; split learner view vs answer keys |
-| `toLearnerAssessment(assessment)` | Strip `correct` / `explanation` from one assessment |
+| `buildRuntimeAssessmentBundle(dir, manifest)` | Load assessments; split learner view, keys, configs, feedback |
+| `toLearnerAssessment(assessment)` | Strip `correct` from choices; extract config and feedback maps |
+| `validateFlow(manifest)` | Flow rule and target validation |
+| `detectFlowCycles(flow)` | Cycle detection for branching graphs |
+| `collectActivityIds(manifest)` | Lesson and assessment IDs for flow targets |
+| `conditionSchema`, `flowRuleSchema` | Zod schemas for flow conditions and rules |
+| `BUILTIN_COMPONENT_IDS`, `isBuiltinComponentId` | Allowed built-in component lesson IDs |
 | `resolveCoursePath(dir, relativePath)` | Resolve a path safely inside the course directory |
 | `isPathContained(root, target)` | Whether `target` stays under `root` |
 | `courseManifestSchema` | Zod schema for the full course manifest |
-| `lessonSchema`, `assessmentSchema`, … | Strict sub-schemas for manifest sections |
-| `CourseManifest`, `Lesson`, `Assessment`, `LearnerAssessment`, `RuntimeAssessmentBundle` | TypeScript types |
+| `lessonSchema`, `assessmentSchema`, `variableDefSchema`, … | Strict sub-schemas |
+| `CourseManifest`, `Lesson`, `Assessment`, `FlowRule`, `VariableDef`, `RuntimeAssessmentBundle` | TypeScript types |
 
 ## What gets validated
 
-- Manifest shape (lessons, assessments, tracking rules)
-- Lesson types: `markdown` (`file`) and `html` (`path`)
-- Assessment YAML: strict MCQ schemas (`correct` on exactly one choice per question)
+- Manifest shape: lessons, assessments, optional `variables` and `flow`, tracking rules
+- Lesson types: `markdown` (`file`), `html` (`path`), `component` (`component` + optional `props`)
+- Component IDs: built-in IDs or course overrides under `components/<id>/`
+- Flow rules: condition grammar, `goto` targets that reference known activity IDs, acyclic flow (warnings for cycles)
+- Assessment YAML: strict MCQ schemas; optional `maxAttempts`, `shuffleChoices`, `showFeedback`; `explanation` per question
 - Duplicate lesson IDs
 - Path containment — referenced files must stay inside the course directory (including via symlinks)
-- On-disk assets: files exist and assessments paths are regular files
+- On-disk assets: files exist and assessment paths are regular files
 
 ## Assessment packaging
 
 Author assessments live as YAML under `assessments/` in the course repo. At build/preview time:
 
 1. `buildRuntimeAssessmentBundle()` reads each assessment file.
-2. **Learner payload** — questions and choices without `correct` or `explanation`.
+2. **Learner payload** — questions and choices without `correct` flags.
 3. **Answer keys** — `questionId → choiceId` map for scoring.
+4. **Configs** — per-assessment quiz behavior (`maxAttempts`, `shuffleChoices`, `showFeedback`).
+5. **Feedback** — `questionId → explanation` for immediate/end feedback (not shipped as separate files).
 
-The CLI and [`@lxpack/scorm`](../scorm/README.md) embed both in the HTML config JSON. Exported ZIPs **do not** include `assessments/` files, so answer keys are not fetchable as static assets.
+The CLI and [`@lxpack/scorm`](../scorm/README.md) embed all of this in the HTML config JSON. Exported ZIPs **do not** include `assessments/` files, so answer keys are not fetchable as static assets.
 
 ## Development
 

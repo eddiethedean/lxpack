@@ -7,13 +7,14 @@
 
 Command-line tool for scaffolding, previewing, validating, and packaging LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.0**).
 
 | Related | Package |
 |---------|---------|
 | Validation | [`@lxpack/validators`](../validators/README.md) |
 | Browser runtime | [`@lxpack/runtime`](../runtime/README.md) |
 | Export / ZIP | [`@lxpack/scorm`](../scorm/README.md) |
+| Lesson widgets | [`@lxpack/components`](../components/README.md) |
 
 ## Install
 
@@ -32,6 +33,7 @@ cd my-course
 lxpack preview          # http://127.0.0.1:3847 by default
 lxpack validate
 lxpack build --target scorm12
+lxpack build --target scorm2004
 ```
 
 Output lands in `.lxpack/` unless overridden by `-o` or `lxpack.config.json`.
@@ -49,11 +51,15 @@ Output lands in `.lxpack/` unless overridden by `-o` or `lxpack.config.json`.
 
 | Option | Description |
 |--------|-------------|
-| `-t, --target <target>` | `scorm12` (default) or `standalone` |
+| `-t, --target <target>` | `scorm12` (default), `scorm2004`, or `standalone` |
 | `-o, --output <path>` | Output ZIP file or directory |
 | `--dir` | Write an unpacked directory instead of a ZIP |
 
 `build` and `preview` use the same validation rules: errors fail the command (exit code 1). `build` reuses the validated manifest and bakes a sanitized [assessment bundle](../validators/README.md#assessment-packaging) into the exported HTML config.
+
+**SCORM 2004** builds produce a multi-SCO ZIP: one launch page per activity under `sco/<activityId>/index.html`, plus shared `lxpack-runtime.js` and `lxpack-components.js`.
+
+**Preview** serves the runtime client, optional components bundle at `/runtime/components.js`, and installs SCORM API simulators (1.2 and 2004) for local testing.
 
 ### Course discovery
 
@@ -73,9 +79,12 @@ my-course/
   lessons/
   interactions/
   assessments/         # authoring only — omitted from export ZIPs
+  components/          # optional widget overrides
   assets/
   .lxpack/             # build output (generated)
 ```
+
+`init` scaffolds commented examples for `variables`, `flow`, and `type: component` lessons. See [branching-demo](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo) for a full v0.2 course.
 
 ### `lxpack.config.json`
 
@@ -88,11 +97,13 @@ my-course/
 }
 ```
 
+Use `"defaultTarget": "scorm2004"` when your LMS expects SCORM 2004 4th Edition packages.
+
 See the [root README](https://github.com/eddiethedean/lxpack#course-structure) for a full `course.yaml` example.
 
 ## Programmatic use
 
-The CLI is built with [Commander](https://github.com/tj/commander.js). For library integration, import from the built package or depend on `@lxpack/validators`, `@lxpack/scorm`, and `@lxpack/runtime` directly.
+The CLI is built with [Commander](https://github.com/tj/commander.js). For library integration, import from the built package or depend on `@lxpack/validators`, `@lxpack/scorm`, `@lxpack/runtime`, and `@lxpack/components` directly.
 
 ## Development
 

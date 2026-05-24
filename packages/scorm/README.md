@@ -5,15 +5,16 @@
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
-SCORM 1.2 and standalone HTML export for LXPack courses.
+SCORM 1.2, SCORM 2004 (multi-SCO), and standalone HTML export for LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.0**).
 
 | Related | Package |
 |---------|---------|
 | CLI | [`@lxpack/cli`](../cli/README.md) |
 | Manifest validation | [`@lxpack/validators`](../validators/README.md) |
 | Embedded client | [`@lxpack/runtime`](../runtime/README.md) |
+| Components bundle | [`@lxpack/components`](../components/README.md) |
 
 ## Install
 
@@ -24,6 +25,8 @@ npm install @lxpack/scorm
 Requires Node.js 20+.
 
 ## Usage
+
+### SCORM 1.2 or standalone ZIP
 
 ```ts
 import { readFile } from "node:fs/promises";
@@ -44,6 +47,7 @@ const assessmentBundle = await buildRuntimeAssessmentBundle(courseDir, manifest)
 
 const runtimeClientJs = await readFile("path/to/client.js", "utf8");
 const runtimeCss = await readFile("path/to/styles.css", "utf8");
+const componentsJs = await readFile("path/to/bundle.js", "utf8"); // optional
 
 await packageCourse({
   courseDir,
@@ -52,9 +56,30 @@ await packageCourse({
   outputPath: "/path/to/output/course-scorm12.zip",
   runtimeClientJs,
   runtimeCss,
+  componentsJs,
   assessmentBundle,
 });
 ```
+
+### SCORM 2004 multi-SCO
+
+```ts
+import { packageScorm2004, buildScoIndexHtml, listCourseActivities } from "@lxpack/scorm";
+
+const activities = listCourseActivities(manifest);
+
+await packageScorm2004({
+  courseDir,
+  manifest,
+  outputPath: "/path/to/output/course-scorm2004.zip",
+  runtimeClientJs,
+  runtimeCss,
+  componentsJs,
+  assessmentBundle,
+});
+```
+
+Each activity gets `sco/<activityId>/index.html` (via `buildScoIndexHtml`). Shared assets include `lxpack-runtime.js` and `lxpack-components.js`. `generateScorm2004Manifest` emits `imsmanifest.xml` with IMS Simple Sequencing metadata.
 
 ### Standalone directory
 
@@ -66,6 +91,7 @@ await packageStandaloneDir({
   outputDir: "/path/to/output/standalone",
   runtimeClientJs,
   runtimeCss,
+  componentsJs,
   assessmentBundle,
 });
 ```
@@ -77,16 +103,21 @@ Most users should use `lxpack build` from [`@lxpack/cli`](../cli/README.md) inst
 | Export | Description |
 |--------|-------------|
 | `packageCourse(options)` | Build a SCORM 1.2 or standalone ZIP |
-| `packageStandaloneDir(options)` | Write an unpacked directory (ZIP or SCORM layout) |
+| `packageScorm2004(options)` | Build a SCORM 2004 multi-SCO ZIP |
+| `packageStandaloneDir(options)` | Write an unpacked directory |
+| `listCourseActivities(manifest)` | Ordered activities for multi-SCO layout |
 | `generateImsManifest(manifest, files)` | SCORM 1.2 `imsmanifest.xml` |
-| `buildIndexHtml(options)` | Course shell HTML with embedded config |
+| `generateScorm2004Manifest(...)` | SCORM 2004 manifest with sequencing |
+| `buildIndexHtml(options)` | Single-SCO course shell HTML |
+| `buildScoIndexHtml(options)` | Per-activity launch HTML for SCORM 2004 |
+| `scoLaunchPath(activityId)` | Relative launch path (`sco/<id>/index.html`) |
 | `buildRuntimeConfig(options)` | Config object passed to `safeJsonForHtml` |
 | `collectFiles(courseDir, baseDir)` | Course assets for packaging (respects skip rules) |
 | `shouldSkipCourseFile(rel)` | Whether a relative path is omitted from exports |
 | `buildManifestFileList(courseFiles)` | File list for `imsmanifest.xml` |
 | `safeJsonForHtml(value)` | JSON safe for `<script type="application/json">` blocks |
 | `courseSlug(manifest)` | Stable slug for ZIP names and manifest identifiers |
-| `ExportTarget` | `"scorm12"` \| `"standalone"` |
+| `ExportTarget` | `"scorm12"` \| `"scorm2004"` \| `"standalone"` |
 
 ### `PackageOptions`
 
@@ -94,28 +125,30 @@ Most users should use `lxpack build` from [`@lxpack/cli`](../cli/README.md) inst
 |-------|-------------|
 | `courseDir` | Course root directory |
 | `manifest` | Parsed `course.yaml` |
-| `outputPath` | Destination ZIP path (`packageCourse`) |
-| `target` | `scorm12` or `standalone` |
+| `outputPath` | Destination ZIP path |
+| `target` | `scorm12`, `scorm2004`, or `standalone` |
 | `runtimeClientJs` | Contents of `@lxpack/runtime/client` bundle |
 | `runtimeCss` | Runtime stylesheet |
-| `assessmentBundle` | Optional; from `buildRuntimeAssessmentBundle()` |
+| `componentsJs` | Optional `@lxpack/components/bundle` for component lessons |
+| `assessmentBundle` | From `buildRuntimeAssessmentBundle()` (assessments, keys, configs, feedback) |
 
 ## What gets packaged
 
 **Included**
 
-- Lessons, interactions, and assets referenced by the manifest
-- `index.html` — shell with embedded manifest + assessment config
+- Lessons, interactions, assets, and component overrides referenced by the manifest
 - `lxpack-runtime.js` — browser client bundle
-- `imsmanifest.xml` — SCORM 1.2 target only
+- `lxpack-components.js` — when component lessons are used
+- **SCORM 1.2 / standalone:** root `index.html` with embedded config
+- **SCORM 2004:** `sco/<activityId>/index.html` per activity + `imsmanifest.xml`
 
 **Excluded** (`shouldSkipCourseFile`)
 
 - `course.yaml`, `lxpack.config.json`, `.lxpack/`
 - `assessments/**` — author YAML; assessments are embedded in config instead
-- Root `index.html` if present (packager generates the entry page)
+- Root `index.html` if present (packager generates entry pages)
 
-Answer keys are only present inside the JSON config block (with `<` escaped via `safeJsonForHtml`), not as downloadable files.
+Answer keys and feedback text are only present inside the JSON config block (with `<` escaped via `safeJsonForHtml`), not as downloadable files.
 
 ## Development
 

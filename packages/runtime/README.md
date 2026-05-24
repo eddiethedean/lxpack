@@ -5,15 +5,16 @@
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
-Browser runtime for LXPack courses — lesson navigation, markdown rendering, HTML interactions, assessments, progress tracking, and SCORM 1.2 integration.
+Browser runtime for LXPack courses — lesson navigation, markdown and HTML lessons, component widgets, branching flow, quiz engine, progress tracking, and SCORM 1.2 / 2004 integration.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.0**).
 
 | Related | Package |
 |---------|---------|
 | CLI / preview | [`@lxpack/cli`](../cli/README.md) |
 | Validation & bundles | [`@lxpack/validators`](../validators/README.md) |
 | Export shell | [`@lxpack/scorm`](../scorm/README.md) |
+| UI widgets | [`@lxpack/components`](../components/README.md) |
 
 ## Install
 
@@ -27,7 +28,7 @@ Requires Node.js 20+ for the build toolchain. Published bundles run in modern br
 
 | Import | Description |
 |--------|-------------|
-| `@lxpack/runtime` | Node/build-time API (`LxpackRuntime`, SCORM helpers, progress serialization, types) |
+| `@lxpack/runtime` | Node/build-time API (`LxpackRuntime`, flow, variables, SCORM helpers, progress serialization, types) |
 | `@lxpack/runtime/client` | Self-contained browser bundle (`dist/client.js`) |
 | `dist/styles.css` | Bundled with the client in SCORM/standalone exports |
 
@@ -35,13 +36,48 @@ Requires Node.js 20+ for the build toolchain. Published bundles run in modern br
 
 The CLI and SCORM packager embed `@lxpack/runtime/client` into exported courses. The client:
 
-- Renders markdown lessons and HTML interaction folders
-- Loads assessments from the embedded config (`assessments` + `answerKeys`); does not fetch author YAML in production exports
-- Scores MCQ submissions with `scoreAssessment()`
-- Tracks lesson completion and assessment scores
-- Persists progress via SCORM `suspend_data` (compact JSON, 4096-char safe) or `localStorage` in preview mode
+- Renders markdown lessons, HTML interaction folders, and `type: component` lessons (via `window.__LXPACK_COMPONENTS__`)
+- Resolves **next/previous** navigation with the flow engine when `course.yaml` defines `flow`; otherwise linear lesson order
+- Loads assessments from embedded config (`assessments`, `answerKeys`, `configs`, `feedback`); does not fetch author YAML in production exports
+- Renders quizzes with `renderAssessment()` — retakes, choice shuffle, and feedback modes from per-assessment config
+- Tracks lesson completion, manifest variables (`v:` prefix in suspend data), and assessment scores
+- Persists progress via SCORM `suspend_data` / CMI (compact JSON, size-safe) or `localStorage` in preview mode
 
 Config is injected by the packager using [`safeJsonForHtml`](../scorm/README.md) from `@lxpack/scorm`.
+
+## Flow and variables
+
+```ts
+import {
+  evaluateCondition,
+  resolveFlowGoto,
+  resolveNextActivityId,
+  initManifestVariables,
+  readManifestVariable,
+  writeManifestVariable,
+} from "@lxpack/runtime";
+```
+
+| Module | Role |
+|--------|------|
+| `flow.ts` | Condition evaluation (`variable.eq`, `assessment.passed`, `interaction.done`, `all` / `any`) and `goto` resolution |
+| `variables.ts` | Manifest variable defaults and `v:` namespaced storage in progress |
+
+`LxpackRuntime` exposes `setVariable()` / `getVariable()` on the learner API when the manifest declares `variables`.
+
+## Quiz module
+
+```ts
+import {
+  renderAssessment,
+  scoreAssessmentForm,
+  getAttemptCount,
+  shuffleQuestions,
+} from "@lxpack/runtime";
+// Re-exported from client as scoreAssessment
+```
+
+Supports `maxAttempts`, `shuffleChoices`, and `showFeedback` (`immediate` | `end` | `never`) from the build-time assessment bundle.
 
 ## SCORM 1.2
 
@@ -63,7 +99,24 @@ import {
 | `installScormAPI()` | Expose the simulator API on `window` for preview servers |
 | `trimSuspendData(data)` | Truncate suspend data to `SCORM_SUSPEND_DATA_MAX` (4096) |
 
-Progress uses a compact suspend-data format with legacy fallback parsing. Assessment submission updates completion status before persisting to the LMS.
+## SCORM 2004
+
+```ts
+import {
+  findScorm2004Api,
+  createScorm2004Connection,
+  Scorm2004Adapter,
+  Scorm2004Simulator,
+} from "@lxpack/runtime";
+```
+
+| API | Description |
+|-----|-------------|
+| `findScorm2004Api()` | Locate `API_1484_11` in parent/opener frames |
+| `createScorm2004Connection(mode)` | LMS adapter (`scorm2004`) or preview simulator |
+| CMI mapping | Progress and completion mapped for multi-SCO packages |
+
+Use `mode: "scorm2004"` in `RuntimeConfig` when embedding the runtime in SCORM 2004 launch pages.
 
 ## Runtime class
 
@@ -72,16 +125,17 @@ import { LxpackRuntime, type RuntimeConfig } from "@lxpack/runtime";
 
 const runtime = new LxpackRuntime({
   manifest,
-  mode: "scorm12", // or "preview"
+  mode: "scorm12", // "scorm2004" | "preview"
   defaultPassingScores: { quiz: 0.7 },
 });
 
 runtime.completeLesson("intro");
+runtime.getAPI().setVariable("track", "advanced");
 runtime.getAPI().submitAssessment("quiz", 0.85, 0.7);
 runtime.getProgress();
 ```
 
-`LxpackAPI` methods include `track()`, `submitAssessment()`, `getProgress()`, and `terminate()` (guarded against double `LMSFinish`).
+`LxpackAPI` methods include `track()`, `submitAssessment()`, `getProgress()`, `setVariable()` / `getVariable()`, and `terminate()` (guarded against double finish).
 
 ## Build output
 
