@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@lxpack/scorm)](https://www.npmjs.com/package/@lxpack/scorm)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
-[![License](https://img.shields.io/npm/l/@lxpack/scorm)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
 SCORM 1.2 and standalone HTML export for LXPack courses.
