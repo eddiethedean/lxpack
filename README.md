@@ -226,7 +226,10 @@ pnpm --filter @lxpack/cli build
 To cut a release:
 
 1. Bump versions and update [CHANGELOG.md](CHANGELOG.md).
-2. Ensure the GitHub secret `NPM_TOKEN` is set (granular token with publish on `@lxpack/*`, or classic **Automation** token).
+2. Ensure the GitHub secret `NPM_TOKEN` is set for the npm user that owns `@lxpack/*` (e.g. `eddiethedean`):
+   - **Classic automation token** (recommended for CI), or
+   - **Granular token** with **Read and write** on `@lxpack/*` and **Bypass 2FA for publish** enabled.
+   The release workflow passes this token to `setup-node` so `.npmrc` is authenticated before `pnpm publish`.
 3. Tag and push: `git tag v0.1.2 && git push origin v0.1.2`
 
 The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CHANGELOG.md) for release notes.

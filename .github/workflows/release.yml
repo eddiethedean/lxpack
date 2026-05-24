@@ -30,7 +30,16 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
+          scope: "@lxpack"
           cache: pnpm
+        env:
+          # Must be set here so setup-node writes the token into .npmrc
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Verify npm authentication
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
