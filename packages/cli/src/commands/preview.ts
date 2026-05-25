@@ -9,9 +9,11 @@ import { buildLearnerPageHtml, safeJsonForHtml } from "@lxpack/scorm";
 import {
   findCourseDir,
   getRuntimeAssetsDir,
+  loadLxpackConfig,
   loadRuntimeStyles,
   readComponentsBundle,
 } from "../utils.js";
+import { getCourseActivityIri } from "@lxpack/validators";
 
 export async function loadPreviewStyles(
   assetsDir = getRuntimeAssetsDir(),
@@ -22,11 +24,24 @@ export async function loadPreviewStyles(
 export function buildPreviewConfig(
   manifest: CourseManifest,
   assessmentBundle?: RuntimeAssessmentBundle,
+  options?: {
+    activityIri?: string;
+    xapiPreview?: { logStatements?: boolean; mockLrs?: boolean };
+  },
 ): string {
   return safeJsonForHtml({
     manifest,
     baseUrl: "/course",
     mode: "preview",
+    ...(options?.activityIri ? { activityIri: options.activityIri } : {}),
+    ...(options?.xapiPreview
+      ? {
+          xapi: {
+            previewLog: options.xapiPreview.logStatements ?? true,
+            mockLrs: options.xapiPreview.mockLrs ?? true,
+          },
+        }
+      : {}),
     ...(assessmentBundle
       ? {
           assessments: assessmentBundle.assessments,
@@ -67,7 +82,12 @@ export async function createPreviewServer(
   });
 
   const stylesCss = await loadPreviewStyles(runtimeDir);
-  const config = buildPreviewConfig(manifest, assessmentBundle);
+  const lxpackConfig = await loadLxpackConfig(courseDir);
+  const activityIri = getCourseActivityIri(manifest);
+  const config = buildPreviewConfig(manifest, assessmentBundle, {
+    activityIri,
+    xapiPreview: lxpackConfig?.xapi?.preview,
+  });
   const componentsJs = await readComponentsBundle();
 
   if (componentsJs) {

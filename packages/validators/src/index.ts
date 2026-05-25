@@ -16,3 +16,8 @@ export {
 } from "./course-paths.js";
 export { enumerateActivities, type CourseActivity } from "./activities.js";
 export { escapeHtml } from "./html.js";
+export {
+  validateXapiTracking,
+  getCourseActivityIri,
+} from "./xapi-validate.js";
+export { xapiTrackingSchema, type XapiTrackingConfig } from "./schemas.js";

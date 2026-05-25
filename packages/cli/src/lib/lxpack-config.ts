@@ -9,9 +9,21 @@ const lxpackConfigSchema = z
     exports: z
       .object({
         defaultTarget: z
-          .enum(["scorm12", "scorm2004", "standalone"])
+          .enum(["scorm12", "scorm2004", "standalone", "xapi", "cmi5"])
           .optional(),
       })
+      .optional(),
+    xapi: z
+      .object({
+        preview: z
+          .object({
+            logStatements: z.boolean().optional(),
+            mockLrs: z.boolean().optional(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
       .optional(),
     output: z
       .object({

@@ -29,7 +29,12 @@ export function createLmsBridge(
   if (mode === "scorm2004") {
     return new Scorm2004Bridge(createScorm2004Connection("scorm2004"));
   }
-  if (mode === "preview" || mode === "standalone") {
+  if (
+    mode === "preview" ||
+    mode === "standalone" ||
+    mode === "xapi" ||
+    mode === "cmi5"
+  ) {
     return new LocalBridge(storageKey);
   }
   return new LocalBridge(storageKey);

@@ -6,18 +6,20 @@ import { buildLearnerPageHtml } from "./page-template.js";
 export interface BuildHtmlOptions {
   manifest: CourseManifest;
   runtimeCss: string;
-  mode: "standalone" | "scorm12" | "scorm2004";
+  mode: "standalone" | "scorm12" | "scorm2004" | "xapi" | "cmi5";
+  activityIri?: string;
   activityId?: string;
   assessmentBundle?: RuntimeAssessmentBundle;
   componentsScript?: string;
 }
 
 export function buildRuntimeConfig(options: BuildHtmlOptions): Record<string, unknown> {
-  const { manifest, mode, assessmentBundle, activityId } = options;
+  const { manifest, mode, assessmentBundle, activityId, activityIri } = options;
   return {
     manifest,
     baseUrl: activityId ? "../.." : ".",
     mode,
+    ...(activityIri ? { activityIri } : {}),
     ...(activityId ? { activityId } : {}),
     ...(assessmentBundle
       ? {

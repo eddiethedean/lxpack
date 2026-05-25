@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/scorm",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "SCORM and standalone HTML export for LXPack",
   "license": "Apache-2.0",
   "repository": {
@@ -37,7 +37,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@lxpack/cmi5": "workspace:*",
     "@lxpack/validators": "workspace:*",
+    "@lxpack/xapi": "workspace:*",
     "jszip": "^3.10.1"
   },
   "devDependencies": {

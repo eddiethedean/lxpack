@@ -105,22 +105,19 @@ lxpack validate
 lxpack build --target <target>
 ```
 
-### Supported targets (v0.1.x)
+### Supported targets (v0.3.0)
 
 | Target | Description |
 |--------|-------------|
 | `scorm12` | SCORM 1.2 ZIP with `imsmanifest.xml`, single SCO launch |
 | `scorm2004` | SCORM 2004 4th Edition multi-SCO ZIP with IMS Simple Sequencing subset |
 | `standalone` | HTML ZIP or directory (no SCORM manifest) |
+| `xapi` | Tin Can package: `tincan.xml`, `index.html`, runtime `mode: "xapi"` |
+| `cmi5` | cmi5 package: `cmi5.xml`, launch `index.html`, runtime `mode: "cmi5"` |
+
+`xapi` and `cmi5` require `tracking.xapi.activityIri` (HTTPS IRI) in `course.yaml`.
 
 Default target and output directory: `lxpack.config.json`.
-
-### Planned targets
-
-| Target | Phase |
-|--------|-------|
-| xAPI | 3 |
-| cmi5 | 3 |
 
 ---
 
@@ -200,6 +197,20 @@ window.lxpack.track({
 
 Flow rules MAY consume interaction and assessment events for navigation (v0.2.0).
 
+### Simulation tracking (v0.3.0)
+
+Simulations MAY emit structured xAPI `interacted` statements:
+
+```javascript
+window.lxpack.track({
+  type: "simulation",
+  id: "fire_extinguisher",
+  data: {
+    simulation: { step: "pull_pin", success: true }
+  }
+});
+```
+
 ---
 
 # Tracking Specification
@@ -220,9 +231,13 @@ Flow rules MAY consume interaction and assessment events for navigation (v0.2.0)
 - Per-activity launch pages at `sco/<activityId>/index.html`
 - Shared `lxpack-runtime.js` and `lxpack-components.js`
 
-## xAPI (Phase 3)
+## xAPI / cmi5 (v0.3.0)
 
-Planned verbs: launched, experienced, answered, completed, passed, failed.
+- Manifest: optional `tracking.xapi.activityIri` (course activity IRI); per-activity IRIs `{activityIri}/activities/{id}`
+- Runtime modes `xapi` and `cmi5` use `@lxpack/xapi` builders (no SCORM API)
+- cmi5 LMS launch query params: `endpoint`, `auth`, `actor`, `registration`, `activityId` (LRS credentials are not embedded in ZIPs)
+- Verbs: `launched`, `experienced`, `interacted`, `answered`, `completed`, `passed`, `failed`
+- Preview: `lxpack.config.json` → `xapi.preview.logStatements` / `mockLrs` (console + `localStorage` queue)
 
 ---
 
@@ -259,6 +274,12 @@ Not implemented in v0.1.x.
   "exports": {
     "defaultTarget": "scorm12"
   },
+  "xapi": {
+    "preview": {
+      "logStatements": true,
+      "mockLrs": true
+    }
+  },
   "output": {
     "dir": ".lxpack"
   }
@@ -278,7 +299,9 @@ Not implemented in v0.1.x.
 5. `packageCourse` / `packageScorm2004` — collect assets (skip `assessments/`, configs, `.lxpack/`), write HTML with `safeJsonForHtml` config
 6. SCORM 1.2: single-SCO `index.html` + `imsmanifest.xml`
 7. SCORM 2004: per-SCO HTML + `generateScorm2004Manifest`
-8. Write ZIP or directory under `.lxpack/` (unless `-o` / `--dir`)
+8. xAPI: `tincan.xml` + `index.html` with `mode: "xapi"` and `activityIri`
+9. cmi5: `cmi5.xml` + launch `index.html` with `mode: "cmi5"`
+10. Write ZIP or directory under `.lxpack/` (unless `-o` / `--dir`)
 
 ---
 

@@ -20,11 +20,14 @@ import { createLmsBridge, progressStorageKey } from "./lms/factory.js";
 import { ProgressState } from "./core/progress-state.js";
 import { buildCompletionState } from "./core/completion-evaluator.js";
 import type { AssessmentHost } from "./quiz/host.js";
+import { createAnalyticsReporter } from "./analytics/factory.js";
+import type { AnalyticsReporter } from "./analytics/reporter.js";
 
 export class LxpackRuntime implements AssessmentHost {
   private manifest: CourseManifest;
   private state: ProgressState;
   private bridge: LmsBridge;
+  private analytics: AnalyticsReporter;
   private completionThreshold: number;
   private assessmentConfigs: Record<string, AssessmentRuntimeConfig>;
   private defaultPassingScores: Record<string, number>;
@@ -39,6 +42,7 @@ export class LxpackRuntime implements AssessmentHost {
       config.manifest.version,
     );
     this.bridge = createLmsBridge(config.mode, storageKey);
+    this.analytics = createAnalyticsReporter(config);
 
     this.defaultPassingScores = {};
     for (const [id, assessment] of Object.entries(config.assessments ?? {})) {
@@ -70,6 +74,9 @@ export class LxpackRuntime implements AssessmentHost {
     if (config.activityId) {
       this.state.setCurrentLesson(config.activityId);
     }
+
+    this.analytics.onLaunched();
+    this.analytics.onExperienced(this.state.progress.currentLessonId);
   }
 
   getAPI(): LxpackAPI {
@@ -101,6 +108,16 @@ export class LxpackRuntime implements AssessmentHost {
       this.state.progress.suspendData[`interaction_${event.id}`] =
         event.data ?? true;
       console.debug("[lxpack] interaction:", event.id, event.data);
+      this.analytics.onInteraction(
+        event.id,
+        event.data as Record<string, unknown> | undefined,
+      );
+    }
+    if (event.type === "simulation" && event.id) {
+      this.analytics.onInteraction(event.id, {
+        type: "simulation",
+        simulation: event.data ?? {},
+      });
     }
     if (event.type === "assessment" && event.id) {
       const passingScore =
@@ -137,6 +154,8 @@ export class LxpackRuntime implements AssessmentHost {
     }
     this.state.recordAssessmentAttempt(assessmentId);
     this.state.applyAssessmentResult(assessmentId, score, passingScore);
+    const passed = this.isAssessmentPassed(assessmentId);
+    this.analytics.onAssessmentSubmitted(assessmentId, score, passed);
     this.updateCompletion();
     this.persist();
   }
@@ -156,6 +175,7 @@ export class LxpackRuntime implements AssessmentHost {
 
   completeLesson(lessonId: string): void {
     this.state.completeLesson(lessonId);
+    this.analytics.onLessonCompleted(lessonId);
     this.updateCompletion();
     this.persist();
   }
@@ -163,6 +183,7 @@ export class LxpackRuntime implements AssessmentHost {
   setCurrentLesson(lessonId: string): void {
     this.state.setCurrentLesson(lessonId);
     this.bridge.setLocation(lessonId);
+    this.analytics.onExperienced(lessonId);
     this.persist();
   }
 
@@ -236,6 +257,7 @@ export class LxpackRuntime implements AssessmentHost {
   terminate(): void {
     if (this.terminated) return;
     this.terminated = true;
+    this.analytics.onTerminated();
     this.bridge.terminate();
   }
 }

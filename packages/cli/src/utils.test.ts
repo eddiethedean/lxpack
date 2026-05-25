@@ -151,7 +151,7 @@ describe("loadLxpackConfig", () => {
     const dir = await mkdtemp(join(tmpdir(), "lxpack-schema-config-"));
     await writeFile(
       join(dir, "lxpack.config.json"),
-      JSON.stringify({ exports: { defaultTarget: "xapi" } }),
+      JSON.stringify({ exports: { defaultTarget: "not-valid" } }),
     );
     await expect(loadLxpackConfig(dir)).rejects.toThrow(
       /Failed to load lxpack.config.json/,

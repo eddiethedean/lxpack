@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/runtime",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Web-native course runtime for LXPack",
   "license": "Apache-2.0",
   "repository": {
@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@lxpack/validators": "workspace:*",
+    "@lxpack/xapi": "workspace:*",
     "marked": "^15.0.7",
     "yaml": "^2.7.0"
   },

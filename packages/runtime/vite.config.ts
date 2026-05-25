@@ -11,6 +11,7 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     rollupOptions: {
+      external: ["@lxpack/validators"],
       output: {
         inlineDynamicImports: true,
       },

@@ -15,6 +15,7 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: false,
     rollupOptions: {
+      external: ["@lxpack/validators"],
       output: {
         entryFileNames: "[name].js",
       },

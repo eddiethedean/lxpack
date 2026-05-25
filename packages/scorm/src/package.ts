@@ -12,8 +12,16 @@ import {
   buildScorm2004ManifestFiles,
   generateScorm2004Manifest,
 } from "./scorm2004-manifest.js";
+import { generateTincanXml } from "@lxpack/xapi";
+import { generateCmi5Xml } from "@lxpack/cmi5";
+import { getCourseActivityIri } from "@lxpack/validators";
 
-export type ExportTarget = "scorm12" | "scorm2004" | "standalone";
+export type ExportTarget =
+  | "scorm12"
+  | "scorm2004"
+  | "standalone"
+  | "xapi"
+  | "cmi5";
 
 export interface PackageOptions {
   courseDir: string;
@@ -135,12 +143,80 @@ async function writeSingleScoArtifacts(
   return { fileCount };
 }
 
+async function writeXapiOrCmi5Artifacts(
+  options: Omit<PackageOptions, "outputPath"> & {
+    writeFile: PackageSink["writeFile"];
+    target: "xapi" | "cmi5";
+  },
+): Promise<{ fileCount: number }> {
+  const {
+    courseDir,
+    manifest,
+    target,
+    runtimeClientJs,
+    runtimeCss,
+    assessmentBundle,
+    componentsBundleJs,
+    writeFile: writeArtifact,
+  } = options;
+
+  const courseIri = getCourseActivityIri(manifest);
+  if (!courseIri) {
+    throw new Error(
+      "tracking.xapi.activityIri is required for xapi/cmi5 export targets",
+    );
+  }
+
+  const courseFiles = await collectFiles(courseDir, courseDir);
+  let fileCount = 0;
+
+  for (const file of courseFiles) {
+    const content = await readFile(file.fullPath);
+    await writeArtifact(file.path, content);
+    fileCount++;
+  }
+
+  const indexHtml = buildIndexHtml({
+    manifest,
+    runtimeCss,
+    mode: target,
+    activityIri: courseIri,
+    assessmentBundle,
+    componentsScript: componentsBundleJs ? "./lxpack-components.js" : undefined,
+  });
+  await writeArtifact("index.html", indexHtml);
+  await writeArtifact("lxpack-runtime.js", runtimeClientJs);
+  fileCount += 2;
+
+  if (componentsBundleJs) {
+    await writeArtifact("lxpack-components.js", componentsBundleJs);
+    fileCount++;
+  }
+
+  if (target === "xapi") {
+    await writeArtifact("tincan.xml", generateTincanXml(manifest, courseIri));
+    fileCount++;
+  } else {
+    await writeArtifact("cmi5.xml", generateCmi5Xml(manifest, courseIri));
+    fileCount++;
+  }
+
+  return { fileCount };
+}
+
 export async function assemblePackage(
   options: Omit<PackageOptions, "outputPath">,
   sink: PackageSink,
 ): Promise<{ fileCount: number }> {
   if (options.target === "scorm2004") {
     return writeScorm2004Artifacts({ ...options, writeFile: sink.writeFile });
+  }
+  if (options.target === "xapi" || options.target === "cmi5") {
+    return writeXapiOrCmi5Artifacts({
+      ...options,
+      writeFile: sink.writeFile,
+      target: options.target,
+    });
   }
   return writeSingleScoArtifacts({ ...options, writeFile: sink.writeFile });
 }

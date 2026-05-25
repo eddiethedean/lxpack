@@ -14,9 +14,15 @@ import {
   printValidationIssues,
 } from "../lib/validated-course.js";
 import { getDirPackager, getZipPackager } from "../packagers/index.js";
-import { validateCourse } from "@lxpack/validators";
+import { validateCourse, validateXapiTracking } from "@lxpack/validators";
 
-const VALID_TARGETS: ExportTarget[] = ["scorm12", "scorm2004", "standalone"];
+const VALID_TARGETS: ExportTarget[] = [
+  "scorm12",
+  "scorm2004",
+  "standalone",
+  "xapi",
+  "cmi5",
+];
 
 export async function buildCommand(options: {
   target?: string;
@@ -47,6 +53,17 @@ export async function buildCommand(options: {
   }
 
   const { manifest, assessmentBundle } = ctx;
+
+  if (target === "xapi" || target === "cmi5") {
+    const xapiIssues = validateXapiTracking(manifest);
+    if (xapiIssues.length > 0) {
+      console.error(pc.red("Cannot build: course validation failed"));
+      for (const issue of xapiIssues) {
+        console.error(`  ${issue.path}: ${issue.message}`);
+      }
+      process.exit(1);
+    }
+  }
   const [{ clientJs, css }, componentsBundleJs] = await Promise.all([
     readRuntimeBundle(),
     readComponentsBundle(),
@@ -84,7 +101,11 @@ export async function buildCommand(options: {
         ? `${slug}-standalone.zip`
         : target === "scorm2004"
           ? `${slug}-scorm2004.zip`
-          : `${slug}-scorm12.zip`;
+          : target === "xapi"
+            ? `${slug}-xapi.zip`
+            : target === "cmi5"
+              ? `${slug}-cmi5.zip`
+              : `${slug}-scorm12.zip`;
     const outputPath = options.output ?? join(outputRoot, defaultName);
 
     const result = await getZipPackager(target).package({

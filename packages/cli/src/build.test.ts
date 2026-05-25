@@ -195,8 +195,44 @@ describe("buildCommand", () => {
         throw new Error(`exit:${code ?? 0}`);
       });
 
+    await expect(buildCommand({ target: "not-a-target" as "scorm12" })).rejects.toThrow(
+      "exit:1",
+    );
+    exit.mockRestore();
+  });
+
+  it("builds xapi zip when tracking.xapi.activityIri is set", async () => {
+    const { cp } = await import("node:fs/promises");
+    const xapiDir = join(workDir, "xapi-course");
+    await cp(fixturePath("xapi-valid"), xapiDir, { recursive: true });
+    process.chdir(xapiDir);
+
+    await buildCommand({ target: "xapi" });
+
+    const zipPath = join(xapiDir, ".lxpack", "xapi-valid-course-xapi.zip");
+    expect(existsSync(zipPath)).toBe(true);
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    expect(zip.file("tincan.xml")).toBeTruthy();
+    expect(zip.file("index.html")).toBeTruthy();
+    process.chdir(join(workDir, "course"));
+  });
+
+  it("exits when xapi build lacks activityIri", async () => {
+    const { cp } = await import("node:fs/promises");
+    const badDir = join(workDir, "missing-iri");
+    await cp(fixturePath("missing-xapi-iri"), badDir, { recursive: true });
+    process.chdir(badDir);
+
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
     await expect(buildCommand({ target: "xapi" })).rejects.toThrow("exit:1");
     exit.mockRestore();
+    process.chdir(join(workDir, "course"));
   });
 
   it("exits when course fails validation", async () => {

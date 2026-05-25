@@ -17,8 +17,13 @@ export interface CourseProgress {
 export interface RuntimeConfig {
   manifest: CourseManifest;
   baseUrl: string;
-  mode: "preview" | "standalone" | "scorm12" | "scorm2004";
+  mode: "preview" | "standalone" | "scorm12" | "scorm2004" | "xapi" | "cmi5";
   activityId?: string;
+  activityIri?: string;
+  xapi?: {
+    previewLog?: boolean;
+    mockLrs?: boolean;
+  };
   progress?: CourseProgress;
   assessments?: RuntimeAssessmentBundle["assessments"];
   answerKeys?: RuntimeAssessmentBundle["answerKeys"];

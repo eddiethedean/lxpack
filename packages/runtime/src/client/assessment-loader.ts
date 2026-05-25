@@ -18,7 +18,9 @@ export async function loadAssessment(
   const exportMode =
     config.mode === "scorm12" ||
     config.mode === "scorm2004" ||
-    config.mode === "standalone";
+    config.mode === "standalone" ||
+    config.mode === "xapi" ||
+    config.mode === "cmi5";
 
   if (embedded) {
     const answerKey = config.answerKeys?.[assessmentId] ?? {};

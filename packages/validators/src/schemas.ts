@@ -149,6 +149,18 @@ export const variableDefSchema = z
     }
   });
 
+export const xapiTrackingSchema = z
+  .object({
+    activityIri: z
+      .string()
+      .url()
+      .refine((u) => u.startsWith("https://"), {
+        message: "activityIri must be an https URL",
+      }),
+    displayName: z.string().min(1).optional(),
+  })
+  .strict();
+
 export const trackingSchema = z
   .object({
     completion: z
@@ -157,9 +169,12 @@ export const trackingSchema = z
       })
       .strict()
       .optional(),
+    xapi: xapiTrackingSchema.optional(),
   })
   .strict()
   .optional();
+
+export type XapiTrackingConfig = z.infer<typeof xapiTrackingSchema>;
 
 export const runtimeConfigSchema = z
   .object({

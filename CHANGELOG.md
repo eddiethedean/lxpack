@@ -5,6 +5,23 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-05-24
+
+### Added
+
+- **`@lxpack/xapi`** — xAPI 1.0.3 statement types, ADL verb builders, launch param parsing, LRS transport with queue/flush, Tin Can `tincan.xml` generation
+- **`@lxpack/cmi5`** — cmi5.xml generation with per-activity blocks (`moveOn` rules for lessons and assessments)
+- Export targets **`xapi`** and **`cmi5`** (`lxpack build --target xapi|cmi5`) — Tin Can or cmi5 manifest + shared HTML/asset layout
+- Optional `tracking.xapi` in `course.yaml` (`activityIri`, `displayName`) with build-time validation for xAPI/cmi5 targets
+- Runtime **`AnalyticsReporter`** port with **`XapiReporter`** — statements on launch, experience, interaction (including simulation payloads), lesson completion, and assessment submit
+- Preview xAPI logging via `lxpack.config.json` → `xapi.preview` (`logStatements`, `mockLrs`) and `localStorage` statement queue
+- Examples: `examples/xapi-awareness`, `examples/cmi5-demo`; fixtures `test/fixtures/xapi-valid`, `test/fixtures/missing-xapi-iri`
+
+### Changed
+
+- `lxpack.config.json` `exports.defaultTarget` may be `xapi` or `cmi5`
+- Runtime client build externalizes `@lxpack/validators` (type-only imports) to keep the browser bundle Node-free
+
 ## [0.2.2] - 2026-05-24
 
 ### Fixed

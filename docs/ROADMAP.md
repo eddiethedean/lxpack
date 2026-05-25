@@ -63,8 +63,8 @@ Goals:
 Standards:
 - SCORM 1.2 (shipped)
 - SCORM 2004 (Phase 2)
-- xAPI (Phase 3)
-- cmi5 (Phase 3)
+- xAPI (Phase 3 — shipped v0.3.0)
+- cmi5 (Phase 3 — shipped v0.3.0)
 - standalone HTML (shipped)
 
 ## Developer Experience
@@ -229,15 +229,20 @@ Features:
 - **Reusable components** — `@lxpack/components` with built-in widgets and per-course overrides
 - Example: `examples/branching-demo`
 
-Not in Phase 2: xAPI, cmi5, hot reload, themes, plugins (see Phase 3+).
+Not in Phase 2: xAPI, cmi5 (now Phase 3), hot reload, themes, plugins.
 
-## Phase 3 — Modern standards (planned — v0.3.x)
+## Phase 3 — Modern standards (shipped — v0.3.0)
+
+**Latest release:** v0.3.0
 
 Features:
-- xAPI export and statement helpers
-- cmi5 packaging
-- analytics hooks
-- simulation tracking
+- **xAPI** — `lxpack build --target xapi`, `@lxpack/xapi` statement builders and Tin Can packaging
+- **cmi5** — `lxpack build --target cmi5`, `@lxpack/cmi5` manifest generation
+- **Analytics hooks** — `AnalyticsReporter` / `XapiReporter` in runtime (separate from SCORM LMS bridges)
+- **Simulation tracking** — `window.lxpack.track({ type: "simulation", simulation: { ... } })` emits xAPI `interacted` with extensions
+- Examples: `examples/xapi-awareness`, `examples/cmi5-demo`
+
+Deferred to v0.3.1+: automated WCAG validation in preview/build.
 
 ## Phase 4 — AI tooling
 

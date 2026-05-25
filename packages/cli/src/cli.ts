@@ -53,7 +53,7 @@ export function createCliProgram(): Command {
     .description("Build LMS-compatible package")
     .option(
       "-t, --target <target>",
-      "Export target: scorm12, scorm2004, standalone",
+      "Export target: scorm12, scorm2004, standalone, xapi, cmi5",
       undefined,
     )
     .option("-o, --output <path>", "Output file or directory path")

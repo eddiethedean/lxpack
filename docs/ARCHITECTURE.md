@@ -1,50 +1,47 @@
-# LXPack architecture (v0.2.2)
+# LXPack architecture (v0.3.0)
 
-Internal layout after the SOLID refactor. Current release **v0.2.2**.
+Internal layout after the SOLID refactor. Current release **v0.3.0**.
 
 ## Package boundaries
 
 | Package | Role | Extension points |
 |---------|------|------------------|
-| `@lxpack/validators` | `course.yaml` schema (Zod), `validateCourse`, assessment parsing, `enumerateActivities` | `lessonValidators` registry, Zod `superRefine` on variables |
-| `@lxpack/runtime` | Browser runtime, LMS bridges, progress codec, quiz UI | `LmsBridge`, `AssessmentHost`, `lessonRenderers`, flow condition handlers |
-| `@lxpack/scorm` | ZIP/dir export, manifests, HTML shells | `assemblePackage` + `PackageSink`, `sliceAssessmentBundleForActivity` |
+| `@lxpack/validators` | `course.yaml` schema (Zod), `validateCourse`, `validateXapiTracking`, assessment parsing, `enumerateActivities` | `lessonValidators` registry, Zod `superRefine` on variables |
+| `@lxpack/xapi` | xAPI statement types, verb builders, launch params, LRS transport, Tin Can XML | `StatementQueue`, `onStatement` hook |
+| `@lxpack/cmi5` | cmi5.xml + block definitions from manifest activities | `generateCmi5Xml` |
+| `@lxpack/runtime` | Browser runtime, LMS bridges, **analytics reporters**, progress codec, quiz UI | `LmsBridge`, `AnalyticsReporter`, `AssessmentHost`, `lessonRenderers` |
+| `@lxpack/scorm` | ZIP/dir export, SCORM/xAPI/cmi5 manifests, HTML shells | `assemblePackage` + `PackageSink` |
 | `@lxpack/cli` | `lxpack` commands | `getZipPackager` / `getDirPackager` registry |
+| `@lxpack/components` | Built-in widgets and browser bundle | component registry |
 
 ## Runtime (`@lxpack/runtime`)
 
-- **`LxpackRuntime`** — facade wiring config, `ProgressState`, `CompletionEvaluator`, and one **`LmsBridge`** (`scorm12`, `scorm2004`, `local`).
-- **`progress/`** — `ProgressCodec`, size policy, `SCORM_SUSPEND_DATA_MAX` (no import from SCORM API in persistence).
-- **`quiz/`** — `AssessmentHost` port; `render.ts` depends on the port, not the facade.
-- **`client/`** — shell, nav, lesson renderer registry, `app.ts` orchestration; **`client.ts`** entry re-exports and auto-bootstraps.
-- **`flow-conditions.ts`** — handler map for `evaluateCondition` (OCP for new condition kinds).
-- **Subpaths:** `./client` (bundle), optional `./scorm12`, `./scorm2004` for LMS adapters.
+- **`LxpackRuntime`** — facade wiring config, `ProgressState`, `CompletionEvaluator`, one **`LmsBridge`**, and one **`AnalyticsReporter`**.
+- **`analytics/`** — `NoopReporter` (SCORM/standalone default), `XapiReporter` (xAPI/cmi5/preview with `activityIri`), `createAnalyticsReporter` factory.
+- **`lms/`** — SCORM 1.2/2004 adapters; `xapi`/`cmi5` use `LocalBridge` for progress only (statements go to analytics).
+- **`progress/`** — `ProgressCodec`, size policy, suspend data limits.
+- **Subpaths:** `./client` (bundle), `./scorm12`, `./scorm2004` for LMS adapters.
 
 ## Validators (`@lxpack/validators`)
 
-- **`course-paths.ts`** — safe path resolution shared with assessments.
-- **`validate/`** — per-lesson-type validators composed via **`lessonValidators`**.
-- **`course-assessments.ts`** — single parse pass: `loadParsedAssessments` → bundle builders.
-- **`activities.ts`** — `enumerateActivities` (canonical activity list).
-- **`html.ts`** — shared `escapeHtml` for Node exporters.
+- **`xapi-validate.ts`** — `validateXapiTracking`, `getCourseActivityIri` for xAPI/cmi5 builds.
+- **`activities.ts`** — `enumerateActivities` (canonical activity list for Node tooling).
 
-## SCORM (`@lxpack/scorm`)
+## SCORM / export (`@lxpack/scorm`)
 
-- **`assemblePackage`** — dispatches `scorm2004` multi-SCO vs single-index `scorm12`/`standalone`.
-- **`assessment-slice.ts`** — per-SCO learner bundle (moved from validators).
-- **`page-template.ts`** — shared learner HTML shell (preview + export).
+- **`assemblePackage`** — dispatches `scorm2004`, `xapi`/`cmi5` (Tin Can or cmi5.xml), or single-index `scorm12`/`standalone`.
+- **`page-template.ts`** — shared learner HTML shell with `mode`, optional `activityIri`.
 
 ## CLI (`@lxpack/cli`)
 
-- **`lib/validated-course.ts`** — one validation + assessment bundle per build/preview.
-- **`lib/`** — course discovery, bundle I/O, lxpack config, HTML helper.
-- **`packagers/`** — target → zip/dir packager registry.
+- **`packagers/`** — all five export targets registered for zip and dir output.
+- Preview embeds `activityIri` and `xapi.preview` settings when present in config/manifest.
 
 ## Adding features
 
-1. **New lesson type** — extend Zod `lessonSchema`, add `validate/*` module, register in `lessonValidators`, add `client/lessons/*` + registry entry.
-2. **New export target** — implement packager, register in `cli/src/packagers/index.ts`, extend `assemblePackage` if layout differs.
-3. **New flow condition** — extend `conditionSchema` in validators, add handler in `flow-conditions.ts` and manifest validation in `flow-validate.ts`.
+1. **New lesson type** — extend Zod `lessonSchema`, validators, client lesson registry.
+2. **New export target** — extend `ExportTarget`, `assemblePackage`, CLI packagers.
+3. **New analytics backend** — implement `AnalyticsReporter`, register in `analytics/factory.ts`.
 4. **New LMS** — implement `LmsBridge`, register in `lms/factory.ts`.
 
 See also [REFACTORING.md](./REFACTORING.md) for invariants and CI commands.

@@ -20,12 +20,16 @@ const zipPackagers: Record<ExportTarget, ZipPackager> = {
   scorm12: { package: packageCourse },
   scorm2004: { package: packageCourse },
   standalone: { package: packageCourse },
+  xapi: { package: packageCourse },
+  cmi5: { package: packageCourse },
 };
 
 const dirPackagers: Record<ExportTarget, DirPackager> = {
   scorm12: { package: packageStandaloneDir },
   scorm2004: { package: packageScorm2004Dir },
   standalone: { package: packageStandaloneDir },
+  xapi: { package: packageStandaloneDir },
+  cmi5: { package: packageStandaloneDir },
 };
 
 export function getZipPackager(target: ExportTarget): ZipPackager {
