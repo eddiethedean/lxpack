@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab title</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto; }
+    button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; }
+    .feedback { margin-top: 1rem; display: none; }
+    .feedback.show { display: block; }
+  </style>
+</head>
+<body>
+  <h1>Lab heading</h1>
+  <p>Instructions for the learner.</p>
+  <button type="button" id="complete">Mark complete</button>
+  <p class="feedback" id="feedback" role="status"></p>
+  <script>
+    document.getElementById('complete').addEventListener('click', () => {
+      document.getElementById('feedback').className = 'feedback show';
+      document.getElementById('feedback').textContent = 'Well done.';
+      if (window.parent.lxpack) {
+        window.parent.lxpack.track({ type: 'interaction', id: 'lab_completed' });
+      }
+    });
+  </script>
+</body>
+</html>

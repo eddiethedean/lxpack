@@ -83,6 +83,7 @@ nav:
       - guides/preview-and-review.md
       - guides/export-to-lms.md
       - Prompts for Claude & Cursor: guides/prompts-for-claude.md
+      - Library Skills: guides/library-skills.md
   - Reference:
       - reference/cli.md
       - reference/course-yaml.md

@@ -54,7 +54,15 @@ When you tag releases (for example `v0.3.0`), Read the Docs can expose a **stabl
 
 ## CI
 
-GitHub Actions runs `scripts/build-docs.sh` on every PR via the `docs` job in `.github/workflows/checks.yml`. Read the Docs sets `NO_MKDOCS_2_WARNING=1` in `.readthedocs.yaml` `build.jobs`.
+GitHub Actions runs `scripts/build-docs.sh` on every PR via the `docs` job in `.github/workflows/checks.yml`.
+
+Read the Docs uses a custom `build.jobs.build.html` step that runs:
+
+```bash
+NO_MKDOCS_2_WARNING=1 mkdocs build --strict --clean --site-dir "$READTHEDOCS_OUTPUT/html"
+```
+
+Output **must** go to `$READTHEDOCS_OUTPUT/html`. Building only to `./site/` completes MkDocs but Read the Docs still reports **Success: False**.
 
 ## Badge for README
 

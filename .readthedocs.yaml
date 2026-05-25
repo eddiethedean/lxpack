@@ -8,7 +8,8 @@ build:
   jobs:
     build:
       html:
-        - NO_MKDOCS_2_WARNING=1 mkdocs build --strict
+        # Override must write to $READTHEDOCS_OUTPUT/html (not ./site/) or RTD marks build failed
+        - NO_MKDOCS_2_WARNING=1 mkdocs build --strict --clean --site-dir "$READTHEDOCS_OUTPUT/html"
 
 mkdocs:
   configuration: mkdocs.yml

@@ -55,6 +55,7 @@ Read [Migrating from legacy tools](migrating-from-legacy-tools.md) before you ch
 | [Preview and review](preview-and-review.md) | Local review, SCORM simulators |
 | [Export to LMS](export-to-lms.md) | Choosing SCORM / xAPI / cmi5 |
 | [Prompts for Claude & Cursor](prompts-for-claude.md) | Copy-paste prompts with clipboard buttons |
+| [Library Skills](library-skills.md) | Installable SKILL.md packages for IDE agents |
 
 ## Planned: deeper AI CLI (Phase 4)
 

@@ -166,6 +166,19 @@ Do not commit build ZIPs; rebuild with `lxpack build`.
 
 For a full legacy migration plan, see [Migrating from legacy tools](migrating-from-legacy-tools.md).
 
+## Library Skills (no Claude required)
+
+Install portable **Library Skills** so Cursor’s agent picks up LXPack rules automatically when you edit course files:
+
+```bash
+# From LXPack repository clone
+./library-skills/install.sh --global
+# Or only for one course:
+./library-skills/install.sh --project --directory /path/to/my-course
+```
+
+See **[Library Skills](library-skills.md)**. Skills work with Cursor’s skill discovery; you do not need Claude for the install itself.
+
 ## Prompts for Cursor Chat
 
 Even without Claude Agent, you can paste prompts from **[Prompts for Claude & Cursor](prompts-for-claude.md)** into Cursor Chat. Use `@course.yaml` and `@lessons/` to attach context. Each prompt block has a **copy button** on the docs site.

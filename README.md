@@ -297,6 +297,7 @@ test/
   fixtures/             — shared validation/build test courses
 docs/               # MkDocs site (published on Read the Docs)
   getting-started/, guides/, reference/, developer/
+library-skills/     # Agent Skills (SKILL.md) for Cursor, Claude Code, etc.
 ```
 
 ## Security notes
@@ -384,6 +385,7 @@ Full documentation is published on **Read the Docs**: **[lxpack.readthedocs.io](
 | Migrating from Storyline / Rise | [Migrating from legacy tools](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) |
 | Cursor users (no Claude) | [Workflow with Cursor](https://lxpack.readthedocs.io/en/latest/guides/workflow-cursor/) |
 | Developers (Cursor + Claude) | [Workflow with Claude Code](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-code/) → [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
+| AI agents (Cursor, Claude Code, Windsurf) | [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/) — install from `library-skills/` |
 
 - [Changelog](CHANGELOG.md)
 - [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)

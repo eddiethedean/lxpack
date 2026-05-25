@@ -11,7 +11,8 @@
 | Instructional designer or LXD, new to LXPack | [What you need](getting-started/what-you-need.md) → [Your first course](getting-started/your-first-course.md) → [Workflow with Claude Design](guides/workflow-claude-design.md) |
 | Moving from Storyline, Rise, or Captivate | [Migrating from legacy tools](guides/migrating-from-legacy-tools.md) |
 | Using Cursor without Claude (IDE only) | [Workflow with Cursor](guides/workflow-cursor.md) · [Copy-paste prompts](guides/prompts-for-claude.md) |
-| Developer or power user with Cursor + Claude | [Workflow with Claude Code](guides/workflow-claude-code.md) |
+| Developer or power user with Cursor + Claude | [Workflow with Claude Code](guides/workflow-claude-code.md) · [Library Skills](guides/library-skills.md) |
+| AI agent in IDE (Cursor, Claude Code, Windsurf) | [Library Skills](guides/library-skills.md) — lazy-loaded LXPack expertise |
 | LMS admin or technical reviewer | [Export to your LMS](guides/export-to-lms.md) and [Reference](reference/cli.md) |
 
 You do **not** need to be a software developer to author with LXPack. You will run a few commands in Terminal and edit text files — on your own, in Cursor, or with help from Claude.

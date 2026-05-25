@@ -9,3 +9,6 @@ coverage/
 .env.*
 site/
 .venv-docs/
+# Installed copies — source of truth is library-skills/ (run library-skills/install.sh)
+.cursor/skills/
+.claude/skills/

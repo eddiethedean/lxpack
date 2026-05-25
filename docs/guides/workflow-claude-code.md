@@ -13,6 +13,22 @@ The validate → preview → build loop is identical to the [Claude Design workf
 - Cursor with Claude Code enabled
 - Comfort with Terminal, YAML, and HTML
 
+## Install Library Skills (recommended)
+
+From the LXPack repo (or your fork), install agent skills once:
+
+```bash
+./library-skills/install.sh --global
+```
+
+Or per course project:
+
+```bash
+./library-skills/install.sh --project --directory ./product-training
+```
+
+Skills include **lxpack-author**, **lxpack-interaction**, **lxpack-export**, and **lxpack-migrate-legacy**. They load on demand so Claude does not need a megaprompt every session. Details: [Library Skills](library-skills.md).
+
 ## Open your course in Cursor
 
 ```bash
