@@ -1,10 +1,29 @@
-import { validateCourse } from "@lxpack/validators";
+import {
+  validateCourse,
+  validateXapiTracking,
+  type ValidationIssue,
+} from "@lxpack/validators";
+import type { ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
 import { findCourseDir } from "../utils.js";
 
-export async function validateCommand(): Promise<void> {
+const XAPI_TARGETS: ExportTarget[] = ["xapi", "cmi5"];
+
+export async function validateCommand(options?: {
+  target?: string;
+}): Promise<void> {
   const courseDir = findCourseDir();
   const result = await validateCourse(courseDir);
+  const issues: ValidationIssue[] = [...result.issues];
+
+  const target = options?.target as ExportTarget | undefined;
+  const needsXapiCheck =
+    (target && XAPI_TARGETS.includes(target)) ||
+    Boolean(result.manifest?.tracking?.xapi);
+
+  if (needsXapiCheck && result.manifest) {
+    issues.push(...validateXapiTracking(result.manifest));
+  }
 
   if (result.manifest) {
     console.log(
@@ -14,12 +33,15 @@ export async function validateCommand(): Promise<void> {
     console.log();
   }
 
-  for (const issue of result.issues) {
+  const hasErrors = issues.some((i) => i.severity === "error");
+  const valid = result.valid && !hasErrors;
+
+  for (const issue of issues) {
     const icon = issue.severity === "error" ? pc.red("✗") : pc.yellow("!");
     console.log(`${icon} ${issue.path}: ${issue.message}`);
   }
 
-  if (result.valid) {
+  if (valid) {
     console.log(pc.green("✓ Course validation passed"));
     process.exit(0);
   } else {

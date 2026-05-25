@@ -17,6 +17,8 @@ export function init(): void {
     baseUrl: config.baseUrl,
     mode: config.mode,
     activityId: config.activityId,
+    activityIri: config.activityIri,
+    xapi: config.xapi,
     progress: config.progress,
     assessments: config.assessments,
     answerKeys: config.answerKeys,

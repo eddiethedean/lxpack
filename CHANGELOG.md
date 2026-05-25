@@ -22,6 +22,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `lxpack.config.json` `exports.defaultTarget` may be `xapi` or `cmi5`
 - Runtime client build externalizes `@lxpack/validators` (type-only imports) to keep the browser bundle Node-free
 
+### Fixed
+
+- cmi5 launch `fetch` query param no longer used as the xAPI LRS `endpoint`
+- LRS transport re-queues statements after a failed POST instead of dropping them
+- Preview xAPI `onStatement` callback no longer fires twice per statement
+- Browser client passes `activityIri` and `xapi` config through to `LxpackRuntime`
+- `lxpack validate` checks xAPI tracking when `--target xapi|cmi5` or `tracking.xapi` is present
+- Preview YAML assessment fetch includes `maxAttempts`, `shuffleChoices`, and `showFeedback`
+- SCORM minimal suspend snapshot preserves `assessment_attempts_*` keys when scores exist
+- `interaction.done` flow conditions require a truthy interaction value
+- xAPI `buildInteracted` avoids duplicate simulation keys in statement extensions
+- Activity lists for xAPI analytics delegate to `enumerateActivities` from `@lxpack/validators`
+
 ## [0.2.2] - 2026-05-24
 
 ### Fixed

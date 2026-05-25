@@ -1,9 +1,10 @@
-/** Minimal activity list for xAPI/cmi5 packaging (no Node deps). */
-export interface CourseActivity {
-  id: string;
-  title: string;
-  kind: "lesson" | "assessment";
-}
+import {
+  enumerateActivities,
+  type CourseActivity,
+  type CourseManifest,
+} from "@lxpack/validators";
+
+export type { CourseActivity };
 
 export interface ManifestWithActivities {
   title: string;
@@ -20,17 +21,5 @@ export interface ManifestWithActivities {
 export function listManifestActivities(
   manifest: ManifestWithActivities,
 ): CourseActivity[] {
-  const activities: CourseActivity[] = manifest.lessons.map((lesson) => ({
-    id: lesson.id,
-    title: lesson.title ?? lesson.id,
-    kind: "lesson" as const,
-  }));
-  for (const ref of manifest.assessments ?? []) {
-    activities.push({
-      id: ref.id,
-      title: ref.id.replace(/_/g, " "),
-      kind: "assessment",
-    });
-  }
-  return activities;
+  return enumerateActivities(manifest as CourseManifest);
 }

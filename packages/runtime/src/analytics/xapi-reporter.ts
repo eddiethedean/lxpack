@@ -11,30 +11,12 @@ import {
   type XapiSessionContext,
   type XapiStatement,
 } from "@lxpack/xapi";
-import type { CourseManifest } from "@lxpack/validators";
+import {
+  enumerateActivities,
+  type CourseActivity,
+  type CourseManifest,
+} from "@lxpack/validators";
 import type { AnalyticsReporter } from "./reporter.js";
-
-interface ActivityRef {
-  id: string;
-  title: string;
-  kind: "lesson" | "assessment";
-}
-
-function listActivities(manifest: CourseManifest): ActivityRef[] {
-  const activities: ActivityRef[] = manifest.lessons.map((lesson) => ({
-    id: lesson.id,
-    title: lesson.title ?? lesson.id,
-    kind: "lesson" as const,
-  }));
-  for (const ref of manifest.assessments ?? []) {
-    activities.push({
-      id: ref.id,
-      title: ref.id.replace(/_/g, " "),
-      kind: "assessment",
-    });
-  }
-  return activities;
-}
 
 export interface XapiReporterOptions {
   mockLrs?: boolean;
@@ -43,7 +25,7 @@ export interface XapiReporterOptions {
 
 export class XapiReporter implements AnalyticsReporter {
   private readonly session: XapiSessionContext;
-  private readonly activities: Map<string, ActivityRef>;
+  private readonly activities: Map<string, CourseActivity>;
   private readonly queue: StatementQueue;
   private readonly options?: XapiReporterOptions;
   private lastExperienced?: string;
@@ -67,14 +49,15 @@ export class XapiReporter implements AnalyticsReporter {
       courseTitle: manifest.tracking?.xapi?.displayName ?? manifest.title,
     };
 
-    this.activities = new Map(listActivities(manifest).map((a) => [a.id, a]));
+    this.activities = new Map(
+      enumerateActivities(manifest).map((a) => [a.id, a]),
+    );
 
     this.queue = new StatementQueue({
       mock: options?.mockLrs ?? !launch.endpoint,
       credentials: launch.endpoint
         ? { endpoint: launch.endpoint, auth: launch.auth }
         : undefined,
-      onStatement: options?.onStatement,
       onError: (err) => {
         console.warn("[lxpack xAPI] LRS error:", err);
       },

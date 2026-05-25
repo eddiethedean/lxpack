@@ -1,5 +1,9 @@
 import { parse as parseYaml } from "yaml";
-import type { LearnerAssessment } from "@lxpack/validators";
+import type {
+  AssessmentRuntimeConfig,
+  LearnerAssessment,
+  QuestionFeedback,
+} from "@lxpack/validators";
 import type { RuntimeConfig } from "../types.js";
 import type { RuntimeAssessmentPayload } from "../quiz/types.js";
 import { joinUrl } from "./html-utils.js";
@@ -50,9 +54,13 @@ export async function loadAssessment(
   if (!res.ok) throw new Error(`Failed to load assessment: ${file}`);
   const text = await res.text();
   const raw = parseYaml(text) as LearnerAssessment & {
+    maxAttempts?: number;
+    shuffleChoices?: boolean;
+    showFeedback?: AssessmentRuntimeConfig["showFeedback"];
     questions: Array<{
       id: string;
       prompt: string;
+      explanation?: string;
       choices: Array<{ id: string; text: string; correct?: boolean }>;
     }>;
   };
@@ -78,5 +86,26 @@ export async function loadAssessment(
     })),
   };
 
-  return { assessment, answerKey };
+  const assessmentConfig: AssessmentRuntimeConfig = {
+    maxAttempts: raw.maxAttempts ?? 1,
+    shuffleChoices: raw.shuffleChoices ?? false,
+    showFeedback: raw.showFeedback ?? "never",
+  };
+
+  const feedback: QuestionFeedback = {};
+  for (const q of raw.questions ?? []) {
+    if (q.explanation) {
+      feedback[q.id] = q.explanation;
+    }
+  }
+
+  return {
+    assessment,
+    answerKey,
+    payload: {
+      ...assessment,
+      config: assessmentConfig,
+      feedback: Object.keys(feedback).length ? feedback : undefined,
+    },
+  };
 }

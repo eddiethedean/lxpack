@@ -218,6 +218,23 @@ describe("buildCommand", () => {
     process.chdir(join(workDir, "course"));
   });
 
+  it("builds cmi5 zip when tracking.xapi.activityIri is set", async () => {
+    const { cp } = await import("node:fs/promises");
+    const cmi5Dir = join(workDir, "cmi5-course");
+    await cp(fixturePath("xapi-valid"), cmi5Dir, { recursive: true });
+    process.chdir(cmi5Dir);
+
+    await buildCommand({ target: "cmi5" });
+
+    const zipPath = join(cmi5Dir, ".lxpack", "xapi-valid-course-cmi5.zip");
+    expect(existsSync(zipPath)).toBe(true);
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    expect(zip.file("cmi5.xml")).toBeTruthy();
+    expect(zip.file("index.html")).toBeTruthy();
+    process.chdir(join(workDir, "course"));
+  });
+
   it("exits when xapi build lacks activityIri", async () => {
     const { cp } = await import("node:fs/promises");
     const badDir = join(workDir, "missing-iri");

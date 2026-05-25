@@ -7,7 +7,7 @@
 
 Reusable UI widgets for LXPack `type: component` lessons — built-ins, registry API, and a browser bundle for SCORM and preview.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.2**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.3.0**).
 
 | Related | Package |
 |---------|---------|

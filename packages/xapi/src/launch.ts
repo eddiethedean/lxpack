@@ -31,7 +31,7 @@ export function parseLaunchParams(
   hash = "",
 ): LaunchParams {
   const params = new URLSearchParams(search || hash.replace(/^#/, ""));
-  const endpoint = params.get("endpoint") ?? params.get("fetch") ?? undefined;
+  const endpoint = params.get("endpoint") ?? undefined;
   const auth = params.get("auth") ?? undefined;
   const registration = params.get("registration") ?? undefined;
   const activityId = params.get("activityId") ?? undefined;

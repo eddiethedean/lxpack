@@ -7,7 +7,7 @@
 
 Command-line tool for scaffolding, previewing, validating, and packaging LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.2**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.3.0**).
 
 | Related | Package |
 |---------|---------|
@@ -34,6 +34,8 @@ lxpack preview          # http://127.0.0.1:3847 by default
 lxpack validate
 lxpack build --target scorm12
 lxpack build --target scorm2004
+lxpack build --target xapi
+lxpack build --target cmi5
 ```
 
 Output lands in `.lxpack/` unless overridden by `-o` or `lxpack.config.json`.
@@ -44,14 +46,14 @@ Output lands in `.lxpack/` unless overridden by `-o` or `lxpack.config.json`.
 |---------|-------------|
 | `init <name>` | Scaffold a new course (`-d, --dir <path>`, `-f, --force`) |
 | `preview` | Start local preview server (`-p, --port`, `-H, --host`) |
-| `validate` | Validate `course.yaml` and referenced files |
+| `validate` | Validate `course.yaml` and referenced files (`-t, --target` for export checks) |
 | `build` | Package for LMS or standalone export |
 
 ### `build` options
 
 | Option | Description |
 |--------|-------------|
-| `-t, --target <target>` | `scorm12` (default), `scorm2004`, or `standalone` |
+| `-t, --target <target>` | `scorm12` (default), `scorm2004`, `standalone`, `xapi`, or `cmi5` |
 | `-o, --output <path>` | Output ZIP file or directory |
 | `--dir` | Write an unpacked directory instead of a ZIP |
 

@@ -30,7 +30,7 @@ assessments:
   - id: final_quiz
     file: assessments/final.yaml
 
-# Optional Phase 2 features (see examples/branching-demo):
+# Optional branching (see examples/branching-demo):
 # variables:
 #   path:
 #     default: intro
@@ -40,6 +40,12 @@ assessments:
 #       variable:
 #         eq: [path, advanced]
 #     goto: component_lesson
+
+# Optional xAPI/cmi5 export (see examples/xapi-awareness):
+# tracking:
+#   xapi:
+#     activityIri: "https://example.test/courses/my-course"
+#     displayName: My Course
 `;
 
 const WELCOME_MD = `# Welcome

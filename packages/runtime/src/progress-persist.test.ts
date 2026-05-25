@@ -157,6 +157,25 @@ describe("progress-persist", () => {
     expect(serialized).not.toContain("interaction_0");
   });
 
+  it("preserves assessment attempt keys in minimal snapshot when scores exist", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const progress: CourseProgress = {
+      currentLessonId: "a",
+      completedLessons: Array.from({ length: 80 }, (_, i) => `lesson-${i}`),
+      assessmentScores: { quiz: 0.9 },
+      suspendData: {
+        assessment_attempts_quiz: 3,
+        assessment_passing_quiz: 0.7,
+        blob: "x".repeat(8000),
+      },
+    };
+    const serialized = serializeProgressForStorage(progress, 256);
+    const { progress: restored } = parseStoredProgress(serialized, defaults);
+    expect(restored.assessmentScores.quiz).toBe(0.9);
+    expect(restored.suspendData.assessment_attempts_quiz).toBe(3);
+    warn.mockRestore();
+  });
+
   it("emits parseable minimal progress when pruning is insufficient", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const suspendData: Record<string, unknown> = {

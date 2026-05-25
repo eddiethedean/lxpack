@@ -36,7 +36,9 @@ export class StatementQueue {
       try {
         await sendStatement(endpoint, this.options.credentials.auth, statement);
       } catch (err) {
+        this.queue.unshift(statement);
         this.options.onError?.(err, statement);
+        break;
       }
     }
     this.flushing = false;

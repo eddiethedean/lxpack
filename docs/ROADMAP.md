@@ -133,15 +133,16 @@ Goals:
 - SCORM 2004 Run-Time API (`API_1484_11`) and preview simulator
 - per-activity launch pages and shared runtime/components bundles
 
-## xAPI (Phase 3)
+## xAPI (shipped — v0.3.0)
 
-- learner events
-- simulation analytics
-- adaptive tracking
+- learner events via `XapiReporter` and `@lxpack/xapi`
+- Tin Can `tincan.xml` export (`lxpack build --target xapi`)
+- optional `tracking.xapi` in `course.yaml`
 
-## cmi5 (Phase 3)
+## cmi5 (shipped — v0.3.0)
 
-- modern LMS launch profiles
+- `cmi5.xml` with per-activity blocks (`lxpack build --target cmi5`)
+- cmi5 launch `fetch` param kept separate from LRS `endpoint`
 
 ## H5P / QTI / LTI
 
@@ -179,7 +180,7 @@ test/fixtures/
 docs/
 ```
 
-Future packages: `xapi/`, `cmi5/` (Phase 3).
+Packages: `xapi/`, `cmi5/` (v0.3.0).
 
 ---
 
@@ -219,7 +220,7 @@ Features:
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.2.2
+**Latest release:** v0.3.0
 
 Features:
 - **SCORM 2004** — multi-SCO export with sequencing/navigation in the manifest

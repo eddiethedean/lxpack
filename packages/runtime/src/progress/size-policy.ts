@@ -63,6 +63,21 @@ function pruneNonEssentialSuspendKeys(
   return { ...progress, suspendData };
 }
 
+function preserveAssessmentSuspendKeys(
+  progress: CourseProgress,
+): Record<string, unknown> {
+  const suspendData: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(progress.suspendData)) {
+    if (
+      key.startsWith("assessment_attempts_") ||
+      key.startsWith("assessment_passing_")
+    ) {
+      suspendData[key] = value;
+    }
+  }
+  return suspendData;
+}
+
 function buildMinimalSerializedProgress(
   progress: CourseProgress,
   maxBytes: number,
@@ -71,7 +86,7 @@ function buildMinimalSerializedProgress(
     currentLessonId: progress.currentLessonId,
     completedLessons: [...progress.completedLessons],
     assessmentScores: { ...progress.assessmentScores },
-    suspendData: {},
+    suspendData: preserveAssessmentSuspendKeys(progress),
   };
 
   if (fitsLimit(minimal, maxBytes)) {
@@ -97,7 +112,7 @@ function buildMinimalSerializedProgress(
     currentLessonId: progress.currentLessonId,
     completedLessons: [],
     assessmentScores: {},
-    suspendData: {},
+    suspendData: preserveAssessmentSuspendKeys(progress),
   };
   const serialized = JSON.stringify(compactProgress(minimal));
   if (serialized.length <= maxBytes) {

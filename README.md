@@ -6,11 +6,11 @@
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
-**AI-native learning experience compiler and runtime** — build web-native courses from declarative manifests, preview them locally, validate structure with schemas, and export SCORM 1.2, SCORM 2004, or standalone packages for your LMS.
+**AI-native learning experience compiler and runtime** — build web-native courses from declarative manifests, preview them locally, validate structure with schemas, and export SCORM 1.2, SCORM 2004, xAPI, cmi5, or standalone packages for your LMS.
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.2.2](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#022---2026-05-24)
+**Current release:** [v0.3.0](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#030---2026-05-24)
 
 ## Packages
 
@@ -21,6 +21,8 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 | `@lxpack/validators` | [npm](https://www.npmjs.com/package/@lxpack/validators) | [packages/validators](packages/validators/README.md) |
 | `@lxpack/scorm` | [npm](https://www.npmjs.com/package/@lxpack/scorm) | [packages/scorm](packages/scorm/README.md) |
 | `@lxpack/components` | [npm](https://www.npmjs.com/package/@lxpack/components) | [packages/components](packages/components/README.md) |
+| `@lxpack/xapi` | [npm](https://www.npmjs.com/package/@lxpack/xapi) | [packages/xapi](packages/xapi/README.md) |
+| `@lxpack/cmi5` | [npm](https://www.npmjs.com/package/@lxpack/cmi5) | [packages/cmi5](packages/cmi5/README.md) |
 
 ## Features
 
@@ -43,6 +45,15 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 - **`@lxpack/components`** — built-in widgets (`callout`, `image-card`, `checklist`) and `type: component` lessons
 - **SCORM 2004** — multi-SCO packages with per-activity launch pages (`sco/<id>/index.html`), shared runtime bundle, and IMS Simple Sequencing subset in `imsmanifest.xml`
 - **SCORM 2004 API** — `API_1484_11` discovery, CMI mapping, and preview simulator
+
+### Modern standards (v0.3.0)
+
+- **`@lxpack/xapi`** — xAPI 1.0.3 statements, LRS transport, Tin Can `tincan.xml`
+- **`@lxpack/cmi5`** — `cmi5.xml` with per-activity `moveOn` rules
+- Export targets **`xapi`** and **`cmi5`** (`lxpack build --target xapi|cmi5`)
+- Optional `tracking.xapi` in `course.yaml` (`activityIri`, `displayName`)
+- Runtime **analytics** — `XapiReporter` for launch, experience, interactions, assessments, completion
+- Preview xAPI logging via `lxpack.config.json` → `xapi.preview`
 
 ## Requirements
 
@@ -84,9 +95,11 @@ pnpm exec lxpack preview
 pnpm exec lxpack validate
 pnpm exec lxpack build --target scorm12
 pnpm exec lxpack build --target scorm2004
+pnpm exec lxpack build --target xapi
+pnpm exec lxpack build --target cmi5
 ```
 
-Build artifacts are written under `.lxpack/` by default (for example `.lxpack/my-course-scorm12.zip` or `.lxpack/my-course-scorm2004.zip`).
+Build artifacts are written under `.lxpack/` by default (for example `.lxpack/my-course-scorm12.zip`, `.lxpack/my-course-xapi.zip`, or `.lxpack/my-course-cmi5.zip`).
 
 ### Example courses
 
@@ -109,20 +122,32 @@ pnpm exec lxpack validate
 pnpm exec lxpack build --target scorm2004
 ```
 
+**xAPI / cmi5 (requires `tracking.xapi.activityIri`):**
+
+```bash
+cd examples/xapi-awareness
+pnpm exec lxpack validate --target xapi
+pnpm exec lxpack build --target xapi
+
+cd examples/cmi5-demo
+pnpm exec lxpack validate --target cmi5
+pnpm exec lxpack build --target cmi5
+```
+
 ## CLI reference
 
 | Command | Description |
 |---------|-------------|
 | `lxpack init <name>` | Scaffold a new course (`-d, --dir`, `-f, --force`) |
 | `lxpack preview` | Start local preview server (`-p, --port`, `-H, --host`) |
-| `lxpack validate` | Validate `course.yaml` and referenced files |
+| `lxpack validate` | Validate `course.yaml` and referenced files (`-t, --target` for export-specific checks) |
 | `lxpack build` | Package for LMS or standalone export |
 
 ### `build` options
 
 | Option | Description |
 |--------|-------------|
-| `-t, --target <target>` | `scorm12` (default), `scorm2004`, or `standalone` |
+| `-t, --target <target>` | `scorm12` (default), `scorm2004`, `standalone`, `xapi`, or `cmi5` |
 | `-o, --output <path>` | Output ZIP file or directory |
 | `--dir` | Write an unpacked directory instead of a ZIP |
 
@@ -133,6 +158,9 @@ lxpack build --target scorm12
 lxpack build --target scorm2004
 lxpack build --target standalone -o ./dist/course.zip
 lxpack build --target standalone --dir -o ./dist/standalone
+lxpack build --target xapi
+lxpack build --target cmi5
+lxpack validate --target xapi
 ```
 
 Commands discover the course by walking up from the current directory until they find `course.yaml`. `init --dir` and `lxpack.config.json` `output.dir` are resolved with path containment (no escapes outside the project).
@@ -255,11 +283,15 @@ packages/
   cli/          @lxpack/cli         — init, preview, validate, build
   runtime/      @lxpack/runtime     — browser client, flow, SCORM APIs, quiz
   validators/   @lxpack/validators  — Zod schemas, validateCourse, bundles
-  scorm/        @lxpack/scorm       — SCORM 1.2 / 2004 / standalone packaging
+  scorm/        @lxpack/scorm       — SCORM / standalone / xAPI / cmi5 packaging
   components/   @lxpack/components  — reusable lesson widgets
+  xapi/         @lxpack/xapi        — xAPI statements, transport, Tin Can XML
+  cmi5/         @lxpack/cmi5        — cmi5.xml generation
 examples/
   security-awareness/   — linear SCORM 1.2 sample
   branching-demo/       — variables, flow, components, SCORM 2004
+  xapi-awareness/       — xAPI export sample
+  cmi5-demo/            — cmi5 export sample
 test/
   fixtures/             — shared validation/build test courses
 docs/
@@ -306,7 +338,7 @@ To cut a release:
    - **Classic automation token** (recommended for CI), or
    - **Granular token** with **Read and write** on `@lxpack/*` and **Bypass 2FA for publish** enabled.
    The release workflow passes this token to `setup-node` so `.npmrc` is authenticated before `pnpm publish`.
-3. Tag and push: `git tag v0.2.2 && git push origin v0.2.2`
+3. Tag and push: `git tag v0.3.0 && git push origin v0.3.0`
 
 The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
@@ -316,7 +348,7 @@ The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CH
 |-------|---------|--------|
 | 1 — MVP | **v0.1.x** (latest **v0.1.1**) | Shipped — CLI, validation, preview, SCORM 1.2, standalone HTML, MCQ assessments |
 | 2 — Runtime expansion | **v0.2.x** (latest **v0.2.2**) | Shipped — SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
-| 3 — Modern standards | v0.3.0 | Shipped — xAPI, cmi5, analytics hooks |
+| 3 — Modern standards | **v0.3.0** | Shipped — xAPI, cmi5, analytics hooks |
 | 4–6 | TBD | AI tooling, ecosystem, enterprise platform |
 
 Details: [docs/ROADMAP.md](docs/ROADMAP.md) (canonical phases), [docs/PLAN.md](docs/PLAN.md), [docs/README.md](docs/README.md).

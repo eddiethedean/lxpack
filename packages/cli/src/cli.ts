@@ -44,8 +44,12 @@ export function createCliProgram(): Command {
   program
     .command("validate")
     .description("Validate course structure and assets")
-    .action(async () => {
-      await validateCommand();
+    .option(
+      "-t, --target <target>",
+      "Also validate export requirements for scorm12, scorm2004, standalone, xapi, or cmi5",
+    )
+    .action(async (options: { target?: string }) => {
+      await validateCommand(options);
     });
 
   program

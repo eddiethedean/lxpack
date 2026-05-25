@@ -109,9 +109,15 @@ export function buildInteracted(
     title: interactionId,
     kind: "lesson",
   };
-  const extensions: Record<string, unknown> = { ...(data ?? {}) };
-  if (data?.simulation != null) {
+  const extensions: Record<string, unknown> = {};
+  if (data?.simulation != null && typeof data.simulation === "object") {
     extensions["https://lxpack.dev/xapi/extensions/simulation"] = data.simulation;
+  } else if (data != null) {
+    for (const [key, value] of Object.entries(data)) {
+      if (key !== "type" && key !== "simulation") {
+        extensions[key] = value;
+      }
+    }
   }
   return baseStatement(ctx, VERB_INTERACTED, buildActivityObject(ctx.courseIri, activity), {
     result: Object.keys(extensions).length ? { extensions } : undefined,

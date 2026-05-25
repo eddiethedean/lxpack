@@ -7,7 +7,7 @@
 
 SCORM 1.2, SCORM 2004 (multi-SCO), and standalone HTML export for LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.2**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.3.0**).
 
 | Related | Package |
 |---------|---------|

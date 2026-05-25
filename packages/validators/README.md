@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
-Zod schemas and filesystem validation for LXPack course manifests — including flow, variables, and component lessons (v0.2.2).
+Zod schemas and filesystem validation for LXPack course manifests — including flow, variables, component lessons, and xAPI tracking (v0.3.0).
 
 Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
 
@@ -90,6 +90,8 @@ isPathContained(courseDir, abs); // true if inside course root
 | Export | Description |
 |--------|-------------|
 | `validateCourse(dir)` | Parse `course.yaml`, validate schema, flow, files, symlink containment |
+| `validateXapiTracking(manifest)` | Require HTTPS `tracking.xapi.activityIri` for xapi/cmi5 exports |
+| `getCourseActivityIri(manifest)` | Read course activity IRI from manifest |
 | `loadManifest(courseDir)` | Load and parse `course.yaml` |
 | `buildRuntimeAssessmentBundle(dir, manifest)` | Load assessments; split learner view, keys, configs, feedback |
 | `toLearnerAssessment(assessment)` | Strip `correct` from choices; extract config and feedback maps |

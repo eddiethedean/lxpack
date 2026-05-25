@@ -256,6 +256,53 @@ describe("packageCourse", () => {
     expect(quizSco).toContain("What does LXPack compile?");
     expect(introSco).toContain('"baseUrl":"../.."');
   });
+
+  it("creates xapi zip with tincan.xml and activityIri in index", async () => {
+    const loaded = await loadManifest(fixturePath("xapi-valid"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-xapi-"));
+    const zipPath = join(outDir, "course-xapi.zip");
+    outputPaths.push(outDir);
+
+    await packageCourse({
+      courseDir: fixturePath("xapi-valid"),
+      manifest: loaded.manifest,
+      outputPath: zipPath,
+      target: "xapi",
+      runtimeClientJs: RUNTIME_JS,
+      runtimeCss: RUNTIME_CSS,
+    });
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    expect(zip.file("tincan.xml")).toBeTruthy();
+    const index = await zip.file("index.html")!.async("string");
+    expect(index).toContain('"mode":"xapi"');
+    expect(index).toContain("https://example.test/courses/xapi-valid");
+  });
+
+  it("creates cmi5 zip with cmi5.xml", async () => {
+    const loaded = await loadManifest(fixturePath("xapi-valid"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-cmi5-"));
+    const zipPath = join(outDir, "course-cmi5.zip");
+    outputPaths.push(outDir);
+
+    await packageCourse({
+      courseDir: fixturePath("xapi-valid"),
+      manifest: loaded.manifest,
+      outputPath: zipPath,
+      target: "cmi5",
+      runtimeClientJs: RUNTIME_JS,
+      runtimeCss: RUNTIME_CSS,
+    });
+
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    expect(zip.file("cmi5.xml")).toBeTruthy();
+    const index = await zip.file("index.html")!.async("string");
+    expect(index).toContain('"mode":"cmi5"');
+  });
 });
 
 describe("packageStandaloneDir", () => {

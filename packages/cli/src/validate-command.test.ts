@@ -39,6 +39,19 @@ describe("validateCommand", () => {
     exit.mockRestore();
   });
 
+  it("fails xapi target validation when activityIri is missing", async () => {
+    process.chdir(fixturePath("missing-xapi-iri"));
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(validateCommand({ target: "xapi" })).rejects.toThrow("exit:1");
+    exit.mockRestore();
+  });
+
   it("prints warning severity issues", async () => {
     process.chdir(fixturePath("minimal-valid"));
     const log = vi.spyOn(console, "log").mockImplementation(() => {});

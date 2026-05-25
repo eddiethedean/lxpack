@@ -105,4 +105,33 @@ describe("buildIndexHtml", () => {
     });
     expect(html).toContain('"mode":"standalone"');
   });
+
+  it("embeds activityIri for xapi mode", () => {
+    const html = buildIndexHtml({
+      manifest: {
+        title: "T",
+        version: "1.0.0",
+        lessons: manifest.lessons,
+        tracking: {
+          xapi: { activityIri: "https://example.test/courses/t" },
+        },
+      },
+      runtimeCss: "",
+      mode: "xapi",
+      activityIri: "https://example.test/courses/t",
+    });
+    expect(html).toContain('"mode":"xapi"');
+    expect(html).toContain("https://example.test/courses/t");
+  });
+
+  it("embeds activityIri for cmi5 mode", () => {
+    const html = buildIndexHtml({
+      manifest: { title: "T", version: "1.0.0", lessons: manifest.lessons },
+      runtimeCss: "",
+      mode: "cmi5",
+      activityIri: "https://example.test/courses/cmi5",
+    });
+    expect(html).toContain('"mode":"cmi5"');
+    expect(html).toContain("https://example.test/courses/cmi5");
+  });
 });

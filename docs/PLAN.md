@@ -163,7 +163,7 @@ lxpack build --target scorm12
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.2.2
+**Latest release:** v0.3.0
 
 ### Shipped features
 

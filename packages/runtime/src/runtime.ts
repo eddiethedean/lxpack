@@ -245,8 +245,10 @@ export class LxpackRuntime implements AssessmentHost {
       getVariable: (name) =>
         readManifestVariable(this.state.progress.suspendData, name),
       isAssessmentPassed: (id) => this.isAssessmentPassed(id),
-      isInteractionDone: (id) =>
-        this.state.progress.suspendData[`interaction_${id}`] !== undefined,
+      isInteractionDone: (id) => {
+        const value = this.state.progress.suspendData[`interaction_${id}`];
+        return value !== undefined && value !== false && value !== null;
+      },
     };
   }
 
