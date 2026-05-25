@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir, writeFile, readdir, rm } from "node:fs/promises";
+import { mkdir, writeFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import pc from "picocolors";
 import { formatCourseTitleForYaml, resolvePathInCwd } from "../utils.js";
