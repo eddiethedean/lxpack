@@ -7,14 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-05-25
+
 ### Fixed
 
+- Flow `interaction.done` now recognizes html lesson completion when interactions call `track()` with an event id different from the lesson id (init and examples used mismatched ids). The preview runtime mirrors completion onto the lesson id without duplicate xAPI statements
+- HTML interaction `track({ data: false })` no longer marks the lesson done for flow `interaction.done`
+- `isInteractionDone` treats only truthy values as done (not `0` or `""`)
 - Preview server blocks normalized path traversal (`..`, `//`, `./`) to `course.yaml`, `lxpack.config.json`, assessments, `.lxpack/`, dotfiles, and `lxpack.config.ts`
 - Preview and packaging reject course paths that escape the course directory via symlinks
 - `collectFiles` rejects symlinks; blocks `.env` and `.git` from export packages
 - `output.dir` and `build -o` paths resolve with `realpath` containment
-- HTML interaction `track({ data: false })` no longer marks the lesson done for flow `interaction.done`
-- `isInteractionDone` treats only truthy values as done (not `0` or `""`)
 - SCORM suspend pruning preserves `interaction_*` keys referenced in manifest `flow`
 - xAPI statement queue uses `fetch` `keepalive` on terminate for best-effort LRS delivery
 - Corrupt SCORM `suspend_data` logs a warning instead of failing silently
@@ -25,20 +28,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `lxpack init` and example phishing labs use the lesson id in `track()` for consistency with `interaction.done`
 - `examples/xapi-awareness`: correct course title and `activityIri` metadata
-- Documentation: preview blocking, export TOC order, SCORM 2004 completion semantics, cmi5 `fetch` limitation
+- `examples/cmi5-demo`: correct course title metadata
+- Documentation: security notes reflect DOMPurify markdown sanitization (shipped in 0.3.0); preview blocking, export TOC order, SCORM 2004 completion semantics, cmi5 `fetch` limitation
 
-## [0.3.1] - 2026-05-25
+### Notes
 
-### Fixed
-
-- Flow `interaction.done` now recognizes html lesson completion when interactions call `track()` with an event id different from the lesson id (init and examples used mismatched ids). The preview runtime mirrors completion onto the lesson id without duplicate xAPI statements.
-
-### Changed
-
-- Documentation: security notes reflect DOMPurify markdown sanitization (shipped in 0.3.0).
-- `lxpack init` and example phishing labs use the lesson id in `track()` for consistency with `interaction.done`.
-- `examples/cmi5-demo`: correct course title metadata.
+- cmi5 `fetch` launch parameter is parsed but AU session bootstrap via `fetch` is not implemented in v0.3.1 (runtime warns when present)
 
 ## [0.3.0] - 2026-05-24
 
