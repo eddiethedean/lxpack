@@ -1,5 +1,7 @@
 # Migrating from legacy tools
 
+--8<-- "copy-tip.md"
+
 This guide helps teams move from **slide-centric authoring** (Articulate Storyline, Rise, Adobe Captivate, Lectora, etc.) to **LXPack + Claude**. You keep your instructional design; you change how content is stored and published.
 
 ## Concept map

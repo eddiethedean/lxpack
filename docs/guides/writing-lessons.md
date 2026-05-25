@@ -1,5 +1,7 @@
 # Writing lessons
 
+--8<-- "copy-tip.md"
+
 Most content is **Markdown** in `lessons/`. You do not need HTML for text-heavy modules.
 
 ## Markdown lessons
@@ -37,7 +39,7 @@ The `id` must be unique. Use `file:` path relative to the course root.
 
 ### 3. Validate
 
-```bash
+```bash title="lxpack validate"
 lxpack validate
 ```
 

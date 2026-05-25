@@ -1,5 +1,7 @@
 # Export to your LMS
 
+--8<-- "copy-tip.md"
+
 **Build** creates the file your LMS imports. Choose a **target** that matches what your LMS and reporting team require.
 
 ## Choose a target
@@ -16,7 +18,7 @@ Ask your LMS administrator if unsure. **Start with SCORM 1.2** unless they speci
 
 ## Build commands
 
-```bash
+```bash title="lxpack validate --target scorm12"
 lxpack validate --target scorm12
 lxpack build --target scorm12
 ```
@@ -25,7 +27,7 @@ Output (default): `.lxpack/<course-name>-scorm12.zip`
 
 Other targets:
 
-```bash
+```bash title="lxpack build --target scorm2004"
 lxpack build --target scorm2004
 lxpack build --target xapi
 lxpack build --target cmi5
@@ -34,7 +36,7 @@ lxpack build --target standalone -o ./dist/standalone.zip
 
 Unpacked folder instead of ZIP:
 
-```bash
+```bash title="lxpack build --target standalone --dir -o ./dist/sta..."
 lxpack build --target standalone --dir -o ./dist/standalone
 ```
 
@@ -54,7 +56,7 @@ tracking:
 - `activityIri` must be a stable **HTTPS** URL your organization controls  
 - Validate before build:
 
-  ```bash
+```bash title="lxpack validate --target xapi"
   lxpack validate --target xapi
   lxpack build --target xapi
   ```

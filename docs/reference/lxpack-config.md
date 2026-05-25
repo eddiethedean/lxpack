@@ -1,5 +1,7 @@
 # lxpack.config.json
 
+--8<-- "copy-tip.md"
+
 Optional per-course settings. If missing, defaults apply.
 
 ## Example

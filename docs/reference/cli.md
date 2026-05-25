@@ -1,6 +1,16 @@
 # CLI reference
 
-Install: `npm install -g @lxpack/cli` (Node.js 20+).
+--8<-- "copy-tip.md"
+
+**v0.3.0** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
+
+## Copy-paste commands
+
+--8<-- "commands/install.md"
+
+--8<-- "commands/new-course.md"
+
+--8<-- "commands/core-workflow.md"
 
 Commands discover the course by walking up from the current directory until they find `course.yaml`.
 
@@ -15,7 +25,7 @@ Commands discover the course by walking up from the current directory until they
 
 ## `init`
 
-```bash
+```bash title="lxpack init my-course"
 lxpack init my-course
 lxpack init my-course --dir ./courses/my-course
 lxpack init my-course --force
@@ -25,7 +35,7 @@ lxpack init my-course --force
 
 ## `preview`
 
-```bash
+```bash title="lxpack preview"
 lxpack preview
 lxpack preview -p 4000 -H 0.0.0.0
 ```
@@ -36,7 +46,7 @@ Fails if validation fails (same as build).
 
 ## `validate`
 
-```bash
+```bash title="lxpack validate"
 lxpack validate
 lxpack validate --target scorm12
 lxpack validate --target xapi
@@ -52,7 +62,7 @@ lxpack validate --target xapi
 
 ## `build`
 
-```bash
+```bash title="lxpack build"
 lxpack build
 lxpack build --target scorm12
 lxpack build --target scorm2004 -o ./out/course.zip

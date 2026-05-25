@@ -1,68 +1,101 @@
-# LXPack documentation
+# LXPack
 
-**LXPack** is an AI-native learning experience compiler. You describe a course as files on your computer (lessons, quizzes, activities), preview it in a browser, and export a package your LMS can run — SCORM, xAPI, or cmi5.
+<span class="version-badge">v0.3.0</span>
 
-**Current release:** v0.3.0
+<p class="hero-lead">
+LXPack turns courses into <strong>web-native learning experiences</strong> — Markdown lessons, interactive labs, and quizzes in simple files — then <strong>preview</strong>, <strong>validate</strong>, and <strong>export</strong> SCORM, xAPI, or cmi5 for your LMS. Built for instructional designers and AI-assisted authoring (Claude, Cursor).
+</p>
 
-## Who this documentation is for
+<div class="grid cards" markdown>
 
-| You are… | Start here |
-|----------|------------|
-| Instructional designer or LXD, new to LXPack | [What you need](getting-started/what-you-need.md) → [Your first course](getting-started/your-first-course.md) → [Workflow with Claude Design](guides/workflow-claude-design.md) |
-| Moving from Storyline, Rise, or Captivate | [Migrating from legacy tools](guides/migrating-from-legacy-tools.md) |
-| Using Cursor without Claude (IDE only) | [Workflow with Cursor](guides/workflow-cursor.md) · [Copy-paste prompts](guides/prompts-for-claude.md) |
-| Developer or power user with Cursor + Claude | [Workflow with Claude Code](guides/workflow-claude-code.md) · [Library Skills](guides/library-skills.md) |
-| AI agent in IDE (Cursor, Claude Code, Windsurf) | [Library Skills](guides/library-skills.md) — lazy-loaded LXPack expertise |
-| LMS admin or technical reviewer | [Export to your LMS](guides/export-to-lms.md) and [Reference](reference/cli.md) |
+-   :octicons-rocket-24: **Get started in 15 minutes**
 
-You do **not** need to be a software developer to author with LXPack. You will run a few commands in Terminal and edit text files — on your own, in Cursor, or with help from Claude.
+    ---
 
-## What LXPack does
+    Install the CLI, scaffold a course, preview in the browser, and build your first SCORM ZIP.
 
-1. **Structure** your course in `course.yaml` (the table of contents and settings).
-2. **Author** lessons as Markdown, activities as web pages, and quizzes as simple YAML files.
-3. **Preview** locally so stakeholders can click through before you publish.
-4. **Validate** automatically so broken links or missing files are caught early.
-5. **Build** a ZIP (or folder) for SCORM 1.2, SCORM 2004, xAPI, cmi5, or standalone HTML.
+    [:octicons-arrow-right-24: Start here](getting-started/index.md)
+
+-   :octicons-workflow-24: **Choose your workflow**
+
+    ---
+
+    Claude Design, Cursor without AI, or Claude Code — same `lxpack` commands, different tools.
+
+    [:octicons-arrow-right-24: Workflow overview](guides/workflow-overview.md)
+
+-   :octicons-sparkles-24: **AI authoring**
+
+    ---
+
+    Copy-paste prompts with clipboard buttons, plus installable Library Skills for agents.
+
+    [:octicons-arrow-right-24: Prompts & skills](guides/prompts-for-claude.md)
+
+-   :octicons-package-24: **Ship to your LMS**
+
+    ---
+
+    Pick SCORM 1.2, SCORM 2004, xAPI, or cmi5 and hand off a package your LMS admin can import.
+
+    [:octicons-arrow-right-24: Export guide](guides/export-to-lms.md)
+
+</div>
+
+## How it works
 
 ```mermaid
 flowchart LR
-  author[You and Claude]
-  files[Course files]
-  cli[lxpack CLI]
-  lms[Your LMS]
-  author --> files
-  files --> cli
-  cli -->|preview validate build| lms
+  plan[Plan content]
+  files[course.yaml + lessons + quizzes]
+  validate[lxpack validate]
+  preview[lxpack preview]
+  build[lxpack build]
+  lms[LMS]
+  plan --> files --> validate --> preview --> build --> lms
 ```
 
-## Quick install
+| Step | What happens |
+|------|----------------|
+| **Structure** | `course.yaml` lists lessons, labs, and quizzes |
+| **Author** | Markdown, HTML interactions, YAML assessments |
+| **Check** | Validation catches broken paths and schema issues |
+| **Review** | Local preview in the browser before publish |
+| **Export** | ZIP under `.lxpack/` for your LMS |
 
-```bash
-npm install -g @lxpack/cli
-lxpack init my-course
-cd my-course
+## Quick start
+
+--8<-- "commands/install.md"
+
+--8<-- "commands/new-course.md"
+
+```bash title="Start local preview server"
 lxpack preview
 ```
 
-Open the URL shown in Terminal (default `http://127.0.0.1:3847`). See [Install the CLI](getting-started/install-cli.md) for step-by-step setup on Mac and Windows.
+[:octicons-arrow-right-24: Full install guide](getting-started/install-cli.md) · [:octicons-arrow-right-24: Your first course](getting-started/your-first-course.md)
 
-## Example courses in the repository
+## Find your path
 
-| Example | What it demonstrates |
-|---------|----------------------|
-| `security-awareness` | Linear course, markdown + HTML lab, SCORM 1.2 |
-| `branching-demo` | Variables, branching flow, components, SCORM 2004 |
-| `xapi-awareness` | xAPI export with `tracking.xapi` |
-| `cmi5-demo` | cmi5 export |
+| You are… | Go to |
+|----------|--------|
+| New to LXPack | [Get started](getting-started/index.md) |
+| Leaving Storyline / Rise / Captivate | [Legacy migration](guides/migrating-from-legacy-tools.md) |
+| Using Cursor (no Claude) | [Cursor workflow](guides/workflow-cursor.md) |
+| Developer with Claude Code | [Claude Code workflow](guides/workflow-claude-code.md) |
+| LMS or technical reviewer | [Export](guides/export-to-lms.md) · [CLI reference](reference/cli.md) |
+| Contributing to LXPack | [Developer docs](developer/index.md) |
 
-## Choose your workflow
+## Example courses
 
-Not sure which path fits you? See [Workflow overview](guides/workflow-overview.md).
+Clone the repo and open these folders:
 
-!!! note "Phase 4 — AI tooling (planned)"
-    Future releases may add deeper Claude/CLI integration (`repair`, AI-generated interactions). Everything in this documentation works with **v0.3.0** today: Claude (Design or chat) helps you edit files; `lxpack` validates, previews, and builds.
+| Example | Demonstrates |
+|---------|----------------|
+| [`security-awareness`](https://github.com/eddiethedean/lxpack/tree/main/examples/security-awareness) | Linear course, SCORM 1.2 |
+| [`branching-demo`](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo) | Variables, flow, components |
+| [`xapi-awareness`](https://github.com/eddiethedean/lxpack/tree/main/examples/xapi-awareness) | xAPI + `tracking.xapi` |
+| [`cmi5-demo`](https://github.com/eddiethedean/lxpack/tree/main/examples/cmi5-demo) | cmi5 export |
 
-## Developer documentation
-
-Contributors and engineers: [Developer docs](developer/index.md) (spec, roadmap, architecture).
+!!! info "Roadmap"
+    **v0.3.0** is the current release. Deeper AI CLI tooling is planned for a future phase; today you author files (with Claude or by hand) and run `lxpack` to validate, preview, and build.

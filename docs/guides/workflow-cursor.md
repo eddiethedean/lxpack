@@ -1,5 +1,7 @@
 # Workflow with Cursor (without Claude)
 
+--8<-- "copy-tip.md"
+
 Use **Cursor as your editor** for LXPack courses when you want a modern IDE — file tree, syntax highlighting, integrated Terminal — but you **do not use Claude** (no Claude subscription, no Agent/Chat, or your organization disables AI in the editor).
 
 You author content yourself (or paste from Word, Storyline exports, SME documents). The **lxpack** commands are the same as every other workflow.
@@ -54,7 +56,7 @@ Extensions are optional; LXPack does not require them.
 
 ## Open your course
 
-```bash
+```bash title="lxpack init onboarding-2026"
 lxpack init onboarding-2026
 cd onboarding-2026
 cursor .
@@ -62,7 +64,7 @@ cursor .
 
 **`cursor .`** opens the **current folder** as the workspace. You should see:
 
-```text
+```text title="onboarding-2026/"
 onboarding-2026/
   course.yaml
   lxpack.config.json
@@ -113,7 +115,7 @@ Open Terminal in Cursor: **View → Terminal** or `` Ctrl+` `` (backtick).
 
 From the course folder:
 
-```bash
+```bash title="lxpack validate"
 lxpack validate
 ```
 
@@ -121,7 +123,7 @@ Fix any errors shown in red (often a wrong path in `course.yaml`). Click the fil
 
 Then:
 
-```bash
+```bash title="lxpack preview"
 lxpack preview
 ```
 
@@ -129,7 +131,7 @@ Open the URL in your browser. Leave Terminal running while reviewing; press `Ctr
 
 ### 3. Build for the LMS
 
-```bash
+```bash title="lxpack build --target scorm12"
 lxpack build --target scorm12
 ```
 
@@ -170,7 +172,7 @@ For a full legacy migration plan, see [Migrating from legacy tools](migrating-fr
 
 Install portable **Library Skills** so Cursor’s agent picks up LXPack rules automatically when you edit course files:
 
-```bash
+```bash title="# From LXPack repository clone"
 # From LXPack repository clone
 ./library-skills/install.sh --global
 # Or only for one course:

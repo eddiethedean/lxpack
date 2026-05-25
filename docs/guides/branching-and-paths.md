@@ -1,5 +1,7 @@
 # Branching and paths
 
+--8<-- "copy-tip.md"
+
 LXPack supports **non-linear** courses with **variables** and **flow** rules (v0.2+). If you omit `flow`, learners move through `lessons` in list order.
 
 ## Variables
@@ -52,14 +54,14 @@ Study `examples/branching-demo/` in the repository:
 - `component` lesson for advanced track  
 - Quiz gate before wrap-up  
 
-```bash
+```bash title="cd examples/branching-demo"
 cd examples/branching-demo
 lxpack preview
 ```
 
 ## Validate carefully
 
-```bash
+```bash title="lxpack validate"
 lxpack validate
 ```
 

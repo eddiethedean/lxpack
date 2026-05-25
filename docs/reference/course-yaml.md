@@ -1,5 +1,7 @@
 # course.yaml reference
 
+--8<-- "copy-tip.md"
+
 `course.yaml` is the **course manifest** — metadata, lesson list, quizzes, optional branching, and tracking.
 
 ## Minimal example

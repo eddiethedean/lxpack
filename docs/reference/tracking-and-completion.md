@@ -1,5 +1,7 @@
 # Tracking and completion
 
+--8<-- "copy-tip.md"
+
 LXPack reports progress to the **LMS** (SCORM) or **LRS** (xAPI/cmi5) depending on export target.
 
 ## Completion threshold
@@ -35,7 +37,7 @@ tracking:
 
 Build:
 
-```bash
+```bash title="lxpack validate --target xapi"
 lxpack validate --target xapi
 lxpack build --target xapi
 ```

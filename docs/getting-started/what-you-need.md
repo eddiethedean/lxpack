@@ -1,6 +1,6 @@
 # What you need
 
-Before you create a course, gather these tools. None of them require you to write application code — only to edit text files and run a few commands.
+Before you create a course, gather these tools. You do **not** need to be an application developer — only to edit text files and run a few `lxpack` commands in Terminal.
 
 ## 1. A computer
 
@@ -31,13 +31,13 @@ Node.js is a free runtime that powers the `lxpack` command.
 
 After Node is installed, install LXPack globally:
 
-```bash
+```bash title="npm install -g @lxpack/cli"
 npm install -g @lxpack/cli
 ```
 
 Verify:
 
-```bash
+```bash title="lxpack --version"
 lxpack --version
 ```
 

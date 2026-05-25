@@ -1,8 +1,40 @@
 # Developer documentation
 
-Internal references for contributors and engineers extending LXPack.
+Technical references for **v0.3.0** contributors and integrators.
 
-**Current release:** v0.3.0
+<div class="grid cards" markdown>
+
+-   :octicons-file-code-24: **[SPEC](SPEC.md)**
+
+    ---
+
+    Functional requirements, manifest, runtime, security.
+
+-   :octicons-map-24: **[ROADMAP](ROADMAP.md)**
+
+    ---
+
+    Phases, standards, long-term vision.
+
+-   :octicons-package-24: **[PLAN](PLAN.md)**
+
+    ---
+
+    Product goals and architecture narrative.
+
+-   :octicons-repo-24: **[ARCHITECTURE](ARCHITECTURE.md)**
+
+    ---
+
+    Package boundaries (v0.3.0).
+
+-   :octicons-wrench-24: **[REFACTORING](REFACTORING.md)**
+
+    ---
+
+    Invariants and CI commands.
+
+</div>
 
 ## Release phases
 
@@ -14,16 +46,6 @@ Internal references for contributors and engineers extending LXPack.
 | **4 — AI tooling** | TBD | Planned | Claude integration, AI repair, AI-generated interactions |
 | **5 — Ecosystem** | TBD | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **6 — Enterprise platform** | TBD | Planned | Cloud deployment, compliance tooling, hosted runtime |
-
-## Documents
-
-| Document | Purpose |
-|----------|---------|
-| [SPEC.md](SPEC.md) | Functional requirements, manifest shape, runtime/LMS behavior, security |
-| [PLAN.md](PLAN.md) | Product goals, users, architecture, phased delivery |
-| [ROADMAP.md](ROADMAP.md) | Long-term vision, standards, development phases |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Package boundaries (v0.3.0) |
-| [REFACTORING.md](REFACTORING.md) | Refactor invariants and CI commands |
 
 ## Published npm packages (v0.3.0)
 
@@ -41,4 +63,4 @@ Package READMEs live under `packages/*/README.md` in the repository.
 
 ## User-facing docs
 
-Instructional designers and authors should start at the [documentation home](../index.md), not this section.
+Authors and LXDs should use the [documentation home](../index.md), not this section.

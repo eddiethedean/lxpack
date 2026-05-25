@@ -1,12 +1,14 @@
 # Preview and review
 
+--8<-- "copy-tip.md"
+
 **Preview** runs your course locally in a browser before you build a ZIP for the LMS.
 
 ## Start preview
 
 From the course folder:
 
-```bash
+```bash title="lxpack preview"
 lxpack preview
 ```
 

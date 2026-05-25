@@ -2,11 +2,13 @@
 
 The `lxpack` command creates courses, runs preview, checks for errors, and builds LMS packages.
 
+--8<-- "copy-tip.md"
+
 ## Install
 
 With Node.js 20+ installed:
 
-```bash
+```bash title="Install LXPack CLI (Node.js 20+)"
 npm install -g @lxpack/cli
 ```
 
@@ -14,7 +16,7 @@ npm install -g @lxpack/cli
 
 ## Verify
 
-```bash
+```bash title="Verify lxpack is installed"
 lxpack --version
 ```
 
@@ -24,10 +26,12 @@ You should see the installed version (for example `0.3.0`).
 
 From any directory where you keep training projects:
 
-```bash
+```bash title="lxpack init security-training"
 lxpack init security-training
 cd security-training
 ```
+
+(Or use any course name instead of `security-training`.)
 
 This creates a starter project with a welcome lesson, a sample phishing lab, and a short quiz. See [Your first course](your-first-course.md).
 
@@ -41,7 +45,7 @@ Node’s global bin folder may not be on your PATH.
 
     Add this to your shell profile (`~/.zshrc` or `~/.bashrc`), then open a new Terminal window:
 
-    ```bash
+```bash title="export PATH='$(npm config get prefix)/bin:$PATH'"
     export PATH="$(npm config get prefix)/bin:$PATH"
     ```
 
@@ -61,7 +65,7 @@ Node’s global bin folder may not be on your PATH.
 
 ### Wrong Node version
 
-```bash
+```bash title="node --version"
 node --version
 ```
 
@@ -69,7 +73,7 @@ Must be **v20.0.0** or higher. Upgrade Node from [nodejs.org](https://nodejs.org
 
 ## Updating LXPack
 
-```bash
+```bash title="Update LXPack CLI"
 npm update -g @lxpack/cli
 ```
 

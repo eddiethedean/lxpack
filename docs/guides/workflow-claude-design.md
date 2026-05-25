@@ -1,5 +1,7 @@
 # Workflow with Claude Design
 
+--8<-- "copy-tip.md"
+
 This is the **recommended path for instructional designers** who do not write application code. You use **Claude Design** (or Claude chat) to draft content, a **simple text editor** to save files, and **Terminal only for `lxpack` commands**.
 
 ## Mindset: slides become files
@@ -20,7 +22,7 @@ Complete [What you need](../getting-started/what-you-need.md) and [Your first co
 
 ## Phase 1 — Set up the project
 
-```bash
+```bash title="lxpack init compliance-2026"
 lxpack init compliance-2026
 cd compliance-2026
 lxpack preview
@@ -85,7 +87,7 @@ For click scenarios, ask Claude for HTML using the template in [Building interac
 
 ### Step E — Validate
 
-```bash
+```bash title="lxpack validate"
 lxpack validate
 ```
 
@@ -93,7 +95,7 @@ If errors appear, copy the **full Terminal output** into Claude: “Fix these LX
 
 ### Step F — Preview for review
 
-```bash
+```bash title="lxpack preview"
 lxpack preview
 ```
 
@@ -107,7 +109,7 @@ Validate extra carefully — branching errors are common when `goto` targets a l
 
 ## Phase 5 — Export and hand off to LMS
 
-```bash
+```bash title="lxpack validate --target scorm12"
 lxpack validate --target scorm12
 lxpack build --target scorm12
 ```

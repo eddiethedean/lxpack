@@ -377,15 +377,16 @@ Details: [Roadmap](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/) (
 
 ## Documentation
 
-Full documentation is published on **Read the Docs**: **[lxpack.readthedocs.io](https://lxpack.readthedocs.io/en/latest/)**
+**[lxpack.readthedocs.io](https://lxpack.readthedocs.io/en/latest/)** — searchable docs with copy buttons on commands and prompts.
 
 | Audience | Start here |
 |----------|------------|
-| Instructional designers / LXDs | [Your first course](https://lxpack.readthedocs.io/en/latest/getting-started/your-first-course/) → [Workflow with Claude Design](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-design/) |
-| Migrating from Storyline / Rise | [Migrating from legacy tools](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) |
-| Cursor users (no Claude) | [Workflow with Cursor](https://lxpack.readthedocs.io/en/latest/guides/workflow-cursor/) |
-| Developers (Cursor + Claude) | [Workflow with Claude Code](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-code/) → [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
-| AI agents (Cursor, Claude Code, Windsurf) | [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/) — install from `library-skills/` |
+| Everyone new | [Get started](https://lxpack.readthedocs.io/en/latest/getting-started/) |
+| Instructional designers | [Claude Design workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-design/) · [Prompts](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/) |
+| Migrating from Storyline / Rise | [Legacy migration](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) |
+| Cursor (no Claude) | [Cursor workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-cursor/) |
+| Developers | [Claude Code workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-code/) · [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
+| AI agents | [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/) |
 
 - [Changelog](CHANGELOG.md)
 - [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)

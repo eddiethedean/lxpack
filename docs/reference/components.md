@@ -1,5 +1,7 @@
 # Components
 
+--8<-- "copy-tip.md"
+
 **Component lessons** use built-in widgets from `@lxpack/components`. No HTML file required.
 
 ## Built-in components (v0.3.0)

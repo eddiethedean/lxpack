@@ -40,16 +40,13 @@ Source lives in the repository: [`library-skills/`](https://github.com/eddiethed
 
 ## Install
 
+--8<-- "copy-tip.md"
+
 From a clone of LXPack (or your fork):
 
-```bash
-# All your projects (recommended for authors)
-./library-skills/install.sh --global
+--8<-- "commands/library-skills-install.md"
 
-# Only the current course folder
-./library-skills/install.sh --project --directory /path/to/my-course
-
-# LXPack contributors — skills in this repo’s .cursor/skills
+```bash title="Install skills for LXPack repo contributors only"
 ./library-skills/install.sh --project
 ```
 
@@ -70,7 +67,7 @@ Re-run after `git pull` to refresh.
 
 ## Skill layout
 
-```text
+```text title="lxpack-author/"
 lxpack-author/
   SKILL.md           # Frontmatter + core instructions
   references/        # manifest.md, assessments.md, branching.md

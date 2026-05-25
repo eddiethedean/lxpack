@@ -1,5 +1,7 @@
 # Troubleshooting
 
+--8<-- "copy-tip.md"
+
 Plain-language fixes for common `lxpack validate` and `lxpack build` messages.
 
 ## Before you ask for help

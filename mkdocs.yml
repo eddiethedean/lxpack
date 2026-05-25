@@ -1,5 +1,5 @@
 site_name: LXPack
-site_description: AI-native learning experience compiler — build, preview, and export courses for your LMS.
+site_description: Build, preview, and ship web-native training — SCORM, xAPI, and cmi5 — with AI-friendly course files.
 site_url: https://lxpack.readthedocs.io/
 repo_url: https://github.com/eddiethedean/lxpack
 repo_name: eddiethedean/lxpack
@@ -10,35 +10,50 @@ copyright: Copyright &copy; LXPack contributors — Apache-2.0
 theme:
   name: material
   language: en
+  logo: material/school-outline
+  icon:
+    repo: fontawesome/brands/github
   palette:
-    - scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       primary: indigo
-      accent: indigo
+      accent: amber
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - scheme: slate
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       primary: indigo
-      accent: indigo
+      accent: amber
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
     - navigation.instant
+    - navigation.instant.progress
     - navigation.tracking
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - navigation.footer
     - search.suggest
     - search.highlight
+    - search.share
     - content.code.copy
     - content.code.select
+    - content.action.edit
+    - content.tabs.link
     - toc.follow
+    - announce.dismiss
 
 plugins:
-  - search
+  - search:
+      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
 
 markdown_extensions:
   - abbr
@@ -54,16 +69,37 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path:
+        - docs/includes
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/eddiethedean/lxpack
+    - icon: fontawesome/brands/npm
+      link: https://www.npmjs.com/package/@lxpack/cli
+  generator: false
 
 nav:
   - Home: index.md
-  - Getting started:
+  - Get started:
+      - getting-started/index.md
       - getting-started/what-you-need.md
       - getting-started/install-cli.md
       - getting-started/your-first-course.md
@@ -74,7 +110,8 @@ nav:
       - guides/workflow-cursor.md
       - guides/workflow-claude-code.md
       - guides/migrating-from-legacy-tools.md
-  - Authoring guides:
+  - Build courses:
+      - guides/build-overview.md
       - guides/course-structure.md
       - guides/writing-lessons.md
       - guides/building-interactions.md
@@ -82,9 +119,11 @@ nav:
       - guides/branching-and-paths.md
       - guides/preview-and-review.md
       - guides/export-to-lms.md
-      - Prompts for Claude & Cursor: guides/prompts-for-claude.md
-      - Library Skills: guides/library-skills.md
+  - AI authoring:
+      - guides/prompts-for-claude.md
+      - guides/library-skills.md
   - Reference:
+      - reference/index.md
       - reference/cli.md
       - reference/course-yaml.md
       - reference/lxpack-config.md
@@ -102,10 +141,3 @@ nav:
   - Maintainers:
       - readthedocs-setup.md
   - Changelog: https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md
-
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/eddiethedean/lxpack
-    - icon: fontawesome/brands/npm
-      link: https://www.npmjs.com/package/@lxpack/cli

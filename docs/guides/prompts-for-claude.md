@@ -1,17 +1,12 @@
 # Prompts for Claude and Cursor
 
-Ready-to-use prompts for **Claude Design**, **Claude chat**, **Claude Code**, and **Cursor** (Chat, Composer, or Agent). Each block has a **copy button** (clipboard icon at the top-right of the block).
+Copy-paste prompts for **Claude Design**, **Claude chat**, **Claude Code**, and **Cursor**. Each block has a **clipboard icon** (top-right).
 
-!!! tip "How to copy"
-    Hover the prompt block → click the **clipboard** icon. On mobile, tap inside the block, then use copy from the toolbar if shown.
+--8<-- "copy-tip.md"
 
-Replace `ALL_CAPS` placeholders with your course details. After every change, run:
+Replace `ALL_CAPS` placeholders. After every change, run:
 
-```bash
-lxpack validate
-```
-
-Then `lxpack preview` before `lxpack build`.
+--8<-- "commands/core-workflow.md"
 
 ---
 

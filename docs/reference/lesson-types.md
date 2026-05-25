@@ -1,5 +1,7 @@
 # Lesson types
 
+--8<-- "copy-tip.md"
+
 Each entry in `course.yaml` `lessons:` has a `type` field.
 
 ## markdown

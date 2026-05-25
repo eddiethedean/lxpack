@@ -1,5 +1,7 @@
 # Workflow with Claude Code
 
+--8<-- "copy-tip.md"
+
 This track is for **developers and power users** who work in **Cursor** (or VS Code) with **Claude Code** (or Cursor Agent with Claude), use **Git** optionally, and may contribute to LXPack itself.
 
 !!! note "Using Cursor without AI?"
@@ -17,13 +19,13 @@ The validate → preview → build loop is identical to the [Claude Design workf
 
 From the LXPack repo (or your fork), install agent skills once:
 
-```bash
+```bash title="./library-skills/install.sh --global"
 ./library-skills/install.sh --global
 ```
 
 Or per course project:
 
-```bash
+```bash title="./library-skills/install.sh --project --directory ./..."
 ./library-skills/install.sh --project --directory ./product-training
 ```
 
@@ -31,7 +33,7 @@ Skills include **lxpack-author**, **lxpack-interaction**, **lxpack-export**, and
 
 ## Open your course in Cursor
 
-```bash
+```bash title="lxpack init product-training"
 lxpack init product-training
 cd product-training
 cursor .
@@ -41,7 +43,7 @@ Open the whole course folder — not individual files in isolation — so Claude
 
 ### Recommended workspace layout
 
-```text
+```text title="product-training/"
 product-training/
   course.yaml
   lxpack.config.json
@@ -61,21 +63,21 @@ Add `.lxpack/` to `.gitignore` if you use Git.
 2. Let Claude edit multiple files; review the diff.
 3. Run in the integrated terminal:
 
-   ```bash
+```bash title="lxpack validate"
    lxpack validate
    lxpack preview
    ```
 
 4. For export-specific rules:
 
-   ```bash
+```bash title="lxpack validate --target scorm2004"
    lxpack validate --target scorm2004
    lxpack build --target scorm2004
    ```
 
 5. Commit when satisfied:
 
-   ```bash
+```bash title="git add course.yaml lessons/ assessments/"
    git add course.yaml lessons/ assessments/
    git commit -m "Add glossary lesson"
    ```
@@ -84,7 +86,7 @@ Add `.lxpack/` to `.gitignore` if you use Git.
 
 When developing LXPack from source:
 
-```bash
+```bash title="git clone https://github.com/eddiethedean/lxpack.git"
 git clone https://github.com/eddiethedean/lxpack.git
 cd lxpack
 corepack enable
@@ -101,7 +103,7 @@ Use `pnpm exec lxpack` so you run the workspace CLI, not only the global install
 
 Validate all examples:
 
-```bash
+```bash title="pnpm examples:validate"
 pnpm examples:validate
 ```
 

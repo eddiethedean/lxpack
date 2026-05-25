@@ -6,7 +6,7 @@ An LXPack course is a **folder on disk**. The CLI finds it by looking for `cours
 
 After `lxpack init my-course`:
 
-```text
+```text title="my-course/"
 my-course/
   course.yaml           # Required — title, lessons, assessments, optional flow/tracking
   lxpack.config.json    # Optional — export defaults, preview, output directory

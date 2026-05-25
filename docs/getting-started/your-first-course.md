@@ -1,12 +1,14 @@
 # Your first course
 
-This walkthrough uses the project created by `lxpack init`. You will preview in the browser, check for errors, and build a SCORM package for your LMS.
+--8<-- "copy-tip.md"
+
+About **15 minutes**: scaffold a course, click through it in the browser, validate, and build a SCORM 1.2 ZIP for your LMS.
 
 ## 1. Create the project
 
 Open Terminal in the folder where you keep courses (for example `Documents/Courses`):
 
-```bash
+```bash title="lxpack init my-first-course"
 lxpack init my-first-course
 cd my-first-course
 ```
@@ -29,7 +31,7 @@ More detail: [Course structure](../guides/course-structure.md).
 
 ## 3. Preview in the browser
 
-```bash
+```bash title="Start local preview server"
 lxpack preview
 ```
 
@@ -45,7 +47,7 @@ Leave preview running while you edit files. Stop it with `Ctrl+C` in Terminal wh
 
 In a **new** Terminal window (or after stopping preview), from the same course folder:
 
-```bash
+```bash title="Validate course (run from course folder)"
 lxpack validate
 ```
 
@@ -57,7 +59,7 @@ If something is wrong, LXPack prints plain-language errors. Paste them into Clau
 
 Most corporate LMS platforms accept SCORM 1.2:
 
-```bash
+```bash title="Build SCORM 1.2 package (most LMS)"
 lxpack build --target scorm12
 ```
 
@@ -75,12 +77,18 @@ Upload that ZIP to your LMS as a new SCORM package. Exact steps depend on Moodle
 
 ## What you learned
 
-| Step | Command | Purpose |
-|------|---------|---------|
-| Create | `lxpack init` | Starter files |
-| Preview | `lxpack preview` | Click-through review |
-| Validate | `lxpack validate` | Catch broken structure before build |
-| Build | `lxpack build --target scorm12` | LMS-ready ZIP |
+Copy any step:
+
+```bash title="Create a new course and enter its folder"
+lxpack init my-first-course
+cd my-first-course
+```
+
+```bash title="Typical workflow after editing files"
+lxpack validate
+lxpack preview
+lxpack build --target scorm12
+```
 
 ## Go further
 

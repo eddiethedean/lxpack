@@ -1,5 +1,7 @@
 # Building interactions
 
+--8<-- "copy-tip.md"
+
 **Interactions** are small web pages — labs, simulations, click-to-reveal activities — stored under `interactions/<name>/index.html`.
 
 ## Register an HTML lesson
@@ -80,7 +82,7 @@ Put images next to `index.html` or in `assets/` and reference with relative path
 
 ## Validate and preview
 
-```bash
+```bash title="lxpack validate"
 lxpack validate
 lxpack preview
 ```

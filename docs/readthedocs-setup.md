@@ -23,7 +23,7 @@ After the first successful build, the site is available at:
 
 ## Local preview
 
-```bash
+```bash title="python3 -m venv .venv-docs"
 python3 -m venv .venv-docs
 source .venv-docs/bin/activate   # Windows: .venv-docs\Scripts\activate
 pip install -r requirements-docs.txt
@@ -35,13 +35,13 @@ Open `http://127.0.0.1:8000`.
 
 Strict build (matches CI; suppresses the Material MkDocs 2.0 banner):
 
-```bash
+```bash title="bash scripts/build-docs.sh"
 bash scripts/build-docs.sh
 ```
 
 Or manually:
 
-```bash
+```bash title="export NO_MKDOCS_2_WARNING=1"
 export NO_MKDOCS_2_WARNING=1
 mkdocs build --strict
 ```
@@ -58,7 +58,7 @@ GitHub Actions runs `scripts/build-docs.sh` on every PR via the `docs` job in `.
 
 Read the Docs uses a custom `build.jobs.build.html` step that runs:
 
-```bash
+```bash title="NO_MKDOCS_2_WARNING=1 mkdocs build --strict --clean ..."
 NO_MKDOCS_2_WARNING=1 mkdocs build --strict --clean --site-dir "$READTHEDOCS_OUTPUT/html"
 ```
 
