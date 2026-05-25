@@ -21,6 +21,60 @@ export function collectAssessmentIds(manifest: CourseManifest): Set<string> {
   return ids;
 }
 
+export function collectInteractionIds(manifest: CourseManifest): Set<string> {
+  const ids = new Set<string>();
+  for (const lesson of manifest.lessons) {
+    if (lesson.type === "html") {
+      ids.add(lesson.id);
+    }
+  }
+  return ids;
+}
+
+export function buildActivityOrder(manifest: CourseManifest): string[] {
+  const ids: string[] = manifest.lessons.map((l) => l.id);
+  for (const ref of manifest.assessments ?? []) {
+    ids.push(ref.id);
+  }
+  return ids;
+}
+
+function validateConditionShape(
+  condition: Condition,
+  path: string,
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  if ("all" in condition && condition.all) {
+    if (condition.all.length === 0) {
+      issues.push({
+        path,
+        message: "Condition all: [] is always true at runtime; use a non-empty list",
+        severity: "error",
+      });
+    }
+    for (let i = 0; i < condition.all.length; i++) {
+      issues.push(
+        ...validateConditionShape(condition.all[i]!, `${path}.all[${i}]`),
+      );
+    }
+  }
+  if ("any" in condition && condition.any) {
+    if (condition.any.length === 0) {
+      issues.push({
+        path,
+        message: "Condition any: [] is always false at runtime; use a non-empty list",
+        severity: "error",
+      });
+    }
+    for (let i = 0; i < condition.any.length; i++) {
+      issues.push(
+        ...validateConditionShape(condition.any[i]!, `${path}.any[${i}]`),
+      );
+    }
+  }
+  return issues;
+}
+
 function collectConditionRefs(
   condition: Condition,
   refs: {
@@ -55,10 +109,13 @@ export function validateFlow(
 
   const activityIds = collectActivityIds(manifest);
   const assessmentIds = collectAssessmentIds(manifest);
+  const interactionIds = collectInteractionIds(manifest);
   const manifestVars = new Set(Object.keys(manifest.variables ?? {}));
 
   flow.forEach((rule: FlowRule, index: number) => {
     const path = `flow[${index}]`;
+
+    issues.push(...validateConditionShape(rule.when, `${path}.when`));
 
     if (!activityIds.has(rule.goto)) {
       issues.push({
@@ -94,10 +151,10 @@ export function validateFlow(
       }
     }
     for (const i of refs.interactions) {
-      if (!activityIds.has(i)) {
+      if (!interactionIds.has(i)) {
         issues.push({
           path: `${path}.when`,
-          message: `Unknown interaction/lesson id in condition: ${i}`,
+          message: `Unknown interaction id in condition (expected html lesson): ${i}`,
           severity: "error",
         });
       }
@@ -107,33 +164,89 @@ export function validateFlow(
   return issues;
 }
 
-/** Detect simple goto cycles (same-target chains). */
-export function detectFlowCycles(flow: FlowRule[]): string[] {
-  const gotoOf = new Map<number, string>();
-  flow.forEach((rule, i) => gotoOf.set(i, rule.goto));
+function conditionCouldApplyAt(
+  condition: Condition,
+  currentActivityId: string,
+  interactionIds: Set<string>,
+): boolean {
+  if ("variable" in condition) return true;
+  if ("assessment" in condition && condition.assessment?.passed) {
+    return currentActivityId === condition.assessment.passed;
+  }
+  if ("interaction" in condition && condition.interaction?.done) {
+    return interactionIds.has(currentActivityId);
+  }
+  if ("all" in condition && condition.all) {
+    return (
+      condition.all.length > 0 &&
+      condition.all.every((c) =>
+        conditionCouldApplyAt(c, currentActivityId, interactionIds),
+      )
+    );
+  }
+  if ("any" in condition && condition.any) {
+    return (
+      condition.any.length > 0 &&
+      condition.any.some((c) =>
+        conditionCouldApplyAt(c, currentActivityId, interactionIds),
+      )
+    );
+  }
+  return false;
+}
+
+/**
+ * Detect cycles reachable via flow jumps (first matching applicable rule).
+ */
+export function detectFlowCycles(manifest: CourseManifest): string[] {
+  const flow = manifest.flow;
+  if (!flow?.length) return [];
+
+  const activityIds = collectActivityIds(manifest);
+  const interactionIds = collectInteractionIds(manifest);
+
+  const flowJumpFrom = (current: string): string | null => {
+    for (const rule of flow) {
+      if (
+        rule.goto !== current &&
+        activityIds.has(rule.goto) &&
+        conditionCouldApplyAt(rule.when, current, interactionIds)
+      ) {
+        return rule.goto;
+      }
+    }
+    return null;
+  };
 
   const errors: string[] = [];
-  const visited = new Set<number>();
+  const reported = new Set<string>();
 
-  for (let start = 0; start < flow.length; start++) {
-    if (visited.has(start)) continue;
-    const chain = new Set<number>();
-    let i: number | undefined = start;
-    while (i !== undefined && i < flow.length) {
-      const ruleIndex = i;
-      if (chain.has(ruleIndex)) {
-        errors.push(`Flow rule cycle detected involving flow[${ruleIndex}]`);
-        break;
+  const dfs = (node: string, stack: string[], onStack: Set<string>): void => {
+    const jump = flowJumpFrom(node);
+    if (!jump) return;
+
+    if (onStack.has(jump)) {
+      const cycleStart = stack.indexOf(jump);
+      const cycle = [...stack.slice(cycleStart), jump];
+      const key = cycle.join("->");
+      if (!reported.has(key)) {
+        reported.add(key);
+        errors.push(`Flow cycle: ${cycle.join(" -> ")}`);
       }
-      if (visited.has(ruleIndex)) break;
-      chain.add(ruleIndex);
-      visited.add(ruleIndex);
-      const target = gotoOf.get(ruleIndex);
-      const nextIdx = flow.findIndex(
-        (_, idx) => idx > ruleIndex && flow[idx]!.goto === target,
-      );
-      i = nextIdx >= 0 ? nextIdx : undefined;
+      return;
     }
+    if (stack.length >= activityIds.size) return;
+
+    onStack.add(jump);
+    stack.push(jump);
+    dfs(jump, stack, onStack);
+    stack.pop();
+    onStack.delete(jump);
+  };
+
+  for (const id of activityIds) {
+    dfs(id, [id], new Set([id]));
   }
+
   return errors;
 }

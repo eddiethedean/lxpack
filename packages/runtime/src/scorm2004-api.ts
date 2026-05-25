@@ -2,6 +2,8 @@
  * SCORM 2004 4th Edition Run-Time API subset.
  */
 
+import { trimSuspendData } from "./progress/size-policy.js";
+
 export interface Scorm2004ApiLike {
   Initialize(param?: string): string;
   Terminate(param?: string): string;
@@ -105,7 +107,8 @@ export class Scorm2004Simulator implements Scorm2004ApiLike {
 
   SetValue(element: string, value: string): string {
     if (!this.initialized || this.terminated) return "false";
-    this.data[element] = value;
+    this.data[element] =
+      element === "cmi.suspend_data" ? trimSuspendData(value) : value;
     this.save();
     return "true";
   }
@@ -129,7 +132,7 @@ export class Scorm2004Simulator implements Scorm2004ApiLike {
   }
 
   setSuspendData(data: string): void {
-    this.data["cmi.suspend_data"] = data;
+    this.data["cmi.suspend_data"] = trimSuspendData(data);
   }
 
   setLocation(location: string): void {
@@ -169,7 +172,9 @@ export class Scorm2004Adapter implements Scorm2004ApiLike {
   }
 
   SetValue(element: string, value: string): string {
-    return this.api.SetValue(element, value);
+    const v =
+      element === "cmi.suspend_data" ? trimSuspendData(value) : value;
+    return this.api.SetValue(element, v);
   }
 
   Commit(): string {
@@ -189,7 +194,7 @@ export class Scorm2004Adapter implements Scorm2004ApiLike {
   }
 
   setSuspendData(data: string): void {
-    this.api.SetValue("cmi.suspend_data", data);
+    this.api.SetValue("cmi.suspend_data", trimSuspendData(data));
   }
 
   setLocation(location: string): void {

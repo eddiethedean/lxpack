@@ -172,6 +172,22 @@ describe("buildCommand", () => {
     expect(existsSync(join(outDir, "imsmanifest.xml"))).toBe(true);
   });
 
+  it("writes unpacked SCORM 2004 multi-SCO tree with --dir", async () => {
+    const { cp } = await import("node:fs/promises");
+    const branchDir = join(workDir, "branching-dir");
+    await cp(fixturePath("branching-demo"), branchDir, { recursive: true });
+    const outDir = join(workDir, "out-scorm2004");
+    cleanup.push(outDir);
+    process.chdir(branchDir);
+
+    await buildCommand({ target: "scorm2004", dir: true, output: outDir });
+
+    expect(existsSync(join(outDir, "imsmanifest.xml"))).toBe(true);
+    expect(existsSync(join(outDir, "sco/intro/index.html"))).toBe(true);
+    expect(existsSync(join(outDir, "lxpack-runtime.js"))).toBe(true);
+    process.chdir(join(workDir, "course"));
+  });
+
   it("exits with code 1 for invalid target", async () => {
     const exit = vi
       .spyOn(process, "exit")

@@ -1,4 +1,4 @@
-# Internal refactor contract (v0.2.1)
+# Internal refactor contract (v0.2.2)
 
 This document records invariants for the SOLID refactor. **No semver bump** until a separate release decision.
 

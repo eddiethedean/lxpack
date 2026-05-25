@@ -1,6 +1,15 @@
 import { z } from "zod";
 import { conditionSchema, flowRuleSchema } from "./conditions.js";
 
+/** Safe for SCORM paths and manifest identifiers. */
+export const activityIdSchema = z
+  .string()
+  .min(1)
+  .regex(
+    /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+    "ID must start with a letter and contain only letters, numbers, underscores, and hyphens",
+  );
+
 const choiceSchema = z
   .object({
     id: z.string().min(1),
@@ -26,11 +35,23 @@ export const assessmentQuestionSchema = z
         path: ["choices"],
       });
     }
+    const choiceIds = new Set<string>();
+    for (let i = 0; i < question.choices.length; i++) {
+      const choice = question.choices[i]!;
+      if (choiceIds.has(choice.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate choice id: ${choice.id}`,
+          path: ["choices", i, "id"],
+        });
+      }
+      choiceIds.add(choice.id);
+    }
   });
 
 export const markdownLessonSchema = z
   .object({
-    id: z.string().min(1),
+    id: activityIdSchema,
     type: z.literal("markdown"),
     file: z.string().min(1),
     title: z.string().optional(),
@@ -39,7 +60,7 @@ export const markdownLessonSchema = z
 
 export const htmlLessonSchema = z
   .object({
-    id: z.string().min(1),
+    id: activityIdSchema,
     type: z.literal("html"),
     path: z.string().min(1),
     title: z.string().optional(),
@@ -48,7 +69,7 @@ export const htmlLessonSchema = z
 
 export const componentLessonSchema = z
   .object({
-    id: z.string().min(1),
+    id: activityIdSchema,
     type: z.literal("component"),
     component: z.string().min(1),
     props: z.record(z.unknown()).optional(),
@@ -66,7 +87,7 @@ export const showFeedbackSchema = z.enum(["immediate", "end", "never"]).default(
 
 export const assessmentSchema = z
   .object({
-    id: z.string().min(1),
+    id: activityIdSchema,
     title: z.string().optional(),
     passingScore: z.number().min(0).max(1).default(0.7),
     maxAttempts: z.number().int().min(1).optional(),
@@ -74,11 +95,25 @@ export const assessmentSchema = z
     showFeedback: showFeedbackSchema.optional(),
     questions: z.array(assessmentQuestionSchema).min(1),
   })
-  .strict();
+  .strict()
+  .superRefine((assessment, ctx) => {
+    const questionIds = new Set<string>();
+    for (let i = 0; i < assessment.questions.length; i++) {
+      const q = assessment.questions[i]!;
+      if (questionIds.has(q.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate question id: ${q.id}`,
+          path: ["questions", i, "id"],
+        });
+      }
+      questionIds.add(q.id);
+    }
+  });
 
 export const assessmentRefSchema = z
   .object({
-    id: z.string().min(1),
+    id: activityIdSchema,
     file: z.string().min(1),
   })
   .strict();

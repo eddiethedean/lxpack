@@ -10,7 +10,7 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.2.1](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#021---2026-05-24)
+**Current release:** [v0.2.2](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#022---2026-05-24)
 
 ## Packages
 
@@ -278,7 +278,7 @@ docs/
 
 ```bash
 pnpm install
-pnpm build          # build all packages (required before preview/tests)
+pnpm build          # build all packages (required before preview; `pnpm test` runs this via pretest)
 pnpm lint           # ESLint on package sources
 pnpm typecheck      # TypeScript per package
 pnpm test           # Vitest across packages

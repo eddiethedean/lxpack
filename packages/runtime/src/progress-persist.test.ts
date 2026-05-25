@@ -119,6 +119,28 @@ describe("progress-persist", () => {
     expect(expanded.assessmentScores).toEqual({});
   });
 
+  it("preserves assessment attempt keys when pruning oversized suspend data", () => {
+    const suspendData: Record<string, unknown> = {
+      assessment_attempts_quiz: 2,
+      assessment_passing_quiz: 0.7,
+      filler: "x".repeat(5000),
+    };
+    for (let i = 0; i < 80; i++) {
+      suspendData[`interaction_${i}`] = "y".repeat(60);
+    }
+    const progress: CourseProgress = {
+      currentLessonId: "a",
+      completedLessons: [],
+      assessmentScores: {},
+      suspendData,
+    };
+    const serialized = serializeProgressForStorage(progress);
+    expect(serialized.length).toBeLessThanOrEqual(4096);
+    const { progress: restored } = parseStoredProgress(serialized, defaults);
+    expect(restored.suspendData.assessment_attempts_quiz).toBe(2);
+    expect(restored.suspendData.assessment_passing_quiz).toBe(0.7);
+  });
+
   it("prunes interaction keys when payload exceeds SCORM limit", () => {
     const suspendData: Record<string, unknown> = {};
     for (let i = 0; i < 120; i++) {

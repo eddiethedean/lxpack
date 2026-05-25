@@ -5,6 +5,25 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-05-24
+
+### Fixed
+
+- Flow cycle detection now analyzes real flow-jump graphs (context-aware for `assessment.passed` and `interaction.done`); replaces broken rule-index heuristic
+- `submitAssessment` and `track({ type: "assessment" })` enforce `maxAttempts` and ignore submissions after pass
+- Quiz UI shows correct attempts remaining, blocks exhausted forms, and prevents double-submit
+- SCORM suspend pruning preserves `assessment_attempts_*` and `assessment_passing_*` keys
+- SCORM 2004 single-SCO mode restricts sidebar navigation to the launch activity
+- Flow navigation falls back to linear next/prev when `goto` target is invalid
+- SCORM 2004 `suspend_data` trimmed to 4096 characters (parity with SCORM 1.2)
+- Duplicate assessment IDs no longer parse the second file; empty `all`/`any` conditions rejected
+- Activity IDs restricted to safe characters for SCORM paths; duplicate question/choice IDs rejected
+- `interaction.done` flow conditions must reference html interaction lessons only
+
+### Changed
+
+- Root `pnpm test` runs `pnpm build` first via `pretest` to avoid stale `dist/` failures
+
 ## [0.2.1] - 2026-05-24
 
 ### Fixed
@@ -82,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 3+ covers xAPI, cmi5, themes, hot reload, and plugins.
 - The runtime browser bundle is ESM (`client.js`); legacy LMS environments without module support are not targeted in this release.
 
+[0.2.2]: https://github.com/eddiethedean/lxpack/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/eddiethedean/lxpack/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/eddiethedean/lxpack/releases/tag/v0.2.0
 [0.1.1]: https://github.com/eddiethedean/lxpack/releases/tag/v0.1.1

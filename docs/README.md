@@ -21,7 +21,7 @@ Canonical references for product direction, technical behavior, and releases.
 | **5 — Ecosystem** | TBD | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **6 — Enterprise platform** | TBD | Planned | Cloud deployment, compliance tooling, hosted runtime |
 
-## Published npm packages (v0.2.0)
+## Published npm packages (v0.2.2)
 
 | Package | Role |
 |---------|------|

@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { fixturePath } from "../../../test/helpers/paths.js";
 import { loadManifest, validateCourse } from "./validate.js";
 
@@ -197,44 +197,9 @@ questions:
   });
 
   it("rejects flow cycles", async () => {
-    const dir = await mkdtemp(join(tmpdir(), "lxpack-flow-cycle-"));
-    await mkdir(join(dir, "lessons"), { recursive: true });
-    await writeFile(join(dir, "lessons/intro.md"), "# Hi");
-    await writeFile(
-      join(dir, "course.yaml"),
-      `title: T
-version: 1.0.0
-variables:
-  track:
-    default: a
-lessons:
-  - id: intro
-    type: markdown
-    file: lessons/intro.md
-  - id: lab
-    type: markdown
-    file: lessons/intro.md
-flow:
-  - when:
-      variable:
-        eq: [track, a]
-    goto: lab
-  - when:
-      variable:
-        eq: [track, b]
-    goto: lab
-`,
-    );
-
-    const flowValidate = await import("./flow-validate.js");
-    const spy = vi
-      .spyOn(flowValidate, "detectFlowCycles")
-      .mockReturnValue(["Flow rule cycle detected involving flow[1]"]);
-
+    const dir = fixturePath("flow-cycle");
     const result = await validateCourse(dir);
-    spy.mockRestore();
-
     expect(result.valid).toBe(false);
-    expect(result.issues.some((i) => i.message.includes("cycle"))).toBe(true);
+    expect(result.issues.some((i) => i.message.includes("Flow cycle"))).toBe(true);
   });
 });

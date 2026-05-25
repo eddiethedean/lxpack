@@ -27,6 +27,16 @@ describe("generateScorm2004Manifest", () => {
     expect(xml).toContain("<title>Branching Demo</title>");
   });
 
+  it("escapes apostrophes in manifest titles", async () => {
+    const loaded = await loadManifest(fixturePath("branching-demo"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+
+    const manifest = { ...loaded.manifest, title: "Bob's Course" };
+    const xml = generateScorm2004Manifest(manifest, ["lessons/intro.md"]);
+    expect(xml).toContain("Bob&apos;s Course");
+    expect(xml).not.toContain("Bob's Course");
+  });
+
   it("omits lxpack-components.js when no components bundle is shipped", async () => {
     const loaded = await loadManifest(fixturePath("branching-demo"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");

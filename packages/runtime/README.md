@@ -7,7 +7,7 @@
 
 Browser runtime for LXPack courses — lesson navigation, markdown and HTML lessons, component widgets, branching flow, quiz engine, progress tracking, and SCORM 1.2 / 2004 integration.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.0**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.2**).
 
 | Related | Package |
 |---------|---------|

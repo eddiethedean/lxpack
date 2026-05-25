@@ -28,6 +28,19 @@ export function renderAssessment(
     existingScore !== undefined ? Math.max(attempts, 1) : attempts;
   const retakesRemaining = config.maxAttempts - effectiveAttempts;
 
+  if (attempts >= config.maxAttempts && existingScore === undefined) {
+    contentEl.innerHTML = `
+      <article class="lxpack-assessment lxpack-assessment-result">
+        <h2>${escapeHtml(assessment.title ?? assessment.id)}</h2>
+        <p class="lxpack-error">
+          No attempts remaining (maximum: ${config.maxAttempts}).
+          ${attempts > 0 ? ` · Attempts used: ${attempts}` : ""}
+        </p>
+      </article>
+    `;
+    return;
+  }
+
   if (existingScore !== undefined && (passed || retakesRemaining <= 0)) {
     contentEl.innerHTML = `
       <article class="lxpack-assessment lxpack-assessment-result">
@@ -76,7 +89,7 @@ export function renderAssessment(
     )
     .join("");
 
-  const remaining = config.maxAttempts - attempts;
+  const remaining = Math.max(0, config.maxAttempts - effectiveAttempts);
 
   contentEl.innerHTML = `
     <article class="lxpack-assessment">
@@ -112,8 +125,16 @@ export function renderAssessment(
     });
   }
 
+  let submitting = false;
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    if (submitting) return;
+    submitting = true;
+    const submitBtn = form.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement | null;
+    if (submitBtn) submitBtn.disabled = true;
+
     const score = scoreAssessmentForm(assessment, answerKey, form);
     const passedNow = score >= assessment.passingScore;
     runtime.submitAssessment(assessment.id, score, assessment.passingScore);

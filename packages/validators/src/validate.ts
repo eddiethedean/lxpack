@@ -106,7 +106,7 @@ export async function validateCourse(
   issues.push(...validateFlow(manifest));
 
   if (manifest.flow?.length) {
-    for (const message of detectFlowCycles(manifest.flow)) {
+    for (const message of detectFlowCycles(manifest)) {
       issues.push({
         path: "flow",
         message,

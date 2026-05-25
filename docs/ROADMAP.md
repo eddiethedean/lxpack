@@ -219,7 +219,7 @@ Features:
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.2.0
+**Latest release:** v0.2.2
 
 Features:
 - **SCORM 2004** — multi-SCO export with sequencing/navigation in the manifest

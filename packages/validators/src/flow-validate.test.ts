@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   collectActivityIds,
   detectFlowCycles,
@@ -72,6 +72,24 @@ describe("validateFlow", () => {
     expect(issues.some((i) => i.severity === "error")).toBe(true);
   });
 
+  it("rejects assessment id in interaction.done condition", () => {
+    const issues = validateFlow({
+      ...baseManifest,
+      flow: [{ when: { interaction: { done: "quiz" } }, goto: "lab" }],
+    });
+    expect(
+      issues.some((i) => i.message.includes("expected html lesson")),
+    ).toBe(true);
+  });
+
+  it("rejects empty all condition", () => {
+    const issues = validateFlow({
+      ...baseManifest,
+      flow: [{ when: { all: [] }, goto: "lab" }],
+    });
+    expect(issues.some((i) => i.message.includes("all: []"))).toBe(true);
+  });
+
   it("rejects lesson id in assessment.passed condition", () => {
     const issues = validateFlow({
       ...baseManifest,
@@ -115,43 +133,36 @@ describe("validateFlow", () => {
 });
 
 describe("detectFlowCycles", () => {
-  it("detects goto cycles when rules chain back to an earlier index", () => {
-    const flow = [
-      { when: { variable: { eq: ["track", "a"] } }, goto: "lab" },
-      { when: { variable: { eq: ["track", "b"] } }, goto: "lab" },
-    ];
-    let findIndexCalls = 0;
-    const findIndexSpy = vi.spyOn(flow, "findIndex").mockImplementation((predicate) => {
-      findIndexCalls++;
-      if (findIndexCalls === 2) return 0;
-      return Array.prototype.findIndex.call(flow, predicate);
-    });
-    expect(detectFlowCycles(flow).some((e) => e.includes("cycle"))).toBe(true);
-    findIndexSpy.mockRestore();
+  it("detects activity goto cycles", () => {
+    const manifest: CourseManifest = {
+      ...baseManifest,
+      flow: [
+        { when: { variable: { eq: ["track", "a"] } }, goto: "lab" },
+        { when: { variable: { eq: ["track", "b"] } }, goto: "intro" },
+      ],
+    };
+    expect(detectFlowCycles(manifest).some((e) => e.includes("Flow cycle"))).toBe(
+      true,
+    );
   });
 
-  it("returns empty when no cycle", () => {
-    const flow = [
-      { when: { variable: { eq: ["track", "a"] } }, goto: "lab" },
-      { when: { variable: { eq: ["track", "b"] } }, goto: "intro" },
-    ];
-    expect(detectFlowCycles(flow)).toEqual([]);
+  it("returns empty when flow jumps do not form a cycle", () => {
+    const manifest: CourseManifest = {
+      ...baseManifest,
+      flow: [{ when: { assessment: { passed: "quiz" } }, goto: "intro" }],
+    };
+    expect(detectFlowCycles(manifest)).toEqual([]);
   });
 
-  it("stops when a rule index was already visited in an earlier pass", () => {
-    const flow = [
-      { when: { variable: { eq: ["track", "a"] } }, goto: "lab" },
-      { when: { variable: { eq: ["track", "b"] } }, goto: "intro" },
-      { when: { variable: { eq: ["track", "c"] } }, goto: "quiz" },
-    ];
-    let findIndexCalls = 0;
-    const findIndexSpy = vi.spyOn(flow, "findIndex").mockImplementation((predicate) => {
-      findIndexCalls++;
-      if (findIndexCalls === 3) return 1;
-      return Array.prototype.findIndex.call(flow, predicate);
-    });
-    expect(detectFlowCycles(flow)).toEqual([]);
-    findIndexSpy.mockRestore();
+  it("detects intro-lab loop when both variable rules can fire", () => {
+    const manifest: CourseManifest = {
+      ...baseManifest,
+      flow: [
+        { when: { variable: { eq: ["track", "a"] } }, goto: "lab" },
+        { when: { variable: { eq: ["track", "b"] } }, goto: "intro" },
+      ],
+    };
+    expect(detectFlowCycles(manifest).some((e) => e.includes("intro"))).toBe(true);
   });
 });
 

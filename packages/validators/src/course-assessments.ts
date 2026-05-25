@@ -36,6 +36,7 @@ export async function loadParsedAssessments(
         message: `Duplicate assessment ID: ${ref.id}`,
         severity: "error",
       });
+      continue;
     }
     assessmentIds.add(ref.id);
 

@@ -1,0 +1,21 @@
+title: Flow Cycle
+version: 1.0.0
+variables:
+  track:
+    default: a
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+  - id: lab
+    type: markdown
+    file: lessons/lab.md
+flow:
+  - when:
+      variable:
+        eq: [track, a]
+    goto: lab
+  - when:
+      variable:
+        eq: [track, b]
+    goto: intro

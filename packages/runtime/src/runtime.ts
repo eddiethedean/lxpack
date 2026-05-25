@@ -14,6 +14,7 @@ import {
 import type { FlowContext } from "./flow.js";
 import { resolveFlowGoto } from "./flow.js";
 import type { AssessmentRuntimeConfig } from "@lxpack/validators";
+import { DEFAULT_ASSESSMENT_CONFIG } from "./quiz/types.js";
 import type { LmsBridge } from "./lms/bridge.js";
 import { createLmsBridge, progressStorageKey } from "./lms/factory.js";
 import { ProgressState } from "./core/progress-state.js";
@@ -109,11 +110,7 @@ export class LxpackRuntime implements AssessmentHost {
       const score =
         event.data?.score != null ? Number(event.data.score) : undefined;
       if (score != null && !Number.isNaN(score)) {
-        this.state.applyAssessmentResult(event.id, score, passingScore);
-        if (options?.persist !== false) {
-          this.updateCompletion();
-          this.persist();
-        }
+        this.submitAssessment(event.id, score, passingScore);
         return;
       }
     }
@@ -135,10 +132,26 @@ export class LxpackRuntime implements AssessmentHost {
     score: number,
     passingScore: number,
   ): void {
+    if (!this.canAcceptAssessmentSubmission(assessmentId)) {
+      return;
+    }
     this.state.recordAssessmentAttempt(assessmentId);
     this.state.applyAssessmentResult(assessmentId, score, passingScore);
     this.updateCompletion();
     this.persist();
+  }
+
+  private getMaxAttempts(assessmentId: string): number {
+    const config = this.assessmentConfigs[assessmentId];
+    return config?.maxAttempts ?? DEFAULT_ASSESSMENT_CONFIG.maxAttempts;
+  }
+
+  private canAcceptAssessmentSubmission(assessmentId: string): boolean {
+    if (this.isAssessmentPassed(assessmentId)) {
+      return false;
+    }
+    const maxAttempts = this.getMaxAttempts(assessmentId);
+    return this.getAssessmentAttemptCount(assessmentId) < maxAttempts;
   }
 
   completeLesson(lessonId: string): void {

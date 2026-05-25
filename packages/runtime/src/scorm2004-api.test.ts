@@ -5,6 +5,7 @@ import {
   createScorm2004Connection,
   findScorm2004Api,
 } from "./scorm2004-api.js";
+import { SCORM_SUSPEND_DATA_MAX } from "./progress/constants.js";
 
 const PREVIEW_STORAGE_KEY = "lxpack_scorm2004_preview";
 
@@ -62,6 +63,20 @@ describe("Scorm2004Simulator", () => {
     expect(api.GetLastError()).toBe("0");
     expect(api.GetErrorString()).toBe("No error");
     expect(api.GetDiagnostic()).toBe("");
+  });
+
+  it("trims suspend_data to SCORM limit on set", () => {
+    const api = new Scorm2004Simulator();
+    api.Initialize();
+    const long = "x".repeat(SCORM_SUSPEND_DATA_MAX + 500);
+    api.setSuspendData(long);
+    expect(api.GetValue("cmi.suspend_data").length).toBeLessThanOrEqual(
+      SCORM_SUSPEND_DATA_MAX,
+    );
+    api.SetValue("cmi.suspend_data", long);
+    expect(api.GetValue("cmi.suspend_data").length).toBeLessThanOrEqual(
+      SCORM_SUSPEND_DATA_MAX,
+    );
   });
 });
 

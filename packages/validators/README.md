@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
-Zod schemas and filesystem validation for LXPack course manifests — including flow, variables, and component lessons (v0.2.0).
+Zod schemas and filesystem validation for LXPack course manifests — including flow, variables, and component lessons (v0.2.2).
 
 Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
 
@@ -94,7 +94,7 @@ isPathContained(courseDir, abs); // true if inside course root
 | `buildRuntimeAssessmentBundle(dir, manifest)` | Load assessments; split learner view, keys, configs, feedback |
 | `toLearnerAssessment(assessment)` | Strip `correct` from choices; extract config and feedback maps |
 | `validateFlow(manifest)` | Flow rule and target validation |
-| `detectFlowCycles(flow)` | Cycle detection for branching graphs |
+| `detectFlowCycles(manifest)` | Flow-jump cycle detection for branching graphs |
 | `collectActivityIds(manifest)` | Lesson and assessment IDs for flow targets |
 | `conditionSchema`, `flowRuleSchema` | Zod schemas for flow conditions and rules |
 | `BUILTIN_COMPONENT_IDS`, `isBuiltinComponentId` | Allowed built-in component lesson IDs |

@@ -7,7 +7,7 @@
 
 Command-line tool for scaffolding, previewing, validating, and packaging LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.1**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.2.2**).
 
 | Related | Package |
 |---------|---------|

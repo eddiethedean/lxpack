@@ -36,8 +36,15 @@ export function init(): void {
     "lxpack-complete",
   ) as HTMLButtonElement;
 
-  const navItems = buildNavItems(config.manifest);
-  const activityOrder = buildActivityOrder(config.manifest);
+  const scorm2004SingleSco =
+    config.mode === "scorm2004" && Boolean(config.activityId);
+  const allNavItems = buildNavItems(config.manifest);
+  const navItems = scorm2004SingleSco
+    ? allNavItems.filter((n) => n.id === config.activityId)
+    : allNavItems;
+  const activityOrder = scorm2004SingleSco
+    ? navItems.map((n) => n.id)
+    : buildActivityOrder(config.manifest);
 
   function indexForId(id: string): number {
     const idx = navItems.findIndex((n) => n.id === id);
@@ -129,8 +136,10 @@ export function init(): void {
     const prevId = resolvePreviousActivityId(config.manifest, id);
     if (prevId) {
       const idx = navItems.findIndex((n) => n.id === prevId);
-      if (idx >= 0) void showItem(idx);
-      return;
+      if (idx >= 0) {
+        void showItem(idx);
+        return;
+      }
     }
     if (currentIndex > 0) void showItem(currentIndex - 1);
   });
@@ -145,8 +154,10 @@ export function init(): void {
     );
     if (nextId) {
       const idx = navItems.findIndex((n) => n.id === nextId);
-      if (idx >= 0) void showItem(idx);
-      return;
+      if (idx >= 0) {
+        void showItem(idx);
+        return;
+      }
     }
     if (currentIndex < navItems.length - 1) void showItem(currentIndex + 1);
   });

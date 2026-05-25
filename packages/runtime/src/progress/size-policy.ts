@@ -23,13 +23,22 @@ function pruneInteractionKeys(progress: CourseProgress, maxBytes: number): Cours
   return { ...progress, suspendData };
 }
 
+function isEssentialSuspendKey(key: string): boolean {
+  return (
+    key.startsWith("interaction_") ||
+    key.startsWith("v:") ||
+    key.startsWith("assessment_attempts_") ||
+    key.startsWith("assessment_passing_")
+  );
+}
+
 function pruneNonEssentialSuspendKeys(
   progress: CourseProgress,
   maxBytes: number,
 ): CourseProgress {
   const suspendData = { ...progress.suspendData };
   const keys = Object.keys(suspendData)
-    .filter((k) => !k.startsWith("interaction_") && !k.startsWith("v:"))
+    .filter((k) => !isEssentialSuspendKey(k))
     .sort();
 
   for (const key of keys) {
