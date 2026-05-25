@@ -6,10 +6,19 @@ function fitsLimit(progress: CourseProgress, maxBytes: number): boolean {
   return JSON.stringify(compactProgress(progress)).length <= maxBytes;
 }
 
-function pruneInteractionKeys(progress: CourseProgress, maxBytes: number): CourseProgress {
+function pruneInteractionKeys(
+  progress: CourseProgress,
+  maxBytes: number,
+  preserveInteractionIds?: Set<string>,
+): CourseProgress {
   const suspendData = { ...progress.suspendData };
   const keys = Object.keys(suspendData)
     .filter((k) => k.startsWith("interaction_"))
+    .filter((k) => {
+      if (!preserveInteractionIds?.size) return true;
+      const id = k.slice("interaction_".length);
+      return !preserveInteractionIds.has(id);
+    })
     .sort();
 
   for (const key of keys) {
@@ -127,15 +136,24 @@ function buildMinimalSerializedProgress(
     : JSON.stringify({ c: "" });
 }
 
+export interface SerializeProgressOptions {
+  preserveInteractionIds?: Set<string>;
+}
+
 export function serializeProgressForStorage(
   progress: CourseProgress,
   maxBytes = SCORM_SUSPEND_DATA_MAX,
+  options?: SerializeProgressOptions,
 ): string {
   if (fitsLimit(progress, maxBytes)) {
     return JSON.stringify(compactProgress(progress));
   }
 
-  let candidate = pruneInteractionKeys(progress, maxBytes);
+  let candidate = pruneInteractionKeys(
+    progress,
+    maxBytes,
+    options?.preserveInteractionIds,
+  );
   if (fitsLimit(candidate, maxBytes)) {
     return JSON.stringify(compactProgress(candidate));
   }

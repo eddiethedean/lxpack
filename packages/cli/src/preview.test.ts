@@ -113,6 +113,20 @@ describe("createPreviewServer", () => {
     if (app) await app.close();
   });
 
+  it("blocks path traversal to course.yaml", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
+    app = await previewCommands.createPreviewServer(
+      fixturePath("minimal-valid"),
+      manifest,
+    );
+    const res = await app.inject({
+      method: "GET",
+      url: "/course/lessons/../../course.yaml",
+    });
+    expect(res.statusCode).toBe(404);
+  });
+
   it("blocks course.yaml and lxpack.config.json", async () => {
     const { loadCourseManifest } = await import("./utils.js");
     const manifest = await loadCourseManifest(fixturePath("minimal-valid"));

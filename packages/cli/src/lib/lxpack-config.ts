@@ -1,8 +1,12 @@
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { z } from "zod";
-import { formatErrorMessage, isPathContained } from "@lxpack/validators";
+import {
+  assertResolvedPathContained,
+  formatErrorMessage,
+  isPathContained,
+} from "@lxpack/validators";
 
 const lxpackConfigSchema = z
   .object({
@@ -79,12 +83,52 @@ export function resolvePathInCwd(relativePath: string): string {
   return target;
 }
 
-/** Resolve output dir relative to course root; must stay inside course. */
+/** Resolve output dir relative to course root; must stay inside course (symlink-safe). */
 export function resolveOutputDir(courseDir: string, outputDir: string): string {
-  const root = resolve(courseDir);
+  const root = realpathSync(resolve(courseDir));
   const target = resolve(root, outputDir);
   if (!isPathContained(root, target)) {
-    throw new Error("output.dir in lxpack.config.json must stay inside the course directory");
+    throw new Error(
+      "output.dir in lxpack.config.json must stay inside the course directory",
+    );
+  }
+  if (existsSync(target)) {
+    const contained = assertResolvedPathContained(root, target);
+    if (!contained.ok) {
+      throw new Error(
+        "output.dir in lxpack.config.json must stay inside the course directory",
+      );
+    }
+  }
+  return target;
+}
+
+/** Resolve build output file/dir; must stay inside the course directory. */
+export function resolveBuildOutputPath(
+  courseDir: string,
+  outputPath: string,
+): string {
+  const root = realpathSync(resolve(courseDir));
+  const target =
+    outputPath.startsWith("/") || /^[a-zA-Z]:\\/.test(outputPath)
+      ? resolve(outputPath)
+      : resolve(root, outputPath);
+
+  const parentDir = dirname(target);
+  const effectiveTarget = existsSync(target)
+    ? realpathSync(target)
+    : existsSync(parentDir)
+      ? resolve(realpathSync(parentDir), basename(target))
+      : target;
+
+  if (!isPathContained(root, effectiveTarget)) {
+    throw new Error("Output path must stay inside the course directory");
+  }
+  if (existsSync(target)) {
+    const contained = assertResolvedPathContained(root, target);
+    if (!contained.ok) {
+      throw new Error("Output path must stay inside the course directory");
+    }
   }
   return target;
 }

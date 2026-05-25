@@ -1,8 +1,8 @@
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile, symlink } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect } from "vitest";
-import { collectFiles } from "./package.js";
+import { collectFiles, CoursePackagingError } from "./package.js";
 
 describe("collectFiles", () => {
   it("skips dotfiles, node_modules, and build metadata", async () => {
@@ -51,5 +51,15 @@ describe("collectFiles", () => {
 
     const files = await collectFiles(dir, dir);
     expect(files.map((f) => f.path)).toEqual(["content.txt"]);
+  });
+
+  it("rejects symlinks that escape the course directory", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-collect-out-"));
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-collect-sym-"));
+    await writeFile(join(outside, "secret.txt"), "secret");
+    await mkdir(join(dir, "assets"), { recursive: true });
+    await symlink(join(outside, "secret.txt"), join(dir, "assets", "leak.txt"));
+
+    await expect(collectFiles(dir, dir)).rejects.toThrow(CoursePackagingError);
   });
 });

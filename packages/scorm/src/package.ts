@@ -1,6 +1,7 @@
-import { readFile, readdir, writeFile, mkdir } from "node:fs/promises";
+import { readFile, readdir, writeFile, mkdir, lstat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
+import { assertResolvedPathContained } from "@lxpack/validators";
 import JSZip from "jszip";
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
@@ -40,6 +41,15 @@ const SKIP_FILES = new Set([
   "lxpack.config.json",
 ]);
 
+const BLOCKED_PACKAGING_SEGMENTS = new Set([".git", ".env"]);
+
+export class CoursePackagingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CoursePackagingError";
+  }
+}
+
 export function shouldSkipCourseFile(rel: string): boolean {
   if (SKIP_FILES.has(rel) || rel.startsWith(".lxpack")) {
     return true;
@@ -50,7 +60,19 @@ export function shouldSkipCourseFile(rel: string): boolean {
   if (rel.startsWith("assessments/")) {
     return true;
   }
+  for (const segment of rel.split("/")) {
+    if (segment.startsWith(".") || BLOCKED_PACKAGING_SEGMENTS.has(segment)) {
+      return true;
+    }
+  }
   return false;
+}
+
+function assertPackagablePath(courseDir: string, fullPath: string): void {
+  const contained = assertResolvedPathContained(courseDir, fullPath);
+  if (!contained.ok) {
+    throw new CoursePackagingError(contained.message);
+  }
 }
 
 export async function collectFiles(
@@ -65,9 +87,23 @@ export async function collectFiles(
     if (entry.name.startsWith(".") || entry.name === "node_modules") {
       continue;
     }
-    if (entry.isDirectory()) {
+    if (BLOCKED_PACKAGING_SEGMENTS.has(entry.name)) {
+      continue;
+    }
+
+    const stat = await lstat(fullPath);
+    if (stat.isSymbolicLink()) {
+      const rel = relative(baseDir, fullPath).replace(/\\/g, "/");
+      throw new CoursePackagingError(
+        `Symlinks are not allowed in course packages: ${rel}`,
+      );
+    }
+
+    assertPackagablePath(baseDir, fullPath);
+
+    if (stat.isDirectory()) {
       files.push(...(await collectFiles(fullPath, baseDir)));
-    } else if (entry.isFile()) {
+    } else if (stat.isFile()) {
       const rel = relative(baseDir, fullPath).replace(/\\/g, "/");
       if (shouldSkipCourseFile(rel)) {
         continue;

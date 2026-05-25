@@ -71,14 +71,15 @@ Requires `tracking.xapi.activityIri` in `course.yaml`. See [Tracking and complet
 
 ## What preview blocks
 
-Direct browser access to author-only paths is blocked (404):
+Direct browser access to author-only paths is blocked (404), including path traversal attempts (`..`, `//`, `./`):
 
 - `assessments/*.yaml`
 - `course.yaml`
-- `lxpack.config.json`
+- `lxpack.config.json` and `lxpack.config.ts`
 - `.lxpack/` output
+- Dotfiles (for example `.env`, `.git`)
 
-Quiz content in preview comes from the same embedded bundle as build.
+Quiz content in preview comes from the same **embedded bundle** on the preview home page (`/`), not from fetching assessment YAML. Blocking `/course/assessments/` does not hide answer keys from the page source — that is expected for local authoring review.
 
 ## Review workflow with Claude Design
 

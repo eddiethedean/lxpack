@@ -65,6 +65,11 @@ export function init(): void {
         void showItem(idx);
         return true;
       }
+      if (scorm2004SingleSco) {
+        console.warn(
+          `[lxpack] Flow goto "${target}" is not available in this SCORM launch activity`,
+        );
+      }
     }
     return false;
   }
@@ -179,7 +184,14 @@ export function init(): void {
     originalTrack(event);
     if (event.type === "interaction") {
       const item = navItems[currentIndex];
-      if (item?.kind === "lesson" && item.lesson.type === "html") {
+      const interactionPayload = event.data as unknown;
+      const interactionComplete =
+        interactionPayload !== false && interactionPayload !== null;
+      if (
+        interactionComplete &&
+        item?.kind === "lesson" &&
+        item.lesson.type === "html"
+      ) {
         runtime.markInteractionLessonDone(item.id);
       }
     }

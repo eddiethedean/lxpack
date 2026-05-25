@@ -1,6 +1,6 @@
-title: Security Awareness
+title: xAPI Awareness
 version: 1.0.0
-description: An LXPack learning experience on security fundamentals
+description: An LXPack sample course demonstrating xAPI export and tracking
 
 runtime:
   theme: modern
@@ -9,8 +9,8 @@ tracking:
   completion:
     threshold: 0.9
   xapi:
-    activityIri: "https://example.test/courses/security-awareness"
-    displayName: Security Awareness
+    activityIri: "https://example.test/courses/xapi-awareness"
+    displayName: xAPI Awareness
 
 lessons:
   - id: welcome

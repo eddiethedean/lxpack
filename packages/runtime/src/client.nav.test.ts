@@ -144,4 +144,46 @@ describe("client navigation fallbacks", () => {
       ).toBe(true),
     );
   });
+
+  it("does not jump via interaction.done when track data is false", async () => {
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "Nav",
+        version: "1.0.0",
+        lessons: [
+          {
+            id: "phishing-lab",
+            type: "html",
+            path: "interactions/phishing-lab",
+          },
+          { id: "wrap", type: "markdown", file: "lessons/wrap.md" },
+        ],
+        flow: [
+          { when: { interaction: { done: "phishing-lab" } }, goto: "wrap" },
+        ],
+      },
+      baseUrl: "/course",
+      mode: "preview",
+    };
+
+    init();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="phishing-lab"]')?.classList.contains(
+          "active",
+        ),
+      ).toBe(true),
+    );
+
+    window.lxpack?.track({
+      type: "interaction",
+      id: "phishing_detected",
+      data: false,
+    });
+
+    await new Promise((r) => setTimeout(r, 50));
+    expect(
+      document.querySelector('[data-nav-id="wrap"]')?.classList.contains("active"),
+    ).toBe(false);
+  });
 });

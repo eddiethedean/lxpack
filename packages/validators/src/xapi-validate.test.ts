@@ -9,10 +9,15 @@ const base: CourseManifest = {
 };
 
 describe("validateXapiTracking", () => {
-  it("requires tracking.xapi", () => {
-    const issues = validateXapiTracking(base);
+  it("requires tracking.xapi for export targets", () => {
+    const issues = validateXapiTracking(base, { requireForExport: true });
     expect(issues).toHaveLength(1);
     expect(issues[0]?.path).toBe("tracking.xapi");
+  });
+
+  it("does not require tracking.xapi when block is omitted", () => {
+    const issues = validateXapiTracking(base);
+    expect(issues).toHaveLength(0);
   });
 
   it("rejects non-https activityIri", () => {

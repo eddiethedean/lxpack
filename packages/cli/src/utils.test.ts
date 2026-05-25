@@ -1,4 +1,4 @@
-import { existsSync, realpathSync } from "node:fs";
+import { existsSync, mkdirSync, realpathSync } from "node:fs";
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -189,8 +189,9 @@ describe("resolvePathInCwd", () => {
 describe("resolveOutputDir", () => {
   it("resolves output inside the course directory", async () => {
     const courseDir = await mkdtemp(join(tmpdir(), "lxpack-output-dir-"));
+    mkdirSync(join(courseDir, ".lxpack"), { recursive: true });
     expect(resolveOutputDir(courseDir, ".lxpack/out")).toBe(
-      join(courseDir, ".lxpack/out"),
+      join(realpathSync(courseDir), ".lxpack/out"),
     );
   });
 

@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import pc from "picocolors";
 import { formatCourseTitleForYaml, resolvePathInCwd } from "../utils.js";
@@ -177,6 +177,24 @@ export async function initCommand(
       ),
     );
     process.exit(1);
+  }
+
+  if (options.force) {
+    const assessmentsDir = join(targetDir, "assessments");
+    if (existsSync(assessmentsDir)) {
+      for (const name of await readdir(assessmentsDir)) {
+        await rm(join(assessmentsDir, name), { recursive: true, force: true });
+      }
+    }
+    const interactionsDir = join(targetDir, "interactions");
+    if (existsSync(interactionsDir)) {
+      for (const name of await readdir(interactionsDir)) {
+        await rm(join(interactionsDir, name), {
+          recursive: true,
+          force: true,
+        });
+      }
+    }
   }
 
   const dirs = [

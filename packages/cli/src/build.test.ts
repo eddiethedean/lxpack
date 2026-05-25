@@ -101,8 +101,8 @@ describe("buildCommand", () => {
     );
   });
 
-  it("writes zip to a custom output path", async () => {
-    const customZip = join(workDir, "custom-export.zip");
+  it("writes zip to a custom output path inside the course directory", async () => {
+    const customZip = join(process.cwd(), "custom-export.zip");
     await buildCommand({ target: "scorm12", output: customZip });
     expect(existsSync(customZip)).toBe(true);
   });
@@ -164,7 +164,7 @@ describe("buildCommand", () => {
   });
 
   it("writes unpacked output with --dir", async () => {
-    const outDir = join(workDir, "out-scorm");
+    const outDir = join(process.cwd(), "out-scorm");
     cleanup.push(outDir);
     await buildCommand({ target: "scorm12", dir: true, output: outDir });
 
@@ -176,7 +176,7 @@ describe("buildCommand", () => {
     const { cp } = await import("node:fs/promises");
     const branchDir = join(workDir, "branching-dir");
     await cp(fixturePath("branching-demo"), branchDir, { recursive: true });
-    const outDir = join(workDir, "out-scorm2004");
+    const outDir = join(branchDir, "out-scorm2004");
     cleanup.push(outDir);
     process.chdir(branchDir);
 

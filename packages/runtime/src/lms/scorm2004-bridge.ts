@@ -16,6 +16,9 @@ export class Scorm2004Bridge implements LmsBridge {
     if (saved) {
       const { progress, parsed } = parseStoredProgress(saved, defaults);
       if (parsed) return progress;
+      console.warn(
+        "[lxpack] suspend_data could not be parsed; using cmi.location only",
+      );
       const location = this.connection.GetValue("cmi.location");
       if (location) {
         return { ...defaults, currentLessonId: location };

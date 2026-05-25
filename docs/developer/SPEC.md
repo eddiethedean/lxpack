@@ -56,7 +56,7 @@ lxpack preview
 - Default preview progress via `localStorage` (`preview.scormMode: local`)
 - Optional SCORM 1.2 simulator (`preview.scormMode: scorm12`, `window.API`)
 - Optional SCORM 2004 simulator (`preview.scormMode: scorm2004`, `window.API_1484_11`)
-- Blocks direct HTTP access to `assessments/`, `course.yaml`, `lxpack.config.json`, `.lxpack/`
+- Blocks direct HTTP access to `assessments/`, `course.yaml`, `lxpack.config.json`, `lxpack.config.ts`, dotfiles, and `.lxpack/` (normalized paths; traversal via `..` rejected)
 - Options: `-p` / `--port`, `-H` / `--host`
 
 ### Planned

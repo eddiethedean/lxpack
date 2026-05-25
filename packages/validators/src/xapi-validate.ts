@@ -1,18 +1,26 @@
 import type { CourseManifest } from "./schemas.js";
 import type { ValidationIssue } from "./validate.js";
 
+export interface ValidateXapiTrackingOptions {
+  /** When true, missing `tracking.xapi` is an error (xapi/cmi5 export). */
+  requireForExport?: boolean;
+}
+
 export function validateXapiTracking(
   manifest: CourseManifest,
+  options?: ValidateXapiTrackingOptions,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const xapi = manifest.tracking?.xapi;
   if (!xapi) {
-    issues.push({
-      path: "tracking.xapi",
-      message:
-        "tracking.xapi.activityIri is required for xapi/cmi5 export targets",
-      severity: "error",
-    });
+    if (options?.requireForExport) {
+      issues.push({
+        path: "tracking.xapi",
+        message:
+          "tracking.xapi.activityIri is required for xapi/cmi5 export targets",
+        severity: "error",
+      });
+    }
     return issues;
   }
 

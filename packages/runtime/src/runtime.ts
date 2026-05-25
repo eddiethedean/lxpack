@@ -6,6 +6,7 @@ import type {
   TrackEvent,
 } from "./types.js";
 import { serializeProgressForStorage } from "./progress/size-policy.js";
+import { getFlowProtectedInteractionIds } from "./flow-interactions.js";
 import {
   initManifestVariables,
   readManifestVariable,
@@ -32,9 +33,11 @@ export class LxpackRuntime implements AssessmentHost {
   private assessmentConfigs: Record<string, AssessmentRuntimeConfig>;
   private defaultPassingScores: Record<string, number>;
   private terminated = false;
+  private readonly flowInteractionIds: Set<string>;
 
   constructor(config: RuntimeConfig) {
     this.manifest = config.manifest;
+    this.flowInteractionIds = getFlowProtectedInteractionIds(this.manifest);
     this.completionThreshold =
       config.manifest.tracking?.completion?.threshold ?? 0.9;
     const storageKey = progressStorageKey(
@@ -251,7 +254,9 @@ export class LxpackRuntime implements AssessmentHost {
   }
 
   private persist(): void {
-    const data = serializeProgressForStorage(this.state.progress);
+    const data = serializeProgressForStorage(this.state.progress, undefined, {
+      preserveInteractionIds: this.flowInteractionIds,
+    });
     this.bridge.persist(this.state.progress, data);
   }
 
@@ -264,7 +269,11 @@ export class LxpackRuntime implements AssessmentHost {
       isAssessmentPassed: (id) => this.isAssessmentPassed(id),
       isInteractionDone: (id) => {
         const value = this.state.progress.suspendData[`interaction_${id}`];
-        return value !== undefined && value !== false && value !== null;
+        if (value === true) return true;
+        if (value === false || value === null || value === undefined) {
+          return false;
+        }
+        return Boolean(value);
       },
     };
   }

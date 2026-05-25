@@ -1,8 +1,4 @@
-import {
-  validateCourse,
-  validateXapiTracking,
-  type ValidationIssue,
-} from "@lxpack/validators";
+import { validateCourse, type ValidationIssue } from "@lxpack/validators";
 import type { ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
 import { findCourseDir } from "../utils.js";
@@ -10,8 +6,6 @@ import {
   formatInvalidTargetMessage,
   isValidExportTarget,
 } from "../lib/targets.js";
-
-const XAPI_TARGETS: ExportTarget[] = ["xapi", "cmi5"];
 
 export async function validateCommand(options?: {
   target?: string;
@@ -22,17 +16,11 @@ export async function validateCommand(options?: {
   }
 
   const courseDir = findCourseDir();
-  const result = await validateCourse(courseDir);
-  const issues: ValidationIssue[] = [...result.issues];
-
   const target = options?.target as ExportTarget | undefined;
-  const needsXapiCheck =
-    (target && XAPI_TARGETS.includes(target)) ||
-    Boolean(result.manifest?.tracking?.xapi);
-
-  if (needsXapiCheck && result.manifest) {
-    issues.push(...validateXapiTracking(result.manifest));
-  }
+  const result = await validateCourse(courseDir, {
+    exportTarget: target,
+  });
+  const issues: ValidationIssue[] = [...result.issues];
 
   if (result.manifest) {
     console.log(

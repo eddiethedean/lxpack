@@ -299,7 +299,7 @@ Operational guidance: [Troubleshooting](https://lxpack.readthedocs.io/en/latest/
 
 - **Assessments:** Author YAML under `assessments/` stays in the repo for editing. Exports embed learner-safe questions, answer keys, quiz config, and feedback text in the HTML config JSON (not as fetchable files).
 - **Embedded JSON:** Config injected into HTML escapes `<` to prevent `</script>` breakout.
-- **Path containment:** Validation and CLI resolve paths inside the course directory; symlinks that escape the course root are rejected.
+- **Path containment:** Validation, preview, and packaging resolve paths inside the course directory; symlinks that escape the course root are rejected. Preview blocks normalized traversal to author-only files.
 - **Markdown:** Rendered through a DOMPurify allowlist in the browser runtime. Custom HTML under `interactions/` is trusted author content (not sandboxed).
 - **SCORM 2004:** Sequencing uses a supported IMS Simple Sequencing subset; validate packages in SCORM Cloud or Moodle before production rollout.
 

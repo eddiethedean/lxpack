@@ -1,5 +1,6 @@
 import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { validateInteractionTree } from "./course-extras.js";
 import type { Lesson } from "../schemas.js";
 import {
   assertResolvedPathContained,
@@ -24,10 +25,10 @@ export function validateHtmlLessonPath(path: string): string | null {
   return null;
 }
 
-export function validateHtmlLesson(
+export async function validateHtmlLesson(
   courseDir: string,
   lesson: Extract<Lesson, { type: "html" }>,
-): ValidationIssue[] {
+): Promise<ValidationIssue[]> {
   const issues: ValidationIssue[] = [];
   const pathError = validateHtmlLessonPath(lesson.path);
   if (pathError) {
@@ -98,5 +99,14 @@ export function validateHtmlLesson(
       severity: "error",
     });
   }
+
+  issues.push(
+    ...(await validateInteractionTree(
+      courseDir,
+      resolved.path,
+      `lessons.${lesson.id}.path`,
+    )),
+  );
+
   return issues;
 }

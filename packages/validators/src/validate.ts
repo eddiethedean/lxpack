@@ -3,6 +3,8 @@ import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { detectFlowCycles, validateFlow } from "./flow-validate.js";
+import { validateXapiTracking } from "./xapi-validate.js";
+import { validateUnexpectedCourseFiles } from "./validate/course-extras.js";
 import { loadParsedAssessments } from "./course-assessments.js";
 import {
   courseManifestSchema,
@@ -39,6 +41,11 @@ export interface ValidationResult {
   issues: ValidationIssue[];
   /** Populated when assessment files parse successfully. */
   parsedAssessments?: Map<string, Assessment>;
+}
+
+export interface ValidateCourseOptions {
+  /** When set to `xapi` or `cmi5`, requires valid `tracking.xapi`. */
+  exportTarget?: "scorm12" | "scorm2004" | "standalone" | "xapi" | "cmi5";
 }
 
 export async function loadManifest(
@@ -84,6 +91,7 @@ export async function loadManifest(
 
 export async function validateCourse(
   courseDir: string,
+  options?: ValidateCourseOptions,
 ): Promise<ValidationResult> {
   const issues: ValidationIssue[] = [];
   const resolvedDir = resolve(courseDir);
@@ -96,7 +104,11 @@ export async function validateCourse(
   const { manifest } = loaded;
 
   for (const lesson of manifest.lessons) {
-    issues.push(...lessonValidators[lesson.type](resolvedDir, lesson));
+    const lessonIssues = await lessonValidators[lesson.type](
+      resolvedDir,
+      lesson,
+    );
+    issues.push(...lessonIssues);
   }
 
   const assessmentLoad = await loadParsedAssessments(resolvedDir, manifest);
@@ -113,6 +125,19 @@ export async function validateCourse(
         severity: "error",
       });
     }
+  }
+
+  issues.push(...(await validateUnexpectedCourseFiles(resolvedDir, manifest)));
+
+  const exportTarget = options?.exportTarget;
+  const requireXapiForExport =
+    exportTarget === "xapi" || exportTarget === "cmi5";
+  if (requireXapiForExport || manifest.tracking?.xapi) {
+    issues.push(
+      ...validateXapiTracking(manifest, {
+        requireForExport: requireXapiForExport,
+      }),
+    );
   }
 
   return {

@@ -97,6 +97,18 @@ Provide:
 3. For SCORM 2004, test resume (suspend data) if required  
 4. For xAPI, confirm statements in the LRS  
 
+## SCORM 2004 table of contents order
+
+Multi-SCO SCORM 2004 manifests list **all lessons first, then all assessments** in the LMS table of contents. That order may differ from how lessons appear in `course.yaml` when you interleave content with branching `flow`. Runtime navigation still follows `flow` inside the package; the LMS menu is a coarse outline.
+
+## SCORM 2004 completion status
+
+When a learner finishes an attempt without passing, the runtime may set `success_status` to **failed** and `completion_status` to **completed** (the attempt is finished, not that the course objective is fully met). Validate rollup behavior in your LMS before production.
+
+## cmi5 `fetch` launch
+
+cmi5 packages may include a `fetch` launch parameter. LXPack parses it but does **not** perform AU session bootstrap via `fetch` in v0.3.1; the runtime logs a console warning when `fetch` is present. Use preview xAPI logging or your LMS test environment for statement verification.
+
 ## Troubleshooting LMS issues
 
 | Symptom | Check |
@@ -105,6 +117,7 @@ Provide:
 | Quiz always fails | `passingScore` and question keys |
 | No completion | `tracking.completion.threshold` too high |
 | xAPI silent | `activityIri`, LMS LRS config |
+| Flow jump missing in SCORM 2004 SCO | Launch the correct activity; flow `goto` outside the current SCO is not applied |
 
 See [Troubleshooting](../reference/troubleshooting.md).
 

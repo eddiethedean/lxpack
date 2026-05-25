@@ -31,6 +31,25 @@ export function collectInteractionIds(manifest: CourseManifest): Set<string> {
   return ids;
 }
 
+/** Interaction ids referenced by `interaction.done` in flow rules. */
+export function collectFlowInteractionDoneIds(
+  manifest: CourseManifest,
+): Set<string> {
+  const ids = new Set<string>();
+  if (!manifest.flow?.length) {
+    return ids;
+  }
+  const refs = {
+    variables: new Set<string>(),
+    assessments: new Set<string>(),
+    interactions: new Set<string>(),
+  };
+  for (const rule of manifest.flow) {
+    collectConditionRefs(rule.when, refs);
+  }
+  return refs.interactions;
+}
+
 export function buildActivityOrder(manifest: CourseManifest): string[] {
   const ids: string[] = manifest.lessons.map((l) => l.id);
   for (const ref of manifest.assessments ?? []) {

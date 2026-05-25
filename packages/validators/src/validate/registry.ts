@@ -7,7 +7,7 @@ import { validateComponentLesson } from "./lesson-component.js";
 export type LessonValidator = (
   courseDir: string,
   lesson: Lesson,
-) => ValidationIssue[];
+) => ValidationIssue[] | Promise<ValidationIssue[]>;
 
 export const lessonValidators: Record<Lesson["type"], LessonValidator> = {
   markdown: (courseDir, lesson) =>

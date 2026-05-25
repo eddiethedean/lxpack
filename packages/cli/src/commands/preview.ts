@@ -14,7 +14,7 @@ import {
   readComponentsBundle,
 } from "../utils.js";
 import { getCourseActivityIri } from "@lxpack/validators";
-import { isPreviewBlockedCoursePath } from "../lib/preview-paths.js";
+import { shouldBlockPreviewCourseRequest } from "../lib/preview-paths.js";
 
 export async function loadPreviewStyles(
   assetsDir = getRuntimeAssetsDir(),
@@ -69,7 +69,7 @@ export async function createPreviewServer(
 
   app.addHook("onRequest", async (request, reply) => {
     const path = request.url.split("?")[0] ?? "";
-    if (isPreviewBlockedCoursePath(path)) {
+    if (shouldBlockPreviewCourseRequest(courseDir, path)) {
       return reply.code(404).send("Not found");
     }
   });
@@ -127,10 +127,28 @@ export async function startPreview(
   app: FastifyInstance;
   validation: Awaited<ReturnType<typeof validateCourse>>;
 }> {
-  const ctx = await loadValidatedCourseContext(courseDir);
+  let config;
+  try {
+    config = await loadLxpackConfig(courseDir);
+  } catch (err) {
+    console.error(
+      pc.red(
+        err instanceof Error ? err.message : String(err),
+      ),
+    );
+    process.exit(1);
+  }
+
+  const defaultTarget = config?.exports?.defaultTarget;
+  const exportTarget =
+    defaultTarget === "xapi" || defaultTarget === "cmi5"
+      ? defaultTarget
+      : undefined;
+
+  const ctx = await loadValidatedCourseContext(courseDir, { exportTarget });
 
   if (!ctx) {
-    const validation = await validateCourse(courseDir);
+    const validation = await validateCourse(courseDir, { exportTarget });
     if (!validation.manifest) {
       console.error(pc.red("Cannot preview: course manifest is invalid"));
       for (const issue of validation.issues) {

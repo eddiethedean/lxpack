@@ -30,7 +30,10 @@ describe("validateHtmlLesson", () => {
     if (!lesson || lesson.type !== "html") {
       throw new Error("fixture missing html lesson");
     }
-    const issues = validateHtmlLesson(fixturePath("minimal-valid"), lesson);
+    const issues = await validateHtmlLesson(
+      fixturePath("minimal-valid"),
+      lesson,
+    );
     expect(issues).toHaveLength(0);
   });
 });

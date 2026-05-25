@@ -4,6 +4,7 @@ import {
   type CourseManifest,
   type RuntimeAssessmentBundle,
   type ValidationResult,
+  type ValidateCourseOptions,
 } from "@lxpack/validators";
 
 export interface ValidatedCourseContext {
@@ -15,8 +16,9 @@ export interface ValidatedCourseContext {
 
 export async function loadValidatedCourseContext(
   courseDir: string,
+  options?: ValidateCourseOptions,
 ): Promise<ValidatedCourseContext | null> {
-  const validation = await validateCourse(courseDir);
+  const validation = await validateCourse(courseDir, options);
   if (!validation.valid || !validation.manifest) {
     return null;
   }

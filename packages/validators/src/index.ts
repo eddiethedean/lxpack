@@ -3,7 +3,7 @@ export * from "./conditions.js";
 export * from "./components.js";
 export * from "./flow-validate.js";
 export * from "./validate.js";
-export type { ValidationIssue } from "./validate.js";
+export type { ValidationIssue, ValidateCourseOptions } from "./validate.js";
 export * from "./assessments.js";
 export {
   loadParsedAssessments,

@@ -27,14 +27,19 @@ export class StatementQueue {
     void this.flush();
   }
 
-  async flush(): Promise<void> {
+  async flush(options?: { keepalive?: boolean }): Promise<void> {
     if (this.flushing || !this.options.credentials?.endpoint) return;
     this.flushing = true;
     const endpoint = normalizeEndpoint(this.options.credentials.endpoint);
     while (this.queue.length > 0) {
       const statement = this.queue.shift()!;
       try {
-        await sendStatement(endpoint, this.options.credentials.auth, statement);
+        await sendStatement(
+          endpoint,
+          this.options.credentials.auth,
+          statement,
+          { keepalive: options?.keepalive },
+        );
       } catch (err) {
         this.queue.unshift(statement);
         this.options.onError?.(err, statement);
@@ -42,6 +47,11 @@ export class StatementQueue {
       }
     }
     this.flushing = false;
+  }
+
+  /** Best-effort flush for page unload (uses fetch keepalive when available). */
+  flushTerminal(): void {
+    void this.flush({ keepalive: true });
   }
 }
 
@@ -54,6 +64,7 @@ export async function sendStatement(
   endpoint: string,
   auth: string | undefined,
   statement: XapiStatement,
+  options?: { keepalive?: boolean },
 ): Promise<void> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -67,6 +78,7 @@ export async function sendStatement(
     method: "POST",
     headers,
     body: JSON.stringify(statement),
+    keepalive: options?.keepalive,
   });
 
   if (!res.ok) {

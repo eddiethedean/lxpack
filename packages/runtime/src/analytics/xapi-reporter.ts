@@ -116,6 +116,6 @@ export class XapiReporter implements AnalyticsReporter {
   }
 
   onTerminated(): void {
-    void this.queue.flush();
+    this.queue.flushTerminal();
   }
 }

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Preview server blocks normalized path traversal (`..`, `//`, `./`) to `course.yaml`, `lxpack.config.json`, assessments, `.lxpack/`, dotfiles, and `lxpack.config.ts`
+- Preview and packaging reject course paths that escape the course directory via symlinks
+- `collectFiles` rejects symlinks; blocks `.env` and `.git` from export packages
+- `output.dir` and `build -o` paths resolve with `realpath` containment
+- HTML interaction `track({ data: false })` no longer marks the lesson done for flow `interaction.done`
+- `isInteractionDone` treats only truthy values as done (not `0` or `""`)
+- SCORM suspend pruning preserves `interaction_*` keys referenced in manifest `flow`
+- xAPI statement queue uses `fetch` `keepalive` on terminate for best-effort LRS delivery
+- Corrupt SCORM `suspend_data` logs a warning instead of failing silently
+- `validateCourse` runs xAPI tracking checks when `tracking.xapi` is set or export target is xapi/cmi5
+- HTML interaction directories validated for nested symlink escapes
+- `lxpack init --force` clears prior `assessments/` and `interactions/` content before rescaffolding
+- `build` / `preview` load `lxpack.config.json` after resolving export target validation needs
+
+### Changed
+
+- `examples/xapi-awareness`: correct course title and `activityIri` metadata
+- Documentation: preview blocking, export TOC order, SCORM 2004 completion semantics, cmi5 `fetch` limitation
+
 ## [0.3.1] - 2026-05-25
 
 ### Fixed
