@@ -198,7 +198,7 @@ async function writeXapiOrCmi5Artifacts(
 
   const courseIri = getCourseActivityIri(manifest);
   if (!courseIri) {
-    throw new Error(
+    throw new CoursePackagingError(
       "tracking.xapi.activityIri is required for xapi/cmi5 export targets",
     );
   }

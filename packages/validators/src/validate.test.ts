@@ -202,4 +202,33 @@ questions:
     expect(result.valid).toBe(false);
     expect(result.issues.some((i) => i.message.includes("Flow cycle"))).toBe(true);
   });
+
+  it("requires xAPI IRI when exportTarget is xapi", async () => {
+    const result = await validateCourse(fixturePath("missing-xapi-iri"), {
+      exportTarget: "xapi",
+    });
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) => i.severity === "error" && i.path.includes("xapi")),
+    ).toBe(true);
+  });
+
+  it("passes xapi-valid fixture with exportTarget xapi", async () => {
+    const result = await validateCourse(fixturePath("xapi-valid"), {
+      exportTarget: "xapi",
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it("warns about cmi5 fetch limitation when exportTarget is cmi5", async () => {
+    const result = await validateCourse(fixturePath("xapi-valid"), {
+      exportTarget: "cmi5",
+    });
+    expect(
+      result.issues.some(
+        (i) =>
+          i.severity === "warning" && i.message.toLowerCase().includes("fetch"),
+      ),
+    ).toBe(true);
+  });
 });

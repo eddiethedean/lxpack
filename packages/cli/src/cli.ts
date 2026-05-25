@@ -34,10 +34,15 @@ export function createCliProgram(): Command {
     .description("Start local preview server")
     .option("-p, --port <port>", "Port number", "3847")
     .option("-H, --host <host>", "Host address", "127.0.0.1")
-    .action(async (options: { port: string; host: string }) => {
+    .option(
+      "-t, --target <target>",
+      "Validate export requirements (uses lxpack.config.json defaultTarget when omitted)",
+    )
+    .action(async (options: { port: string; host: string; target?: string }) => {
       await previewCommand({
         port: Number(options.port),
         host: options.host,
+        target: options.target,
       });
     });
 
@@ -46,7 +51,7 @@ export function createCliProgram(): Command {
     .description("Validate course structure and assets")
     .option(
       "-t, --target <target>",
-      "Also validate export requirements for scorm12, scorm2004, standalone, xapi, or cmi5",
+      "Export target for validation (scorm12, scorm2004, standalone, xapi, cmi5); xapi/cmi5 rules apply when selected or set as defaultTarget",
     )
     .action(async (options: { target?: string }) => {
       await validateCommand(options);

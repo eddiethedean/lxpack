@@ -116,7 +116,9 @@ export class Scorm12Adapter implements ScormApiLike {
       return "false";
     }
     this.lastError = SCORM_ERROR_NONE;
-    return this.api.LMSSetValue(element, value);
+    const normalized =
+      element === "cmi.suspend_data" ? trimSuspendData(value) : value;
+    return this.api.LMSSetValue(element, normalized);
   }
 
   LMSCommit(): string {

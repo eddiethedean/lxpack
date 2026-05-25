@@ -68,19 +68,35 @@ export function expandLegacyProgress(
   };
 }
 
+function isEmptyCompactProgress(data: CompactProgress): boolean {
+  return (
+    data.c === undefined &&
+    (!data.l || data.l.length === 0) &&
+    (!data.a || Object.keys(data.a).length === 0) &&
+    (!data.s || Object.keys(data.s).length === 0)
+  );
+}
+
 export function parseStoredProgress(
   raw: string,
   defaults: CourseProgress,
 ): { progress: CourseProgress; parsed: boolean } {
   try {
     const data = JSON.parse(raw) as CompactProgress | Partial<CourseProgress>;
+    if (data === null || typeof data !== "object") {
+      return { progress: defaults, parsed: false };
+    }
     if (isLegacyProgress(data)) {
       return {
         progress: expandLegacyProgress(data, defaults),
         parsed: true,
       };
     }
-    return { progress: expandProgress(data as CompactProgress, defaults), parsed: true };
+    const compact = data as CompactProgress;
+    if (isEmptyCompactProgress(compact)) {
+      return { progress: defaults, parsed: false };
+    }
+    return { progress: expandProgress(compact, defaults), parsed: true };
   } catch {
     return { progress: defaults, parsed: false };
   }

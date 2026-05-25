@@ -25,7 +25,16 @@ export function buildLearnerPageHtml(options: PageTemplateOptions): string {
   <div id="lxpack-app"></div>
   <script type="application/json" id="lxpack-config">${options.configJson}</script>
   <script>
-    window.__LXPACK_CONFIG__ = JSON.parse(document.getElementById('lxpack-config').textContent);
+    (function () {
+      var el = document.getElementById('lxpack-config');
+      try {
+        window.__LXPACK_CONFIG__ = JSON.parse(el && el.textContent ? el.textContent : 'null');
+      } catch (err) {
+        console.error('[lxpack] Invalid course configuration', err);
+        document.body.innerHTML =
+          '<p style="font-family:system-ui,sans-serif;padding:2rem">This course could not start because its configuration is invalid. Contact your training administrator.</p>';
+      }
+    })();
   </script>
   ${componentsTag}
   <script type="module" src="${escapeHtml(options.runtimeScript)}"></script>

@@ -55,10 +55,30 @@ const MARKDOWN_ALLOWED_ATTR = [
   "rowspan",
 ] as const;
 
+const BLOCKED_URI_PREFIXES = ["javascript:", "vbscript:", "data:text/html"];
+
+function isBlockedUri(value: string): boolean {
+  const normalized = value.trim().replace(/\s+/g, "").toLowerCase();
+  return BLOCKED_URI_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+}
+
 export function sanitizeHtml(html: string): string {
   const clean = DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [...MARKDOWN_ALLOWED_TAGS],
     ALLOWED_ATTR: [...MARKDOWN_ALLOWED_ATTR],
+    ALLOWED_URI_REGEXP:
+      /^(?:(?:https?|mailto|tel|ftp):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
   });
-  return clean.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+  return clean
+    .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(
+      /\s(href|src)\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+      (match, attr, _q, d1, d2, d3) => {
+        const value = (d1 ?? d2 ?? d3 ?? "").trim();
+        if (value && isBlockedUri(value)) {
+          return ` ${attr}=""`;
+        }
+        return match;
+      },
+    );
 }

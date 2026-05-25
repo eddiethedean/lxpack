@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-05-25
+
+### Fixed
+
+- SCORM 2004: per-SCO completion/CMI when launched with `activityId`
+- Preview: decode and normalize `%`-encoded `/course/` paths before blocklist
+- Components: quote-safe HTML escaping in builtin widgets
+- SCORM 1.2: `incomplete` when progress exists at 0% score; trim `suspend_data` on direct `LMSSetValue`
+- Progress: empty compact `{}` suspend_data no longer resets state
+- Build: missing xAPI IRI throws `CoursePackagingError`
+- Learner shell: graceful error when config JSON is invalid
+
+### Changed
+
+- `validate` / `preview` respect `lxpack.config.json` `defaultTarget` like `build`; `preview` gains `--target`
+- Validate output distinguishes warnings vs errors
+- Validator warning for cmi5 `fetch` limitation; preview warns on non-loopback host
+
+### Security
+
+- `safeJsonForHtml` also escapes `>`
+- Markdown links/images: block `javascript:` URIs
+
+### Notes
+
+- HTML interaction iframes still use `allow-same-origin` (trusted author content); cmi5 `fetch` AU bootstrap remains future work
+
 ## [0.3.3] - 2026-05-27
 
 ### Fixed

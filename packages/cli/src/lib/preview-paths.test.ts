@@ -1,14 +1,34 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, mkdir, writeFile, symlink } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
+  coursePathEscapesRoot,
+  decodeCourseUrlPath,
   isPreviewBlockedCoursePath,
   isPreviewBlockedCourseRel,
   isPreviewCoursePathEscaping,
   normalizeCourseRelPath,
   shouldBlockPreviewCourseRequest,
 } from "./preview-paths.js";
+
+describe("decodeCourseUrlPath", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns null when decodeURIComponent throws", () => {
+    vi.spyOn(globalThis, "decodeURIComponent").mockImplementation(() => {
+      throw new URIError("bad");
+    });
+    expect(decodeCourseUrlPath("%41%42")).toBeNull();
+  });
+
+  it("returns input when decode is a no-op", () => {
+    vi.spyOn(globalThis, "decodeURIComponent").mockReturnValue("noop%41");
+    expect(decodeCourseUrlPath("noop%41")).toBe("noop%41");
+  });
+});
 
 describe("normalizeCourseRelPath", () => {
   it("returns null for URLs outside /course/", () => {
@@ -27,6 +47,48 @@ describe("normalizeCourseRelPath", () => {
       "lessons/intro.md",
     );
   });
+
+  it("rejects percent-encoded path traversal", () => {
+    expect(normalizeCourseRelPath("/course/%2e%2e%2fcourse.yaml")).toBeNull();
+    expect(
+      isPreviewBlockedCoursePath("/course/lessons/%2e%2e/course.yaml"),
+    ).toBe(true);
+  });
+
+  it("decodes encoded slashes before normalization", () => {
+    expect(normalizeCourseRelPath("/course/lessons%2fintro.md")).toBe(
+      "lessons/intro.md",
+    );
+  });
+
+  it("rejects double-encoded traversal", () => {
+    expect(normalizeCourseRelPath("/course/%252e%252e%252fassessments/q.yaml")).toBeNull();
+  });
+
+  it("rejects malformed percent sequences", () => {
+    expect(normalizeCourseRelPath("/course/lessons/%")).toBeNull();
+  });
+
+  it("rejects null bytes in decoded paths", () => {
+    expect(normalizeCourseRelPath("/course/%00/intro.md")).toBeNull();
+  });
+
+  it("rejects normalized .. at course root", () => {
+    expect(normalizeCourseRelPath("/course/..")).toBeNull();
+    expect(normalizeCourseRelPath("/course/../secret")).toBeNull();
+  });
+});
+
+describe("coursePathEscapesRoot", () => {
+  it("detects parent escape above course root", () => {
+    expect(coursePathEscapesRoot("../secret")).toBe(true);
+    expect(coursePathEscapesRoot("lessons/../..")).toBe(true);
+  });
+
+  it("allows in-course relative segments", () => {
+    expect(coursePathEscapesRoot("lessons/../intro.md")).toBe(false);
+    expect(coursePathEscapesRoot("foo/bar.md")).toBe(false);
+  });
 });
 
 describe("isPreviewBlockedCoursePath", () => {
@@ -36,6 +98,13 @@ describe("isPreviewBlockedCoursePath", () => {
     expect(isPreviewBlockedCoursePath("/course/lxpack.config.json")).toBe(true);
     expect(isPreviewBlockedCoursePath("/course/lxpack.config.ts")).toBe(true);
     expect(isPreviewBlockedCoursePath("/course/.lxpack/out.zip")).toBe(true);
+  });
+
+  it("blocks percent-encoded sensitive paths", () => {
+    expect(isPreviewBlockedCoursePath("/course/%2e%2e%2fassessments/q.yaml")).toBe(
+      true,
+    );
+    expect(isPreviewBlockedCoursePath("/course/%63ourse.yaml")).toBe(true);
   });
 
   it("blocks traversal bypass URLs for sensitive files", () => {

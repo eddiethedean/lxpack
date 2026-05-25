@@ -222,7 +222,7 @@ Features:
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.3.3
+**Latest release:** v0.3.4
 
 Features:
 - **SCORM 2004** — multi-SCO export with sequencing/navigation in the manifest
@@ -236,7 +236,7 @@ Not in Phase 2: xAPI, cmi5 (now Phase 3), hot reload, themes, plugins.
 
 ## Phase 3 — Modern standards (shipped — v0.3.1)
 
-**Latest release:** v0.3.3
+**Latest release:** v0.3.4
 
 Features:
 - **xAPI** — `lxpack build --target xapi`, `@lxpack/xapi` statement builders and Tin Can packaging

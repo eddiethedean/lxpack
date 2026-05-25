@@ -7,6 +7,7 @@ import JSZip from "jszip";
 import { fixturePath, REPO_ROOT } from "../../../test/helpers/paths.js";
 import { loadManifest } from "@lxpack/validators";
 import {
+  CoursePackagingError,
   packageCourse,
   packageScorm2004Dir,
   packageStandaloneDir,
@@ -301,6 +302,25 @@ describe("packageCourse", () => {
     const zip = await JSZip.loadAsync(await readFile(zipPath));
     expect(zip.file("lxpack-components.js")).toBeTruthy();
     expect(zip.file("tincan.xml")).toBeTruthy();
+  });
+
+  it("throws CoursePackagingError when xapi export lacks activityIri", async () => {
+    const loaded = await loadManifest(fixturePath("minimal-valid"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-xapi-missing-iri-"));
+    const zipPath = join(outDir, "course.zip");
+    outputPaths.push(outDir);
+
+    await expect(
+      packageCourse({
+        courseDir: fixturePath("minimal-valid"),
+        manifest: loaded.manifest,
+        outputPath: zipPath,
+        target: "xapi",
+        runtimeClientJs: RUNTIME_JS,
+        runtimeCss: RUNTIME_CSS,
+      }),
+    ).rejects.toThrow(CoursePackagingError);
   });
 
   it("creates cmi5 zip with cmi5.xml", async () => {

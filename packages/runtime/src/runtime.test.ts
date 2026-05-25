@@ -879,6 +879,37 @@ describe("LxpackRuntime", () => {
     expect(sim.GetValue("cmi.completion_status")).toBe("incomplete");
   });
 
+  it("marks SCORM 2004 assessment SCO completed when only quiz is passed", () => {
+    const sim = mockScorm2004();
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "scorm2004",
+      activityId: "quiz",
+    });
+
+    runtime.submitAssessment("quiz", 0.9, 0.7);
+    expect(sim.GetValue("cmi.success_status")).toBe("passed");
+    expect(sim.GetValue("cmi.completion_status")).toBe("completed");
+  });
+
+  it("marks SCORM 2004 lesson SCO completed when only that lesson is done", () => {
+    const sim = mockScorm2004();
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "scorm2004",
+      activityId: "a",
+    });
+
+    runtime.completeLesson("a");
+    expect(sim.GetValue("cmi.completion_status")).toBe("completed");
+  });
+
   it("updates SCORM 2004 status on assessment submit", () => {
     const sim = mockScorm2004();
     const manifestWithQuiz = {

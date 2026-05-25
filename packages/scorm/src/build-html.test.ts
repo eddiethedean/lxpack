@@ -22,6 +22,16 @@ describe("buildIndexHtml", () => {
     expect(html).toContain("\\u003c/script");
   });
 
+  it("handles invalid embedded config without throwing at parse time", () => {
+    const html = buildIndexHtml({
+      manifest: { title: "T", version: "1.0.0", lessons: manifest.lessons },
+      runtimeCss: "",
+      mode: "standalone",
+    });
+    expect(html).toContain("Invalid course configuration");
+    expect(html).toContain("try {");
+  });
+
   it("embeds escaped title and runtime config", () => {
     const html = buildIndexHtml({
       manifest,

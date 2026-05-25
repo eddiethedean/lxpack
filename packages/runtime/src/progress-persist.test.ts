@@ -43,6 +43,12 @@ describe("progress-persist", () => {
     expect(progress.currentLessonId).toBe("b");
   });
 
+  it("returns parsed false for empty compact object", () => {
+    const { progress, parsed } = parseStoredProgress("{}", defaults);
+    expect(parsed).toBe(false);
+    expect(progress).toEqual(defaults);
+  });
+
   it("returns parsed false for corrupt JSON", () => {
     const { parsed } = parseStoredProgress("{bad", defaults);
     expect(parsed).toBe(false);

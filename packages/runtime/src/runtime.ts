@@ -19,7 +19,11 @@ import { DEFAULT_ASSESSMENT_CONFIG } from "./quiz/types.js";
 import type { LmsBridge } from "./lms/bridge.js";
 import { createLmsBridge, progressStorageKey } from "./lms/factory.js";
 import { ProgressState } from "./core/progress-state.js";
-import { buildCompletionState } from "./core/completion-evaluator.js";
+import {
+  buildCompletionState,
+  resolveScormActivityScope,
+  type ScormActivityScope,
+} from "./core/completion-evaluator.js";
 import type { AssessmentHost } from "./quiz/host.js";
 import { createAnalyticsReporter } from "./analytics/factory.js";
 import type { AnalyticsReporter } from "./analytics/reporter.js";
@@ -34,6 +38,7 @@ export class LxpackRuntime implements AssessmentHost {
   private defaultPassingScores: Record<string, number>;
   private terminated = false;
   private readonly flowInteractionIds: Set<string>;
+  private readonly completionScope?: ScormActivityScope;
 
   constructor(config: RuntimeConfig) {
     this.manifest = config.manifest;
@@ -56,6 +61,13 @@ export class LxpackRuntime implements AssessmentHost {
       this.defaultPassingScores[id] = assessment.passingScore;
     }
     this.assessmentConfigs = config.assessmentConfigs ?? {};
+
+    if (config.mode === "scorm2004" && config.activityId) {
+      this.completionScope = resolveScormActivityScope(
+        this.manifest,
+        config.activityId,
+      );
+    }
 
     const firstLesson =
       config.activityId ?? config.manifest.lessons[0]?.id ?? "";
@@ -232,24 +244,31 @@ export class LxpackRuntime implements AssessmentHost {
     return this.manifest.lessons.length + assessments;
   }
 
-  getCompletionRatio(): number {
-    return buildCompletionState(this.state.progress, {
+  private completionEvaluatorOptions(): Parameters<
+    typeof buildCompletionState
+  >[1] {
+    return {
       manifest: this.manifest,
       completionThreshold: this.completionThreshold,
       assessmentConfigs: this.assessmentConfigs,
       defaultPassingScores: this.defaultPassingScores,
       passedAssessments: this.state.passedAssessments,
-    }).ratio;
+      scopeActivity: this.completionScope,
+    };
+  }
+
+  getCompletionRatio(): number {
+    return buildCompletionState(
+      this.state.progress,
+      this.completionEvaluatorOptions(),
+    ).ratio;
   }
 
   private updateCompletion(): void {
-    const completion = buildCompletionState(this.state.progress, {
-      manifest: this.manifest,
-      completionThreshold: this.completionThreshold,
-      assessmentConfigs: this.assessmentConfigs,
-      defaultPassingScores: this.defaultPassingScores,
-      passedAssessments: this.state.passedAssessments,
-    });
+    const completion = buildCompletionState(
+      this.state.progress,
+      this.completionEvaluatorOptions(),
+    );
     this.bridge.applyCompletion(completion);
   }
 

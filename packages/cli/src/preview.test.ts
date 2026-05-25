@@ -471,4 +471,47 @@ describe("previewCommand", () => {
     ).toBe(true);
     exit.mockRestore();
   });
+
+  it("exits 1 for invalid --target", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      previewCommands.previewCommand(
+        { target: "not-a-target" },
+        { findCourseDir: () => fixturePath("minimal-valid") },
+      ),
+    ).rejects.toThrow("exit:1");
+    expect(error.mock.calls.some((c) => String(c[0]).includes("Invalid target"))).toBe(
+      true,
+    );
+    exit.mockRestore();
+  });
+
+  it("warns when host is not loopback", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const listen = vi.fn().mockResolvedValue(undefined);
+
+    await previewCommands.previewCommand(
+      { port: 4012, host: "0.0.0.0" },
+      {
+        findCourseDir: () => fixturePath("minimal-valid"),
+        startPreview: async () => ({
+          app: { listen, close: vi.fn() },
+          validation: { valid: true, issues: [] },
+        }),
+        logPreviewStarted: vi.fn(),
+      },
+    );
+
+    expect(
+      warn.mock.calls.some((c) =>
+        String(c[0]).includes("non-loopback host"),
+      ),
+    ).toBe(true);
+  });
 });

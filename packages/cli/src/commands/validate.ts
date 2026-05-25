@@ -10,6 +10,7 @@ import {
   formatInvalidTargetMessage,
   isValidExportTarget,
 } from "../lib/targets.js";
+import { resolveExportTarget } from "../lib/resolve-export-target.js";
 
 export async function validateCommand(options?: {
   target?: string;
@@ -29,11 +30,9 @@ export async function validateCommand(options?: {
     process.exit(1);
   }
 
-  const defaultTarget = config?.exports?.defaultTarget;
-  const target = (options?.target as ExportTarget | undefined) ??
-    (defaultTarget === "xapi" || defaultTarget === "cmi5"
-      ? defaultTarget
-      : undefined);
+  const target = resolveExportTarget(options?.target, config) as
+    | ExportTarget
+    | undefined;
 
   const result = await validateCourse(courseDir, {
     exportTarget: target,

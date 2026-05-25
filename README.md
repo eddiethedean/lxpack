@@ -13,7 +13,7 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.3.3](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#033---2026-05-27)
+**Current release:** [v0.3.4](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#034---2026-05-25)
 
 ## Packages
 
@@ -297,8 +297,9 @@ Monorepo architecture: [Architecture](https://lxpack.readthedocs.io/en/latest/de
 
 Operational guidance: [Troubleshooting](https://lxpack.readthedocs.io/en/latest/reference/troubleshooting/).
 
-- **Assessments:** Author YAML under `assessments/` stays in the repo for editing. Exports embed learner-safe questions, answer keys, quiz config, and feedback text in the HTML config JSON (not as fetchable files).
-- **Embedded JSON:** Config injected into HTML escapes `<` to prevent `</script>` breakout.
+- **Assessments:** Author YAML under `assessments/` stays in the repo for editing. Exports embed learner-safe questions, answer keys, quiz config, and feedback text in the HTML config JSON (not as fetchable files). SCORM 2004 slices keys per SCO; SCORM 1.2, standalone, xAPI, and cmi5 use a single launch page with all keys (required for client-side scoring).
+- **Embedded JSON:** Config injected into HTML escapes `<` and `>` to prevent `</script>` breakout.
+- **HTML interactions:** Custom HTML under `interactions/` is trusted author content. Iframes use `allow-same-origin` so labs can call `window.parent.lxpack`; malicious interaction HTML could read parent config including answer keys.
 - **Path containment:** Validation, preview, and packaging resolve paths inside the course directory; symlinks that escape the course root are rejected. Preview blocks normalized traversal to author-only files.
 - **Markdown:** Rendered through a DOMPurify allowlist in the browser runtime. Custom HTML under `interactions/` is trusted author content (not sandboxed).
 - **SCORM 2004:** Sequencing uses a supported IMS Simple Sequencing subset; validate packages in SCORM Cloud or Moodle before production rollout.

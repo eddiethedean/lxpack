@@ -53,7 +53,7 @@ export class Scorm12Bridge implements LmsBridge {
       this.connection.setLessonStatus(
         state.hasAssessments ? "passed" : "completed",
       );
-    } else if (state.scorePercent > 0) {
+    } else if (state.hasLearnerProgress) {
       this.connection.setLessonStatus("incomplete");
     }
   }

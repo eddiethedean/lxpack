@@ -6,6 +6,7 @@ import {
   type ValidationResult,
   type ValidateCourseOptions,
 } from "@lxpack/validators";
+import pc from "picocolors";
 
 export interface ValidatedCourseContext {
   courseDir: string;
@@ -36,6 +37,13 @@ export async function loadValidatedCourseContext(
 
 export function printValidationIssues(validation: ValidationResult): void {
   for (const issue of validation.issues) {
-    console.error(`  ${issue.path}: ${issue.message}`);
+    const label =
+      issue.severity === "warning" ? pc.yellow("[warning]") : pc.red("[error]");
+    const line = `  ${label} ${issue.path}: ${issue.message}`;
+    if (issue.severity === "warning") {
+      console.warn(line);
+    } else {
+      console.error(line);
+    }
   }
 }

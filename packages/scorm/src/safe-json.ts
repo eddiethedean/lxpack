@@ -1,4 +1,6 @@
 /** JSON safe to embed in HTML script blocks (prevents `</script>` breakout). */
 export function safeJsonForHtml(value: unknown): string {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e");
 }

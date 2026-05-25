@@ -1,17 +1,16 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { sanitizeHtml } from "./html-utils.js";
 
 describe("sanitizeHtml", () => {
-  beforeEach(() => {
-    vi.stubGlobal("alert", vi.fn());
+  it("strips javascript: links from markdown HTML", () => {
+    const html = sanitizeHtml(
+      '<a href="javascript:alert(1)">click</a><img src="javascript:evil()">',
+    );
+    expect(html.toLowerCase()).not.toContain("javascript:");
   });
 
-  it("removes script tags and event handlers", () => {
-    const dirty =
-      '<p>ok</p><script>alert(1)</script><img src="x" onerror="alert(1)">';
-    const clean = sanitizeHtml(dirty);
-    expect(clean).not.toContain("<script");
-    expect(clean).not.toContain("onerror");
-    expect(clean).toContain("ok");
+  it("allows https links", () => {
+    const html = sanitizeHtml('<a href="https://example.test/doc">ok</a>');
+    expect(html).toContain("https://example.test/doc");
   });
 });

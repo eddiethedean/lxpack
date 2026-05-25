@@ -41,6 +41,11 @@ Plain-language fixes for common `lxpack validate` and `lxpack build` messages.
 | xAPI activity IRI required | Building xapi/cmi5 without tracking | Add `tracking.xapi.activityIri` (HTTPS URL) |
 | Invalid activity IRI | Not HTTPS or malformed URL | Use `https://your-domain/...` stable path |
 | Unknown export target | Typo in `--target` | Use `scorm12`, `scorm2004`, `standalone`, `xapi`, `cmi5` |
+| Validate passes, xapi/cmi5 build fails | `validate` did not use xapi/cmi5 rules | Run `lxpack validate -t xapi` or set `exports.defaultTarget` in `lxpack.config.json` |
+
+## Quiz integrity (client-side scoring)
+
+SCORM 1.2, standalone, xAPI, and cmi5 ship **one** `index.html` with all quiz answer keys in embedded JSON (learners can view source). SCORM 2004 embeds keys only on assessment SCO pages. Use server-side grading or per-lesson packaging if you need stronger integrity.
 
 ## Preview issues
 
@@ -50,6 +55,8 @@ Plain-language fixes for common `lxpack validate` and `lxpack build` messages.
 | Blank page | Check Terminal for port conflict; try `-p 3850` |
 | Quiz doesn’t load | Validation error in assessment YAML |
 | Branching wrong | Check `flow` `goto` matches lesson `id`; test `interaction.done` on html lessons only |
+| Preview on LAN | Non-loopback `--host` exposes embedded answer keys | Use `127.0.0.1` or heed the CLI warning |
+| cmi5 `fetch` in LMS | AU bootstrap via `fetch` not implemented | Expect a runtime console warning; test statements in staging |
 
 ## LMS issues after upload
 

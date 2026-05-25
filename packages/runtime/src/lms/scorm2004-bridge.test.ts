@@ -53,6 +53,7 @@ describe("Scorm2004Bridge", () => {
       allAssessmentsPassed: false,
       anyAssessmentFailed: true,
       hasAssessments: true,
+      hasLearnerProgress: true,
       completionThreshold: 0.8,
     });
     expect(conn.setSuccessStatus).toHaveBeenCalledWith("failed");

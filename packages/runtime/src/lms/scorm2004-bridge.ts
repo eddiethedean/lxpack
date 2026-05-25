@@ -53,7 +53,12 @@ export class Scorm2004Bridge implements LmsBridge {
     ) {
       this.connection.setSuccessStatus("passed");
       this.connection.setCompletionStatus("completed");
-    } else if (state.ratio > 0) {
+    } else if (
+      state.ratio > 0 ||
+      (state.hasAssessments &&
+        !state.allAssessmentsPassed &&
+        !state.anyAssessmentFailed)
+    ) {
       this.connection.setCompletionStatus("incomplete");
       this.connection.setSuccessStatus("unknown");
     }

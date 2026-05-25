@@ -9,4 +9,9 @@ describe("safeJsonForHtml", () => {
     expect(json).not.toContain("</script>");
     expect(json).toContain("\\u003c/script");
   });
+
+  it("escapes greater-than for defense in depth", () => {
+    const json = safeJsonForHtml({ note: "a>b" });
+    expect(json).toContain("\\u003e");
+  });
 });

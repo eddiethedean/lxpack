@@ -15,6 +15,12 @@ import {
 } from "../utils.js";
 import { getCourseActivityIri } from "@lxpack/validators";
 import { shouldBlockPreviewCourseRequest } from "../lib/preview-paths.js";
+import { resolveExportTarget } from "../lib/resolve-export-target.js";
+import type { ExportTarget } from "@lxpack/scorm";
+import {
+  formatInvalidTargetMessage,
+  isValidExportTarget,
+} from "../lib/targets.js";
 
 export async function loadPreviewStyles(
   assetsDir = getRuntimeAssetsDir(),
@@ -122,7 +128,7 @@ export async function createPreviewServer(
 
 export async function startPreview(
   courseDir: string,
-  _options: { port?: number; host?: string } = {},
+  options: { port?: number; host?: string; target?: string } = {},
 ): Promise<{
   app: FastifyInstance;
   validation: Awaited<ReturnType<typeof validateCourse>>;
@@ -139,11 +145,10 @@ export async function startPreview(
     process.exit(1);
   }
 
-  const defaultTarget = config?.exports?.defaultTarget;
-  const exportTarget =
-    defaultTarget === "xapi" || defaultTarget === "cmi5"
-      ? defaultTarget
-      : undefined;
+  const exportTarget = resolveExportTarget(
+    options.target,
+    config,
+  ) as ExportTarget | undefined;
 
   const ctx = await loadValidatedCourseContext(courseDir, { exportTarget });
 
@@ -189,10 +194,21 @@ export function resolvePreviewDeps(
   };
 }
 
+function isLoopbackHost(host: string): boolean {
+  const h = host.toLowerCase();
+  return (
+    h === "127.0.0.1" ||
+    h === "localhost" ||
+    h === "::1" ||
+    h === "[::1]"
+  );
+}
+
 export async function previewCommand(
   options: {
     port?: number;
     host?: string;
+    target?: string;
   },
   deps?: PreviewCommandDeps,
 ): Promise<void> {
@@ -205,6 +221,19 @@ export async function previewCommand(
   const courseDir = resolveCourseDir();
   const port = options.port ?? 3847;
   const host = options.host ?? "127.0.0.1";
+
+  if (options.target !== undefined && !isValidExportTarget(options.target)) {
+    console.error(pc.red(formatInvalidTargetMessage(options.target)));
+    process.exit(1);
+  }
+
+  if (!isLoopbackHost(host)) {
+    console.warn(
+      pc.yellow(
+        "Warning: preview is listening on a non-loopback host; embedded assessment answer keys are visible to anyone who can reach this server.",
+      ),
+    );
+  }
 
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     console.error(pc.red(`Invalid port: ${port}`));

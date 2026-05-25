@@ -1,6 +1,6 @@
 # Developer documentation
 
-Technical references for **v0.3.3** contributors and integrators.
+Technical references for **v0.3.4** contributors and integrators.
 
 <div class="grid cards" markdown>
 
@@ -26,7 +26,7 @@ Technical references for **v0.3.3** contributors and integrators.
 
     ---
 
-    Package boundaries (v0.3.3).
+    Package boundaries (v0.3.4).
 
 -   :octicons-wrench-24: **[REFACTORING](REFACTORING.md)**
 
@@ -42,12 +42,12 @@ Technical references for **v0.3.3** contributors and integrators.
 |-------|----------------|--------|---------|
 | **1 — MVP** | **v0.1.x** | Shipped | CLI, validation, preview, SCORM 1.2, standalone HTML, MCQ assessments |
 | **2 — Runtime expansion** | **v0.2.x** | Shipped | SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
-| **3 — Modern standards** | **v0.3.3** | Shipped | xAPI, cmi5, analytics / simulation tracking |
+| **3 — Modern standards** | **v0.3.4** | Shipped | xAPI, cmi5, analytics / simulation tracking |
 | **4 — AI tooling** | TBD | Planned | Claude integration, AI repair, AI-generated interactions |
 | **5 — Ecosystem** | TBD | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **6 — Enterprise platform** | TBD | Planned | Cloud deployment, compliance tooling, hosted runtime |
 
-## Published npm packages (v0.3.3)
+## Published npm packages (v0.3.4)
 
 | Package | Role |
 |---------|------|

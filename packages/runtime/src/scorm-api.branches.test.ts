@@ -4,6 +4,7 @@ import {
   Scorm12Simulator,
   createScormConnection,
   findLmsApi,
+  SCORM_SUSPEND_DATA_MAX,
   type ScormApiLike,
 } from "./scorm-api.js";
 
@@ -144,6 +145,17 @@ describe("scorm-api branches", () => {
     expect(adapter.LMSGetLastError()).toBe("0");
     expect(adapter.LMSGetErrorString("999")).toBe("No error");
     expect(adapter.LMSGetDiagnostic("301")).toBe("");
+  });
+
+  it("trims suspend_data when set via LMSSetValue on Scorm12Adapter", () => {
+    const inner = new Scorm12Simulator({ persistToStorage: false });
+    const adapter = new Scorm12Adapter(inner);
+    adapter.LMSInitialize();
+    const oversized = "x".repeat(SCORM_SUSPEND_DATA_MAX + 500);
+    adapter.LMSSetValue("cmi.suspend_data", oversized);
+    expect(inner.LMSGetValue("cmi.suspend_data").length).toBeLessThanOrEqual(
+      SCORM_SUSPEND_DATA_MAX,
+    );
   });
 
   it("reads entry and exit CMI elements from simulator", () => {

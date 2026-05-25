@@ -2,7 +2,7 @@
 
 --8<-- "copy-tip.md"
 
-**v0.3.3** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
+**v0.3.4** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
 
 ## Copy-paste commands
 
@@ -19,7 +19,7 @@ Commands discover the course by walking up from the current directory until they
 | Command | Description |
 |---------|-------------|
 | `lxpack init <name>` | Create a new course (`-d, --dir`, `-f, --force`) |
-| `lxpack preview` | Local preview server (`-p, --port`, `-H, --host`) |
+| `lxpack preview` | Local preview server (`-p, --port`, `-H, --host`, `-t, --target`) |
 | `lxpack validate` | Validate structure (`-t, --target` for export rules) |
 | `lxpack build` | Package for LMS (`-t, --target`, `-o, --output`, `--dir`) |
 
@@ -38,11 +38,12 @@ lxpack init my-course --force
 ```bash title="lxpack preview"
 lxpack preview
 lxpack preview -p 4000 -H 0.0.0.0
+lxpack preview --target xapi
 ```
 
 Default: `http://127.0.0.1:3847`
 
-Fails if validation fails (same as build).
+Uses the same `defaultTarget` resolution as `build` when `--target` is omitted. Warns when `--host` is not loopback (embedded assessment keys). Fails if validation fails (same as build).
 
 ## `validate`
 

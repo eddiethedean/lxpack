@@ -114,7 +114,7 @@ Author-facing rules: [Course structure](https://lxpack.readthedocs.io/en/latest/
 - Manifest shape: lessons, assessments, optional `variables` and `flow`, tracking rules
 - Lesson types: `markdown` (`file`), `html` (`path`), `component` (`component` + optional `props`)
 - Component IDs: built-in IDs or course overrides under `components/<id>/`
-- Flow rules: condition grammar, `goto` targets that reference known activity IDs, acyclic flow (warnings for cycles)
+- Flow rules: condition grammar, `goto` targets that reference known activity IDs, acyclic flow (errors for cycles)
 - Assessment YAML: strict MCQ schemas; optional `maxAttempts`, `shuffleChoices`, `showFeedback`; `explanation` per question
 - Duplicate lesson IDs
 - Path containment — referenced files must stay inside the course directory (including via symlinks)
