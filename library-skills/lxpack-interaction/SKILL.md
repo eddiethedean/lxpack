@@ -6,7 +6,7 @@ description: >-
   simulations, or embedded activities in lxpack courses.
 license: Apache-2.0
 metadata:
-  lxpack-version: "0.3.4"
+  lxpack-version: "0.3.5"
 ---
 
 # LXPack HTML interactions
