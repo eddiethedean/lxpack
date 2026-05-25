@@ -10,12 +10,12 @@
   <button type="button" id="advanced">Advanced</button>
   <script>
     document.getElementById("basic").onclick = () => {
-      window.lxpack?.setVariable("path", "intro");
-      window.lxpack?.track({ type: "interaction", id: "choose_path", data: { path: "basic" } });
+      window.parent.lxpack?.setVariable("path", "intro");
+      window.parent.lxpack?.track({ type: "interaction", id: "choose_path", data: { path: "basic" } });
     };
     document.getElementById("advanced").onclick = () => {
-      window.lxpack?.setVariable("path", "advanced");
-      window.lxpack?.track({ type: "interaction", id: "choose_path", data: { path: "advanced" } });
+      window.parent.lxpack?.setVariable("path", "advanced");
+      window.parent.lxpack?.track({ type: "interaction", id: "choose_path", data: { path: "advanced" } });
     };
   </script>
 </body>

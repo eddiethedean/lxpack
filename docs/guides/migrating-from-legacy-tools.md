@@ -89,7 +89,7 @@ Many teams already have a **folder of HTML pages** (custom site, Captivate HTML5
 | Storyline feature | LXPack approach |
 |-------------------|-----------------|
 | Layers | Separate lessons or one HTML page with show/hide |
-| Variables | `variables` in `course.yaml` + `lxpack.setVariable` from HTML if needed |
+| Variables | `variables` in `course.yaml` + `window.parent.lxpack.setVariable` from HTML interactions (iframe) if needed |
 | xAPI send statement | Runtime `XapiReporter` when built with `--target xapi` |
 | Lightbox slides | New markdown lesson or modal in custom HTML |
 | Result slide | Assessment pass + `tracking.completion` |

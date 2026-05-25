@@ -103,7 +103,7 @@ Plugins, custom interactions, export targets, and analytics providers are planne
 
 **CLI** — scaffolding, validation, packaging, previews, export management.
 
-**Runtime** — navigation, flow-aware branching, manifest variables, quiz engine, component lessons, SCORM 1.2 / 2004 APIs, assessments, interaction API (`window.lxpack.track`).
+**Runtime** — navigation, flow-aware branching, manifest variables, quiz engine, component lessons, SCORM 1.2 / 2004 APIs, assessments, interaction API (`window.lxpack.track` on the shell; HTML labs use `window.parent.lxpack` inside iframes).
 
 **Packaging** — ZIP artifacts, `imsmanifest.xml`, embedded runtime bundle, assessment config injection.
 

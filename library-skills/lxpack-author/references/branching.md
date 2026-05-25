@@ -4,7 +4,7 @@ Study repository example: `examples/branching-demo/`.
 
 ## Pattern: learner chooses path in HTML
 
-1. HTML interaction calls `lxpack.setVariable('path', 'advanced')` when appropriate
+1. HTML interaction calls `window.parent.lxpack.setVariable('path', 'advanced')` when appropriate (interactions run in an iframe)
 2. Flow rule:
 
 ```yaml

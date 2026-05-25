@@ -110,6 +110,40 @@ describe("startPreview with assessments", () => {
     expect(home.body).not.toContain('"correct"');
     await app.close();
   });
+
+  it("validates xAPI export requirements when defaultTarget is xapi", async () => {
+    const { mkdtemp, writeFile, cp, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-preview-xapi-"));
+    await cp(fixturePath("xapi-valid"), dir, { recursive: true });
+    await writeFile(
+      join(dir, "lxpack.config.json"),
+      JSON.stringify({ exports: { defaultTarget: "xapi" } }),
+    );
+
+    const { app, validation } = await previewCommands.startPreview(dir);
+    expect(validation.valid).toBe(true);
+    await app.close();
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  it("validates cmi5 export requirements when defaultTarget is cmi5", async () => {
+    const { mkdtemp, writeFile, cp, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-preview-cmi5-"));
+    await cp(fixturePath("xapi-valid"), dir, { recursive: true });
+    await writeFile(
+      join(dir, "lxpack.config.json"),
+      JSON.stringify({ exports: { defaultTarget: "cmi5" } }),
+    );
+
+    const { app, validation } = await previewCommands.startPreview(dir);
+    expect(validation.valid).toBe(true);
+    await app.close();
+    await rm(dir, { recursive: true, force: true });
+  });
 });
 
 describe("loadPreviewStyles", () => {

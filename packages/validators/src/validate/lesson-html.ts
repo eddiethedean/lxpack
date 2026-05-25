@@ -1,4 +1,4 @@
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { validateInteractionTree } from "./course-extras.js";
 import type { Lesson } from "../schemas.js";
@@ -23,6 +23,30 @@ export function validateHtmlLessonPath(path: string): string | null {
     return "HTML interaction path must start with a letter and use only letters, numbers, /, _, ., and -";
   }
   return null;
+}
+
+/** Detect interaction scripts that call lxpack on the iframe window instead of the parent shell. */
+export function warnDirectLxpackApiInInteractionHtml(
+  html: string,
+  issuePath: string,
+): ValidationIssue | null {
+  if (/window\.parent\.lxpack|parent\.lxpack/.test(html)) {
+    return null;
+  }
+  const usesDirectApi =
+    /window\.lxpack\b/.test(html) ||
+    /\blxpack\s*[?.]\s*(?:track|setVariable|getVariable|submitAssessment)\b/.test(
+      html,
+    );
+  if (!usesDirectApi) {
+    return null;
+  }
+  return {
+    path: issuePath,
+    message:
+      "index.html appears to call lxpack on the interaction iframe window; use window.parent.lxpack (interactions run inside an iframe)",
+    severity: "warning",
+  };
 }
 
 export async function validateHtmlLesson(
@@ -98,6 +122,16 @@ export async function validateHtmlLesson(
       message: `index.html is not a file: ${lesson.path}/index.html`,
       severity: "error",
     });
+    return issues;
+  }
+
+  const indexHtml = readFileSync(indexPath, "utf-8");
+  const apiWarning = warnDirectLxpackApiInInteractionHtml(
+    indexHtml,
+    `lessons.${lesson.id}.path`,
+  );
+  if (apiWarning) {
+    issues.push(apiWarning);
   }
 
   issues.push(

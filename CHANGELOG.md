@@ -9,11 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.2] - 2026-05-26
 
+### Fixed
+
+- Branching demo `choose-path` interaction uses `window.parent.lxpack` so variable branching works inside iframe labs (preview and SCORM)
+- Restored `@lxpack/cli` coverage thresholds with tests for `loadLearnerStyles()` and preview xAPI/cmi5 validation paths
+
 ### Changed
 
 - Default learner UI: expanded markdown typography, quiz layout, dark-theme shell polish, and built-in component styling in preview and exports
 - Preview and SCORM builds embed full learner styles via `loadLearnerStyles()` (runtime + component CSS when needed)
 - `lxpack init` and example HTML interactions use a consistent modern lab theme inside interaction frames
+- `validate` warns when HTML interaction `index.html` calls `window.lxpack` instead of `window.parent.lxpack`
 
 ## [0.3.1] - 2026-05-25
 
