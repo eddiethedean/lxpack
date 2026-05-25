@@ -1,10 +1,44 @@
 # @lxpack/cmi5
 
+[![Documentation](https://readthedocs.org/projects/lxpack/badge/?version=latest)](https://lxpack.readthedocs.io/en/latest/?badge=latest)
+[![npm version](https://img.shields.io/npm/v/@lxpack/cmi5)](https://www.npmjs.com/package/@lxpack/cmi5)
+[![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
+
 cmi5 manifest generation for LXPack courses: one assignable unit per course, blocks per lesson/assessment, `moveOn` rules.
+
+Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) · [Tracking and completion](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) · [course.yaml — tracking.xapi](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/).
+
+Packaging (ZIP/dir) is handled by [`@lxpack/scorm`](../scorm/README.md) via `lxpack build --target cmi5`. See [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/).
+
+| Related | Package |
+|---------|---------|
+| xAPI statements | [`@lxpack/xapi`](../xapi/README.md) |
+| CLI build | [`@lxpack/cli`](../cli/README.md) |
+
+Example course: [examples/cmi5-demo](https://github.com/eddiethedean/lxpack/tree/main/examples/cmi5-demo) · [example README](../../examples/cmi5-demo/README.md).
+
+## Install
+
+```bash
+npm install @lxpack/cmi5
+```
+
+## Development
+
+From the monorepo root:
 
 ```bash
 pnpm --filter @lxpack/cmi5 build
 pnpm --filter @lxpack/cmi5 test
 ```
 
-Packaging (ZIP/dir) is handled by `@lxpack/scorm` via `lxpack build --target cmi5`.
+## Links
+
+- [LXPack repository](https://github.com/eddiethedean/lxpack)
+- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
+- [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/)
+- [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
+
+## License
+
+Apache-2.0

@@ -1,5 +1,6 @@
 # @lxpack/scorm
 
+[![Documentation](https://readthedocs.org/projects/lxpack/badge/?version=latest)](https://lxpack.readthedocs.io/en/latest/?badge=latest)
 [![npm version](https://img.shields.io/npm/v/@lxpack/scorm)](https://www.npmjs.com/package/@lxpack/scorm)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
@@ -7,7 +8,7 @@
 
 SCORM 1.2, SCORM 2004 (multi-SCO), and standalone HTML export for LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.3.0**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) · [Tracking and completion](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/).
 
 | Related | Package |
 |---------|---------|
@@ -96,7 +97,7 @@ await packageStandaloneDir({
 });
 ```
 
-Most users should use `lxpack build` from [`@lxpack/cli`](../cli/README.md) instead of calling these APIs directly.
+Most users should use `lxpack build` from [`@lxpack/cli`](../cli/README.md) instead of calling these APIs directly. See [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/) for `--target` options.
 
 ## Exports
 
@@ -163,8 +164,10 @@ pnpm --filter @lxpack/scorm typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
 - [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/)
+- [course.yaml — tracking.xapi](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/)
+- [Architecture](https://lxpack.readthedocs.io/en/latest/developer/ARCHITECTURE/)
 - [Roadmap & phases](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/)
 - [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 

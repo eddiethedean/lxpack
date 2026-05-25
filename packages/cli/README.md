@@ -1,5 +1,6 @@
 # @lxpack/cli
 
+[![Documentation](https://readthedocs.org/projects/lxpack/badge/?version=latest)](https://lxpack.readthedocs.io/en/latest/?badge=latest)
 [![npm version](https://img.shields.io/npm/v/@lxpack/cli)](https://www.npmjs.com/package/@lxpack/cli)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
@@ -7,7 +8,7 @@
 
 Command-line tool for scaffolding, previewing, validating, and packaging LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.3.0**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/) · [Get started](https://lxpack.readthedocs.io/en/latest/getting-started/).
 
 | Related | Package |
 |---------|---------|
@@ -18,6 +19,8 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learni
 
 ## Install
 
+See [Install the CLI](https://lxpack.readthedocs.io/en/latest/getting-started/install-cli/).
+
 ```bash
 npm install -g @lxpack/cli
 # or: pnpm add -g @lxpack/cli
@@ -26,6 +29,8 @@ npm install -g @lxpack/cli
 Requires Node.js 20+.
 
 ## Quick start
+
+Tutorial: [Your first course](https://lxpack.readthedocs.io/en/latest/getting-started/your-first-course/).
 
 ```bash
 lxpack init my-course
@@ -41,6 +46,8 @@ lxpack build --target cmi5
 Output lands in `.lxpack/` unless overridden by `-o` or `lxpack.config.json`.
 
 ## Commands
+
+Authoritative option list: [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/). Export targets: [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/).
 
 | Command | Description |
 |---------|-------------|
@@ -86,6 +93,8 @@ Commands walk up from the current working directory until they find `course.yaml
 
 ## Course layout
 
+[Course structure](https://lxpack.readthedocs.io/en/latest/guides/course-structure/) · [course.yaml](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) · [lxpack.config.json](https://lxpack.readthedocs.io/en/latest/reference/lxpack-config/).
+
 ```text
 my-course/
   course.yaml
@@ -98,7 +107,7 @@ my-course/
   .lxpack/             # build output (generated)
 ```
 
-`init` scaffolds commented examples for `variables`, `flow`, and `type: component` lessons. See [branching-demo](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo) for a full v0.2 course.
+`init` scaffolds commented examples for `variables`, `flow`, and `type: component` lessons. See [branching-demo](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo) for variables, flow, and components.
 
 ### `lxpack.config.json`
 
@@ -113,7 +122,7 @@ my-course/
 
 Use `"defaultTarget": "scorm2004"` when your LMS expects SCORM 2004 4th Edition packages.
 
-See the [root README](https://github.com/eddiethedean/lxpack#course-structure) for a full `course.yaml` example.
+See [course.yaml reference](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) and [branching](https://lxpack.readthedocs.io/en/latest/guides/branching-and-paths/) for full examples.
 
 ## Programmatic use
 

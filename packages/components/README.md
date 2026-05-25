@@ -1,5 +1,6 @@
 # @lxpack/components
 
+[![Documentation](https://readthedocs.org/projects/lxpack/badge/?version=latest)](https://lxpack.readthedocs.io/en/latest/?badge=latest)
 [![npm version](https://img.shields.io/npm/v/@lxpack/components)](https://www.npmjs.com/package/@lxpack/components)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
@@ -7,7 +8,7 @@
 
 Reusable UI widgets for LXPack `type: component` lessons — built-ins, registry API, and a browser bundle for SCORM and preview.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.3.0**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Components reference](https://lxpack.readthedocs.io/en/latest/reference/components/) · [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/).
 
 | Related | Package |
 |---------|---------|
@@ -42,6 +43,8 @@ Requires Node.js 20+ for the build toolchain. The published browser bundle runs 
 Built-in IDs are validated at course build time via [`BUILTIN_COMPONENT_IDS`](../validators/src/components.ts) in `@lxpack/validators`.
 
 ## Authoring
+
+[Writing lessons](https://lxpack.readthedocs.io/en/latest/guides/writing-lessons/) · [Course structure](https://lxpack.readthedocs.io/en/latest/guides/course-structure/).
 
 Add a component lesson in `course.yaml`:
 
@@ -116,9 +119,9 @@ pnpm --filter @lxpack/components typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Branching demo example](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo)
-- [Documentation](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
 - [Components reference](https://lxpack.readthedocs.io/en/latest/reference/components/)
+- [Branching demo example](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo) · [Branching guide](https://lxpack.readthedocs.io/en/latest/guides/branching-and-paths/)
 - [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 
 ## License

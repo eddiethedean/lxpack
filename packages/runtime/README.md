@@ -1,5 +1,6 @@
 # @lxpack/runtime
 
+[![Documentation](https://readthedocs.org/projects/lxpack/badge/?version=latest)](https://lxpack.readthedocs.io/en/latest/?badge=latest)
 [![npm version](https://img.shields.io/npm/v/@lxpack/runtime)](https://www.npmjs.com/package/@lxpack/runtime)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
@@ -7,7 +8,7 @@
 
 Browser runtime for LXPack courses — lesson navigation, markdown and HTML lessons, component widgets, branching flow, quiz engine, progress tracking, and SCORM 1.2 / 2004 integration.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime (**v0.3.0**).
+Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/) · [Tracking and completion](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) · [Branching](https://lxpack.readthedocs.io/en/latest/guides/branching-and-paths/).
 
 | Related | Package |
 |---------|---------|
@@ -33,6 +34,8 @@ Requires Node.js 20+ for the build toolchain. Published bundles run in modern br
 | `dist/styles.css` | Bundled with the client in SCORM/standalone exports |
 
 ## Browser client
+
+Authoring HTML labs: [Building interactions](https://lxpack.readthedocs.io/en/latest/guides/building-interactions/). Quizzes: [Quizzes and assessments](https://lxpack.readthedocs.io/en/latest/guides/quizzes-and-assessments/).
 
 The CLI and SCORM packager embed `@lxpack/runtime/client` into exported courses. The client:
 
@@ -159,8 +162,10 @@ pnpm --filter @lxpack/runtime typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
+- [Preview and review](https://lxpack.readthedocs.io/en/latest/guides/preview-and-review/)
 - [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
+- [Architecture](https://lxpack.readthedocs.io/en/latest/developer/ARCHITECTURE/)
 - [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 
 ## License

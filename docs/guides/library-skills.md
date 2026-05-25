@@ -34,7 +34,7 @@ flowchart LR
 | **lxpack-author** | Edit `course.yaml`, lessons, quizzes, branching |
 | **lxpack-interaction** | Build or fix HTML labs in `interactions/` |
 | **lxpack-export** | Package for SCORM, xAPI, or cmi5 |
-| **lxpack-migrate-legacy** | Move content from Storyline, Rise, Captivate |
+| **lxpack-migrate-legacy** | Move content from Storyline, Rise, Captivate, or multi-page HTML courses |
 
 Source lives in the repository: [`library-skills/`](https://github.com/eddiethedean/lxpack/tree/main/library-skills).
 

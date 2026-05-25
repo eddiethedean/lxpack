@@ -319,6 +319,135 @@ PASTE_RELEVANT_YAML
 
 ## Migration from legacy tools
 
+### Existing HTML course → inventory (start here)
+
+Use when you have a **folder of HTML pages** (exported SCORM content, Rise web export, custom training site, Captivate HTML5, etc.) and need a plan before moving files.
+
+```text title="Inventory an HTML course for LXPack"
+You are migrating an existing multi-page HTML eLearning course into LXPack v0.3.0.
+
+I will paste a directory listing and/or describe the course. Do not create files yet.
+
+LXPack target layout:
+  course.yaml
+  lessons/*.md              (reading content)
+  interactions/<id>/index.html   (clickable labs; one folder per activity)
+  assessments/*.yaml          (MCQ quizzes — not embedded in HTML for scoring)
+  assets/                   (shared images, optional)
+
+Rules for your analysis:
+- LXPack lesson ids: ^[a-zA-Z][a-zA-Z0-9_-]*$ only
+- Lesson types: markdown (file:), html (path: interactions/...), component (callout|checklist|image-card)
+- Each html lesson = one interactions/<folder>/index.html (iframe in the player)
+- Old course index.html / player chrome / SCORM API wrapper: drop or strip — LXPack provides navigation and LMS packaging
+- Inline or relative CSS/JS in interactions is fine; fix asset paths to stay inside the course folder
+- Quizzes in HTML forms or custom JS: propose assessments/*.yaml instead when possible
+- Completion in legacy HTML: map to window.parent.lxpack.track({ type: 'interaction', id: 'LESSON_ID' }) on success, or assessment.passed in flow
+
+Course title: COURSE_TITLE
+LMS target (if known): scorm12 | scorm2004 | xapi | cmi5 | standalone
+
+Source material:
+PASTE_FILE_TREE_OR_LIST_PAGES_AND_WHAT_EACH_DOES
+```
+
+### HTML course → LXPack file plan
+
+```text title="HTML course to LXPack file plan"
+From the inventory below, produce an LXPack v0.3.0 file plan only (no full file contents yet).
+
+For each legacy page or section specify:
+- proposed lesson id
+- type: markdown | html | component
+- source: which legacy file(s) content comes from
+- output path: lessons/FILE.md | interactions/FOLDER/index.html | assessments/QUIZ.yaml
+- notes: assets to copy, scripts to remove, tracking change
+
+End with:
+1. Ordered lessons: list for course.yaml
+2. assessments: entries if any
+3. variables / flow: only if legacy had branching (describe mapping)
+4. Pilot order: which 1 module to convert first for validate/preview
+
+Inventory:
+PASTE_INVENTORY_FROM_PREVIOUS_STEP_OR_YOUR_OWN_NOTES
+```
+
+### Cursor: convert HTML course folder (multi-file)
+
+Open the **existing HTML folder** and an **empty or pilot LXPack course** in the workspace. In Cursor, attach both with `@`.
+
+```text title="Cursor: migrate HTML course into LXPack"
+@EXISTING_HTML_FOLDER/
+@LXPACK_COURSE_ROOT/course.yaml
+
+Migrate this legacy HTML course into the LXPack course folder (v0.3.0). Work in the LXPack tree only; treat the HTML folder as read-only reference.
+
+Course title: COURSE_TITLE
+LMS build target: TARGET (default scorm12)
+
+Do:
+1. Create course.yaml (or update) with unique lesson ids and correct file:/path: entries
+2. Convert static reading pages → lessons/*.md (preserve headings; drop duplicate nav/footer from every page)
+3. Convert interactive pages → interactions/<id>/index.html + matching html lessons in course.yaml
+4. Copy images/fonts into assets/ or next to interactions; rewrite src/href to relative paths inside the course
+5. Extract quizzes → assessments/*.yaml (one correct: true per question); register under assessments:
+6. Replace legacy SCORM/Completion JS with window.parent.lxpack.track on success where the learner must "complete" an html lesson
+7. If legacy had branching, add minimal variables: and flow: using assessment.passed and interaction.done
+
+Do not:
+- Invent lxpack CLI beyond init, preview, validate, build
+- Leave absolute file:// or broken ../ paths outside the course directory
+- Ship assessment answers inside interaction HTML
+
+When done, list every file created/changed and remind me:
+  lxpack validate --target TARGET
+  lxpack preview
+
+File plan to follow (edit if inventory showed gaps):
+PASTE_FILE_PLAN_OR_LEAVE_BLANK_FOR_YOU_TO_DERIVE
+```
+
+### Convert one legacy HTML page → interaction
+
+```text title="Single HTML page to LXPack interaction"
+Convert this legacy HTML page into one LXPack interaction folder.
+
+Output:
+1. Full index.html (single file; inline or relative CSS/JS only)
+2. Suggested lesson id and course.yaml snippet (html lesson with path: interactions/FOLDER)
+3. List of asset files to copy beside index.html
+
+Requirements:
+- Remove standalone course nav, SCORM wrapper, and duplicate headers if LXPack will own navigation
+- Keep learner-visible UI and behavior equivalent
+- On success action ACTION: call window.parent.lxpack.track({ type: 'interaction', id: 'LESSON_ID' })
+- Accessible controls (buttons, labels, keyboard)
+- Fix image/script paths to be relative to the interaction folder
+
+Lesson id for tracking (match course.yaml): LESSON_ID
+Interaction folder name: FOLDER_NAME
+
+Legacy HTML:
+PASTE_HTML_OR_ATTACH_FILE
+```
+
+### Legacy HTML quiz → assessment YAML
+
+```text title="Extract quiz from HTML to assessment YAML"
+This quiz lives inside legacy HTML (form, custom JS, or question divs). Extract it into LXPack assessment YAML (MCQ only).
+
+Quiz id: QUIZ_ID
+Title: QUIZ_TITLE
+passingScore: 0.7
+showFeedback: immediate
+
+Rules: one correct: true per question; unique question ids q1, q2, ...
+
+Legacy quiz markup or script:
+PASTE_QUIZ_HTML_OR_JS
+```
+
 ### Storyline / Rise text → Markdown
 
 ```text title="Convert slide text to Markdown lesson"
@@ -439,6 +568,8 @@ PASTE_LESSON_MARKDOWN
 | Branching | Design variables and flow |
 | Cursor multi-file edit | Cursor: build one module |
 | Storyline migration | Convert slide text / quiz copy |
+| HTML course folder | Inventory → file plan → Cursor migrate |
+| One HTML lab page | Single HTML page to LXPack interaction |
 | LMS package | Choose build target |
 
 ## Related

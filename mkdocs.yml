@@ -7,6 +7,10 @@ edit_uri: edit/main/docs/
 
 copyright: Copyright &copy; LXPack contributors — Apache-2.0
 
+# Snippet partials for pymdownx (--8<--); not standalone pages.
+not_in_nav: |
+  /includes/**
+
 theme:
   name: material
   language: en

@@ -66,6 +66,24 @@ This guide helps teams move from **slide-centric authoring** (Articulate Storyli
 - [ ] Document which ZIP version is in production  
 - [ ] Train authors on validate/preview habit  
 
+## Existing HTML course (multi-page site)
+
+Many teams already have a **folder of HTML pages** (custom site, Captivate HTML5 export, unpacked SCORM, internal training portal export). LXPack does not auto-import that folder; you **restructure** it into `course.yaml`, `lessons/`, `interactions/`, and `assessments/`, then `lxpack build`.
+
+| Legacy HTML | LXPack |
+|-------------|--------|
+| `index.html` + site nav | `course.yaml` lesson order (LXPack player navigation) |
+| Static content pages | `lessons/*.md` (often faster than keeping as HTML) |
+| Labs, drag-drop, simulations | `interactions/<id>/index.html` + `type: html` lesson |
+| Quiz pages or JS scoring | `assessments/*.yaml` |
+| Shared images/CSS | `assets/` or files beside each interaction |
+| SCORM API / completion scripts | `lxpack track` + built-in export (`scorm12`, etc.) |
+
+**Suggested workflow:** use Claude or Cursor with copy-paste prompts in [Prompts for Claude and Cursor](prompts-for-claude.md) — start with **Inventory an HTML course**, then **file plan**, then **Cursor: migrate HTML course folder**. Pilot one module, run `lxpack validate` and `lxpack preview`, then scale.
+
+!!! tip "Parity"
+    You rarely need to keep every legacy wrapper page. Aim for the same learning outcomes and working interactions, not pixel-perfect reuse of old chrome.
+
 ## Storyline-specific tips
 
 | Storyline feature | LXPack approach |

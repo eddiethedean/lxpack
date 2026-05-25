@@ -16,7 +16,9 @@ metadata:
 | Legacy | LXPack |
 |--------|--------|
 | Slide / scene | `markdown` or `component` lesson |
-| Quiz slide | `assessments/*.yaml` |
+| HTML page (static) | `lessons/*.md` (preferred) or `interactions/` if layout must stay HTML |
+| Multi-page HTML site / SCORM unpack | Restructure to `course.yaml` + lessons + interactions + assessments |
+| Quiz slide / HTML quiz | `assessments/*.yaml` |
 | Triggers / variables | `variables` + `flow` or HTML + `lxpack.track` |
 | Simulation / hotspot | `interactions/<name>/index.html` |
 | Publish | `lxpack build --target scorm12` (usually) |
@@ -33,8 +35,10 @@ metadata:
 ## What to rewrite (not convert automatically)
 
 - `.story`, `.cptx`, Rise packages — extract text/media manually or via export
+- **Arbitrary HTML course folders** — no `lxpack import`; inventory pages, map to lessons/interactions, use docs prompts (inventory → file plan → multi-file migrate)
 - Complex Storyline triggers — simplify to web-native HTML or `flow`
 - Embedded Storyline player chrome — dropped; LXPack runtime provides navigation
+- Legacy SCORM completion APIs — replace with `window.parent.lxpack.track` and YAML assessments
 
 ## Content conversion tips
 

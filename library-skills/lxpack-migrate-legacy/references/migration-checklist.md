@@ -6,6 +6,7 @@
 - [ ] Document branching (roles, remediation, optional modules)
 - [ ] Confirm LMS standard with admin (SCORM 1.2 / 2004 / xAPI / cmi5)
 - [ ] Export text from legacy tool (Word, PDF, or copy from slides)
+- [ ] **HTML course only:** file tree of pages; mark static vs interactive vs quiz; note asset folders and completion scripts
 
 ## Pilot module
 

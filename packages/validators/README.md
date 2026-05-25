@@ -1,13 +1,14 @@
 # @lxpack/validators
 
+[![Documentation](https://readthedocs.org/projects/lxpack/badge/?version=latest)](https://lxpack.readthedocs.io/en/latest/?badge=latest)
 [![npm version](https://img.shields.io/npm/v/@lxpack/validators)](https://www.npmjs.com/package/@lxpack/validators)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 
-Zod schemas and filesystem validation for LXPack course manifests — including flow, variables, component lessons, and xAPI tracking (v0.3.0).
+Zod schemas and filesystem validation for LXPack course manifests — flow, variables, component lessons, and xAPI tracking.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime.
+Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learning experience compiler and runtime. **Docs:** [course.yaml](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) · [Troubleshooting](https://lxpack.readthedocs.io/en/latest/reference/troubleshooting/).
 
 | Related | Package |
 |---------|---------|
@@ -108,6 +109,8 @@ isPathContained(courseDir, abs); // true if inside course root
 
 ## What gets validated
 
+Author-facing rules: [Course structure](https://lxpack.readthedocs.io/en/latest/guides/course-structure/) · [Quizzes and assessments](https://lxpack.readthedocs.io/en/latest/guides/quizzes-and-assessments/) · [Branching and paths](https://lxpack.readthedocs.io/en/latest/guides/branching-and-paths/).
+
 - Manifest shape: lessons, assessments, optional `variables` and `flow`, tracking rules
 - Lesson types: `markdown` (`file`), `html` (`path`), `component` (`component` + optional `props`)
 - Component IDs: built-in IDs or course overrides under `components/<id>/`
@@ -142,7 +145,8 @@ pnpm --filter @lxpack/validators typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
+- [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/)
 - [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
 - [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 

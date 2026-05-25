@@ -9,59 +9,41 @@
 
 **AI-native learning experience compiler and runtime** — build web-native courses from declarative manifests, preview them locally, validate structure with schemas, and export SCORM 1.2, SCORM 2004, xAPI, cmi5, or standalone packages for your LMS.
 
+**Documentation:** [lxpack.readthedocs.io](https://lxpack.readthedocs.io/en/latest/) — install, workflows, course authoring, CLI reference, and copy-paste prompts for Claude and Cursor.
+
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
 **Current release:** [v0.3.0](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#030---2026-05-24)
 
 ## Packages
 
-| Package | npm | README |
-|---------|-----|--------|
-| `@lxpack/cli` | [npm](https://www.npmjs.com/package/@lxpack/cli) | [packages/cli](packages/cli/README.md) |
-| `@lxpack/runtime` | [npm](https://www.npmjs.com/package/@lxpack/runtime) | [packages/runtime](packages/runtime/README.md) |
-| `@lxpack/validators` | [npm](https://www.npmjs.com/package/@lxpack/validators) | [packages/validators](packages/validators/README.md) |
-| `@lxpack/scorm` | [npm](https://www.npmjs.com/package/@lxpack/scorm) | [packages/scorm](packages/scorm/README.md) |
-| `@lxpack/components` | [npm](https://www.npmjs.com/package/@lxpack/components) | [packages/components](packages/components/README.md) |
-| `@lxpack/xapi` | [npm](https://www.npmjs.com/package/@lxpack/xapi) | [packages/xapi](packages/xapi/README.md) |
-| `@lxpack/cmi5` | [npm](https://www.npmjs.com/package/@lxpack/cmi5) | [packages/cmi5](packages/cmi5/README.md) |
+| Package | npm | README | Docs |
+|---------|-----|--------|------|
+| `@lxpack/cli` | [npm](https://www.npmjs.com/package/@lxpack/cli) | [packages/cli](packages/cli/README.md) | [CLI](https://lxpack.readthedocs.io/en/latest/reference/cli/) |
+| `@lxpack/runtime` | [npm](https://www.npmjs.com/package/@lxpack/runtime) | [packages/runtime](packages/runtime/README.md) | [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/) |
+| `@lxpack/validators` | [npm](https://www.npmjs.com/package/@lxpack/validators) | [packages/validators](packages/validators/README.md) | [course.yaml](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) |
+| `@lxpack/scorm` | [npm](https://www.npmjs.com/package/@lxpack/scorm) | [packages/scorm](packages/scorm/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
+| `@lxpack/components` | [npm](https://www.npmjs.com/package/@lxpack/components) | [packages/components](packages/components/README.md) | [Components](https://lxpack.readthedocs.io/en/latest/reference/components/) |
+| `@lxpack/xapi` | [npm](https://www.npmjs.com/package/@lxpack/xapi) | [packages/xapi](packages/xapi/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
+| `@lxpack/cmi5` | [npm](https://www.npmjs.com/package/@lxpack/cmi5) | [packages/cmi5](packages/cmi5/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
 
 ## Features
 
-### Core (v0.1.x)
-
-- **Declarative manifests** — `course.yaml` defines lessons, interactions, assessments, and tracking rules
-- **Schema validation** — Zod-powered checks for manifest shape, symlink-safe path containment, and on-disk assets
-- **Browser runtime** — lesson navigation, markdown rendering, HTML interactions, MCQ assessments, progress tracking
-- **Secure packaging** — assessment answer keys and feedback text are embedded in the runtime config at build time; author `assessments/*.yaml` files are not shipped in exported ZIPs
-- **SCORM 1.2** — single-SCO export; discovers the LMS `API` in parent/opener frames; compact `suspend_data` within the 4096-character limit
-- **Local preview** — Fastify dev server with strict validation (same rules as `build`); optional SCORM 1.2/2004 simulators via `lxpack.config.json` → `preview.scormMode`
-- **Export targets** — SCORM 1.2 ZIP, standalone HTML ZIP/directory
-- **Course config** — optional `lxpack.config.json` for default export target and output directory
-
-### Runtime expansion (v0.2.0)
-
-- **Manifest variables** — declare defaults in `course.yaml`; read/write via `lxpack.setVariable()` / `getVariable()` with `v:` namespacing in suspend data
-- **Flow & branching** — ordered `flow` rules with a small condition language (`variable.eq`, `assessment.passed`, `interaction.done`, `all` / `any`); linear navigation when `flow` is omitted
-- **Quiz engine** — per-assessment `maxAttempts`, `shuffleChoices`, and `showFeedback` (`immediate` | `end` | `never`)
-- **`@lxpack/components`** — built-in widgets (`callout`, `image-card`, `checklist`) and `type: component` lessons
-- **SCORM 2004** — multi-SCO packages with per-activity launch pages (`sco/<id>/index.html`), shared runtime bundle, and IMS Simple Sequencing subset in `imsmanifest.xml`
-- **SCORM 2004 API** — `API_1484_11` discovery, CMI mapping, and preview simulator
-
-### Modern standards (v0.3.0)
-
-- **`@lxpack/xapi`** — xAPI 1.0.3 statements, LRS transport, Tin Can `tincan.xml`
-- **`@lxpack/cmi5`** — `cmi5.xml` with per-activity `moveOn` rules
-- Export targets **`xapi`** and **`cmi5`** (`lxpack build --target xapi|cmi5`)
-- Optional `tracking.xapi` in `course.yaml` (`activityIri`, `displayName`)
-- Runtime **analytics** — `XapiReporter` for launch, experience, interactions, assessments, completion
-- Preview xAPI logging via `lxpack.config.json` → `xapi.preview`
+- **Authoring** — `course.yaml` manifest; markdown, HTML, and component lessons; YAML assessments; optional variables and branching `flow`
+- **Validation & preview** — schema checks, path containment; local preview with optional SCORM 1.2/2004 simulators ([config](https://lxpack.readthedocs.io/en/latest/reference/lxpack-config/))
+- **Export** — SCORM 1.2, SCORM 2004 (multi-SCO), standalone, xAPI, and cmi5 (`lxpack build --target …`)
+- **Runtime** — navigation, MCQ engine, HTML interactions, SCORM 1.2/2004 APIs, xAPI analytics
+- **Components** — built-in widgets (`callout`, `image-card`, `checklist`)
+- **Packaging** — quiz keys embedded at build; author `assessments/*.yaml` not shipped in learner ZIPs
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) **20+**
+- [Node.js](https://nodejs.org/) **20+** — see [What you need](https://lxpack.readthedocs.io/en/latest/getting-started/what-you-need/)
 - [pnpm](https://pnpm.io/) **9.15** (see `packageManager` in `package.json`) — for developing LXPack from source
 
 ## Install
+
+Author guide: [Install the CLI](https://lxpack.readthedocs.io/en/latest/getting-started/install-cli/).
 
 ```bash
 npm install -g @lxpack/cli
@@ -78,7 +60,7 @@ lxpack preview
 
 ## Quick start (from source)
 
-From the repository root:
+Step-by-step for new authors: [Your first course](https://lxpack.readthedocs.io/en/latest/getting-started/your-first-course/). From the repository root:
 
 ```bash
 corepack enable
@@ -104,6 +86,8 @@ Build artifacts are written under `.lxpack/` by default (for example `.lxpack/my
 
 ### Example courses
 
+Walkthrough of the sample courses: [Build courses overview](https://lxpack.readthedocs.io/en/latest/guides/build-overview/).
+
 **Security awareness (linear, SCORM 1.2):**
 
 ```bash
@@ -123,7 +107,7 @@ pnpm exec lxpack validate
 pnpm exec lxpack build --target scorm2004
 ```
 
-**xAPI / cmi5 (requires `tracking.xapi.activityIri`):**
+**xAPI / cmi5 (requires `tracking.xapi.activityIri`):** see [Tracking and completion](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/).
 
 ```bash
 cd examples/xapi-awareness
@@ -136,6 +120,8 @@ pnpm exec lxpack build --target cmi5
 ```
 
 ## CLI reference
+
+Full option list and behavior: [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/).
 
 | Command | Description |
 |---------|-------------|
@@ -168,6 +154,8 @@ Commands discover the course by walking up from the current directory until they
 
 ## Course structure
 
+Folder layout and manifest fields: [Course structure](https://lxpack.readthedocs.io/en/latest/guides/course-structure/) · [course.yaml reference](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) · [lxpack.config.json](https://lxpack.readthedocs.io/en/latest/reference/lxpack-config/).
+
 ```text
 my-course/
   course.yaml          # Course manifest (required)
@@ -181,7 +169,7 @@ my-course/
   .lxpack/             # Build output (generated)
 ```
 
-### Example `course.yaml` (v0.2 features)
+### Example `course.yaml` (branching)
 
 ```yaml
 title: My Course
@@ -232,6 +220,8 @@ tracking:
 
 ### Lesson types
 
+Details: [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/) · [Writing lessons](https://lxpack.readthedocs.io/en/latest/guides/writing-lessons/) · [Building interactions](https://lxpack.readthedocs.io/en/latest/guides/building-interactions/) · [Components](https://lxpack.readthedocs.io/en/latest/reference/components/).
+
 | Type | Fields | Description |
 |------|--------|-------------|
 | `markdown` | `file` | Markdown lesson under `lessons/` |
@@ -239,6 +229,8 @@ tracking:
 | `component` | `component`, optional `props` | Built-in or course override widget from `@lxpack/components` |
 
 ### Assessment options (author YAML)
+
+Quiz authoring: [Quizzes and assessments](https://lxpack.readthedocs.io/en/latest/guides/quizzes-and-assessments/).
 
 ```yaml
 id: final_quiz
@@ -295,12 +287,15 @@ examples/
   cmi5-demo/            — cmi5 export sample
 test/
   fixtures/             — shared validation/build test courses
-docs/               # MkDocs site (published on Read the Docs)
-  getting-started/, guides/, reference/, developer/
-library-skills/     # Agent Skills (SKILL.md) for Cursor, Claude Code, etc.
+docs/               # MkDocs source → https://lxpack.readthedocs.io/
+library-skills/     # Agent Skills — see [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/)
 ```
 
+Monorepo architecture: [Architecture](https://lxpack.readthedocs.io/en/latest/developer/ARCHITECTURE/) · [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/).
+
 ## Security notes
+
+Operational guidance: [Troubleshooting](https://lxpack.readthedocs.io/en/latest/reference/troubleshooting/).
 
 - **Assessments:** Author YAML under `assessments/` stays in the repo for editing. Exports embed learner-safe questions, answer keys, quiz config, and feedback text in the HTML config JSON (not as fetchable files).
 - **Embedded JSON:** Config injected into HTML escapes `<` to prevent `</script>` breakout.
@@ -309,6 +304,8 @@ library-skills/     # Agent Skills (SKILL.md) for Cursor, Claude Code, etc.
 - **SCORM 2004:** Sequencing uses a supported IMS Simple Sequencing subset; validate packages in SCORM Cloud or Moodle before production rollout.
 
 ## Development
+
+Contributor docs: [Developer hub](https://lxpack.readthedocs.io/en/latest/developer/).
 
 ```bash
 pnpm install
@@ -321,6 +318,8 @@ pnpm examples:validate  # validate all courses under examples/ (requires build)
 ```
 
 ### Preview SCORM simulation
+
+See [Preview and review](https://lxpack.readthedocs.io/en/latest/guides/preview-and-review/) and [lxpack.config.json](https://lxpack.readthedocs.io/en/latest/reference/lxpack-config/).
 
 In `lxpack.config.json`:
 
@@ -360,20 +359,13 @@ To cut a release:
    - **Classic automation token** (recommended for CI), or
    - **Granular token** with **Read and write** on `@lxpack/*` and **Bypass 2FA for publish** enabled.
    The release workflow passes this token to `setup-node` so `.npmrc` is authenticated before `pnpm publish`.
-3. Tag and push: `git tag v0.3.0 && git push origin v0.3.0`
+3. Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`
 
 The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Roadmap
 
-| Phase | Version | Status |
-|-------|---------|--------|
-| 1 — MVP | **v0.1.x** (latest **v0.1.1**) | Shipped — CLI, validation, preview, SCORM 1.2, standalone HTML, MCQ assessments |
-| 2 — Runtime expansion | **v0.2.x** (latest **v0.2.2**) | Shipped — SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
-| 3 — Modern standards | **v0.3.0** | Shipped — xAPI, cmi5, analytics hooks |
-| 4–6 | TBD | AI tooling, ecosystem, enterprise platform |
-
-Details: [Roadmap](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/) (canonical phases), [Product plan](https://lxpack.readthedocs.io/en/latest/developer/PLAN/).
+Planned work and phase history: [Roadmap](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/) · [Product plan](https://lxpack.readthedocs.io/en/latest/developer/PLAN/).
 
 ## Documentation
 
@@ -383,14 +375,16 @@ Details: [Roadmap](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/) (
 |----------|------------|
 | Everyone new | [Get started](https://lxpack.readthedocs.io/en/latest/getting-started/) |
 | Instructional designers | [Claude Design workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-design/) · [Prompts](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/) |
-| Migrating from Storyline / Rise | [Legacy migration](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) |
+| Migrating from Storyline / Rise / HTML | [Legacy migration](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) · [HTML → LXPack prompts](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/#migration-from-legacy-tools) |
 | Cursor (no Claude) | [Cursor workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-cursor/) |
 | Developers | [Claude Code workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-code/) · [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
 | AI agents | [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/) |
 
 - [Changelog](CHANGELOG.md)
-- [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
-- [Read the Docs setup](docs/readthedocs-setup.md) (maintainers)
+- [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/)
+- [Branching and paths](https://lxpack.readthedocs.io/en/latest/guides/branching-and-paths/)
+- [Tracking and completion](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/)
+- [Read the Docs setup](https://lxpack.readthedocs.io/en/latest/readthedocs-setup/) (maintainers)
 
 ## License
 
