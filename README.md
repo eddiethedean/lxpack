@@ -306,7 +306,7 @@ To cut a release:
    - **Classic automation token** (recommended for CI), or
    - **Granular token** with **Read and write** on `@lxpack/*` and **Bypass 2FA for publish** enabled.
    The release workflow passes this token to `setup-node` so `.npmrc` is authenticated before `pnpm publish`.
-3. Tag and push: `git tag v0.2.0 && git push origin v0.2.0`
+3. Tag and push: `git tag v0.2.2 && git push origin v0.2.2`
 
 The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
@@ -315,7 +315,7 @@ The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CH
 | Phase | Version | Status |
 |-------|---------|--------|
 | 1 — MVP | **v0.1.x** (latest **v0.1.1**) | Shipped — CLI, validation, preview, SCORM 1.2, standalone HTML, MCQ assessments |
-| 2 — Runtime expansion | **v0.2.0** | Shipped — SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
+| 2 — Runtime expansion | **v0.2.x** (latest **v0.2.2**) | Shipped — SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
 | 3 — Modern standards | v0.3.x | Planned — xAPI, cmi5, analytics |
 | 4–6 | TBD | AI tooling, ecosystem, enterprise platform |
 

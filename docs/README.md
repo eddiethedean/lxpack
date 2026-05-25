@@ -15,7 +15,7 @@ Canonical references for product direction, technical behavior, and releases.
 | Phase | Target version | Status | Summary |
 |-------|----------------|--------|---------|
 | **1 — MVP** | **v0.1.x** | **Shipped** (latest [v0.1.1](https://github.com/eddiethedean/lxpack/releases/tag/v0.1.1)) | CLI, validation, preview, SCORM 1.2, standalone HTML, MCQ assessments, secure packaging |
-| **2 — Runtime expansion** | **v0.2.0** | **Shipped** ([v0.2.0](https://github.com/eddiethedean/lxpack/releases/tag/v0.2.0)) | SCORM 2004 multi-SCO, branching, manifest variables, quiz engine upgrades, `@lxpack/components` |
+| **2 — Runtime expansion** | **v0.2.x** | **Shipped** (latest [v0.2.2](../CHANGELOG.md#022---2026-05-24); tag `v0.2.2` to publish) | SCORM 2004 multi-SCO, branching, manifest variables, quiz engine upgrades, `@lxpack/components` |
 | **3 — Modern standards** | **v0.3.x** | Planned | xAPI, cmi5, analytics / simulation tracking |
 | **4 — AI tooling** | TBD | Planned | Claude integration, AI repair, AI-generated interactions |
 | **5 — Ecosystem** | TBD | Planned | Plugin marketplace, component marketplace, hosted previews |
