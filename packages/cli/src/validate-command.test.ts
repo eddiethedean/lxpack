@@ -39,6 +39,24 @@ describe("validateCommand", () => {
     exit.mockRestore();
   });
 
+  it("exits 1 for invalid --target", async () => {
+    process.chdir(fixturePath("minimal-valid"));
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      validateCommand({ target: "not-a-target" }),
+    ).rejects.toThrow("exit:1");
+    expect(error.mock.calls.some((c) => String(c[0]).includes("Invalid target"))).toBe(
+      true,
+    );
+    exit.mockRestore();
+  });
+
   it("fails xapi target validation when activityIri is missing", async () => {
     process.chdir(fixturePath("missing-xapi-iri"));
     vi.spyOn(console, "log").mockImplementation(() => {});

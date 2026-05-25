@@ -42,6 +42,12 @@ export class XapiReporter implements AnalyticsReporter {
         : {};
     const actor = launch.actor ?? defaultPreviewActor();
 
+    if (launch.fetch) {
+      console.warn(
+        "[lxpack cmi5] Launch fetch URL is present but cmi5 session bootstrap via fetch is not implemented in v0.3.0",
+      );
+    }
+
     this.session = {
       actor,
       registration: launch.registration,

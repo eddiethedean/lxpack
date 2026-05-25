@@ -1,6 +1,7 @@
 export {
   createScorm2004Connection,
   findScorm2004Api,
+  installScorm2004API,
   Scorm2004Adapter,
   Scorm2004Simulator,
   type Scorm2004ApiLike,

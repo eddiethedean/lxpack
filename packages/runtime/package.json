@@ -12,7 +12,13 @@
     "url": "https://github.com/eddiethedean/lxpack/issues"
   },
   "homepage": "https://github.com/eddiethedean/lxpack#readme",
-  "keywords": ["lxpack", "scorm", "lms", "elearning", "runtime"],
+  "keywords": [
+    "lxpack",
+    "scorm",
+    "lms",
+    "elearning",
+    "runtime"
+  ],
   "engines": {
     "node": ">=20"
   },
@@ -35,7 +41,9 @@
       "import": "./dist/scorm2004.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "vite build && vite build -c vite.runtime.config.ts && tsc -p tsconfig.build.json --emitDeclarationOnly && cp src/styles.css dist/styles.css",
     "dev": "vite build --watch",
@@ -46,6 +54,7 @@
   "dependencies": {
     "@lxpack/validators": "workspace:*",
     "@lxpack/xapi": "workspace:*",
+    "dompurify": "^3.4.5",
     "marked": "^15.0.7",
     "yaml": "^2.7.0"
   },

@@ -1,4 +1,6 @@
-import type { RuntimeConfig } from "../types.js";
+import type { PreviewScormMode, RuntimeConfig } from "../types.js";
+import { installScormAPI } from "../scorm-api.js";
+import { installScorm2004API } from "../scorm2004-api.js";
 import { createScormConnection } from "../scorm-api.js";
 import { createScorm2004Connection } from "../scorm2004-api.js";
 import type { LmsBridge } from "./bridge.js";
@@ -22,6 +24,7 @@ export function progressStorageKey(
 export function createLmsBridge(
   mode: RuntimeConfig["mode"],
   storageKey: string,
+  previewScormMode: PreviewScormMode = "local",
 ): LmsBridge {
   if (mode === "scorm12") {
     return new Scorm12Bridge(createScormConnection("scorm12"));
@@ -29,12 +32,16 @@ export function createLmsBridge(
   if (mode === "scorm2004") {
     return new Scorm2004Bridge(createScorm2004Connection("scorm2004"));
   }
-  if (
-    mode === "preview" ||
-    mode === "standalone" ||
-    mode === "xapi" ||
-    mode === "cmi5"
-  ) {
+  if (mode === "preview") {
+    if (previewScormMode === "scorm12") {
+      return new Scorm12Bridge(installScormAPI("preview"));
+    }
+    if (previewScormMode === "scorm2004") {
+      return new Scorm2004Bridge(installScorm2004API("preview"));
+    }
+    return new LocalBridge(storageKey);
+  }
+  if (mode === "standalone" || mode === "xapi" || mode === "cmi5") {
     return new LocalBridge(storageKey);
   }
   return new LocalBridge(storageKey);

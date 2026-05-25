@@ -136,6 +136,9 @@ const LXPACK_CONFIG = `{
   "exports": {
     "defaultTarget": "scorm12"
   },
+  "preview": {
+    "scormMode": "local"
+  },
   "output": {
     "dir": ".lxpack"
   }

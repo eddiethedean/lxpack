@@ -61,7 +61,19 @@ Output lands in `.lxpack/` unless overridden by `-o` or `lxpack.config.json`.
 
 **SCORM 2004** builds produce a multi-SCO ZIP: one launch page per activity under `sco/<activityId>/index.html`, plus shared `lxpack-runtime.js` and `lxpack-components.js`.
 
-**Preview** serves the runtime client, optional components bundle at `/runtime/components.js`, and installs SCORM API simulators (1.2 and 2004) for local testing. Direct HTTP access to `assessments/*.yaml` under `/course/` returns 404; quiz content is embedded in the preview page config only.
+**Preview** serves the runtime client and optional components bundle at `/runtime/components.js`. Configure SCORM simulators in `lxpack.config.json`:
+
+```json
+{ "preview": { "scormMode": "local" } }
+```
+
+| `scormMode` | Behavior |
+|-------------|----------|
+| `local` | `localStorage` progress (default) |
+| `scorm12` | SCORM 1.2 simulator on `window.API` |
+| `scorm2004` | SCORM 2004 simulator on `window.API_1484_11` |
+
+Direct HTTP access to `assessments/`, `course.yaml`, `lxpack.config.json`, and `.lxpack/` under `/course/` returns 404; quiz content is embedded in the preview page config only.
 
 ### Course discovery
 

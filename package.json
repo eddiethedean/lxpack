@@ -15,6 +15,7 @@
     "pretest": "pnpm build",
     "test": "pnpm -r --filter './packages/*' run test",
     "test:coverage": "pnpm -r --filter './packages/*' run test:coverage",
+    "examples:validate": "bash scripts/validate-examples.sh",
     "lint": "eslint \"packages/*/src/**/*.ts\"",
     "typecheck": "pnpm -r --filter './packages/*' run typecheck"
   },

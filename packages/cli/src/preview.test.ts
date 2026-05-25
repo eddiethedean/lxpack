@@ -36,6 +36,24 @@ describe("resolvePreviewDeps", () => {
 });
 
 describe("buildPreviewConfig", () => {
+  it("embeds previewScormMode when not local", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
+    const json = previewCommands.buildPreviewConfig(manifest, undefined, {
+      previewScormMode: "scorm12",
+    });
+    expect(json).toContain('"previewScormMode":"scorm12"');
+  });
+
+  it("omits previewScormMode for local default", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
+    const json = previewCommands.buildPreviewConfig(manifest, undefined, {
+      previewScormMode: "local",
+    });
+    expect(json).not.toContain("previewScormMode");
+  });
+
   it("includes assessment bundles when provided", async () => {
     const { loadCourseManifest } = await import("./utils.js");
     const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
@@ -93,6 +111,25 @@ describe("createPreviewServer", () => {
 
   afterEach(async () => {
     if (app) await app.close();
+  });
+
+  it("blocks course.yaml and lxpack.config.json", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
+    app = await previewCommands.createPreviewServer(
+      fixturePath("minimal-valid"),
+      manifest,
+    );
+    const courseYaml = await app.inject({
+      method: "GET",
+      url: "/course/course.yaml",
+    });
+    expect(courseYaml.statusCode).toBe(404);
+    const config = await app.inject({
+      method: "GET",
+      url: "/course/lxpack.config.json",
+    });
+    expect(config.statusCode).toBe(404);
   });
 
   it("blocks direct access to author assessment YAML", async () => {

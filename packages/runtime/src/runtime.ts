@@ -41,7 +41,11 @@ export class LxpackRuntime implements AssessmentHost {
       config.manifest.title,
       config.manifest.version,
     );
-    this.bridge = createLmsBridge(config.mode, storageKey);
+    this.bridge = createLmsBridge(
+      config.mode,
+      storageKey,
+      config.previewScormMode ?? "local",
+    );
     this.analytics = createAnalyticsReporter(config);
 
     this.defaultPassingScores = {};
@@ -244,6 +248,8 @@ export class LxpackRuntime implements AssessmentHost {
     return {
       getVariable: (name) =>
         readManifestVariable(this.state.progress.suspendData, name),
+      getVariableType: (name) =>
+        this.manifest.variables?.[name]?.type,
       isAssessmentPassed: (id) => this.isAssessmentPassed(id),
       isInteractionDone: (id) => {
         const value = this.state.progress.suspendData[`interaction_${id}`];

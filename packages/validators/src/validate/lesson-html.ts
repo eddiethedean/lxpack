@@ -7,11 +7,37 @@ import {
 } from "../course-paths.js";
 import type { ValidationIssue } from "../validate.js";
 
+/** Safe relative path for HTML interaction folders (no quotes, spaces, or `..`). */
+export const HTML_LESSON_PATH_PATTERN =
+  /^[a-zA-Z0-9][a-zA-Z0-9_./-]*$/;
+
+export function validateHtmlLessonPath(path: string): string | null {
+  if (/["'<>]/.test(path) || /\s/.test(path)) {
+    return "HTML interaction path contains invalid characters (quotes, angle brackets, or whitespace)";
+  }
+  if (path.includes("..")) {
+    return "HTML interaction path must not contain '..' segments";
+  }
+  if (!HTML_LESSON_PATH_PATTERN.test(path)) {
+    return "HTML interaction path must start with a letter and use only letters, numbers, /, _, ., and -";
+  }
+  return null;
+}
+
 export function validateHtmlLesson(
   courseDir: string,
   lesson: Extract<Lesson, { type: "html" }>,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
+  const pathError = validateHtmlLessonPath(lesson.path);
+  if (pathError) {
+    issues.push({
+      path: `lessons.${lesson.id}.path`,
+      message: pathError,
+      severity: "error",
+    });
+    return issues;
+  }
   const resolved = resolveCoursePath(courseDir, lesson.path);
   if (!resolved.ok) {
     issues.push({

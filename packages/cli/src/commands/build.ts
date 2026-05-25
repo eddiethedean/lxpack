@@ -15,14 +15,10 @@ import {
 } from "../lib/validated-course.js";
 import { getDirPackager, getZipPackager } from "../packagers/index.js";
 import { validateCourse, validateXapiTracking } from "@lxpack/validators";
-
-const VALID_TARGETS: ExportTarget[] = [
-  "scorm12",
-  "scorm2004",
-  "standalone",
-  "xapi",
-  "cmi5",
-];
+import {
+  formatInvalidTargetMessage,
+  isValidExportTarget,
+} from "../lib/targets.js";
 
 export async function buildCommand(options: {
   target?: string;
@@ -35,12 +31,8 @@ export async function buildCommand(options: {
     config?.exports?.defaultTarget ??
     "scorm12") as ExportTarget;
 
-  if (!VALID_TARGETS.includes(target)) {
-    console.error(
-      pc.red(
-        `Invalid target: ${target}. Valid targets: ${VALID_TARGETS.join(", ")}`,
-      ),
-    );
+  if (!isValidExportTarget(target)) {
+    console.error(pc.red(formatInvalidTargetMessage(target)));
     process.exit(1);
   }
 

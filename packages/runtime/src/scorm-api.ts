@@ -357,7 +357,10 @@ export class Scorm12Simulator implements ScormApiLike {
   }
 }
 
-/** @deprecated Use createScormConnection */
+/**
+ * @deprecated Use `createScormConnection` or `installScormAPI` instead.
+ * Kept for backward compatibility with pre-0.2 import paths.
+ */
 export class Scorm12API extends Scorm12Simulator {
   constructor() {
     super({ persistToStorage: true });

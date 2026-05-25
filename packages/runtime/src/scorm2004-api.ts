@@ -232,3 +232,16 @@ export function createScorm2004Connection(
   );
   return new Scorm2004Simulator({ persistToStorage: false });
 }
+
+export function installScorm2004API(
+  mode: "preview" | "scorm2004" = "preview",
+): Scorm2004Connection {
+  const connection = createScorm2004Connection(
+    mode === "preview" ? "preview" : "scorm2004",
+  );
+  if (mode === "preview") {
+    const win = window as Window & { API_1484_11?: Scorm2004Connection };
+    win.API_1484_11 = connection;
+  }
+  return connection;
+}

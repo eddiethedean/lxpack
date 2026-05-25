@@ -53,7 +53,10 @@ lxpack preview
 - Fastify static server for course assets + bundled runtime
 - **Strict validation** before start (same failure mode as `build`)
 - Embedded assessment bundle in HTML config (no fetch of author YAML)
-- Preview SCORM 1.2 simulator (`localStorage`)
+- Default preview progress via `localStorage` (`preview.scormMode: local`)
+- Optional SCORM 1.2 simulator (`preview.scormMode: scorm12`, `window.API`)
+- Optional SCORM 2004 simulator (`preview.scormMode: scorm2004`, `window.API_1484_11`)
+- Blocks direct HTTP access to `assessments/`, `course.yaml`, `lxpack.config.json`, `.lxpack/`
 - Options: `-p` / `--port`, `-H` / `--host`
 
 ### Planned
@@ -63,8 +66,7 @@ lxpack preview
 | Hot reload | Post–2 |
 | Runtime debugging UI | Post–2 |
 | Mobile preview | Post–2 |
-| SCORM 2004 preview simulator | 2 |
-| Accessibility warnings in preview | 3+ |
+| Accessibility warnings in preview | 4+ |
 
 ---
 
@@ -236,6 +238,7 @@ window.lxpack.track({
 - Manifest: optional `tracking.xapi.activityIri` (course activity IRI); per-activity IRIs `{activityIri}/activities/{id}`
 - Runtime modes `xapi` and `cmi5` use `@lxpack/xapi` builders (no SCORM API)
 - cmi5 LMS launch query params: `endpoint`, `auth`, `actor`, `registration`, `activityId` (LRS credentials are not embedded in ZIPs)
+- cmi5 `fetch` URL is parsed but **not** used for AU session bootstrap in v0.3.0 (runtime logs a warning when present)
 - Verbs: `launched`, `experienced`, `interacted`, `answered`, `completed`, `passed`, `failed`
 - Preview: `lxpack.config.json` → `xapi.preview.logStatements` / `mockLrs` (console + `localStorage` queue)
 
@@ -312,11 +315,12 @@ Not implemented in v0.1.x.
 - Path containment for course assets, init `--dir`, and config output paths
 - Assessment answer keys not shipped as static YAML in exports
 - `<` escaped in embedded JSON config (`safeJsonForHtml`)
-- Basic HTML sanitization in markdown/interaction rendering (not a full XSS policy)
+- DOMPurify allowlist for markdown HTML rendering in the browser runtime
+- HTML interaction paths validated for safe characters; iframe URLs escaped
 
 ## Planned
 
-- DOMPurify for markdown/HTML (post–1.x)
+- Stricter sanitization for custom HTML interactions (author `index.html` is trusted)
 - CSP enforcement for interactions
 - Sandboxed interaction iframes
 - Signed plugins (Phase 5+)
@@ -332,9 +336,13 @@ packages/
   validators/
   scorm/
   components/
+  xapi/
+  cmi5/
 examples/
   security-awareness/
   branching-demo/
+  xapi-awareness/
+  cmi5-demo/
 test/fixtures/
 docs/
 ```
@@ -348,7 +356,7 @@ docs/
 | MVP core | 1 | v0.1.0 | Shipped |
 | Security & SCORM fixes | 1 | v0.1.1 | Shipped |
 | Runtime expansion | 2 | v0.2.0 | Shipped |
-| Modern standards | 3 | v0.3.x | Planned |
+| Modern standards | 3 | v0.3.0 | Shipped |
 | AI tooling | 4 | TBD | Planned |
 
 ---

@@ -13,6 +13,12 @@ const lxpackConfigSchema = z
           .optional(),
       })
       .optional(),
+    preview: z
+      .object({
+        scormMode: z.enum(["local", "scorm12", "scorm2004"]).optional(),
+      })
+      .strict()
+      .optional(),
     xapi: z
       .object({
         preview: z

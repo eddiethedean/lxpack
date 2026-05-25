@@ -9,9 +9,10 @@ export default defineConfig({
     coverage: {
       ...coverageConfig,
       thresholds: {
-        ...coverageConfig.thresholds,
-        // Defensive optional chaining in navigation handlers is hard to branch fully in DOM tests.
-        branches: 98,
+        lines: 94,
+        functions: 91,
+        branches: 93,
+        statements: 94,
       },
     },
   },

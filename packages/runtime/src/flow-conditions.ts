@@ -3,11 +3,29 @@ import type { FlowContext } from "./flow.js";
 
 type ConditionHandler = (condition: Condition, ctx: FlowContext) => boolean | null;
 
+export function variableValuesEqual(
+  actual: unknown,
+  expected: unknown,
+  type?: "string" | "number" | "boolean",
+): boolean {
+  if (type === "number") {
+    return Number(actual) === Number(expected);
+  }
+  if (type === "boolean") {
+    return Boolean(actual) === Boolean(expected);
+  }
+  if (type === "string") {
+    return String(actual) === String(expected);
+  }
+  return actual === expected;
+}
+
 const conditionHandlers: ConditionHandler[] = [
   (condition, ctx) => {
     if ("variable" in condition && condition.variable?.eq) {
       const [name, expected] = condition.variable.eq;
-      return ctx.getVariable(name) === expected;
+      const type = ctx.getVariableType?.(name);
+      return variableValuesEqual(ctx.getVariable(name), expected, type);
     }
     return null;
   },

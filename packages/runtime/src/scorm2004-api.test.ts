@@ -4,6 +4,7 @@ import {
   Scorm2004Simulator,
   createScorm2004Connection,
   findScorm2004Api,
+  installScorm2004API,
 } from "./scorm2004-api.js";
 import { SCORM_SUSPEND_DATA_MAX } from "./progress/constants.js";
 
@@ -105,6 +106,19 @@ describe("findScorm2004Api", () => {
 
   it("returns null when no API is present", () => {
     expect(findScorm2004Api()).toBeNull();
+  });
+});
+
+describe("installScorm2004API", () => {
+  afterEach(() => {
+    delete (window as Window & { API_1484_11?: unknown }).API_1484_11;
+  });
+
+  it("exposes API_1484_11 on window in preview mode", () => {
+    const conn = installScorm2004API("preview");
+    expect(
+      (window as Window & { API_1484_11?: typeof conn }).API_1484_11,
+    ).toBe(conn);
   });
 });
 

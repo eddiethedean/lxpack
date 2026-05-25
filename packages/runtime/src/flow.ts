@@ -3,6 +3,9 @@ import { evaluateCondition } from "./flow-conditions.js";
 
 export interface FlowContext {
   getVariable: (name: string) => unknown;
+  getVariableType?: (
+    name: string,
+  ) => "string" | "number" | "boolean" | undefined;
   isAssessmentPassed: (id: string) => boolean;
   isInteractionDone: (id: string) => boolean;
 }

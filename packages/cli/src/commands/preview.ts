@@ -14,6 +14,7 @@ import {
   readComponentsBundle,
 } from "../utils.js";
 import { getCourseActivityIri } from "@lxpack/validators";
+import { isPreviewBlockedCoursePath } from "../lib/preview-paths.js";
 
 export async function loadPreviewStyles(
   assetsDir = getRuntimeAssetsDir(),
@@ -26,6 +27,7 @@ export function buildPreviewConfig(
   assessmentBundle?: RuntimeAssessmentBundle,
   options?: {
     activityIri?: string;
+    previewScormMode?: "local" | "scorm12" | "scorm2004";
     xapiPreview?: { logStatements?: boolean; mockLrs?: boolean };
   },
 ): string {
@@ -33,6 +35,9 @@ export function buildPreviewConfig(
     manifest,
     baseUrl: "/course",
     mode: "preview",
+    ...(options?.previewScormMode && options.previewScormMode !== "local"
+      ? { previewScormMode: options.previewScormMode }
+      : {}),
     ...(options?.activityIri ? { activityIri: options.activityIri } : {}),
     ...(options?.xapiPreview
       ? {
@@ -64,7 +69,7 @@ export async function createPreviewServer(
 
   app.addHook("onRequest", async (request, reply) => {
     const path = request.url.split("?")[0] ?? "";
-    if (path.startsWith("/course/assessments/")) {
+    if (isPreviewBlockedCoursePath(path)) {
       return reply.code(404).send("Not found");
     }
   });
@@ -84,8 +89,10 @@ export async function createPreviewServer(
   const stylesCss = await loadPreviewStyles(runtimeDir);
   const lxpackConfig = await loadLxpackConfig(courseDir);
   const activityIri = getCourseActivityIri(manifest);
+  const previewScormMode = lxpackConfig?.preview?.scormMode ?? "local";
   const config = buildPreviewConfig(manifest, assessmentBundle, {
     activityIri,
+    previewScormMode,
     xapiPreview: lxpackConfig?.xapi?.preview,
   });
   const componentsJs = await readComponentsBundle();

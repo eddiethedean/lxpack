@@ -113,7 +113,7 @@ Goals:
 - strict validation (shipped)
 - hot reload (future)
 - mobile preview (future)
-- LMS simulation (SCORM 1.2 preview today)
+- LMS simulation (preview: `local` default; optional SCORM 1.2/2004 via `preview.scormMode`)
 
 ---
 
@@ -173,14 +173,16 @@ packages/
   validators/
   scorm/
   components/
+  xapi/
+  cmi5/
 examples/
   security-awareness/
   branching-demo/
+  xapi-awareness/
+  cmi5-demo/
 test/fixtures/
 docs/
 ```
-
-Packages: `xapi/`, `cmi5/` (v0.3.0).
 
 ---
 

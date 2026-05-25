@@ -5,6 +5,9 @@ export function renderShell(manifest: CourseManifest): HTMLElement {
   const app = document.getElementById("lxpack-app");
   if (!app) throw new Error("#lxpack-app element not found");
 
+  const theme = manifest.runtime?.theme ?? "modern";
+  app.className = `lxpack-theme-${theme.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+
   const description = manifest.description
     ? `<p class="lxpack-description">${escapeHtml(manifest.description)}</p>`
     : "";

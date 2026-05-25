@@ -109,7 +109,7 @@ Plugins, custom interactions, export targets, and analytics providers are planne
 
 **Validation** — Zod schemas, filesystem checks, path/symlink containment, assessment bundles for export.
 
-**Preview** — serves course + runtime; strict validation; SCORM 1.2 simulator (`localStorage`).
+**Preview** — serves course + runtime; strict validation; default `localStorage` progress; optional SCORM 1.2/2004 simulators via `preview.scormMode`.
 
 ---
 
@@ -184,12 +184,14 @@ Out of scope for v0.2: xAPI, cmi5, hot reload, theme wiring, plugin marketplace.
 
 ---
 
-## Phase 3 — Modern standards (planned — v0.3.x)
+## Phase 3 — Modern standards (shipped — v0.3.0)
 
-- xAPI export and runtime statement helpers
-- cmi5 packaging
-- analytics and simulation tracking hooks
-- automated accessibility validation (WCAG-oriented)
+- xAPI export and runtime statement helpers (`@lxpack/xapi`, `lxpack build --target xapi`)
+- cmi5 packaging (`@lxpack/cmi5`, `lxpack build --target cmi5`)
+- analytics via `XapiReporter` and preview logging in `lxpack.config.json`
+- Preview optional SCORM simulators via `preview.scormMode` (`local` | `scorm12` | `scorm2004`)
+- cmi5 `fetch` launch bootstrap deferred (manifest + runtime shell only in v0.3.0)
+- automated accessibility validation (WCAG-oriented) remains future work
 
 ---
 

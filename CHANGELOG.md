@@ -5,6 +5,8 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [0.3.0] - 2026-05-24
 
 ### Added
@@ -16,11 +18,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Runtime **`AnalyticsReporter`** port with **`XapiReporter`** — statements on launch, experience, interaction (including simulation payloads), lesson completion, and assessment submit
 - Preview xAPI logging via `lxpack.config.json` → `xapi.preview` (`logStatements`, `mockLrs`) and `localStorage` statement queue
 - Examples: `examples/xapi-awareness`, `examples/cmi5-demo`; fixtures `test/fixtures/xapi-valid`, `test/fixtures/missing-xapi-iri`
+- `lxpack.config.json` → `preview.scormMode` (`local` | `scorm12` | `scorm2004`) for SCORM API simulators during `lxpack preview`
+- Root script `pnpm examples:validate` to validate all example courses
+- DOMPurify-based markdown sanitization in the browser runtime
+- `installScorm2004API()` for preview SCORM 2004 simulation
 
 ### Changed
 
 - `lxpack.config.json` `exports.defaultTarget` may be `xapi` or `cmi5`
 - Runtime client build externalizes `@lxpack/validators` (type-only imports) to keep the browser bundle Node-free
+- `lxpack validate --target` rejects unknown export targets (same as `build`)
+- Preview server blocks `/course/course.yaml`, `/course/lxpack.config.json`, and `/course/.lxpack/*`
+- HTML interaction paths validated for safe characters; iframe `src` escaped
+- Flow `variable.eq` respects manifest variable `type` when comparing values
+- Runtime applies `lxpack-theme-{theme}` class from `course.yaml` `runtime.theme`
+- CI runs `pnpm test:coverage` with per-package thresholds
 
 ### Fixed
 
@@ -34,6 +46,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `interaction.done` flow conditions require a truthy interaction value
 - xAPI `buildInteracted` avoids duplicate simulation keys in statement extensions
 - Activity lists for xAPI analytics delegate to `enumerateActivities` from `@lxpack/validators`
+- Preview can use SCORM 1.2 / 2004 simulators via config (default remains `local` / localStorage)
+- Documentation synced for Phase 3 (shipped) and preview SCORM behavior
+
+### Notes
+
+- cmi5 `fetch` launch parameter is parsed but session bootstrap via `fetch` is not implemented in v0.3.0 (runtime warns when present)
 
 ## [0.2.2] - 2026-05-24
 

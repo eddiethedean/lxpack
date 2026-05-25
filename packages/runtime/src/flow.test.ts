@@ -73,6 +73,18 @@ describe("flow", () => {
     expect(evaluateCondition({ variable: { eq: ["x", 1] } }, ctx)).toBe(false);
   });
 
+  it("coerces variable equality when getVariableType is provided", () => {
+    const ctx = {
+      getVariable: () => 1,
+      getVariableType: () => "number" as const,
+      isAssessmentPassed: () => false,
+      isInteractionDone: () => false,
+    };
+    expect(
+      evaluateCondition({ variable: { eq: ["score", "1"] } }, ctx),
+    ).toBe(true);
+  });
+
   it("uses linear next when flow goto is the current activity", () => {
     const ctx = {
       getVariable: () => true,

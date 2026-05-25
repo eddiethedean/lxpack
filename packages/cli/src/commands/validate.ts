@@ -6,12 +6,21 @@ import {
 import type { ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
 import { findCourseDir } from "../utils.js";
+import {
+  formatInvalidTargetMessage,
+  isValidExportTarget,
+} from "../lib/targets.js";
 
 const XAPI_TARGETS: ExportTarget[] = ["xapi", "cmi5"];
 
 export async function validateCommand(options?: {
   target?: string;
 }): Promise<void> {
+  if (options?.target !== undefined && !isValidExportTarget(options.target)) {
+    console.error(pc.red(formatInvalidTargetMessage(options.target)));
+    process.exit(1);
+  }
+
   const courseDir = findCourseDir();
   const result = await validateCourse(courseDir);
   const issues: ValidationIssue[] = [...result.issues];

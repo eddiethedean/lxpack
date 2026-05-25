@@ -1,14 +1,15 @@
-import { joinUrl } from "../html-utils.js";
+import { escapeHtml, joinUrl } from "../html-utils.js";
 
 export function renderHtmlInteraction(
   contentEl: HTMLElement,
   baseUrl: string,
   path: string,
 ): void {
+  const src = escapeHtml(joinUrl(baseUrl, `${path}/index.html`));
   contentEl.innerHTML = `
     <iframe
       class="lxpack-interaction-frame"
-      src="${joinUrl(baseUrl, `${path}/index.html`)}"
+      src="${src}"
       title="Interaction"
       sandbox="allow-scripts allow-same-origin allow-forms"
     ></iframe>

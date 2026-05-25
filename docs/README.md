@@ -53,6 +53,13 @@ test/fixtures/
 docs/
 ```
 
+## v0.3 highlights (for doc authors)
+
+- **Export:** `lxpack build --target xapi|cmi5` with `tracking.xapi.activityIri` (HTTPS)
+- **Preview:** `preview.scormMode` in `lxpack.config.json` (`local` | `scorm12` | `scorm2004`); blocks sensitive paths under `/course/`
+- **Runtime:** `XapiReporter`, DOMPurify markdown sanitization, typed flow variable equality, `runtime.theme` CSS class on `#lxpack-app`
+- **Validation:** `lxpack validate --target` uses the same target list as `build`
+
 ## v0.2 highlights (for doc authors)
 
 - **`course.yaml`:** optional `variables`, `flow`, lesson `type: component`

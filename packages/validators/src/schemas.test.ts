@@ -88,6 +88,25 @@ describe("assessmentSchema", () => {
 });
 
 describe("courseManifestSchema", () => {
+  it("rejects variable default type mismatches", () => {
+    expect(
+      courseManifestSchema.safeParse({
+        title: "T",
+        version: "1.0.0",
+        variables: { n: { default: "x", type: "number" } },
+        lessons: [{ id: "a", type: "markdown", file: "a.md" }],
+      }).success,
+    ).toBe(false);
+    expect(
+      courseManifestSchema.safeParse({
+        title: "T",
+        version: "1.0.0",
+        variables: { flag: { default: true, type: "string" } },
+        lessons: [{ id: "a", type: "markdown", file: "a.md" }],
+      }).success,
+    ).toBe(false);
+  });
+
   it("accepts a valid manifest with tracking and runtime", () => {
     const result = courseManifestSchema.safeParse({
       title: "Test Course",
@@ -99,6 +118,25 @@ describe("courseManifestSchema", () => {
       ],
     });
     expect(result.success).toBe(true);
+  });
+
+  it("rejects duplicate question ids in an assessment", () => {
+    const result = assessmentSchema.safeParse({
+      id: "quiz",
+      questions: [
+        {
+          id: "q1",
+          prompt: "?",
+          choices: [{ id: "a", text: "A", correct: true }],
+        },
+        {
+          id: "q1",
+          prompt: "??",
+          choices: [{ id: "b", text: "B", correct: true }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
   });
 
   it("rejects unknown keys in assessment questions", () => {

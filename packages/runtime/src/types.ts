@@ -7,6 +7,9 @@ import type {
   RuntimeAssessmentBundle,
 } from "@lxpack/validators";
 
+/** Preview LMS persistence: localStorage vs SCORM 1.2/2004 simulators. */
+export type PreviewScormMode = "local" | "scorm12" | "scorm2004";
+
 export interface CourseProgress {
   currentLessonId: string;
   completedLessons: string[];
@@ -18,6 +21,8 @@ export interface RuntimeConfig {
   manifest: CourseManifest;
   baseUrl: string;
   mode: "preview" | "standalone" | "scorm12" | "scorm2004" | "xapi" | "cmi5";
+  /** When mode is preview: local (default) or SCORM API simulators. */
+  previewScormMode?: PreviewScormMode;
   activityId?: string;
   activityIri?: string;
   xapi?: {

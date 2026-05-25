@@ -33,7 +33,7 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 - **Browser runtime** — lesson navigation, markdown rendering, HTML interactions, MCQ assessments, progress tracking
 - **Secure packaging** — assessment answer keys and feedback text are embedded in the runtime config at build time; author `assessments/*.yaml` files are not shipped in exported ZIPs
 - **SCORM 1.2** — single-SCO export; discovers the LMS `API` in parent/opener frames; compact `suspend_data` within the 4096-character limit
-- **Local preview** — Fastify dev server with strict validation (same rules as `build`)
+- **Local preview** — Fastify dev server with strict validation (same rules as `build`); optional SCORM 1.2/2004 simulators via `lxpack.config.json` → `preview.scormMode`
 - **Export targets** — SCORM 1.2 ZIP, standalone HTML ZIP/directory
 - **Course config** — optional `lxpack.config.json` for default export target and output directory
 
@@ -176,7 +176,7 @@ my-course/
   assessments/         # Quiz YAML (authoring only — not in export ZIPs)
   components/          # Optional overrides for @lxpack/components widgets
   assets/              # Static assets
-  theme/               # Optional theme assets (not wired in v0.2.x)
+  theme/               # Optional theme assets (reserved; `runtime.theme` sets a CSS class on the app root)
   .lxpack/             # Build output (generated)
 ```
 
@@ -315,7 +315,26 @@ pnpm lint           # ESLint on package sources
 pnpm typecheck      # TypeScript per package
 pnpm test           # Vitest across packages
 pnpm test:coverage  # coverage thresholds per package
+pnpm examples:validate  # validate all courses under examples/ (requires build)
 ```
+
+### Preview SCORM simulation
+
+In `lxpack.config.json`:
+
+```json
+{
+  "preview": {
+    "scormMode": "local"
+  }
+}
+```
+
+| `scormMode` | Behavior |
+|-------------|----------|
+| `local` (default) | Progress in `localStorage` (no SCORM API on `window`) |
+| `scorm12` | SCORM 1.2 simulator (`window.API`, `cmi.suspend_data` in `localStorage`) |
+| `scorm2004` | SCORM 2004 simulator (`window.API_1484_11`) |
 
 Run a single package:
 
@@ -329,6 +348,7 @@ pnpm --filter @lxpack/cli build
 | Workflow | Trigger | Steps |
 |----------|---------|--------|
 | [CI](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test |
+| [Checks](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/checks.yml) | Reusable / release | lint, build, typecheck, test, **coverage** |
 | [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish all `@lxpack/*` packages to npm |
 
 To cut a release:
