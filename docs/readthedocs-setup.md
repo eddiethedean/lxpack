@@ -50,7 +50,7 @@ Set `DOCS_VERBOSE=1` to show MkDocs INFO logs during the script build.
 
 ## Versioning (optional)
 
-When you tag releases (for example `v0.3.1`), Read the Docs can expose a **stable** version from tags. Enable “upload tags as versions” in the project Admin → Versions.
+When you tag releases (for example `v0.3.2`), Read the Docs can expose a **stable** version from tags. Enable “upload tags as versions” in the project Admin → Versions.
 
 ## CI
 

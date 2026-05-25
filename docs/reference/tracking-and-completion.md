@@ -44,9 +44,9 @@ lxpack build --target xapi
 
 Runtime sends statements (launch, progress, interactions, assessments) via `XapiReporter`. Preview can log statements when `xapi.preview` is set in config.
 
-### cmi5 note (v0.3.1)
+### cmi5 note (v0.3.2)
 
-cmi5 packages include `cmi5.xml`. Session bootstrap via cmi5 `fetch` launch is limited in v0.3.1 — test with your LMS in staging.
+cmi5 packages include `cmi5.xml`. Session bootstrap via cmi5 `fetch` launch is limited in v0.3.2 — test with your LMS in staging.
 
 ## HTML interaction tracking
 

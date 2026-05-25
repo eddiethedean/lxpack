@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/xapi",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "xAPI statement builders and transport for LXPack",
   "license": "Apache-2.0",
   "repository": {

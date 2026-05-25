@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/components",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Reusable UI components for LXPack courses",
   "license": "Apache-2.0",
   "repository": {

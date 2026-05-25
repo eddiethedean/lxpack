@@ -115,7 +115,8 @@ describe("startPreview with assessments", () => {
 describe("loadPreviewStyles", () => {
   it("returns fallback CSS when the styles file is missing", async () => {
     const css = await previewCommands.loadPreviewStyles("/nonexistent");
-    expect(css).toContain("body { margin: 0; }");
+    expect(css).toContain("--lxpack-bg");
+    expect(css).toContain("margin: 0");
   });
 });
 

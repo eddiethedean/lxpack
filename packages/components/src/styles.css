@@ -1,26 +1,75 @@
+/* Uses @lxpack/runtime CSS variables when bundled into learner pages. */
 .lxpack-callout {
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-  border-left: 4px solid #3b82f6;
-  background: #eff6ff;
+  padding: 1rem 1.2rem;
+  border-radius: var(--lxpack-radius, 10px);
+  border: 1px solid var(--lxpack-border, #2a3650);
+  border-left: 4px solid var(--lxpack-accent, #3b82f6);
+  background: color-mix(
+    in srgb,
+    var(--lxpack-accent, #3b82f6) 10%,
+    var(--lxpack-surface, #151d2e)
+  );
   margin: 1rem 0;
 }
 
+.lxpack-callout p {
+  margin: 0;
+}
+
 .lxpack-callout-warning {
-  border-left-color: #f59e0b;
-  background: #fffbeb;
+  border-left-color: var(--lxpack-warning, #f59e0b);
+  background: color-mix(
+    in srgb,
+    var(--lxpack-warning, #f59e0b) 12%,
+    var(--lxpack-surface, #151d2e)
+  );
+}
+
+.lxpack-callout-info {
+  border-left-color: var(--lxpack-accent, #3b82f6);
+}
+
+.lxpack-image-card {
+  margin: 1rem 0;
 }
 
 .lxpack-image-card img {
   max-width: 100%;
-  border-radius: 8px;
+  border-radius: var(--lxpack-radius, 10px);
+  border: 1px solid var(--lxpack-border, #2a3650);
+  display: block;
+}
+
+.lxpack-image-card figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--lxpack-muted, #94a3b8);
 }
 
 .lxpack-checklist {
   list-style: none;
   padding: 0;
+  margin: 1rem 0;
+}
+
+.lxpack-checklist li {
+  position: relative;
+  padding: 0.45rem 0 0.45rem 1.75rem;
+  border-bottom: 1px solid var(--lxpack-border, #2a3650);
+}
+
+.lxpack-checklist li:last-child {
+  border-bottom: none;
 }
 
 .lxpack-checklist li::before {
-  content: "☐ ";
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.65rem;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--lxpack-border, #2a3650);
+  border-radius: 4px;
+  background: var(--lxpack-bg, #0b1220);
 }

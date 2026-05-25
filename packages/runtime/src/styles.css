@@ -1,14 +1,21 @@
 :root {
-  --lxpack-bg: #0f1419;
-  --lxpack-surface: #1a2332;
-  --lxpack-border: #2d3a4f;
-  --lxpack-text: #e8edf4;
-  --lxpack-muted: #8b9cb3;
+  --lxpack-bg: #0b1220;
+  --lxpack-surface: #151d2e;
+  --lxpack-surface-raised: #1c2740;
+  --lxpack-border: #2a3650;
+  --lxpack-text: #f1f5f9;
+  --lxpack-muted: #94a3b8;
   --lxpack-accent: #3b82f6;
   --lxpack-accent-hover: #2563eb;
   --lxpack-success: #22c55e;
-  --lxpack-radius: 8px;
-  --lxpack-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --lxpack-warning: #f59e0b;
+  --lxpack-danger: #f87171;
+  --lxpack-radius: 10px;
+  --lxpack-radius-sm: 6px;
+  --lxpack-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    sans-serif;
+  --lxpack-content-max: 46rem;
+  --lxpack-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
 }
 
 *,
@@ -22,7 +29,8 @@ body {
   font-family: var(--lxpack-font);
   background: var(--lxpack-bg);
   color: var(--lxpack-text);
-  line-height: 1.6;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
 }
 
 .lxpack-layout {
@@ -32,21 +40,25 @@ body {
 }
 
 .lxpack-header {
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.75rem;
   border-bottom: 1px solid var(--lxpack-border);
   background: var(--lxpack-surface);
+  box-shadow: var(--lxpack-shadow);
 }
 
 .lxpack-title {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.375rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
 }
 
 .lxpack-version {
-  margin: 0.25rem 0 0;
-  font-size: 0.875rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
   color: var(--lxpack-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .lxpack-body {
@@ -56,37 +68,46 @@ body {
 }
 
 .lxpack-nav {
-  width: 220px;
+  width: 240px;
   flex-shrink: 0;
-  padding: 1rem;
+  padding: 1rem 0.75rem;
   border-right: 1px solid var(--lxpack-border);
   background: var(--lxpack-surface);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
   overflow-y: auto;
 }
 
 .lxpack-nav-item {
   display: block;
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: 0.55rem 0.85rem;
   text-align: left;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--lxpack-radius);
+  border-radius: var(--lxpack-radius-sm);
   color: var(--lxpack-text);
   font: inherit;
+  font-size: 0.9375rem;
   cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .lxpack-nav-item:hover {
   background: var(--lxpack-bg);
 }
 
+.lxpack-nav-item:focus-visible {
+  outline: 2px solid var(--lxpack-accent);
+  outline-offset: 2px;
+}
+
 .lxpack-nav-item.active {
-  border-color: var(--lxpack-accent);
-  background: color-mix(in srgb, var(--lxpack-accent) 15%, transparent);
+  border-color: color-mix(in srgb, var(--lxpack-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--lxpack-accent) 14%, var(--lxpack-bg));
 }
 
 .lxpack-nav-item.completed::after {
@@ -96,33 +117,142 @@ body {
 
 .lxpack-content {
   flex: 1;
-  padding: 1.5rem;
+  padding: 1.75rem clamp(1.25rem, 4vw, 2.5rem);
   overflow-y: auto;
+}
+
+.lxpack-content > .lxpack-markdown,
+.lxpack-content > .lxpack-assessment,
+.lxpack-content > .lxpack-component,
+.lxpack-content > article.lxpack-component {
+  max-width: var(--lxpack-content-max);
+}
+
+/* Markdown lessons */
+.lxpack-markdown {
+  font-size: 1.0625rem;
 }
 
 .lxpack-markdown h1,
 .lxpack-markdown h2,
-.lxpack-markdown h3 {
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
+.lxpack-markdown h3,
+.lxpack-markdown h4 {
+  margin-top: 1.75em;
+  margin-bottom: 0.55em;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
 }
 
-.lxpack-markdown h1:first-child {
+.lxpack-markdown h1 {
+  font-size: 1.75rem;
+}
+
+.lxpack-markdown h2 {
+  font-size: 1.35rem;
+}
+
+.lxpack-markdown h3 {
+  font-size: 1.125rem;
+}
+
+.lxpack-markdown h1:first-child,
+.lxpack-markdown h2:first-child,
+.lxpack-markdown h3:first-child {
   margin-top: 0;
 }
 
+.lxpack-markdown p,
+.lxpack-markdown ul,
+.lxpack-markdown ol,
+.lxpack-markdown blockquote,
+.lxpack-markdown pre,
+.lxpack-markdown table {
+  margin: 0 0 1em;
+}
+
+.lxpack-markdown ul,
+.lxpack-markdown ol {
+  padding-left: 1.35em;
+}
+
+.lxpack-markdown li + li {
+  margin-top: 0.35em;
+}
+
+.lxpack-markdown a {
+  color: #93c5fd;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.lxpack-markdown a:hover {
+  color: #bfdbfe;
+}
+
+.lxpack-markdown blockquote {
+  margin-left: 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--lxpack-accent);
+  background: color-mix(in srgb, var(--lxpack-accent) 8%, var(--lxpack-surface));
+  border-radius: 0 var(--lxpack-radius-sm) var(--lxpack-radius-sm) 0;
+  color: var(--lxpack-muted);
+}
+
 .lxpack-markdown code {
-  background: var(--lxpack-surface);
-  padding: 0.125em 0.375em;
-  border-radius: 4px;
-  font-size: 0.9em;
+  background: var(--lxpack-surface-raised);
+  padding: 0.15em 0.4em;
+  border-radius: var(--lxpack-radius-sm);
+  font-size: 0.88em;
+  border: 1px solid var(--lxpack-border);
 }
 
 .lxpack-markdown pre {
-  background: var(--lxpack-surface);
-  padding: 1rem;
+  background: var(--lxpack-surface-raised);
+  padding: 1rem 1.15rem;
   border-radius: var(--lxpack-radius);
   overflow-x: auto;
+  border: 1px solid var(--lxpack-border);
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.lxpack-markdown pre code {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: inherit;
+}
+
+.lxpack-markdown img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--lxpack-radius);
+  border: 1px solid var(--lxpack-border);
+}
+
+.lxpack-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.lxpack-markdown th,
+.lxpack-markdown td {
+  border: 1px solid var(--lxpack-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.lxpack-markdown th {
+  background: var(--lxpack-surface-raised);
+  font-weight: 600;
+}
+
+.lxpack-markdown hr {
+  border: none;
+  border-top: 1px solid var(--lxpack-border);
+  margin: 2em 0;
 }
 
 .lxpack-interaction-frame {
@@ -130,11 +260,12 @@ body {
   min-height: 480px;
   border: 1px solid var(--lxpack-border);
   border-radius: var(--lxpack-radius);
-  background: #fff;
+  background: #f8fafc;
+  box-shadow: var(--lxpack-shadow);
 }
 
 .lxpack-footer {
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.75rem 1.25rem;
   border-top: 1px solid var(--lxpack-border);
   background: var(--lxpack-surface);
 }
@@ -142,7 +273,7 @@ body {
 .lxpack-progress-bar {
   height: 6px;
   background: var(--lxpack-bg);
-  border-radius: 3px;
+  border-radius: 999px;
   overflow: hidden;
   margin-bottom: 1rem;
 }
@@ -150,32 +281,47 @@ body {
 .lxpack-progress-fill {
   height: 100%;
   width: 0%;
-  background: var(--lxpack-accent);
-  transition: width 0.3s ease;
+  background: linear-gradient(
+    90deg,
+    var(--lxpack-accent),
+    color-mix(in srgb, var(--lxpack-accent) 70%, #60a5fa)
+  );
+  transition: width 0.35s ease;
 }
 
 .lxpack-nav-buttons {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .lxpack-nav-buttons button {
-  padding: 0.5rem 1rem;
+  padding: 0.55rem 1.1rem;
   font: inherit;
-  border-radius: var(--lxpack-radius);
+  font-size: 0.9375rem;
+  border-radius: var(--lxpack-radius-sm);
   border: 1px solid var(--lxpack-border);
   background: var(--lxpack-bg);
   color: var(--lxpack-text);
   cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .lxpack-nav-buttons button:hover:not(:disabled) {
   border-color: var(--lxpack-accent);
+  background: var(--lxpack-surface-raised);
+}
+
+.lxpack-nav-buttons button:focus-visible {
+  outline: 2px solid var(--lxpack-accent);
+  outline-offset: 2px;
 }
 
 .lxpack-nav-buttons button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -183,39 +329,76 @@ body {
   margin-left: auto;
   background: var(--lxpack-accent) !important;
   border-color: var(--lxpack-accent) !important;
+  font-weight: 600;
 }
 
 .lxpack-complete-btn:hover:not(:disabled) {
   background: var(--lxpack-accent-hover) !important;
+  border-color: var(--lxpack-accent-hover) !important;
 }
 
 .lxpack-error {
-  color: #f87171;
+  color: var(--lxpack-danger);
+}
+
+.lxpack-hint {
+  font-size: 0.875rem;
+  color: var(--lxpack-muted);
+  margin: 0 0 1rem;
 }
 
 .lxpack-assessment {
-  max-width: 640px;
+  max-width: var(--lxpack-content-max);
 }
 
 .lxpack-assessment h2 {
   margin-top: 0;
+  font-size: 1.35rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
 }
 
 .lxpack-question {
   border: 1px solid var(--lxpack-border);
   border-radius: var(--lxpack-radius);
-  padding: 1rem;
+  padding: 1.15rem 1.25rem;
   margin-bottom: 1rem;
+  background: var(--lxpack-surface);
+}
+
+.lxpack-question legend {
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0 0.25rem 0.5rem;
 }
 
 .lxpack-choice {
-  display: block;
-  margin: 0.5rem 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0.55rem 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--lxpack-radius-sm);
+  border: 1px solid transparent;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.lxpack-choice:hover {
+  background: var(--lxpack-surface-raised);
+}
+
+.lxpack-choice input {
+  margin-top: 0.2rem;
+  accent-color: var(--lxpack-accent);
 }
 
 .lxpack-assessment-feedback {
   margin-top: 1rem;
+  padding: 1rem;
+  border-radius: var(--lxpack-radius);
+  background: var(--lxpack-surface);
+  border: 1px solid var(--lxpack-border);
 }
 
 .lxpack-success-text {
@@ -224,11 +407,82 @@ body {
 
 .lxpack-nav-assessment {
   font-style: italic;
+  color: var(--lxpack-muted);
 }
 
 .lxpack-description {
   color: var(--lxpack-muted);
-  margin: 0.25rem 0 0;
+  margin: 0.35rem 0 0;
+  max-width: 42rem;
+  font-size: 0.9375rem;
+}
+
+/* Built-in components (also in @lxpack/components styles.css) */
+.lxpack-callout {
+  padding: 1rem 1.2rem;
+  border-radius: var(--lxpack-radius);
+  border: 1px solid var(--lxpack-border);
+  border-left: 4px solid var(--lxpack-accent);
+  background: color-mix(in srgb, var(--lxpack-accent) 10%, var(--lxpack-surface));
+  margin: 1rem 0;
+}
+
+.lxpack-callout p {
+  margin: 0;
+}
+
+.lxpack-callout-warning {
+  border-left-color: var(--lxpack-warning);
+  background: color-mix(in srgb, var(--lxpack-warning) 12%, var(--lxpack-surface));
+}
+
+.lxpack-callout-info {
+  border-left-color: var(--lxpack-accent);
+}
+
+.lxpack-image-card {
+  margin: 1rem 0;
+}
+
+.lxpack-image-card img {
+  max-width: 100%;
+  border-radius: var(--lxpack-radius);
+  border: 1px solid var(--lxpack-border);
+  display: block;
+}
+
+.lxpack-image-card figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--lxpack-muted);
+}
+
+.lxpack-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.lxpack-checklist li {
+  position: relative;
+  padding: 0.45rem 0 0.45rem 1.75rem;
+  border-bottom: 1px solid var(--lxpack-border);
+}
+
+.lxpack-checklist li:last-child {
+  border-bottom: none;
+}
+
+.lxpack-checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.65rem;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--lxpack-border);
+  border-radius: 4px;
+  background: var(--lxpack-bg);
 }
 
 @media (max-width: 768px) {

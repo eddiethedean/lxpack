@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/cmi5",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "cmi5 packaging for LXPack courses",
   "license": "Apache-2.0",
   "repository": {

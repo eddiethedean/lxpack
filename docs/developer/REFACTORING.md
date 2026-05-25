@@ -1,4 +1,4 @@
-# Internal refactor contract (v0.3.1)
+# Internal refactor contract (v0.3.2)
 
 This document records invariants for the SOLID refactor.
 

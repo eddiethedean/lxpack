@@ -11,6 +11,8 @@ export {
   getRuntimeAssetsDir,
   getEmbeddedStyles,
   loadRuntimeStyles,
+  loadComponentsStyles,
+  loadLearnerStyles,
   readRuntimeBundle,
   readComponentsBundle,
 } from "./lib/bundle-io.js";

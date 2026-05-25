@@ -9,8 +9,8 @@ import { buildLearnerPageHtml, safeJsonForHtml } from "@lxpack/scorm";
 import {
   findCourseDir,
   getRuntimeAssetsDir,
+  loadLearnerStyles,
   loadLxpackConfig,
-  loadRuntimeStyles,
   readComponentsBundle,
 } from "../utils.js";
 import { getCourseActivityIri } from "@lxpack/validators";
@@ -19,7 +19,7 @@ import { shouldBlockPreviewCourseRequest } from "../lib/preview-paths.js";
 export async function loadPreviewStyles(
   assetsDir = getRuntimeAssetsDir(),
 ): Promise<string> {
-  return loadRuntimeStyles(assetsDir);
+  return loadLearnerStyles(assetsDir);
 }
 
 export function buildPreviewConfig(
