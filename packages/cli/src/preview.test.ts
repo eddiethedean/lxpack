@@ -45,6 +45,17 @@ describe("buildPreviewConfig", () => {
     expect(json).toContain('"previewScormMode":"scorm12"');
   });
 
+  it("embeds xapi preview options when provided", async () => {
+    const { loadCourseManifest } = await import("./utils.js");
+    const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
+    const json = previewCommands.buildPreviewConfig(manifest, undefined, {
+      activityIri: "https://example.test/courses/demo",
+      xapiPreview: { logStatements: false, mockLrs: false },
+    });
+    expect(json).toContain('"previewLog":false');
+    expect(json).toContain('"mockLrs":false');
+  });
+
   it("omits previewScormMode for local default", async () => {
     const { loadCourseManifest } = await import("./utils.js");
     const manifest = await loadCourseManifest(fixturePath("minimal-valid"));
@@ -70,6 +81,25 @@ describe("buildPreviewConfig", () => {
 });
 
 describe("startPreview with assessments", () => {
+  it("exits when lxpack.config.json is invalid", async () => {
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+    const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const { cp } = await import("node:fs/promises");
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-preview-badcfg-"));
+    await cp(fixturePath("minimal-valid"), dir, { recursive: true });
+    await writeFile(join(dir, "lxpack.config.json"), "{ bad");
+
+    await expect(previewCommands.startPreview(dir)).rejects.toThrow("exit:1");
+    exit.mockRestore();
+    await rm(dir, { recursive: true, force: true });
+  });
+
   it("builds a preview server for valid courses with quizzes", async () => {
     const { app, validation } = await previewCommands.startPreview(
       fixturePath("minimal-valid"),

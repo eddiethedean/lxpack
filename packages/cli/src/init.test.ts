@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect, afterEach, vi } from "vitest";
@@ -67,5 +67,26 @@ describe("initCommand", () => {
       "exit:1",
     );
     exit.mockRestore();
+  });
+
+  it("clears assessments and interactions when --force is used", async () => {
+    const parent = await mkdtemp(join(tmpdir(), "lxpack-init-force-clear-"));
+    dirs.push(parent);
+    process.chdir(parent);
+
+    await initCommand("existing", { dir: "existing" });
+    const targetDir = join(parent, "existing");
+    await writeFile(join(targetDir, "assessments", "stale.yaml"), "id: stale\n");
+    await mkdir(join(targetDir, "interactions", "old-lab"), { recursive: true });
+    await writeFile(
+      join(targetDir, "interactions", "old-lab", "index.html"),
+      "<html></html>",
+    );
+
+    await initCommand("existing", { dir: "existing", force: true });
+
+    expect(existsSync(join(targetDir, "assessments", "stale.yaml"))).toBe(false);
+    expect(existsSync(join(targetDir, "interactions", "old-lab"))).toBe(false);
+    expect(existsSync(join(targetDir, "assessments", "final.yaml"))).toBe(true);
   });
 });

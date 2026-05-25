@@ -141,6 +141,28 @@ describe("progress-persist", () => {
     expect(restored.suspendData.assessment_passing_quiz).toBe(0.7);
   });
 
+  it("preserves flow-referenced interaction keys when pruning", () => {
+    const suspendData: Record<string, unknown> = {
+      interaction_flow_lab: true,
+      interaction_extra: "x".repeat(80),
+    };
+    for (let i = 0; i < 80; i++) {
+      suspendData[`interaction_${i}`] = "x".repeat(80);
+    }
+    const progress: CourseProgress = {
+      currentLessonId: "a",
+      completedLessons: ["a"],
+      assessmentScores: {},
+      suspendData,
+    };
+    const serialized = serializeProgressForStorage(progress, 4096, {
+      preserveInteractionIds: new Set(["flow_lab"]),
+    });
+    expect(serialized.length).toBeLessThanOrEqual(4096);
+    const { progress: restored } = parseStoredProgress(serialized, defaults);
+    expect(restored.suspendData.interaction_flow_lab).toBe(true);
+  });
+
   it("prunes interaction keys when payload exceeds SCORM limit", () => {
     const suspendData: Record<string, unknown> = {};
     for (let i = 0; i < 120; i++) {

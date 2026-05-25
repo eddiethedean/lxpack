@@ -252,6 +252,54 @@ describe("buildCommand", () => {
     process.chdir(join(workDir, "course"));
   });
 
+  it("exits when lxpack.config.json is invalid", async () => {
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(
+      join(process.cwd(), "lxpack.config.json"),
+      "{ not valid json",
+    );
+    await expect(buildCommand({ target: "scorm12" })).rejects.toThrow("exit:1");
+    exit.mockRestore();
+    await rm(join(process.cwd(), "lxpack.config.json"), { force: true });
+  });
+
+  it("exits when packaging hits a symlink in the course tree", async () => {
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-build-sym-out-"));
+    cleanup.push(outside);
+    const { symlink, writeFile, mkdir } = await import("node:fs/promises");
+    await writeFile(join(outside, "secret.txt"), "x");
+    await mkdir(join(process.cwd(), "assets"), { recursive: true });
+    await symlink(join(outside, "secret.txt"), join(process.cwd(), "assets", "leak.txt"));
+
+    await expect(buildCommand({ target: "scorm12" })).rejects.toThrow("exit:1");
+    exit.mockRestore();
+    await rm(join(process.cwd(), "assets"), { recursive: true, force: true });
+  });
+
+  it("rethrows unexpected packaging errors", async () => {
+    const packagers = await import("./packagers/index.js");
+    vi.spyOn(packagers, "getZipPackager").mockReturnValue({
+      target: "scorm12",
+      package: async () => {
+        throw new Error("packager boom");
+      },
+    } as never);
+    await expect(buildCommand({ target: "scorm12" })).rejects.toThrow(
+      "packager boom",
+    );
+    vi.restoreAllMocks();
+  });
+
   it("exits when course fails validation", async () => {
     const { writeFile } = await import("node:fs/promises");
     await writeFile(

@@ -145,6 +145,64 @@ describe("client navigation fallbacks", () => {
     );
   });
 
+  it("warns when SCORM 2004 single-SCO flow goto is outside launch nav", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "Nav",
+        version: "1.0.0",
+        lessons: [
+          { id: "intro", type: "markdown", file: "lessons/intro.md" },
+          { id: "wrap", type: "markdown", file: "lessons/wrap.md" },
+        ],
+        flow: [{ when: { assessment: { passed: "final" } }, goto: "wrap" }],
+        assessments: [{ id: "final", file: "assessments/final.yaml" }],
+      },
+      assessments: {
+        final: {
+          id: "final",
+          title: "Final",
+          passingScore: 0.5,
+          questions: [
+            {
+              id: "q1",
+              prompt: "Ok?",
+              choices: [{ id: "a", text: "Yes", correct: true }],
+            },
+          ],
+        },
+      },
+      answerKeys: { final: { q1: "a" } },
+      assessmentConfigs: { final: { maxAttempts: 3 } },
+      baseUrl: "/course",
+      mode: "scorm2004",
+      activityId: "intro",
+    };
+
+    init();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="intro"]')?.classList.contains(
+          "active",
+        ),
+      ).toBe(true),
+    );
+
+    window.lxpack?.track({
+      type: "assessment",
+      id: "final",
+      data: { score: 1, passingScore: 0.5 },
+    });
+    await vi.waitFor(() =>
+      expect(
+        warn.mock.calls.some((c) =>
+          String(c[0]).includes("not available in this SCORM launch"),
+        ),
+      ).toBe(true),
+    );
+    warn.mockRestore();
+  });
+
   it("does not jump via interaction.done when track data is false", async () => {
     window.__LXPACK_CONFIG__ = {
       manifest: {

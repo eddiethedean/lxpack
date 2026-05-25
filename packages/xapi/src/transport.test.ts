@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { XapiStatement } from "./statement.js";
-import { StatementQueue } from "./transport.js";
+import { sendStatement, StatementQueue } from "./transport.js";
 
 const sampleStatement = {
   id: "stmt-1",
@@ -37,6 +37,18 @@ describe("StatementQueue", () => {
     vi.mocked(fetch).mockResolvedValueOnce({ ok: true } as Response);
     await queue.flush();
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("sendStatement passes keepalive to fetch", async () => {
+    vi.mocked(fetch).mockResolvedValue({ ok: true } as Response);
+    await sendStatement(
+      "https://lrs.example/xapi/statements",
+      undefined,
+      sampleStatement as XapiStatement,
+      { keepalive: true },
+    );
+    const init = vi.mocked(fetch).mock.calls[0]?.[1] as RequestInit | undefined;
+    expect(init?.keepalive).toBe(true);
   });
 
   it("invokes onStatement once per enqueue in mock mode", () => {

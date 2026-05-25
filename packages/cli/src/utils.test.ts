@@ -1,16 +1,19 @@
 import { existsSync, mkdirSync, realpathSync } from "node:fs";
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { fixturePath, REPO_ROOT } from "../../../test/helpers/paths.js";
+import {
+  resolveBuildOutputPath,
+  resolveOutputDir,
+} from "./lib/lxpack-config.js";
 import {
   findCourseDir,
   formatCourseTitleForYaml,
   getRuntimeAssetsDir,
   loadCourseManifest,
   loadLxpackConfig,
-  resolveOutputDir,
   resolvePathInCwd,
 } from "./utils.js";
 import * as utils from "./utils.js";
@@ -199,6 +202,38 @@ describe("resolveOutputDir", () => {
     const courseDir = await mkdtemp(join(tmpdir(), "lxpack-output-escape-"));
     expect(() => resolveOutputDir(courseDir, "../outside")).toThrow(
       "must stay inside the course directory",
+    );
+  });
+});
+
+describe("resolveBuildOutputPath", () => {
+  it("resolves relative output inside the course", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-build-out-"));
+    const zip = resolveBuildOutputPath(courseDir, "out.zip");
+    expect(zip).toBe(join(realpathSync(courseDir), "out.zip"));
+  });
+
+  it("rejects output outside the course directory", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-build-escape-"));
+    expect(() => resolveBuildOutputPath(courseDir, "../outside.zip")).toThrow(
+      "must stay inside the course directory",
+    );
+  });
+
+  it("rejects absolute output outside the course", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-build-abs-"));
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-build-outside-"));
+    expect(() => resolveBuildOutputPath(courseDir, join(outside, "x.zip"))).toThrow(
+      "must stay inside the course directory",
+    );
+  });
+
+  it("validates realpath when the output file already exists", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-build-existing-"));
+    const out = join(courseDir, "out.zip");
+    await writeFile(out, "zip");
+    expect(resolveBuildOutputPath(courseDir, "out.zip")).toBe(
+      join(realpathSync(courseDir), "out.zip"),
     );
   });
 });

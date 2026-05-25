@@ -11,6 +11,10 @@ import {
 } from "./preview-paths.js";
 
 describe("normalizeCourseRelPath", () => {
+  it("returns null for URLs outside /course/", () => {
+    expect(normalizeCourseRelPath("/runtime/client.js")).toBeNull();
+  });
+
   it("rejects path traversal", () => {
     expect(normalizeCourseRelPath("/course/lessons/../../course.yaml")).toBe(
       null,
@@ -64,6 +68,11 @@ describe("isPreviewBlockedCourseRel", () => {
   it("blocks lxpack.config.ts", () => {
     expect(isPreviewBlockedCourseRel("lxpack.config.ts")).toBe(true);
   });
+
+  it("blocks .lxpack at course root", () => {
+    expect(isPreviewBlockedCourseRel(".lxpack")).toBe(true);
+    expect(isPreviewBlockedCourseRel(".lxpack/build.zip")).toBe(true);
+  });
 });
 
 describe("shouldBlockPreviewCourseRequest", () => {
@@ -93,5 +102,25 @@ describe("isPreviewCoursePathEscaping", () => {
         "/course/lessons/../../course.yaml",
       ),
     ).toBe(true);
+  });
+
+  it("allows /course/ root without escape", async () => {
+    const course = await mkdtemp(join(tmpdir(), "lxpack-preview-root-"));
+    expect(isPreviewCoursePathEscaping(course, "/course/")).toBe(false);
+    expect(isPreviewBlockedCoursePath("/course/")).toBe(false);
+  });
+
+  it("ignores non-course URLs", () => {
+    expect(isPreviewCoursePathEscaping("/tmp", "/")).toBe(false);
+    expect(isPreviewBlockedCoursePath("/")).toBe(false);
+  });
+});
+
+describe("shouldBlockPreviewCourseRequest", () => {
+  it("blocks blocked paths without escape check", async () => {
+    const course = await mkdtemp(join(tmpdir(), "lxpack-preview-block-"));
+    expect(shouldBlockPreviewCourseRequest(course, "/course/course.yaml")).toBe(
+      true,
+    );
   });
 });

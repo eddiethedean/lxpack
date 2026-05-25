@@ -2,7 +2,19 @@ import { mkdir, mkdtemp, writeFile, symlink } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect } from "vitest";
-import { collectFiles, CoursePackagingError } from "./package.js";
+import {
+  collectFiles,
+  CoursePackagingError,
+  shouldSkipCourseFile,
+} from "./package.js";
+
+describe("shouldSkipCourseFile", () => {
+  it("skips dot segments and sensitive directory names", () => {
+    expect(shouldSkipCourseFile("assets/.env")).toBe(true);
+    expect(shouldSkipCourseFile(".git/config")).toBe(true);
+    expect(shouldSkipCourseFile("lessons/intro.md")).toBe(false);
+  });
+});
 
 describe("collectFiles", () => {
   it("skips dotfiles, node_modules, and build metadata", async () => {
