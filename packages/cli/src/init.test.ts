@@ -32,6 +32,7 @@ describe("initCommand", () => {
       existsSync(join(targetDir, "interactions", "phishing-lab", "index.html")),
     ).toBe(true);
     expect(existsSync(join(targetDir, "assessments", "final.yaml"))).toBe(true);
+    expect(existsSync(join(targetDir, ".gitignore"))).toBe(true);
   });
 
   it("rejects directory paths that escape cwd", async () => {

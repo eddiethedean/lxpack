@@ -16,8 +16,11 @@ my-course/
   assets/               # Images, PDFs, downloads
   components/           # Optional custom widget overrides
   theme/                # Reserved for future theming
-  .lxpack/              # Generated ZIPs (created by build)
+  .gitignore            # Ignores .lxpack/ and *.zip (from lxpack init)
+  .lxpack/              # Generated ZIPs (created by build; do not commit)
 ```
+
+`assessments/*.yaml` **belongs in Git** — it is author source. Only **build output** is ignored; `lxpack build` embeds quiz content into the package and does not ship those YAML files to learners.
 
 ## What each folder is for
 

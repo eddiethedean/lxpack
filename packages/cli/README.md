@@ -104,6 +104,7 @@ my-course/
   assessments/         # authoring only — omitted from export ZIPs
   components/          # optional widget overrides
   assets/
+  .gitignore           # .lxpack/, *.zip (assessments/ stay tracked)
   .lxpack/             # build output (generated)
 ```
 

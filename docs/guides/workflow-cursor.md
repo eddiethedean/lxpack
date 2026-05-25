@@ -149,14 +149,9 @@ Find the ZIP under `.lxpack/`. See [Export to LMS](export-to-lms.md).
 
 ## Suggested folder habits
 
-Add a `.gitignore` in the course project if you use Git:
+`lxpack init` creates a `.gitignore` that ignores `.lxpack/` and `*.zip`. **Keep** `assessments/*.yaml` in Git — they are authoring source, not LMS export artifacts.
 
-```gitignore
-.lxpack/
-.DS_Store
-```
-
-Do not commit build ZIPs; rebuild with `lxpack build`.
+If you created a course before this template existed, add the same patterns manually. Do not commit build ZIPs; rebuild with `lxpack build`.
 
 ## Copying content from SMEs or legacy tools
 

@@ -24,8 +24,9 @@ Your folder now contains:
 | `course.yaml` | Course settings and lesson list |
 | `lessons/welcome.md` | First lesson (Markdown) |
 | `interactions/phishing-lab/index.html` | Clickable lab activity |
-| `assessments/final.yaml` | Final quiz (authoring file) |
+| `assessments/final.yaml` | Final quiz (commit to Git; omitted from learner ZIPs) |
 | `lxpack.config.json` | Default export target and preview options |
+| `.gitignore` | Ignores `.lxpack/` and `*.zip` — not your source files |
 
 More detail: [Course structure](../guides/course-structure.md).
 

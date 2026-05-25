@@ -145,6 +145,15 @@ const LXPACK_CONFIG = `{
 }
 `;
 
+/** Build artifacts only — keep lessons/, assessments/, interactions/ in Git. */
+const GITIGNORE = `# LXPack build output (regenerate with lxpack build)
+.lxpack/
+*.zip
+
+# OS
+.DS_Store
+`;
+
 function formatTitle(projectName: string): string {
   return projectName
     .split(/[-_\s]+/)
@@ -195,6 +204,7 @@ export async function initCommand(
   );
   await writeFile(join(targetDir, "assessments", "final.yaml"), FINAL_ASSESSMENT);
   await writeFile(join(targetDir, "lxpack.config.json"), LXPACK_CONFIG);
+  await writeFile(join(targetDir, ".gitignore"), GITIGNORE);
   await writeFile(join(targetDir, "theme", ".gitkeep"), "");
   await writeFile(join(targetDir, "components", ".gitkeep"), "");
 
