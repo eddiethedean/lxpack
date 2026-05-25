@@ -75,6 +75,14 @@ export async function validateInteractionTree(
         });
         continue;
       }
+      if (stat.isFile() && stat.nlink > 1) {
+        issues.push({
+          path: issuePath,
+          message: `Hard link not allowed under interaction directory: ${entry.name}`,
+          severity: "error",
+        });
+        continue;
+      }
       const contained = assertResolvedPathContained(courseDir, fullPath);
       if (!contained.ok) {
         issues.push({

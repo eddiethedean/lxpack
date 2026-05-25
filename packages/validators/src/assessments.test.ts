@@ -57,7 +57,7 @@ describe("buildRuntimeAssessmentBundle errors", () => {
         lessons: [{ id: "intro", type: "markdown", file: "lessons/intro.md" }],
         assessments: [{ id: "quiz", file: "../outside.yaml" }],
       }),
-    ).rejects.toThrow("Path escapes course directory");
+    ).rejects.toThrow(/\.\.|assessments\//);
   });
 
   it("throws for invalid assessment YAML", async () => {

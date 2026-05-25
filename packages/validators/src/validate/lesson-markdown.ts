@@ -5,12 +5,22 @@ import {
   resolveCoursePath,
 } from "../course-paths.js";
 import type { ValidationIssue } from "../validate.js";
+import { validateSafeRelativePath } from "../safe-relative-path.js";
 
 export function validateMarkdownLesson(
   courseDir: string,
   lesson: Extract<Lesson, { type: "markdown" }>,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
+  const pathError = validateSafeRelativePath(lesson.file);
+  if (pathError) {
+    issues.push({
+      path: `lessons.${lesson.id}.file`,
+      message: pathError,
+      severity: "error",
+    });
+    return issues;
+  }
   const resolved = resolveCoursePath(courseDir, lesson.file);
   if (!resolved.ok) {
     issues.push({

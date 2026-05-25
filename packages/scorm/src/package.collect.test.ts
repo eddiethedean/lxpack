@@ -3,10 +3,12 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect } from "vitest";
 import {
+  buildManifestAssessmentSkipPaths,
   collectFiles,
   CoursePackagingError,
   shouldSkipCourseFile,
 } from "./package.js";
+import type { CourseManifest } from "@lxpack/validators";
 
 describe("shouldSkipCourseFile", () => {
   it("skips dot segments and sensitive directory names", () => {
@@ -38,6 +40,25 @@ describe("collectFiles", () => {
       "nested/a.txt",
       "nested/b.txt",
     ]);
+  });
+
+  it("skips manifest assessment file paths outside assessments/", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-collect-manifest-assess-"));
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await writeFile(join(dir, "lessons", "intro.md"), "# Hi");
+    await writeFile(
+      join(dir, "lessons", "quiz.yaml"),
+      "id: quiz\npassingScore: 0.8\nquestions: []\n",
+    );
+    const manifest = {
+      title: "T",
+      version: "1.0.0",
+      lessons: [],
+      assessments: [{ id: "quiz", file: "lessons/quiz.yaml" }],
+    } satisfies CourseManifest;
+    const skip = buildManifestAssessmentSkipPaths(manifest);
+    const files = await collectFiles(dir, dir, { extraSkipRel: skip });
+    expect(files.map((f) => f.path)).toEqual(["lessons/intro.md"]);
   });
 
   it("skips assessments directory files", async () => {

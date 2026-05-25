@@ -1,4 +1,4 @@
-import { existsSync, statSync } from "node:fs";
+import { existsSync, lstatSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { isBuiltinComponentId } from "../components.js";
 import type { Lesson } from "../schemas.js";
@@ -42,6 +42,23 @@ export function validateComponentLesson(
     issues.push({
       path: `lessons.${lesson.id}.component`,
       message: contained.message,
+      severity: "error",
+    });
+    return issues;
+  }
+  const linkStat = lstatSync(resolved.path);
+  if (linkStat.isSymbolicLink()) {
+    issues.push({
+      path: `lessons.${lesson.id}.component`,
+      message: `Symlink not allowed for component override: components/${lesson.component}`,
+      severity: "error",
+    });
+    return issues;
+  }
+  if (linkStat.isFile() && linkStat.nlink > 1) {
+    issues.push({
+      path: `lessons.${lesson.id}.component`,
+      message: `Hard link not allowed for component override: components/${lesson.component}`,
       severity: "error",
     });
     return issues;

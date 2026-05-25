@@ -50,17 +50,45 @@ export class CoursePackagingError extends Error {
   }
 }
 
-export function shouldSkipCourseFile(rel: string): boolean {
-  if (SKIP_FILES.has(rel) || rel.startsWith(".lxpack")) {
+function assertAssessmentBundleForManifest(
+  manifest: CourseManifest,
+  assessmentBundle: RuntimeAssessmentBundle | undefined,
+): void {
+  if ((manifest.assessments?.length ?? 0) > 0 && !assessmentBundle) {
+    throw new CoursePackagingError(
+      "Assessment bundle is required when the course defines assessments",
+    );
+  }
+}
+
+export function buildManifestAssessmentSkipPaths(
+  manifest: CourseManifest,
+): Set<string> {
+  const paths = new Set<string>();
+  for (const ref of manifest.assessments ?? []) {
+    paths.add(ref.file.replace(/\\/g, "/"));
+  }
+  return paths;
+}
+
+export function shouldSkipCourseFile(
+  rel: string,
+  extraSkip?: ReadonlySet<string>,
+): boolean {
+  const normalized = rel.replace(/\\/g, "/");
+  if (extraSkip?.has(normalized)) {
     return true;
   }
-  if (rel === "index.html") {
+  if (SKIP_FILES.has(normalized) || normalized.startsWith(".lxpack")) {
     return true;
   }
-  if (rel.startsWith("assessments/")) {
+  if (normalized === "index.html") {
     return true;
   }
-  for (const segment of rel.split("/")) {
+  if (normalized.startsWith("assessments/")) {
+    return true;
+  }
+  for (const segment of normalized.split("/")) {
     if (segment.startsWith(".") || BLOCKED_PACKAGING_SEGMENTS.has(segment)) {
       return true;
     }
@@ -78,6 +106,7 @@ function assertPackagablePath(courseDir: string, fullPath: string): void {
 export async function collectFiles(
   dir: string,
   baseDir: string,
+  options?: { extraSkipRel?: ReadonlySet<string> },
 ): Promise<Array<{ path: string; fullPath: string }>> {
   const entries = await readdir(dir, { withFileTypes: true });
   const files: Array<{ path: string; fullPath: string }> = [];
@@ -102,10 +131,12 @@ export async function collectFiles(
     assertPackagablePath(baseDir, fullPath);
 
     if (stat.isDirectory()) {
-      files.push(...(await collectFiles(fullPath, baseDir)));
+      files.push(
+        ...(await collectFiles(fullPath, baseDir, options)),
+      );
     } else if (stat.isFile()) {
       const rel = relative(baseDir, fullPath).replace(/\\/g, "/");
-      if (shouldSkipCourseFile(rel)) {
+      if (shouldSkipCourseFile(rel, options?.extraSkipRel)) {
         continue;
       }
       files.push({ path: rel, fullPath });
@@ -142,7 +173,11 @@ async function writeSingleScoArtifacts(
   } = options;
 
   const mode = target === "scorm12" ? "scorm12" : "standalone";
-  const courseFiles = await collectFiles(courseDir, courseDir);
+  assertAssessmentBundleForManifest(manifest, assessmentBundle);
+  const skipRel = buildManifestAssessmentSkipPaths(manifest);
+  const courseFiles = await collectFiles(courseDir, courseDir, {
+    extraSkipRel: skipRel,
+  });
   let fileCount = 0;
 
   for (const file of courseFiles) {
@@ -203,7 +238,11 @@ async function writeXapiOrCmi5Artifacts(
     );
   }
 
-  const courseFiles = await collectFiles(courseDir, courseDir);
+  assertAssessmentBundleForManifest(manifest, assessmentBundle);
+  const skipRel = buildManifestAssessmentSkipPaths(manifest);
+  const courseFiles = await collectFiles(courseDir, courseDir, {
+    extraSkipRel: skipRel,
+  });
   let fileCount = 0;
 
   for (const file of courseFiles) {
@@ -272,7 +311,11 @@ async function writeScorm2004Artifacts(
     writeFile: writeArtifact,
   } = options;
 
-  const courseFiles = await collectFiles(courseDir, courseDir);
+  assertAssessmentBundleForManifest(manifest, assessmentBundle);
+  const skipRel = buildManifestAssessmentSkipPaths(manifest);
+  const courseFiles = await collectFiles(courseDir, courseDir, {
+    extraSkipRel: skipRel,
+  });
   let fileCount = 0;
 
   for (const file of courseFiles) {

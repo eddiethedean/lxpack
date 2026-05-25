@@ -9,6 +9,7 @@ import {
 } from "./schemas.js";
 import type { ValidationIssue } from "./validate.js";
 import { assertResolvedPathContained } from "./course-paths.js";
+import { validateAssessmentFilePath } from "./safe-relative-path.js";
 import { formatErrorMessage } from "./validate.js";
 import {
   toLearnerAssessment,
@@ -39,6 +40,16 @@ export async function loadParsedAssessments(
       continue;
     }
     assessmentIds.add(ref.id);
+
+    const assessmentPathError = validateAssessmentFilePath(ref.file);
+    if (assessmentPathError) {
+      issues.push({
+        path: `assessments.${ref.id}.file`,
+        message: assessmentPathError,
+        severity: "error",
+      });
+      continue;
+    }
 
     const resolved = resolveCoursePath(resolvedDir, ref.file);
     if (!resolved.ok) {

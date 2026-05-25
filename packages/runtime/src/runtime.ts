@@ -14,6 +14,7 @@ import {
 } from "./variables.js";
 import type { FlowContext } from "./flow.js";
 import { resolveFlowGoto } from "./flow.js";
+import { isInteractionComplete } from "./interaction-complete.js";
 import type { AssessmentRuntimeConfig } from "@lxpack/validators";
 import { DEFAULT_ASSESSMENT_CONFIG } from "./quiz/types.js";
 import type { LmsBridge } from "./lms/bridge.js";
@@ -288,11 +289,7 @@ export class LxpackRuntime implements AssessmentHost {
       isAssessmentPassed: (id) => this.isAssessmentPassed(id),
       isInteractionDone: (id) => {
         const value = this.state.progress.suspendData[`interaction_${id}`];
-        if (value === true) return true;
-        if (value === false || value === null || value === undefined) {
-          return false;
-        }
-        return Boolean(value);
+        return isInteractionComplete(value);
       },
     };
   }

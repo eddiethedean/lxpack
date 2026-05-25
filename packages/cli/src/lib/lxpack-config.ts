@@ -51,6 +51,13 @@ export async function loadLxpackConfig(
   const configPath = join(courseDir, "lxpack.config.json");
   if (!existsSync(configPath)) return null;
 
+  const contained = assertResolvedPathContained(courseDir, configPath);
+  if (!contained.ok) {
+    throw new Error(
+      `lxpack.config.json: ${contained.message}`,
+    );
+  }
+
   try {
     const content = await readFile(configPath, "utf-8");
     const raw = JSON.parse(content) as unknown;

@@ -9,6 +9,7 @@ import { buildNavItems, renderNav } from "./nav.js";
 import { renderShell, updateProgressBar } from "./shell.js";
 import { renderItem } from "./render-item.js";
 import { escapeHtml } from "./html-utils.js";
+import { isInteractionComplete } from "../interaction-complete.js";
 
 export function init(): void {
   const config = getConfig();
@@ -59,14 +60,6 @@ export function init(): void {
     return 0;
   }
 
-  function isExplicitInteractionComplete(data: unknown): boolean {
-    if (data === true) return true;
-    if (typeof data === "object" && data !== null) {
-      return (data as { complete?: boolean }).complete === true;
-    }
-    return false;
-  }
-
   let currentIndex = indexForId(runtime.getProgress().currentLessonId);
 
   let renderSeq = 0;
@@ -85,6 +78,25 @@ export function init(): void {
         );
       }
     }
+    return false;
+  }
+
+  function isNavItemReachable(targetId: string): boolean {
+    const hasFlow = Boolean(config.manifest.flow?.length);
+    if (!hasFlow) return true;
+    const currentId = navItems[currentIndex]?.id ?? "";
+    if (targetId === currentId) return true;
+    const flowTarget = runtime.resolveFlowNavigation();
+    if (flowTarget === targetId) return true;
+    if (!currentId) return targetId === navItems[0]?.id;
+    const nextId = resolveNextActivityId(
+      config.manifest,
+      currentId,
+      runtime.getFlowContext(),
+    );
+    if (nextId === targetId) return true;
+    const prevId = resolvePreviousActivityId(config.manifest, currentId);
+    if (prevId === targetId) return true;
     return false;
   }
 
@@ -125,9 +137,11 @@ export function init(): void {
       runtime.getProgress().completedLessons,
       getPassedAssessments(),
       (id) => {
+        if (!isNavItemReachable(id)) return;
         const idx = navItems.findIndex((n) => n.id === id);
         if (idx >= 0) void showItem(idx);
       },
+      isNavItemReachable,
     );
 
     updateProgressBar(runtime.getCompletionRatio());
@@ -199,7 +213,7 @@ export function init(): void {
     if (event.type === "interaction") {
       const item = navItems[currentIndex];
       if (
-        isExplicitInteractionComplete(event.data) &&
+        isInteractionComplete(event.data) &&
         item?.kind === "lesson" &&
         item.lesson.type === "html"
       ) {

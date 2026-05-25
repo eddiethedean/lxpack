@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Flow: sidebar navigation respects branching rules when `flow` is defined
+- Flow: `interaction.done` uses the same explicit completion rules as HTML auto-complete
+- Progress: empty compact `{}` suspend_data restores without corrupt-data warnings
+
+### Security
+
+- Validate `assessments[].file` must live under `assessments/`; exports and preview block manifest paths
+- Preview: case-insensitive blocks, manifest-driven denylist, backslash-normalized URLs
+- Harden `course.yaml` and `lxpack.config.json` load against symlink escapes
+- Reject hard links under `interactions/` and symlinks/hard links on component overrides
+- Markdown lesson paths use safe relative-path rules
+- Packaging requires an assessment bundle when the course defines assessments
+
 ## [0.3.5] - 2026-05-25
 
 ### Fixed

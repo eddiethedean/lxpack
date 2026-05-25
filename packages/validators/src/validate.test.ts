@@ -74,6 +74,16 @@ describe("validateCourse", () => {
     expect(result.issues.length).toBeGreaterThan(0);
   });
 
+  it("rejects assessment file outside assessments/", async () => {
+    const result = await validateCourse(fixturePath("assessment-outside-dir"));
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) =>
+        i.message.includes("must be under assessments/"),
+      ),
+    ).toBe(true);
+  });
+
   it("fails when manifest schema is invalid", async () => {
     const result = await validateCourse(fixturePath("invalid-manifest"));
     expect(result.valid).toBe(false);

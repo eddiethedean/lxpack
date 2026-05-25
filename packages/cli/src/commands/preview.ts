@@ -14,7 +14,10 @@ import {
   readComponentsBundle,
 } from "../utils.js";
 import { getCourseActivityIri } from "@lxpack/validators";
-import { shouldBlockPreviewCourseRequest } from "../lib/preview-paths.js";
+import {
+  buildPreviewBlockedRels,
+  shouldBlockPreviewCourseRequest,
+} from "../lib/preview-paths.js";
 import { resolveExportTarget } from "../lib/resolve-export-target.js";
 import type { ExportTarget } from "@lxpack/scorm";
 import {
@@ -72,10 +75,11 @@ export async function createPreviewServer(
   const runtimeDir = getRuntimeAssetsDir();
 
   const app = Fastify({ logger: false });
+  const blockedRels = buildPreviewBlockedRels(manifest);
 
   app.addHook("onRequest", async (request, reply) => {
     const path = request.url.split("?")[0] ?? "";
-    if (shouldBlockPreviewCourseRequest(courseDir, path)) {
+    if (shouldBlockPreviewCourseRequest(courseDir, path, blockedRels)) {
       return reply.code(404).send("Not found");
     }
   });

@@ -14,6 +14,8 @@ import {
 import { lessonValidators } from "./validate/registry.js";
 import { validateActivityIds } from "./validate/ids.js";
 
+import { assertResolvedPathContained } from "./course-paths.js";
+
 export {
   isPathContained,
   resolveCoursePath,
@@ -58,6 +60,20 @@ export async function loadManifest(
       {
         path: "course.yaml",
         message: "Course manifest not found",
+        severity: "error",
+      },
+    ];
+  }
+
+  const manifestContained = assertResolvedPathContained(
+    resolvedDir,
+    manifestPath,
+  );
+  if (!manifestContained.ok) {
+    return [
+      {
+        path: "course.yaml",
+        message: manifestContained.message,
         severity: "error",
       },
     ];

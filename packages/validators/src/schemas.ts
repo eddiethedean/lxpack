@@ -71,7 +71,7 @@ export const componentLessonSchema = z
   .object({
     id: activityIdSchema,
     type: z.literal("component"),
-    component: z.string().min(1),
+    component: activityIdSchema,
     props: z.record(z.unknown()).optional(),
     title: z.string().optional(),
   })

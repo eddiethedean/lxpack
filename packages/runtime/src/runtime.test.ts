@@ -395,9 +395,17 @@ describe("LxpackRuntime", () => {
     expect(runtime.getFlowContext().isInteractionDone("phishing-lab")).toBe(
       false,
     );
+    runtime.track({
+      type: "interaction",
+      id: "phishing-lab",
+      data: { complete: false },
+    });
+    expect(runtime.getFlowContext().isInteractionDone("phishing-lab")).toBe(
+      false,
+    );
     expect(
       runtime.getProgress().suspendData["interaction_phishing-lab"],
-    ).toBe(0);
+    ).toEqual({ complete: false });
   });
 
   it("ignores markInteractionLessonDone for non-html lessons", () => {

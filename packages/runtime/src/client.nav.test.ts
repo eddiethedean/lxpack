@@ -34,6 +34,25 @@ describe("client navigation fallbacks", () => {
     delete window.lxpack;
   });
 
+  it("disables sidebar nav targets that bypass flow rules", async () => {
+    init();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="a"]')?.classList.contains("active"),
+      ).toBe(true),
+    );
+    const navC = document.querySelector(
+      '[data-nav-id="c"]',
+    ) as HTMLButtonElement;
+    expect(navC.disabled).toBe(true);
+    navC.click();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="a"]')?.classList.contains("active"),
+      ).toBe(true),
+    );
+  });
+
   it("uses index fallback when flow resolution returns null", async () => {
     vi.spyOn(flow, "resolveNextActivityId").mockReturnValue(null);
     vi.spyOn(flow, "resolvePreviousActivityId").mockReturnValue(null);

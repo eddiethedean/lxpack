@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, writeFile, symlink } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
+  buildPreviewBlockedRels,
   coursePathEscapesRoot,
   decodeCourseUrlPath,
   isPreviewBlockedCoursePath,
@@ -11,6 +12,7 @@ import {
   normalizeCourseRelPath,
   shouldBlockPreviewCourseRequest,
 } from "./preview-paths.js";
+import type { CourseManifest } from "@lxpack/validators";
 
 describe("decodeCourseUrlPath", () => {
   afterEach(() => {
@@ -88,6 +90,44 @@ describe("coursePathEscapesRoot", () => {
   it("allows in-course relative segments", () => {
     expect(coursePathEscapesRoot("lessons/../intro.md")).toBe(false);
     expect(coursePathEscapesRoot("foo/bar.md")).toBe(false);
+  });
+
+  it("treats backslash traversal like forward slashes", () => {
+    expect(coursePathEscapesRoot("lessons\\..\\..\\course.yaml")).toBe(true);
+  });
+});
+
+describe("normalizeCourseRelPath backslashes", () => {
+  it("normalizes Windows-style separators", () => {
+    expect(normalizeCourseRelPath("/course/lessons\\intro.md")).toBe(
+      "lessons/intro.md",
+    );
+  });
+});
+
+describe("buildPreviewBlockedRels", () => {
+  it("blocks manifest assessment paths outside assessments/", () => {
+    const manifest = {
+      title: "T",
+      version: "1.0.0",
+      lessons: [],
+      assessments: [{ id: "quiz", file: "lessons/quiz.yaml" }],
+    } satisfies CourseManifest;
+    const blocked = buildPreviewBlockedRels(manifest);
+    expect(isPreviewBlockedCourseRel("lessons/quiz.yaml", blocked)).toBe(true);
+    expect(isPreviewBlockedCoursePath("/course/lessons/quiz.yaml", blocked)).toBe(
+      true,
+    );
+  });
+
+  it("blocks assessments prefix case-insensitively", () => {
+    const blocked = buildPreviewBlockedRels();
+    expect(isPreviewBlockedCourseRel("Assessments/quiz.yaml", blocked)).toBe(
+      true,
+    );
+    expect(isPreviewBlockedCoursePath("/course/Assessments/q.yaml", blocked)).toBe(
+      true,
+    );
   });
 });
 

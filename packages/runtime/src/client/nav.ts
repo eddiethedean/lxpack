@@ -31,6 +31,7 @@ export function renderNav(
   completedLessons: string[],
   passedAssessments: Set<string>,
   onSelect: (id: string) => void,
+  isNavEnabled?: (id: string) => boolean,
 ): void {
   navEl.innerHTML = items
     .map((item) => {
@@ -39,6 +40,7 @@ export function renderNav(
         item.kind === "lesson"
           ? completedLessons.includes(item.id)
           : passedAssessments.has(item.id);
+      const disabled = isNavEnabled ? !isNavEnabled(item.id) : false;
       const ariaCurrent = isActive ? ' aria-current="page"' : "";
       const cssClass =
         item.kind === "assessment" ? "lxpack-nav-assessment" : "";
@@ -48,6 +50,7 @@ export function renderNav(
         type="button"
         class="lxpack-nav-item ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""} ${cssClass}"
         data-nav-id="${escapeHtml(item.id)}"
+        ${disabled ? " disabled" : ""}
         ${ariaCurrent}
       >
         ${escapeHtml(item.title)}${item.kind === "assessment" ? " (Quiz)" : ""}

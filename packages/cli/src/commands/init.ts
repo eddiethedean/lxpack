@@ -214,19 +214,17 @@ export async function initCommand(
   }
 
   if (options.force) {
-    const assessmentsDir = join(targetDir, "assessments");
-    if (existsSync(assessmentsDir)) {
-      for (const name of await readdir(assessmentsDir)) {
-        await rm(join(assessmentsDir, name), { recursive: true, force: true });
-      }
-    }
-    const interactionsDir = join(targetDir, "interactions");
-    if (existsSync(interactionsDir)) {
-      for (const name of await readdir(interactionsDir)) {
-        await rm(join(interactionsDir, name), {
-          recursive: true,
-          force: true,
-        });
+    for (const sub of [
+      "assessments",
+      "interactions",
+      "lessons",
+      "components",
+      "assets",
+      "theme",
+    ]) {
+      const subDir = join(targetDir, sub);
+      if (existsSync(subDir)) {
+        await rm(subDir, { recursive: true, force: true });
       }
     }
   }

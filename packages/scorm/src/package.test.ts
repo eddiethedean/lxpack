@@ -5,7 +5,11 @@ import { tmpdir } from "node:os";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import JSZip from "jszip";
 import { fixturePath, REPO_ROOT } from "../../../test/helpers/paths.js";
-import { loadManifest } from "@lxpack/validators";
+import {
+  buildRuntimeAssessmentBundle,
+  loadManifest,
+  type RuntimeAssessmentBundle,
+} from "@lxpack/validators";
 import {
   CoursePackagingError,
   packageCourse,
@@ -38,12 +42,17 @@ async function loadBuiltRuntime(): Promise<{ clientJs: string; css: string }> {
 
 describe("packageCourse", () => {
   let manifest: Awaited<ReturnType<typeof loadManifest>>;
+  let minimalAssessmentBundle: RuntimeAssessmentBundle;
   const outputPaths: string[] = [];
 
   beforeAll(async () => {
     const loaded = await loadManifest(fixturePath("minimal-valid"));
     if (Array.isArray(loaded)) throw new Error("fixture failed to load");
     manifest = loaded;
+    minimalAssessmentBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("minimal-valid"),
+      loaded.manifest,
+    );
   });
 
   afterEach(async () => {
@@ -65,6 +74,7 @@ describe("packageCourse", () => {
       target: "scorm12",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: minimalAssessmentBundle,
     });
 
     expect(result.outputPath).toBe(zipPath);
@@ -102,6 +112,7 @@ describe("packageCourse", () => {
       target: "scorm12",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: minimalAssessmentBundle,
       componentsBundleJs: "window.__LXPACK_COMPONENTS__={};",
     });
 
@@ -126,6 +137,7 @@ describe("packageCourse", () => {
       target: "scorm12",
       runtimeClientJs: clientJs,
       runtimeCss: css,
+      assessmentBundle: minimalAssessmentBundle,
     });
 
     const zip = await JSZip.loadAsync(await readFile(zipPath));
@@ -152,6 +164,7 @@ describe("packageCourse", () => {
       target: "standalone",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: minimalAssessmentBundle,
     });
 
     const zip = await JSZip.loadAsync(await readFile(zipPath));
@@ -164,6 +177,10 @@ describe("packageCourse", () => {
   it("creates SCORM 2004 multi-SCO zip with per-activity launch pages", async () => {
     const loaded = await loadManifest(fixturePath("branching-demo"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const branchingBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("branching-demo"),
+      loaded.manifest,
+    );
 
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-scorm2004-"));
     const zipPath = join(outDir, "branching.zip");
@@ -176,6 +193,7 @@ describe("packageCourse", () => {
       target: "scorm2004",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: branchingBundle,
       componentsBundleJs: "window.__LXPACK_COMPONENTS__={};",
     });
 
@@ -199,6 +217,10 @@ describe("packageCourse", () => {
   it("builds SCORM 2004 without optional components bundle", async () => {
     const loaded = await loadManifest(fixturePath("branching-demo"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const branchingBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("branching-demo"),
+      loaded.manifest,
+    );
 
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-scorm2004-no-comp-"));
     const zipPath = join(outDir, "branching.zip");
@@ -211,6 +233,7 @@ describe("packageCourse", () => {
       target: "scorm2004",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: branchingBundle,
     });
 
     const zip = await JSZip.loadAsync(await readFile(zipPath));
@@ -261,6 +284,10 @@ describe("packageCourse", () => {
   it("creates xapi zip with tincan.xml and activityIri in index", async () => {
     const loaded = await loadManifest(fixturePath("xapi-valid"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const xapiBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("xapi-valid"),
+      loaded.manifest,
+    );
 
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-xapi-"));
     const zipPath = join(outDir, "course-xapi.zip");
@@ -273,6 +300,7 @@ describe("packageCourse", () => {
       target: "xapi",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: xapiBundle,
     });
 
     const zip = await JSZip.loadAsync(await readFile(zipPath));
@@ -285,6 +313,10 @@ describe("packageCourse", () => {
   it("creates xapi zip with optional components bundle", async () => {
     const loaded = await loadManifest(fixturePath("xapi-valid"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const xapiBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("xapi-valid"),
+      loaded.manifest,
+    );
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-xapi-comp-"));
     const zipPath = join(outDir, "course-xapi-comp.zip");
     outputPaths.push(outDir);
@@ -296,12 +328,30 @@ describe("packageCourse", () => {
       target: "xapi",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: xapiBundle,
       componentsBundleJs: "window.__LXPACK_COMPONENTS__={};",
     });
 
     const zip = await JSZip.loadAsync(await readFile(zipPath));
     expect(zip.file("lxpack-components.js")).toBeTruthy();
     expect(zip.file("tincan.xml")).toBeTruthy();
+  });
+
+  it("throws CoursePackagingError when assessments exist but bundle is missing", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-no-bundle-"));
+    const zipPath = join(outDir, "course.zip");
+    outputPaths.push(outDir);
+
+    await expect(
+      packageCourse({
+        courseDir: fixturePath("minimal-valid"),
+        manifest: manifest.manifest,
+        outputPath: zipPath,
+        target: "scorm12",
+        runtimeClientJs: RUNTIME_JS,
+        runtimeCss: RUNTIME_CSS,
+      }),
+    ).rejects.toThrow(/Assessment bundle is required/);
   });
 
   it("throws CoursePackagingError when xapi export lacks activityIri", async () => {
@@ -319,6 +369,7 @@ describe("packageCourse", () => {
         target: "xapi",
         runtimeClientJs: RUNTIME_JS,
         runtimeCss: RUNTIME_CSS,
+        assessmentBundle: minimalAssessmentBundle,
       }),
     ).rejects.toThrow(CoursePackagingError);
   });
@@ -326,6 +377,10 @@ describe("packageCourse", () => {
   it("creates cmi5 zip with cmi5.xml", async () => {
     const loaded = await loadManifest(fixturePath("xapi-valid"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const xapiBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("xapi-valid"),
+      loaded.manifest,
+    );
 
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-cmi5-"));
     const zipPath = join(outDir, "course-cmi5.zip");
@@ -338,6 +393,7 @@ describe("packageCourse", () => {
       target: "cmi5",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: xapiBundle,
     });
 
     const zip = await JSZip.loadAsync(await readFile(zipPath));
@@ -349,6 +405,10 @@ describe("packageCourse", () => {
   it("creates cmi5 zip with optional components bundle", async () => {
     const loaded = await loadManifest(fixturePath("xapi-valid"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const xapiBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("xapi-valid"),
+      loaded.manifest,
+    );
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-cmi5-comp-"));
     const zipPath = join(outDir, "course-cmi5-comp.zip");
     outputPaths.push(outDir);
@@ -360,6 +420,7 @@ describe("packageCourse", () => {
       target: "cmi5",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: xapiBundle,
       componentsBundleJs: "window.__LXPACK_COMPONENTS__={};",
     });
 
@@ -375,6 +436,10 @@ describe("packageStandaloneDir", () => {
     const loaded = await loadManifest(fixturePath("minimal-valid"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
 
+    const bundle = await buildRuntimeAssessmentBundle(
+      fixturePath("minimal-valid"),
+      loaded.manifest,
+    );
     const result = await packageStandaloneDir({
       courseDir: fixturePath("minimal-valid"),
       manifest: loaded.manifest,
@@ -382,6 +447,7 @@ describe("packageStandaloneDir", () => {
       target: "standalone",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: bundle,
     });
 
     expect(result.fileCount).toBeGreaterThan(3);
@@ -396,6 +462,10 @@ describe("packageStandaloneDir", () => {
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-dir-"));
     const loaded = await loadManifest(fixturePath("minimal-valid"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const bundle = await buildRuntimeAssessmentBundle(
+      fixturePath("minimal-valid"),
+      loaded.manifest,
+    );
 
     const result = await packageStandaloneDir({
       courseDir: fixturePath("minimal-valid"),
@@ -404,6 +474,7 @@ describe("packageStandaloneDir", () => {
       target: "scorm12",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: bundle,
     });
 
     expect(result.outputDir).toBe(outDir);
@@ -422,6 +493,10 @@ describe("packageStandaloneDir", () => {
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-scorm2004-dir-"));
     const loaded = await loadManifest(fixturePath("branching-demo"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const branchingBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("branching-demo"),
+      loaded.manifest,
+    );
 
     const result = await packageScorm2004Dir({
       courseDir: fixturePath("branching-demo"),
@@ -430,6 +505,7 @@ describe("packageStandaloneDir", () => {
       target: "scorm2004",
       runtimeClientJs: RUNTIME_JS,
       runtimeCss: RUNTIME_CSS,
+      assessmentBundle: branchingBundle,
     });
 
     expect(result.outputDir).toBe(outDir);

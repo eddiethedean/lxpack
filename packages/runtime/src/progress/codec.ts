@@ -94,7 +94,7 @@ export function parseStoredProgress(
     }
     const compact = data as CompactProgress;
     if (isEmptyCompactProgress(compact)) {
-      return { progress: defaults, parsed: false };
+      return { progress: expandProgress(compact, defaults), parsed: true };
     }
     return { progress: expandProgress(compact, defaults), parsed: true };
   } catch {

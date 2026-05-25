@@ -52,7 +52,11 @@ lessons:
 
     const result = await validateCourse(dir);
     expect(result.valid).toBe(false);
-    expect(result.issues.some((i) => i.message.includes("escapes"))).toBe(true);
+    expect(
+      result.issues.some(
+        (i) => i.message.includes("escapes") || i.message.includes(".."),
+      ),
+    ).toBe(true);
   });
 
   it("rejects markdown paths that are directories", async () => {
