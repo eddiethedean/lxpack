@@ -177,6 +177,17 @@ export class LxpackRuntime implements AssessmentHost {
     return this.getAssessmentAttemptCount(assessmentId) < maxAttempts;
   }
 
+  /**
+   * Marks an html lesson as interaction-complete for flow `interaction.done` conditions.
+   * Does not emit analytics (the preceding `track()` call already did).
+   */
+  markInteractionLessonDone(lessonId: string): void {
+    const lesson = this.manifest.lessons.find((l) => l.id === lessonId);
+    if (!lesson || lesson.type !== "html") return;
+    this.state.progress.suspendData[`interaction_${lessonId}`] = true;
+    this.persist();
+  }
+
   completeLesson(lessonId: string): void {
     this.state.completeLesson(lessonId);
     this.analytics.onLessonCompleted(lessonId);

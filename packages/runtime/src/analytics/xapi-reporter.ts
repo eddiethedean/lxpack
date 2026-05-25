@@ -44,7 +44,7 @@ export class XapiReporter implements AnalyticsReporter {
 
     if (launch.fetch) {
       console.warn(
-        "[lxpack cmi5] Launch fetch URL is present but cmi5 session bootstrap via fetch is not implemented in v0.3.0",
+        "[lxpack cmi5] Launch fetch URL is present but cmi5 session bootstrap via fetch is not implemented in this release",
       );
     }
 

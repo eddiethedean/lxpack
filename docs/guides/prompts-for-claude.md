@@ -14,8 +14,8 @@ Replace `ALL_CAPS` placeholders. After every change, run:
 
 Use this at the start of a new Claude or Cursor conversation so the model knows LXPack rules.
 
-```text title="LXPack session context (v0.3.0)"
-You are helping author an LXPack v0.3.0 course.
+```text title="LXPack session context (v0.3.1)"
+You are helping author an LXPack v0.3.1 course.
 
 Rules:
 - Course root contains course.yaml (manifest), lessons/*.md, assessments/*.yaml, interactions/*/index.html, optional lxpack.config.json.
@@ -37,7 +37,7 @@ LMS export target (if known): scorm12 | scorm2004 | xapi | cmi5 | standalone
 ### Write a Markdown lesson
 
 ```text title="Author a Markdown lesson"
-Write a Markdown lesson file for LXPack v0.3.0 only (no YAML, no HTML).
+Write a Markdown lesson file for LXPack v0.3.1 only (no YAML, no HTML).
 
 Course: COURSE_TITLE
 Audience: AUDIENCE
@@ -149,7 +149,7 @@ PASTE_COURSE_YAML_HERE
 ### Generate a full quiz YAML
 
 ```text title="Generate assessment YAML (MCQ)"
-Write an LXPack v0.3.0 assessment YAML file (multiple choice only).
+Write an LXPack v0.3.1 assessment YAML file (multiple choice only).
 
 id: QUIZ_ID
 title: QUIZ_TITLE
@@ -183,7 +183,7 @@ PASTE_ASSESSMENT_YAML
 ### Scaffold a click-to-complete lab
 
 ```text title="HTML interaction with lxpack.track"
-Write one index.html file for LXPack v0.3.0 (single file, inline CSS).
+Write one index.html file for LXPack v0.3.1 (single file, inline CSS).
 
 Scenario: SCENARIO
 Success action: learner does ACTION
@@ -215,7 +215,7 @@ PASTE_INDEX_HTML
 ### Design flow rules
 
 ```text title="Design variables and flow"
-Design LXPack v0.3.0 variables: and flow: blocks for course.yaml.
+Design LXPack v0.3.1 variables: and flow: blocks for course.yaml.
 
 Scenario: SCENARIO
 Existing lesson ids (do not invent others):
@@ -324,7 +324,7 @@ PASTE_RELEVANT_YAML
 Use when you have a **folder of HTML pages** (exported SCORM content, Rise web export, custom training site, Captivate HTML5, etc.) and need a plan before moving files.
 
 ```text title="Inventory an HTML course for LXPack"
-You are migrating an existing multi-page HTML eLearning course into LXPack v0.3.0.
+You are migrating an existing multi-page HTML eLearning course into LXPack v0.3.1.
 
 I will paste a directory listing and/or describe the course. Do not create files yet.
 
@@ -354,7 +354,7 @@ PASTE_FILE_TREE_OR_LIST_PAGES_AND_WHAT_EACH_DOES
 ### HTML course → LXPack file plan
 
 ```text title="HTML course to LXPack file plan"
-From the inventory below, produce an LXPack v0.3.0 file plan only (no full file contents yet).
+From the inventory below, produce an LXPack v0.3.1 file plan only (no full file contents yet).
 
 For each legacy page or section specify:
 - proposed lesson id
@@ -381,7 +381,7 @@ Open the **existing HTML folder** and an **empty or pilot LXPack course** in the
 @EXISTING_HTML_FOLDER/
 @LXPACK_COURSE_ROOT/course.yaml
 
-Migrate this legacy HTML course into the LXPack course folder (v0.3.0). Work in the LXPack tree only; treat the HTML folder as read-only reference.
+Migrate this legacy HTML course into the LXPack course folder (v0.3.1). Work in the LXPack tree only; treat the HTML folder as read-only reference.
 
 Course title: COURSE_TITLE
 LMS build target: TARGET (default scorm12)
@@ -469,7 +469,7 @@ PASTE_SLIDE_TEXT_OR_SCRIPT
 ### Outline → file plan
 
 ```text title="Outline to LXPack file plan"
-Convert this training outline into an LXPack v0.3.0 file plan (no file contents yet).
+Convert this training outline into an LXPack v0.3.1 file plan (no file contents yet).
 
 Outline:
 PASTE_OUTLINE

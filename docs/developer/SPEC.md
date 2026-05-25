@@ -1,7 +1,7 @@
 
 # LXPack Technical Specification
 
-> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.3.0. See the [documentation home](../index.md).
+> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.3.1. See the [documentation home](../index.md).
 
 ## Overview
 
@@ -107,7 +107,7 @@ lxpack validate
 lxpack build --target <target>
 ```
 
-### Supported targets (v0.3.0)
+### Supported targets (v0.3.1)
 
 | Target | Description |
 |--------|-------------|
@@ -199,7 +199,7 @@ window.lxpack.track({
 
 Flow rules MAY consume interaction and assessment events for navigation (v0.2.0).
 
-### Simulation tracking (v0.3.0)
+### Simulation tracking (v0.3.1)
 
 Simulations MAY emit structured xAPI `interacted` statements:
 
@@ -233,12 +233,12 @@ window.lxpack.track({
 - Per-activity launch pages at `sco/<activityId>/index.html`
 - Shared `lxpack-runtime.js` and `lxpack-components.js`
 
-## xAPI / cmi5 (v0.3.0)
+## xAPI / cmi5 (v0.3.1)
 
 - Manifest: optional `tracking.xapi.activityIri` (course activity IRI); per-activity IRIs `{activityIri}/activities/{id}`
 - Runtime modes `xapi` and `cmi5` use `@lxpack/xapi` builders (no SCORM API)
 - cmi5 LMS launch query params: `endpoint`, `auth`, `actor`, `registration`, `activityId` (LRS credentials are not embedded in ZIPs)
-- cmi5 `fetch` URL is parsed but **not** used for AU session bootstrap in v0.3.0 (runtime logs a warning when present)
+- cmi5 `fetch` URL is parsed but **not** used for AU session bootstrap in v0.3.1 (runtime logs a warning when present)
 - Verbs: `launched`, `experienced`, `interacted`, `answered`, `completed`, `passed`, `failed`
 - Preview: `lxpack.config.json` → `xapi.preview.logStatements` / `mockLrs` (console + `localStorage` queue)
 
@@ -248,7 +248,7 @@ window.lxpack.track({
 
 Target: WCAG 2.1 AA for authored content. Automated checks (alt text, contrast, keyboard, ARIA) are not implemented in v0.1.x.
 
-Until DOMPurify lands, treat markdown and HTML lesson content as **trusted author input**.
+Markdown is sanitized with a DOMPurify allowlist in the browser runtime. Custom HTML under `interactions/` is **trusted author input** (not sandboxed).
 
 ---
 
@@ -356,7 +356,7 @@ docs/
 | MVP core | 1 | v0.1.0 | Shipped |
 | Security & SCORM fixes | 1 | v0.1.1 | Shipped |
 | Runtime expansion | 2 | v0.2.0 | Shipped |
-| Modern standards | 3 | v0.3.0 | Shipped |
+| Modern standards | 3 | v0.3.1 | Shipped |
 | AI tooling | 4 | TBD | Planned |
 
 ---

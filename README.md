@@ -13,7 +13,7 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.3.0](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#030---2026-05-24)
+**Current release:** [v0.3.1](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#031---2026-05-25)
 
 ## Packages
 
@@ -300,7 +300,7 @@ Operational guidance: [Troubleshooting](https://lxpack.readthedocs.io/en/latest/
 - **Assessments:** Author YAML under `assessments/` stays in the repo for editing. Exports embed learner-safe questions, answer keys, quiz config, and feedback text in the HTML config JSON (not as fetchable files).
 - **Embedded JSON:** Config injected into HTML escapes `<` to prevent `</script>` breakout.
 - **Path containment:** Validation and CLI resolve paths inside the course directory; symlinks that escape the course root are rejected.
-- **Markdown:** Rendering uses a basic sanitizer. Only use trusted author content until DOMPurify support lands.
+- **Markdown:** Rendered through a DOMPurify allowlist in the browser runtime. Custom HTML under `interactions/` is trusted author content (not sandboxed).
 - **SCORM 2004:** Sequencing uses a supported IMS Simple Sequencing subset; validate packages in SCORM Cloud or Moodle before production rollout.
 
 ## Development

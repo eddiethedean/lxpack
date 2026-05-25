@@ -53,7 +53,7 @@ lxpack validate
 | `[link text](https://…)` | External links |
 | `![alt](assets/diagram.png)` | Images in `assets/` |
 
-LXPack sanitizes Markdown in the browser for safety. Use trusted author content only.
+Markdown is rendered through a DOMPurify allowlist in the browser runtime. HTML interaction labs (`interactions/*/index.html`) are trusted author content and are not sandboxed.
 
 ## Component lessons (no HTML)
 

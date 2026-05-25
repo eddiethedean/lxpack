@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-05-25
+
+### Fixed
+
+- Flow `interaction.done` now recognizes html lesson completion when interactions call `track()` with an event id different from the lesson id (init and examples used mismatched ids). The preview runtime mirrors completion onto the lesson id without duplicate xAPI statements.
+
+### Changed
+
+- Documentation: security notes reflect DOMPurify markdown sanitization (shipped in 0.3.0).
+- `lxpack init` and example phishing labs use the lesson id in `track()` for consistency with `interaction.done`.
+- `examples/cmi5-demo`: correct course title metadata.
+
 ## [0.3.0] - 2026-05-24
 
 ### Added

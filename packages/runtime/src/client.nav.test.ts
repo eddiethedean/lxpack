@@ -97,4 +97,51 @@ describe("client navigation fallbacks", () => {
       ).toBe(true),
     );
   });
+
+  it("jumps via interaction.done when track id differs from html lesson id", async () => {
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "Nav",
+        version: "1.0.0",
+        lessons: [
+          { id: "intro", type: "markdown", file: "lessons/intro.md" },
+          {
+            id: "phishing-lab",
+            type: "html",
+            path: "interactions/phishing-lab",
+          },
+          { id: "wrap", type: "markdown", file: "lessons/wrap.md" },
+        ],
+        flow: [
+          { when: { interaction: { done: "phishing-lab" } }, goto: "wrap" },
+        ],
+      },
+      baseUrl: "/course",
+      mode: "preview",
+    };
+
+    init();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="intro"]')?.classList.contains("active"),
+      ).toBe(true),
+    );
+    const next = document.getElementById("lxpack-next") as HTMLButtonElement;
+    next.click();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector(".lxpack-interaction-frame"),
+      ).toBeTruthy(),
+    );
+
+    window.lxpack?.track({
+      type: "interaction",
+      id: "phishing_detected",
+    });
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="wrap"]')?.classList.contains("active"),
+      ).toBe(true),
+    );
+  });
 });

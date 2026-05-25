@@ -163,7 +163,7 @@ lxpack build --target scorm12
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.3.0
+**Latest release:** v0.3.1
 
 ### Shipped features
 
@@ -184,13 +184,13 @@ Out of scope for v0.2: xAPI, cmi5, hot reload, theme wiring, plugin marketplace.
 
 ---
 
-## Phase 3 — Modern standards (shipped — v0.3.0)
+## Phase 3 — Modern standards (shipped — v0.3.1)
 
 - xAPI export and runtime statement helpers (`@lxpack/xapi`, `lxpack build --target xapi`)
 - cmi5 packaging (`@lxpack/cmi5`, `lxpack build --target cmi5`)
 - analytics via `XapiReporter` and preview logging in `lxpack.config.json`
 - Preview optional SCORM simulators via `preview.scormMode` (`local` | `scorm12` | `scorm2004`)
-- cmi5 `fetch` launch bootstrap deferred (manifest + runtime shell only in v0.3.0)
+- cmi5 `fetch` launch bootstrap deferred (manifest + runtime shell only in v0.3.1)
 - automated accessibility validation (WCAG-oriented) remains future work
 
 ---

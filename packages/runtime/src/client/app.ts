@@ -177,6 +177,12 @@ export function init(): void {
   const originalTrack = lxpackApi.track.bind(lxpackApi);
   lxpackApi.track = (event) => {
     originalTrack(event);
+    if (event.type === "interaction") {
+      const item = navItems[currentIndex];
+      if (item?.kind === "lesson" && item.lesson.type === "html") {
+        runtime.markInteractionLessonDone(item.id);
+      }
+    }
     if (event.type === "interaction" || event.type === "assessment") {
       applyFlowJump();
     }

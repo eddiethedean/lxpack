@@ -63,8 +63,8 @@ Goals:
 Standards:
 - SCORM 1.2 (shipped)
 - SCORM 2004 (Phase 2)
-- xAPI (Phase 3 — shipped v0.3.0)
-- cmi5 (Phase 3 — shipped v0.3.0)
+- xAPI (Phase 3 — shipped v0.3.1)
+- cmi5 (Phase 3 — shipped v0.3.1)
 - standalone HTML (shipped)
 
 ## Developer Experience
@@ -133,13 +133,13 @@ Goals:
 - SCORM 2004 Run-Time API (`API_1484_11`) and preview simulator
 - per-activity launch pages and shared runtime/components bundles
 
-## xAPI (shipped — v0.3.0)
+## xAPI (shipped — v0.3.1)
 
 - learner events via `XapiReporter` and `@lxpack/xapi`
 - Tin Can `tincan.xml` export (`lxpack build --target xapi`)
 - optional `tracking.xapi` in `course.yaml`
 
-## cmi5 (shipped — v0.3.0)
+## cmi5 (shipped — v0.3.1)
 
 - `cmi5.xml` with per-activity blocks (`lxpack build --target cmi5`)
 - cmi5 launch `fetch` param kept separate from LRS `endpoint`
@@ -222,7 +222,7 @@ Features:
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.3.0
+**Latest release:** v0.3.1
 
 Features:
 - **SCORM 2004** — multi-SCO export with sequencing/navigation in the manifest
@@ -234,9 +234,9 @@ Features:
 
 Not in Phase 2: xAPI, cmi5 (now Phase 3), hot reload, themes, plugins.
 
-## Phase 3 — Modern standards (shipped — v0.3.0)
+## Phase 3 — Modern standards (shipped — v0.3.1)
 
-**Latest release:** v0.3.0
+**Latest release:** v0.3.1
 
 Features:
 - **xAPI** — `lxpack build --target xapi`, `@lxpack/xapi` statement builders and Tin Can packaging

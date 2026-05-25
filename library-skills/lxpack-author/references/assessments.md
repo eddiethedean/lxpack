@@ -1,4 +1,4 @@
-# Assessment YAML (v0.3.0)
+# Assessment YAML (v0.3.1)
 
 File lives under `assessments/`. Referenced from `course.yaml`:
 

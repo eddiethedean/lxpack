@@ -1,4 +1,4 @@
-# Export targets (v0.3.0)
+# Export targets (v0.3.1)
 
 ## SCORM 1.2
 

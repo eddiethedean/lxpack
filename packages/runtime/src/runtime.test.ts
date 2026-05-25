@@ -333,6 +333,51 @@ describe("LxpackRuntime", () => {
     expect(runtime.getProgress().suspendData["interaction_btn-2"]).toBe(true);
   });
 
+  it("markInteractionLessonDone enables flow interaction.done for html lesson id", () => {
+    const flowManifest = {
+      title: "Flow",
+      version: "1.0.0",
+      lessons: [
+        {
+          id: "phishing-lab",
+          type: "html" as const,
+          path: "interactions/phishing-lab",
+        },
+        { id: "wrap", type: "markdown" as const, file: "wrap.md" },
+      ],
+      flow: [
+        {
+          when: { interaction: { done: "phishing-lab" } },
+          goto: "wrap",
+        },
+      ],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: flowManifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    runtime.track({ type: "interaction", id: "phishing_detected" });
+    expect(runtime.getFlowContext().isInteractionDone("phishing-lab")).toBe(
+      false,
+    );
+    runtime.markInteractionLessonDone("phishing-lab");
+    expect(runtime.getFlowContext().isInteractionDone("phishing-lab")).toBe(
+      true,
+    );
+    expect(runtime.resolveFlowNavigation()).toBe("wrap");
+  });
+
+  it("ignores markInteractionLessonDone for non-html lessons", () => {
+    const runtime = new LxpackRuntime({
+      manifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    runtime.markInteractionLessonDone("a");
+    expect(runtime.getFlowContext().isInteractionDone("a")).toBe(false);
+  });
+
   it("restores progress via local bridge in preview mode without SCORM", () => {
     const runtime = new LxpackRuntime({
       manifest,

@@ -95,7 +95,7 @@ const PHISHING_HTML = `<!DOCTYPE html>
       result.className = 'result show danger';
       result.textContent = 'Correct! This is a phishing attempt. Look for misspelled domains and urgency tactics.';
       if (window.parent.lxpack) {
-        window.parent.lxpack.track({ type: 'interaction', id: 'phishing_detected' });
+        window.parent.lxpack.track({ type: 'interaction', id: 'phishing-lab' });
       }
     });
     email.addEventListener('keydown', (e) => {

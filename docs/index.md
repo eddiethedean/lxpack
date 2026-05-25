@@ -1,6 +1,6 @@
 # LXPack
 
-<span class="version-badge">v0.3.0</span>
+<span class="version-badge">v0.3.1</span>
 
 <p class="hero-lead">
 LXPack turns courses into <strong>web-native learning experiences</strong> — Markdown lessons, interactive labs, and quizzes in simple files — then <strong>preview</strong>, <strong>validate</strong>, and <strong>export</strong> SCORM, xAPI, or cmi5 for your LMS. Built for instructional designers and AI-assisted authoring (Claude, Cursor).
@@ -98,4 +98,4 @@ Clone the repo and open these folders:
 | [`cmi5-demo`](https://github.com/eddiethedean/lxpack/tree/main/examples/cmi5-demo) | cmi5 export |
 
 !!! info "Roadmap"
-    **v0.3.0** is the current release. Deeper AI CLI tooling is planned for a future phase; today you author files (with Claude or by hand) and run `lxpack` to validate, preview, and build.
+    **v0.3.1** is the current release. Deeper AI CLI tooling is planned for a future phase; today you author files (with Claude or by hand) and run `lxpack` to validate, preview, and build.

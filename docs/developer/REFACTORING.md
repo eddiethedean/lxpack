@@ -1,6 +1,6 @@
-# Internal refactor contract (v0.3.0)
+# Internal refactor contract (v0.3.1)
 
-This document records invariants for the SOLID refactor. **No semver bump** until a separate release decision.
+This document records invariants for the SOLID refactor.
 
 ## Public export surfaces (must remain stable)
 

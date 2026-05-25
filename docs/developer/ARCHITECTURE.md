@@ -1,6 +1,6 @@
-# LXPack architecture (v0.3.0)
+# LXPack architecture (v0.3.1)
 
-Internal layout after the SOLID refactor. Current release **v0.3.0**.
+Internal layout after the SOLID refactor. Current release **v0.3.1**.
 
 ## Package boundaries
 
