@@ -1,7 +1,7 @@
 
 # LXPack Full Product Roadmap
 
-> **Doc sync:** Phase names and version targets match [PLAN.md](PLAN.md), [SPEC.md](SPEC.md), and [README.md](../README.md). See [docs/README.md](README.md) for the release-phase table.
+> **Doc sync:** Phase names and version targets match [PLAN.md](PLAN.md), [SPEC.md](SPEC.md), and the [repository README](https://github.com/eddiethedean/lxpack/blob/main/README.md). See [Developer docs](index.md) for the release-phase table.
 
 ## Vision Statement
 

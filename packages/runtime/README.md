@@ -159,8 +159,8 @@ pnpm --filter @lxpack/runtime typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation index](https://github.com/eddiethedean/lxpack/blob/main/docs/README.md)
-- [Technical specification](https://github.com/eddiethedean/lxpack/blob/main/docs/SPEC.md)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
+- [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
 - [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 
 ## License

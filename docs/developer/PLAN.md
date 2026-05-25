@@ -1,7 +1,7 @@
 
 # LXPack Plan Document
 
-> **Doc sync:** Phases and version targets match [ROADMAP.md](ROADMAP.md). See [docs/README.md](README.md) for the release-phase table.
+> **Doc sync:** Phases and version targets match [ROADMAP.md](ROADMAP.md). See [Developer docs](index.md) for the release-phase table.
 
 ## Vision
 

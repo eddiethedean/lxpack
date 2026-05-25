@@ -1,0 +1,5 @@
+# Pin MkDocs 1.x (Material is not compatible with MkDocs 2.0).
+mkdocs>=1.6.0,<2
+mkdocs-material>=9.5.0,<10
+pymdown-extensions>=10.0,<11
+# Suppress Material's MkDocs 2.0 banner: export NO_MKDOCS_2_WARNING=1 (see scripts/build-docs.sh).

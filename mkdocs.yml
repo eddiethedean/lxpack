@@ -1,0 +1,110 @@
+site_name: LXPack
+site_description: AI-native learning experience compiler — build, preview, and export courses for your LMS.
+site_url: https://lxpack.readthedocs.io/
+repo_url: https://github.com/eddiethedean/lxpack
+repo_name: eddiethedean/lxpack
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; LXPack contributors — Apache-2.0
+
+theme:
+  name: material
+  language: en
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.select
+    - toc.follow
+
+plugins:
+  - search
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - getting-started/what-you-need.md
+      - getting-started/install-cli.md
+      - getting-started/your-first-course.md
+      - getting-started/glossary.md
+  - Workflows:
+      - guides/workflow-overview.md
+      - guides/workflow-claude-design.md
+      - guides/workflow-cursor.md
+      - guides/workflow-claude-code.md
+      - guides/migrating-from-legacy-tools.md
+  - Authoring guides:
+      - guides/course-structure.md
+      - guides/writing-lessons.md
+      - guides/building-interactions.md
+      - guides/quizzes-and-assessments.md
+      - guides/branching-and-paths.md
+      - guides/preview-and-review.md
+      - guides/export-to-lms.md
+      - Prompts for Claude & Cursor: guides/prompts-for-claude.md
+  - Reference:
+      - reference/cli.md
+      - reference/course-yaml.md
+      - reference/lxpack-config.md
+      - reference/lesson-types.md
+      - reference/components.md
+      - reference/tracking-and-completion.md
+      - reference/troubleshooting.md
+  - Developer:
+      - developer/index.md
+      - developer/SPEC.md
+      - developer/PLAN.md
+      - developer/ROADMAP.md
+      - developer/ARCHITECTURE.md
+      - developer/REFACTORING.md
+  - Maintainers:
+      - readthedocs-setup.md
+  - Changelog: https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/eddiethedean/lxpack
+    - icon: fontawesome/brands/npm
+      link: https://www.npmjs.com/package/@lxpack/cli

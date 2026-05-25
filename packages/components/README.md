@@ -117,7 +117,8 @@ pnpm --filter @lxpack/components typecheck
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
 - [Branching demo example](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo)
-- [Documentation index](https://github.com/eddiethedean/lxpack/blob/main/docs/README.md)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
+- [Components reference](https://lxpack.readthedocs.io/en/latest/reference/components/)
 - [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
 
 ## License

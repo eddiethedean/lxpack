@@ -145,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Notes
 
-- Completes Phase 1 (MVP). Phase 2 shipped in v0.2.0 — see [docs/ROADMAP.md](docs/ROADMAP.md).
+- Completes Phase 1 (MVP). Phase 2 shipped in v0.2.0 — see [Roadmap](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/).
 - Phase 3+ covers xAPI, cmi5, themes, hot reload, and plugins.
 - The runtime browser bundle is ESM (`client.js`); legacy LMS environments without module support are not targeted in this release.
 

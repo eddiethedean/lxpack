@@ -1,5 +1,6 @@
 # LXPack
 
+[![Documentation](https://readthedocs.org/projects/lxpack/badge/?version=latest)](https://lxpack.readthedocs.io/en/latest/?badge=latest)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![Release](https://github.com/eddiethedean/lxpack/actions/workflows/release.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/release.yml)
 [![npm](https://img.shields.io/npm/v/@lxpack/cli)](https://www.npmjs.com/package/@lxpack/cli)
@@ -294,8 +295,8 @@ examples/
   cmi5-demo/            — cmi5 export sample
 test/
   fixtures/             — shared validation/build test courses
-docs/
-  README.md, SPEC.md, PLAN.md, ROADMAP.md
+docs/               # MkDocs site (published on Read the Docs)
+  getting-started/, guides/, reference/, developer/
 ```
 
 ## Security notes
@@ -371,15 +372,22 @@ The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CH
 | 3 — Modern standards | **v0.3.0** | Shipped — xAPI, cmi5, analytics hooks |
 | 4–6 | TBD | AI tooling, ecosystem, enterprise platform |
 
-Details: [docs/ROADMAP.md](docs/ROADMAP.md) (canonical phases), [docs/PLAN.md](docs/PLAN.md), [docs/README.md](docs/README.md).
+Details: [Roadmap](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/) (canonical phases), [Product plan](https://lxpack.readthedocs.io/en/latest/developer/PLAN/).
 
 ## Documentation
 
-- [Documentation index](docs/README.md) — release phases and package map
+Full documentation is published on **Read the Docs**: **[lxpack.readthedocs.io](https://lxpack.readthedocs.io/en/latest/)**
+
+| Audience | Start here |
+|----------|------------|
+| Instructional designers / LXDs | [Your first course](https://lxpack.readthedocs.io/en/latest/getting-started/your-first-course/) → [Workflow with Claude Design](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-design/) |
+| Migrating from Storyline / Rise | [Migrating from legacy tools](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) |
+| Cursor users (no Claude) | [Workflow with Cursor](https://lxpack.readthedocs.io/en/latest/guides/workflow-cursor/) |
+| Developers (Cursor + Claude) | [Workflow with Claude Code](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-code/) → [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
+
 - [Changelog](CHANGELOG.md)
-- [Technical Specification](docs/SPEC.md)
-- [Product Plan](docs/PLAN.md)
-- [Roadmap](docs/ROADMAP.md)
+- [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
+- [Read the Docs setup](docs/readthedocs-setup.md) (maintainers)
 
 ## License
 

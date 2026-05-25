@@ -108,6 +108,24 @@ jobs:
       - name: Test
         run: pnpm test
 
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install doc dependencies
+        run: pip install -r requirements-docs.txt
+
+      - name: Build docs (strict)
+        run: bash scripts/build-docs.sh
+
   coverage:
     name: Coverage
     runs-on: ubuntu-latest

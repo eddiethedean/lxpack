@@ -1,7 +1,7 @@
 
 # LXPack Technical Specification
 
-> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.3.0. See [docs/README.md](README.md).
+> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.3.0. See the [documentation home](../index.md).
 
 ## Overview
 
@@ -363,4 +363,4 @@ docs/
 
 # License
 
-Apache-2.0 (see repository [LICENSE](../LICENSE)).
+Apache-2.0 (see repository [LICENSE](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)).
