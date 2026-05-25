@@ -87,15 +87,58 @@ function preserveAssessmentSuspendKeys(
   return suspendData;
 }
 
+function preserveFlowSuspendKeys(
+  progress: CourseProgress,
+  preserveInteractionIds?: Set<string>,
+): Record<string, unknown> {
+  const suspendData: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(progress.suspendData)) {
+    if (key.startsWith("v:")) {
+      suspendData[key] = value;
+      continue;
+    }
+    if (!key.startsWith("interaction_")) continue;
+    if (preserveInteractionIds?.size) {
+      const id = key.slice("interaction_".length);
+      if (!preserveInteractionIds.has(id)) continue;
+    }
+    suspendData[key] = value;
+  }
+  return suspendData;
+}
+
+function mergeSuspendKeys(
+  ...parts: Record<string, unknown>[]
+): Record<string, unknown> {
+  return Object.assign({}, ...parts);
+}
+
+function interactionIdsFromSuspendData(
+  suspendData: Record<string, unknown>,
+): Set<string> {
+  const ids = new Set<string>();
+  for (const key of Object.keys(suspendData)) {
+    if (key.startsWith("interaction_")) {
+      ids.add(key.slice("interaction_".length));
+    }
+  }
+  return ids;
+}
+
 function buildMinimalSerializedProgress(
   progress: CourseProgress,
   maxBytes: number,
+  preserveInteractionIds?: Set<string>,
 ): string {
+  const flowSuspend = preserveFlowSuspendKeys(progress, preserveInteractionIds);
   let minimal: CourseProgress = {
     currentLessonId: progress.currentLessonId,
     completedLessons: [...progress.completedLessons],
     assessmentScores: { ...progress.assessmentScores },
-    suspendData: preserveAssessmentSuspendKeys(progress),
+    suspendData: mergeSuspendKeys(
+      preserveAssessmentSuspendKeys(progress),
+      flowSuspend,
+    ),
   };
 
   if (fitsLimit(minimal, maxBytes)) {
@@ -121,7 +164,10 @@ function buildMinimalSerializedProgress(
     currentLessonId: progress.currentLessonId,
     completedLessons: [],
     assessmentScores: {},
-    suspendData: preserveAssessmentSuspendKeys(progress),
+    suspendData: mergeSuspendKeys(
+      preserveAssessmentSuspendKeys(progress),
+      flowSuspend,
+    ),
   };
   const serialized = JSON.stringify(compactProgress(minimal));
   if (serialized.length <= maxBytes) {
@@ -166,7 +212,11 @@ export function serializeProgressForStorage(
   console.warn(
     `[lxpack] suspend_data exceeds ${maxBytes} chars; using minimal progress snapshot`,
   );
-  return buildMinimalSerializedProgress(progress, maxBytes);
+  return buildMinimalSerializedProgress(
+    progress,
+    maxBytes,
+    options?.preserveInteractionIds,
+  );
 }
 
 export function trimSuspendData(
@@ -187,7 +237,13 @@ export function trimSuspendData(
       suspendData: {},
     };
     const { progress } = parseStoredProgress(data, defaults);
-    return serializeProgressForStorage(progress, maxBytes);
+    const preserveInteractionIds = interactionIdsFromSuspendData(
+      progress.suspendData,
+    );
+    return serializeProgressForStorage(progress, maxBytes, {
+      preserveInteractionIds:
+        preserveInteractionIds.size > 0 ? preserveInteractionIds : undefined,
+    });
   } catch {
     return JSON.stringify({ c: "" });
   }

@@ -50,7 +50,21 @@ export function init(): void {
 
   function indexForId(id: string): number {
     const idx = navItems.findIndex((n) => n.id === id);
-    return idx >= 0 ? idx : 0;
+    if (idx >= 0) return idx;
+    if (id) {
+      console.warn(
+        `[lxpack] Stored lesson id "${id}" is not in this course; opening the first activity`,
+      );
+    }
+    return 0;
+  }
+
+  function isExplicitInteractionComplete(data: unknown): boolean {
+    if (data === true) return true;
+    if (typeof data === "object" && data !== null) {
+      return (data as { complete?: boolean }).complete === true;
+    }
+    return false;
   }
 
   let currentIndex = indexForId(runtime.getProgress().currentLessonId);
@@ -184,11 +198,8 @@ export function init(): void {
     originalTrack(event);
     if (event.type === "interaction") {
       const item = navItems[currentIndex];
-      const interactionPayload = event.data as unknown;
-      const interactionComplete =
-        interactionPayload !== false && interactionPayload !== null;
       if (
-        interactionComplete &&
+        isExplicitInteractionComplete(event.data) &&
         item?.kind === "lesson" &&
         item.lesson.type === "html"
       ) {

@@ -16,6 +16,12 @@ for dir in "${ROOT}"/examples/*/; do
     cd "$dir"
     node "$CLI" validate
     case "$name" in
+      security-awareness)
+        node "$CLI" validate --target scorm12
+        ;;
+      branching-demo)
+        node "$CLI" validate --target scorm2004
+        ;;
       xapi-awareness)
         node "$CLI" validate --target xapi
         ;;

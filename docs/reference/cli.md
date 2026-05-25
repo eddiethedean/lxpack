@@ -2,7 +2,7 @@
 
 --8<-- "copy-tip.md"
 
-**v0.3.2** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
+**v0.3.3** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
 
 ## Copy-paste commands
 

@@ -368,6 +368,38 @@ describe("LxpackRuntime", () => {
     expect(runtime.resolveFlowNavigation()).toBe("wrap");
   });
 
+  it("does not treat interaction track data 0 as lesson done for flow", () => {
+    const flowManifest = {
+      title: "Flow",
+      version: "1.0.0",
+      lessons: [
+        {
+          id: "phishing-lab",
+          type: "html" as const,
+          path: "interactions/phishing-lab",
+        },
+      ],
+      flow: [
+        {
+          when: { interaction: { done: "phishing-lab" } },
+          goto: "wrap",
+        },
+      ],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: flowManifest,
+      baseUrl: ".",
+      mode: "preview",
+    });
+    runtime.track({ type: "interaction", id: "phishing-lab", data: 0 });
+    expect(runtime.getFlowContext().isInteractionDone("phishing-lab")).toBe(
+      false,
+    );
+    expect(
+      runtime.getProgress().suspendData["interaction_phishing-lab"],
+    ).toBe(0);
+  });
+
   it("ignores markInteractionLessonDone for non-html lessons", () => {
     const runtime = new LxpackRuntime({
       manifest,
@@ -825,6 +857,26 @@ describe("LxpackRuntime", () => {
 
     expect(runtime.getProgress().currentLessonId).toBe("b");
     expect(runtime.isLessonComplete("a")).toBe(true);
+  });
+
+  it("sets SCORM 2004 completion incomplete when assessment fails at max attempts", () => {
+    const sim = mockScorm2004();
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "scorm2004",
+      assessmentConfigs: {
+        quiz: { maxAttempts: 1, shuffleChoices: false, showFeedback: true },
+      },
+    });
+
+    runtime.submitAssessment("quiz", 0.2, 0.7);
+    expect(sim.GetValue("cmi.success_status")).toBe("failed");
+    expect(sim.GetValue("cmi.completion_status")).toBe("incomplete");
   });
 
   it("updates SCORM 2004 status on assessment submit", () => {

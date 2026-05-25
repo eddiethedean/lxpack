@@ -5,6 +5,7 @@ import {
   expandLegacyProgress,
   parseStoredProgress,
   serializeProgressForStorage,
+  trimSuspendData,
 } from "./progress-persist.js";
 import type { CourseProgress } from "./types.js";
 
@@ -177,6 +178,46 @@ describe("progress-persist", () => {
     const serialized = serializeProgressForStorage(progress);
     expect(serialized.length).toBeLessThanOrEqual(4096);
     expect(serialized).not.toContain("interaction_0");
+  });
+
+  it("preserves flow interaction and variable keys in minimal snapshot", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const progress: CourseProgress = {
+      currentLessonId: "choose_path",
+      completedLessons: Array.from({ length: 80 }, (_, i) => `lesson-${i}`),
+      assessmentScores: { quiz: 0.9 },
+      suspendData: {
+        interaction_flow_lab: true,
+        "v:path": "advanced",
+        assessment_attempts_quiz: 3,
+        blob: "x".repeat(8000),
+      },
+    };
+    const serialized = serializeProgressForStorage(progress, 256);
+    const { progress: restored } = parseStoredProgress(serialized, defaults);
+    expect(restored.suspendData.interaction_flow_lab).toBe(true);
+    expect(restored.suspendData["v:path"]).toBe("advanced");
+    warn.mockRestore();
+  });
+
+  it("trimSuspendData preserves flow interaction keys from oversized payload", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const oversized = JSON.stringify({
+      currentLessonId: "a",
+      completedLessons: Array.from({ length: 120 }, (_, i) => `lesson-${i}`),
+      assessmentScores: {},
+      suspendData: {
+        interaction_flow_lab: true,
+        "v:path": "intro",
+        filler: "x".repeat(5000),
+      },
+    });
+    const trimmed = trimSuspendData(oversized, 512);
+    expect(trimmed.length).toBeLessThanOrEqual(512);
+    const { progress: restored } = parseStoredProgress(trimmed, defaults);
+    expect(restored.suspendData.interaction_flow_lab).toBe(true);
+    expect(restored.suspendData["v:path"]).toBe("intro");
+    warn.mockRestore();
   });
 
   it("preserves assessment attempt keys in minimal snapshot when scores exist", () => {

@@ -4,7 +4,7 @@
 
 **Component lessons** use built-in widgets from `@lxpack/components`. No HTML file required.
 
-## Built-in components (v0.3.2)
+## Built-in components (v0.3.3)
 
 | ID | Purpose | Common props |
 |----|---------|--------------|

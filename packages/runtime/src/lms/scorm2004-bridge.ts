@@ -45,7 +45,7 @@ export class Scorm2004Bridge implements LmsBridge {
     this.connection.setScoreScaled(state.ratio);
     if (state.anyAssessmentFailed) {
       this.connection.setSuccessStatus("failed");
-      this.connection.setCompletionStatus("completed");
+      this.connection.setCompletionStatus("incomplete");
     } else if (
       state.ratio >= state.completionThreshold &&
       state.allLessonsComplete &&

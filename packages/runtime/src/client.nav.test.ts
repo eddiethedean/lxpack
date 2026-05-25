@@ -137,6 +137,7 @@ describe("client navigation fallbacks", () => {
     window.lxpack?.track({
       type: "interaction",
       id: "phishing_detected",
+      data: true,
     });
     await vi.waitFor(() =>
       expect(

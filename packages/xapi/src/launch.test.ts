@@ -30,4 +30,21 @@ describe("parseLaunchParams", () => {
     expect(params.endpoint).toBe("https://lrs.example/xapi/");
     expect(params.fetch).toBe("https://lms.example/fetch/xyz");
   });
+
+  it("merges query and hash with hash overriding duplicate keys", () => {
+    const params = parseLaunchParams(
+      "?endpoint=https://lrs.example/search",
+      "#endpoint=https://lrs.example/hash",
+    );
+    expect(params.endpoint).toBe("https://lrs.example/hash");
+  });
+
+  it("reads actor from hash when search has other params", () => {
+    const actor = encodeURIComponent(
+      JSON.stringify({ name: "Hash Actor", mbox: "mailto:h@x.com" }),
+    );
+    const params = parseLaunchParams("?registration=r1", `#actor=${actor}`);
+    expect(params.registration).toBe("r1");
+    expect(params.actor?.name).toBe("Hash Actor");
+  });
 });

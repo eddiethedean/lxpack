@@ -68,5 +68,5 @@ See [Build courses](build-overview.md) for lesson, quiz, and export depth. For A
 - [Prompts for Claude & Cursor](prompts-for-claude.md)
 - [Library Skills](library-skills.md)
 
-!!! info "v0.3.2 scope"
+!!! info "v0.3.3 scope"
     No `lxpack repair` or bundled AI CLI yet — Claude edits files; `lxpack` validates and packages. Phase 4 may add more automation.

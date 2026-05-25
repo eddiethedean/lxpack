@@ -8,8 +8,10 @@ Fork of `security-awareness` with `tracking.xapi.activityIri` for Tin Can export
 
 ```bash
 cd examples/xapi-awareness
-lxpack validate --target xapi
-lxpack build --target xapi
+lxpack validate
+lxpack build
 ```
+
+`lxpack.config.json` sets `defaultTarget` to `xapi`, so `validate` and `build` pick up xAPI rules without `--target`.
 
 Upload the ZIP to an LRS or open `index.html` with launch query params (`endpoint`, `auth`, `actor`, `registration`). See [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/) for build options.

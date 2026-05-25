@@ -26,11 +26,28 @@ function decodeActorParam(raw: string): XapiActor | undefined {
   return undefined;
 }
 
+function mergeLaunchSearchParams(search: string, hash: string): URLSearchParams {
+  const merged = new URLSearchParams();
+  const searchPart = search.startsWith("?") ? search.slice(1) : search;
+  if (searchPart) {
+    for (const [key, value] of new URLSearchParams(searchPart)) {
+      merged.set(key, value);
+    }
+  }
+  const hashPart = hash.replace(/^#/, "");
+  if (hashPart) {
+    for (const [key, value] of new URLSearchParams(hashPart)) {
+      merged.set(key, value);
+    }
+  }
+  return merged;
+}
+
 export function parseLaunchParams(
   search: string,
   hash = "",
 ): LaunchParams {
-  const params = new URLSearchParams(search || hash.replace(/^#/, ""));
+  const params = mergeLaunchSearchParams(search, hash);
   const endpoint = params.get("endpoint") ?? undefined;
   const auth = params.get("auth") ?? undefined;
   const registration = params.get("registration") ?? undefined;

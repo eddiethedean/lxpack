@@ -1,7 +1,7 @@
 
 # LXPack Technical Specification
 
-> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.3.2. See the [documentation home](../index.md).
+> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.3.3. See the [documentation home](../index.md).
 
 ## Overview
 
@@ -107,7 +107,7 @@ lxpack validate
 lxpack build --target <target>
 ```
 
-### Supported targets (v0.3.2)
+### Supported targets (v0.3.3)
 
 | Target | Description |
 |--------|-------------|
@@ -199,7 +199,7 @@ window.lxpack.track({
 
 Flow rules MAY consume interaction and assessment events for navigation (v0.2.0).
 
-### Simulation tracking (v0.3.2)
+### Simulation tracking (v0.3.3)
 
 Simulations MAY emit structured xAPI `interacted` statements:
 
@@ -233,12 +233,12 @@ window.lxpack.track({
 - Per-activity launch pages at `sco/<activityId>/index.html`
 - Shared `lxpack-runtime.js` and `lxpack-components.js`
 
-## xAPI / cmi5 (v0.3.2)
+## xAPI / cmi5 (v0.3.3)
 
 - Manifest: optional `tracking.xapi.activityIri` (course activity IRI); per-activity IRIs `{activityIri}/activities/{id}`
 - Runtime modes `xapi` and `cmi5` use `@lxpack/xapi` builders (no SCORM API)
 - cmi5 LMS launch query params: `endpoint`, `auth`, `actor`, `registration`, `activityId` (LRS credentials are not embedded in ZIPs)
-- cmi5 `fetch` URL is parsed but **not** used for AU session bootstrap in v0.3.2 (runtime logs a warning when present)
+- cmi5 `fetch` URL is parsed but **not** used for AU session bootstrap in v0.3.3 (runtime logs a warning when present)
 - Verbs: `launched`, `experienced`, `interacted`, `answered`, `completed`, `passed`, `failed`
 - Preview: `lxpack.config.json` → `xapi.preview.logStatements` / `mockLrs` (console + `localStorage` queue)
 

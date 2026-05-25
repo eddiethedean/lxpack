@@ -1,6 +1,6 @@
 {
   "exports": {
-    "defaultTarget": "scorm12"
+    "defaultTarget": "cmi5"
   },
   "output": {
     "dir": ".lxpack"

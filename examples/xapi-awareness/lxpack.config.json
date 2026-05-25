@@ -1,6 +1,6 @@
 {
   "exports": {
-    "defaultTarget": "scorm12"
+    "defaultTarget": "xapi"
   },
   "output": {
     "dir": ".lxpack"

@@ -19,7 +19,9 @@ function mockConnection(values: Record<string, string>): Scorm2004Connection {
     Terminate: vi.fn(() => "true"),
     setLocation: vi.fn(),
     setSuspendData: vi.fn(),
-    setCompletion: vi.fn(),
+    setCompletionStatus: vi.fn(),
+    setSuccessStatus: vi.fn(),
+    setScoreScaled: vi.fn(),
   } as unknown as Scorm2004Connection;
 }
 
@@ -39,5 +41,22 @@ describe("Scorm2004Bridge", () => {
       expect.stringContaining("suspend_data could not be parsed"),
     );
     warn.mockRestore();
+  });
+
+  it("sets incomplete completion when assessments failed at max attempts", () => {
+    const conn = mockConnection({});
+    const bridge = new Scorm2004Bridge(conn);
+    bridge.applyCompletion({
+      ratio: 0.5,
+      scorePercent: 50,
+      allLessonsComplete: true,
+      allAssessmentsPassed: false,
+      anyAssessmentFailed: true,
+      hasAssessments: true,
+      completionThreshold: 0.8,
+    });
+    expect(conn.setSuccessStatus).toHaveBeenCalledWith("failed");
+    expect(conn.setCompletionStatus).toHaveBeenCalledWith("incomplete");
+    expect(conn.setCompletionStatus).not.toHaveBeenCalledWith("completed");
   });
 });

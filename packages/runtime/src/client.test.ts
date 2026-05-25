@@ -56,6 +56,49 @@ describe("client", () => {
     expect(() => init()).toThrow("#lxpack-app element not found");
   });
 
+  it("does not mark html lesson done when interaction track data is 0", async () => {
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "Flow",
+        version: "1.0.0",
+        lessons: [
+          { id: "html", type: "html" as const, path: "interactions/lab" },
+        ],
+        flow: [
+          { when: { interaction: { done: "html" } }, goto: "html" },
+        ],
+      },
+      baseUrl: "/course",
+      mode: "preview",
+    };
+    init();
+    await vi.waitFor(() => expect(window.lxpack).toBeDefined());
+    window.lxpack?.track({ type: "interaction", id: "step", data: 0 });
+    expect(
+      window.lxpack?.getProgress().suspendData["interaction_html"],
+    ).toBeUndefined();
+  });
+
+  it("marks html lesson done when interaction track data is true", async () => {
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "Flow",
+        version: "1.0.0",
+        lessons: [
+          { id: "html", type: "html" as const, path: "interactions/lab" },
+        ],
+      },
+      baseUrl: "/course",
+      mode: "preview",
+    };
+    init();
+    await vi.waitFor(() => expect(window.lxpack).toBeDefined());
+    window.lxpack?.track({ type: "interaction", id: "step", data: true });
+    expect(
+      window.lxpack?.getProgress().suspendData["interaction_html"],
+    ).toBe(true);
+  });
+
   it("renders course shell and navigates lessons", async () => {
     init();
 

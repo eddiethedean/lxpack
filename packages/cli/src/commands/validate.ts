@@ -1,7 +1,11 @@
-import { validateCourse, type ValidationIssue } from "@lxpack/validators";
+import {
+  formatErrorMessage,
+  validateCourse,
+  type ValidationIssue,
+} from "@lxpack/validators";
 import type { ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
-import { findCourseDir } from "../utils.js";
+import { findCourseDir, loadLxpackConfig } from "../utils.js";
 import {
   formatInvalidTargetMessage,
   isValidExportTarget,
@@ -16,7 +20,21 @@ export async function validateCommand(options?: {
   }
 
   const courseDir = findCourseDir();
-  const target = options?.target as ExportTarget | undefined;
+
+  let config;
+  try {
+    config = await loadLxpackConfig(courseDir);
+  } catch (err) {
+    console.error(pc.red(formatErrorMessage(err)));
+    process.exit(1);
+  }
+
+  const defaultTarget = config?.exports?.defaultTarget;
+  const target = (options?.target as ExportTarget | undefined) ??
+    (defaultTarget === "xapi" || defaultTarget === "cmi5"
+      ? defaultTarget
+      : undefined);
+
   const result = await validateCourse(courseDir, {
     exportTarget: target,
   });

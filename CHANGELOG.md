@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-05-27
+
+### Fixed
+
+- SCORM minimal/trim suspend_data preserves flow `interaction_*` and `v:*` keys
+- `lxpack validate` applies xapi/cmi5 rules from `lxpack.config.json` `defaultTarget`
+- HTML interaction auto-complete only on explicit completion (aligns with flow `interaction.done`)
+- SCORM 2004: failed assessments no longer set `completion_status` to `completed`
+- xAPI launch params: merge query string and hash (hash wins on duplicates)
+- `examples/xapi-awareness` and `examples/cmi5-demo` `defaultTarget` match demo purpose
+
+### Changed
+
+- `scripts/validate-examples.sh` checks `scorm12` / `scorm2004` targets for linear and branching demos
+
 ## [0.3.2] - 2026-05-26
 
 ### Fixed
