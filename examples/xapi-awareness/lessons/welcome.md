@@ -1,15 +1,18 @@
-# Security Awareness
+# xAPI Awareness (example)
 
-Welcome to the Security Awareness training course.
+This is the **Security Awareness** sample course, configured to demonstrate **xAPI export + runtime tracking**.
 
-## Learning objectives
+## What’s different in this example
 
-By the end of this course, you will be able to:
+- `tracking.xapi.activityIri` is set in `course.yaml`
+- `lxpack.config.json` sets `defaultTarget` to **xapi**
+- The runtime emits xAPI statements for key events (navigation, interactions, assessment)
 
-1. Identify common phishing indicators
-2. Recognize social engineering tactics
-3. Apply safe email handling practices
+## Try it
 
-## Course structure
+- Run `lxpack preview` and complete the lab + quiz
+- Build `lxpack build` and inspect the package metadata (Tin Can / xAPI artifacts)
 
-This course includes markdown lessons and an interactive phishing lab. Use the navigation panel to move between sections.
+## Why it matters
+
+xAPI packages are portable: the course can be launched with LRS credentials provided at launch time, and the runtime reports learner activity without hard‑coding secrets into the ZIP.

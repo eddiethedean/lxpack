@@ -1,15 +1,22 @@
 # Security Awareness
 
-Welcome to the Security Awareness training course.
+Build practical habits for spotting phishing and handling suspicious messages safely.
 
-## Learning objectives
+## What you’ll learn
 
-By the end of this course, you will be able to:
+- **Spot common phishing signals** (look‑alike domains, urgency, mismatched links)
+- **Recognize social engineering patterns** (authority, fear, time pressure)
+- **Choose safe next steps** (report, verify out‑of‑band, avoid link clicks)
 
-1. Identify common phishing indicators
-2. Recognize social engineering tactics
-3. Apply safe email handling practices
+## How this example is structured
 
-## Course structure
+- **Lesson (Markdown)**: quick concepts + a checklist you can reuse
+- **Lab (HTML interaction)**: a mini “inbox” where you decide what to do
+- **Quiz (YAML assessment)**: lightweight checkpoint for completion
 
-This course includes markdown lessons and an interactive phishing lab. Use the navigation panel to move between sections.
+## Quick checklist (save this)
+
+- **Pause** when a message creates urgency (“act now”, “final notice”)
+- **Verify the sender** (domain spelling, display name vs address mismatch)
+- **Don’t trust the button** — hover/inspect the destination when possible
+- **Report** using your org’s process (security mailbox / button / ticket)

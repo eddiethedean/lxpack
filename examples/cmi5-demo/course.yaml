@@ -1,6 +1,6 @@
 title: cmi5 Demo
 version: 1.0.0
-description: An LXPack learning experience on security fundamentals
+description: Demonstrates cmi5 packaging and xAPI tracking in LXPack
 
 runtime:
   theme: modern

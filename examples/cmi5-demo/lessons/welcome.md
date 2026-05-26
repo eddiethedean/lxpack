@@ -1,15 +1,15 @@
-# Security Awareness
+# cmi5 Demo (example)
 
-Welcome to the Security Awareness training course.
+This is the **Security Awareness** sample course, configured to demonstrate **cmi5 packaging** (an LMS‑friendly profile of xAPI).
 
-## Learning objectives
+## What you’re looking at
 
-By the end of this course, you will be able to:
+- A normal LXPack course (Markdown + HTML interaction + YAML quiz)
+- `lxpack.config.json` sets `defaultTarget` to **cmi5**
+- The build outputs a cmi5 package with `cmi5.xml` and activity structure
 
-1. Identify common phishing indicators
-2. Recognize social engineering tactics
-3. Apply safe email handling practices
+## How to use it
 
-## Course structure
-
-This course includes markdown lessons and an interactive phishing lab. Use the navigation panel to move between sections.
+- Run `lxpack preview` to iterate quickly
+- Run `lxpack build` to generate a cmi5 package
+- Import into a cmi5‑capable LMS (launch-time parameters supply LRS credentials)
