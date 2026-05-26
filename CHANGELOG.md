@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- SCORM/LMS: browser client bundle inlines validators subset instead of bare `@lxpack/validators` import ([#3](https://github.com/eddiethedean/lxpack/issues/3))
+
 ## [0.3.5] - 2026-05-26
 
 ### Fixed

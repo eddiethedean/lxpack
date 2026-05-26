@@ -72,6 +72,12 @@ export async function readRuntimeBundle(
     );
   }
 
+  if (clientJs.includes("@lxpack/validators")) {
+    throw new Error(
+      "Runtime client bundle must not import @lxpack/validators (browser cannot resolve it). Rebuild @lxpack/runtime with `pnpm build`.",
+    );
+  }
+
   return { clientJs, css };
 }
 
