@@ -107,7 +107,7 @@ When a learner finishes an attempt without passing, the runtime may set `success
 
 ## cmi5 `fetch` launch
 
-cmi5 packages may include a `fetch` launch parameter. LXPack parses it but does **not** perform AU session bootstrap via `fetch` in v0.3.5; the runtime logs a console warning when `fetch` is present. Use preview xAPI logging or your LMS test environment for statement verification.
+cmi5 packages may include a `fetch` launch parameter. When present, the runtime **POSTs** to that URL (per the cmi5 spec) to obtain an `auth-token` for LRS requests. The launch URL must still include `endpoint` (and typically `actor`, `registration`). The token is cached in `sessionStorage` so a page refresh does not repeat the one-time fetch call. Use preview xAPI logging or your LMS staging environment to verify statements.
 
 ## Troubleshooting LMS issues
 

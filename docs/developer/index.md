@@ -61,6 +61,23 @@ Technical references for **v0.3.5** contributors and integrators.
 
 Package READMEs live under `packages/*/README.md` in the repository.
 
+## Publishing v0.3.5
+
+Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](../../CHANGELOG.md) accurate for `[0.3.5]`.
+
+```bash
+# From a clean main at 0.3.5 in all packages/*/package.json
+pnpm install --frozen-lockfile
+pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm test:coverage
+pnpm examples:validate
+bash scripts/build-docs.sh
+
+git tag v0.3.5
+git push origin v0.3.5
+```
+
+Pushing tag `v0.3.5` runs [.github/workflows/release.yml](../../.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
+
 ## User-facing docs
 
 Authors and LXDs should use the [documentation home](../index.md), not this section.
