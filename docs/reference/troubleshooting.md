@@ -56,7 +56,7 @@ SCORM 1.2, standalone, xAPI, and cmi5 ship **one** `index.html` with all quiz an
 | Quiz doesn’t load | Validation error in assessment YAML |
 | Branching wrong | Check `flow` `goto` matches lesson `id`; test `interaction.done` on html lessons only |
 | Preview on LAN | Non-loopback `--host` exposes embedded answer keys | Use `127.0.0.1` or heed the CLI warning |
-| cmi5 `fetch` in LMS | AU bootstrap via `fetch` not implemented | Expect a runtime console warning; test statements in staging |
+| cmi5 `fetch` in LMS | Missing `endpoint` on launch URL, or fetch URL reused | Launch must include `endpoint`; fetch is one-time — refresh uses cached token in `sessionStorage` |
 
 ## LMS issues after upload
 

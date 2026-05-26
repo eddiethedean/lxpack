@@ -247,15 +247,10 @@ questions:
     expect(result.valid).toBe(true);
   });
 
-  it("warns about cmi5 fetch limitation when exportTarget is cmi5", async () => {
+  it("passes xapi-valid fixture with exportTarget cmi5", async () => {
     const result = await validateCourse(fixturePath("xapi-valid"), {
       exportTarget: "cmi5",
     });
-    expect(
-      result.issues.some(
-        (i) =>
-          i.severity === "warning" && i.message.toLowerCase().includes("fetch"),
-      ),
-    ).toBe(true);
+    expect(result.valid).toBe(true);
   });
 });

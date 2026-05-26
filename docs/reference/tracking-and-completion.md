@@ -46,7 +46,7 @@ Runtime sends statements (launch, progress, interactions, assessments) via `Xapi
 
 ### cmi5 note (v0.3.5)
 
-cmi5 packages include `cmi5.xml`. Session bootstrap via cmi5 `fetch` launch is limited in v0.3.5 — test with your LMS in staging.
+cmi5 packages include `cmi5.xml`. When the LMS launch URL includes a `fetch` parameter, the runtime POSTs to that URL once per session to obtain an `auth-token` for LRS requests (cached in `sessionStorage` on refresh). The launch URL must still include `endpoint` (and typically `actor`, `registration`).
 
 ## HTML interaction tracking
 

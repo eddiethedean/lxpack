@@ -12,7 +12,10 @@ export function variableValuesEqual(
     return Number(actual) === Number(expected);
   }
   if (type === "boolean") {
-    return Boolean(actual) === Boolean(expected);
+    if (typeof actual !== "boolean" || typeof expected !== "boolean") {
+      return false;
+    }
+    return actual === expected;
   }
   if (type === "string") {
     return String(actual) === String(expected);

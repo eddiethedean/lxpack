@@ -8,7 +8,7 @@ import {
   type CourseManifest,
 } from "./schemas.js";
 import type { ValidationIssue } from "./validate.js";
-import { assertResolvedPathContained } from "./course-paths.js";
+import { assertPackagableFile } from "./packagable-path.js";
 import { validateAssessmentFilePath } from "./safe-relative-path.js";
 import { formatErrorMessage } from "./validate.js";
 import {
@@ -68,11 +68,15 @@ export async function loadParsedAssessments(
       });
       continue;
     }
-    const contained = assertResolvedPathContained(resolvedDir, resolved.path);
-    if (!contained.ok) {
+    const packagable = assertPackagableFile(
+      resolvedDir,
+      resolved.path,
+      ref.file,
+    );
+    if (!packagable.ok) {
       issues.push({
         path: `assessments.${ref.id}.file`,
-        message: contained.message,
+        message: packagable.message,
         severity: "error",
       });
       continue;

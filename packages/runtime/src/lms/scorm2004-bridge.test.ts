@@ -43,6 +43,23 @@ describe("Scorm2004Bridge", () => {
     warn.mockRestore();
   });
 
+  it("sets incomplete when scoped lesson has zero progress", () => {
+    const conn = mockConnection({});
+    const bridge = new Scorm2004Bridge(conn);
+    bridge.applyCompletion({
+      ratio: 0,
+      scorePercent: 0,
+      allLessonsComplete: false,
+      allAssessmentsPassed: false,
+      anyAssessmentFailed: false,
+      hasAssessments: false,
+      hasLearnerProgress: false,
+      completionThreshold: 0.8,
+    });
+    expect(conn.setCompletionStatus).toHaveBeenCalledWith("incomplete");
+    expect(conn.setSuccessStatus).toHaveBeenCalledWith("unknown");
+  });
+
   it("sets incomplete completion when assessments failed at max attempts", () => {
     const conn = mockConnection({});
     const bridge = new Scorm2004Bridge(conn);

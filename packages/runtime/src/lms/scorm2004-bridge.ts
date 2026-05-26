@@ -61,6 +61,9 @@ export class Scorm2004Bridge implements LmsBridge {
     ) {
       this.connection.setCompletionStatus("incomplete");
       this.connection.setSuccessStatus("unknown");
+    } else {
+      this.connection.setCompletionStatus("incomplete");
+      this.connection.setSuccessStatus("unknown");
     }
   }
 

@@ -156,15 +156,6 @@ export async function validateCourse(
     );
   }
 
-  if (exportTarget === "cmi5") {
-    issues.push({
-      path: "tracking.xapi",
-      message:
-        "cmi5 fetch launch URL is parsed but AU session bootstrap via fetch is not implemented; the runtime logs a warning when fetch is present",
-      severity: "warning",
-    });
-  }
-
   return {
     valid: issues.filter((i) => i.severity === "error").length === 0,
     manifest,

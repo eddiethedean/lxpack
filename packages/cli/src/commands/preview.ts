@@ -4,7 +4,10 @@ import pc from "picocolors";
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
 import { validateCourse } from "@lxpack/validators";
-import { loadValidatedCourseContext } from "../lib/validated-course.js";
+import {
+  loadValidatedCourseContext,
+  printValidationIssues,
+} from "../lib/validated-course.js";
 import { buildLearnerPageHtml, safeJsonForHtml } from "@lxpack/scorm";
 import {
   findCourseDir,
@@ -166,9 +169,7 @@ export async function startPreview(
       process.exit(1);
     }
     console.error(pc.red("Cannot preview: course validation failed"));
-    for (const issue of validation.issues) {
-      console.error(`  ${issue.path}: ${issue.message}`);
-    }
+    printValidationIssues(validation);
     process.exit(1);
   }
 

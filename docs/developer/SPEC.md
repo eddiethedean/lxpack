@@ -238,7 +238,7 @@ window.lxpack.track({
 - Manifest: optional `tracking.xapi.activityIri` (course activity IRI); per-activity IRIs `{activityIri}/activities/{id}`
 - Runtime modes `xapi` and `cmi5` use `@lxpack/xapi` builders (no SCORM API)
 - cmi5 LMS launch query params: `endpoint`, `auth`, `actor`, `registration`, `activityId` (LRS credentials are not embedded in ZIPs)
-- cmi5 `fetch` URL is parsed but **not** used for AU session bootstrap in v0.3.5 (runtime logs a warning when present)
+- cmi5 `fetch` URL: runtime POSTs for `auth-token` per cmi5 spec; merges with launch `endpoint` / `actor` / `registration` query params
 - Verbs: `launched`, `experienced`, `interacted`, `answered`, `completed`, `passed`, `failed`
 - Preview: `lxpack.config.json` → `xapi.preview.logStatements` / `mockLrs` (console + `localStorage` queue)
 

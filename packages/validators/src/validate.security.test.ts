@@ -404,6 +404,52 @@ assessments:
     ).toBe(true);
   });
 
+  it("rejects in-tree symlink from lesson path to assessments", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-symlink-in-tree-"));
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await mkdir(join(dir, "assessments"), { recursive: true });
+    await writeFile(
+      join(dir, "assessments", "quiz.yaml"),
+      `id: quiz
+passingScore: 0.7
+questions:
+  - id: q1
+    prompt: P
+    choices:
+      - id: a
+        text: A
+        correct: true
+`,
+    );
+    await symlink(
+      join(dir, "assessments", "quiz.yaml"),
+      join(dir, "lessons", "leak.md"),
+    );
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/leak.md
+assessments:
+  - id: quiz
+    file: assessments/quiz.yaml
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some(
+        (i) =>
+          i.message.includes("restricted location") ||
+          i.message.includes("Symlink not allowed"),
+      ),
+    ).toBe(true);
+  });
+
   it("rejects hard links under interaction directories", async () => {
     const dir = await mkdtemp(join(tmpdir(), "lxpack-hardlink-interaction-"));
     await mkdir(join(dir, "interactions", "lab"), { recursive: true });

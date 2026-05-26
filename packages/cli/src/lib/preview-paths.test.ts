@@ -185,6 +185,21 @@ describe("isPreviewBlockedCourseRel", () => {
 });
 
 describe("shouldBlockPreviewCourseRequest", () => {
+  it("blocks in-tree alias to assessments", async () => {
+    const course = await mkdtemp(join(tmpdir(), "lxpack-preview-alias-"));
+    await mkdir(join(course, "lessons"), { recursive: true });
+    await mkdir(join(course, "assessments"), { recursive: true });
+    await writeFile(join(course, "assessments", "quiz.yaml"), "id: q\nquestions: []\n");
+    await symlink(
+      join(course, "assessments", "quiz.yaml"),
+      join(course, "lessons", "leak.md"),
+    );
+
+    expect(
+      shouldBlockPreviewCourseRequest(course, "/course/lessons/leak.md"),
+    ).toBe(true);
+  });
+
   it("blocks symlink escape targets", async () => {
     const outside = await mkdtemp(join(tmpdir(), "lxpack-preview-out-"));
     const course = await mkdtemp(join(tmpdir(), "lxpack-preview-course-"));

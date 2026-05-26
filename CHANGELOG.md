@@ -7,26 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Flow: sidebar navigation respects branching rules when `flow` is defined
-- Flow: `interaction.done` uses the same explicit completion rules as HTML auto-complete
-- Progress: empty compact `{}` suspend_data restores without corrupt-data warnings
-
-### Security
-
-- Validate `assessments[].file` must live under `assessments/`; exports and preview block manifest paths
-- Preview: case-insensitive blocks, manifest-driven denylist, backslash-normalized URLs
-- Harden `course.yaml` and `lxpack.config.json` load against symlink escapes
-- Reject hard links under `interactions/` and symlinks/hard links on component overrides
-- Markdown lesson paths use safe relative-path rules
-- Packaging requires an assessment bundle when the course defines assessments
-
 ## [0.3.5] - 2026-05-25
 
 ### Fixed
 
 - Runtime client bundle: SCORM/LMS launch no longer throws `ReferenceError: process is not defined` (Vitest bootstrap guard)
+- Flow: sidebar navigation respects branching rules when `flow` is defined
+- Flow: `interaction.done` uses the same explicit completion rules as HTML auto-complete
+- Flow: Prev button respects branching reachability (cannot linear-back into skipped activities)
+- Flow: boolean variable equality is strict (`true`/`false` only; `0`/`1` no longer match)
+- Progress: empty compact `{}` suspend_data restores without corrupt-data warnings
+- SCORM 2004 / 1.2: zero-progress sessions set `incomplete` CMI instead of leaving stale LMS status
+- cmi5: AU session bootstrap via `fetch` launch URL (POST + `auth-token`; cached in `sessionStorage` for refresh)
+
+### Security
+
+- Validate `assessments[].file` must live under `assessments/`; exports and preview block manifest paths
+- Preview: case-insensitive blocks, manifest-driven denylist, backslash-normalized URLs; block URL aliases to sensitive realpaths
+- Harden `course.yaml` and `lxpack.config.json` load against symlink escapes
+- Reject symlinks and hard links on markdown lessons, assessments, and packaged files; reject in-tree aliases to `assessments/` or manifest paths
+- Reject hard links under `interactions/` and symlinks/hard links on component overrides
+- Markdown lesson paths use safe relative-path rules
+- Packaging requires an assessment bundle when the course defines assessments
+- Packaging skips `assessments/` case-insensitively (aligned with preview)
+
+### Changed
+
+- `validate` warns on `javascript:` URIs in markdown lesson links/images
+- `validate` normalizes backslashes in HTML interaction paths
+- Preview validation failures print `[warning]` / `[error]` labels like `lxpack validate`
+
+### Notes
+
+- HTML interaction iframes still use `allow-same-origin` (trusted author content)
 
 ## [0.3.4] - 2026-05-25
 
@@ -117,16 +130,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2026-05-24
 
 ### Added
-
-- **`@lxpack/xapi`** — xAPI 1.0.3 statement types, ADL verb builders, launch param parsing, LRS transport with queue/flush, Tin Can `tincan.xml` generation
-- **`@lxpack/cmi5`** — cmi5.xml generation with per-activity blocks (`moveOn` rules for lessons and assessments)
-- Export targets **`xapi`** and **`cmi5`** (`lxpack build --target xapi|cmi5`) — Tin Can or cmi5 manifest + shared HTML/asset layout
-- Optional `tracking.xapi` in `course.yaml` (`activityIri`, `displayName`) with build-time validation for xAPI/cmi5 targets
-- Runtime **`AnalyticsReporter`** port with **`XapiReporter`** — statements on launch, experience, interaction (including simulation payloads), lesson completion, and assessment submit
-- Preview xAPI logging via `lxpack.config.json` → `xapi.preview` (`logStatements`, `mockLrs`) and `localStorage` statement queue
-- Examples: `examples/xapi-awareness`, `examples/cmi5-demo`; fixtures `test/fixtures/xapi-valid`, `test/fixtures/missing-xapi-iri`
-- `lxpack.config.json` → `preview.scormMode` (`local` | `scorm12` | `scorm2004`) for SCORM API simulators during `lxpack preview`
-- Root script `pnpm examples:validate` to validate all example courses
 - DOMPurify-based markdown sanitization in the browser runtime
 - `installScorm2004API()` for preview SCORM 2004 simulation
 

@@ -106,6 +106,25 @@ describe("client navigation fallbacks", () => {
     ).toBe(true);
   });
 
+  it("does not move prev into a linearly skipped lesson when flow is active", async () => {
+    init();
+    window.lxpack?.setVariable("path", "jump");
+    window.lxpack?.track({ type: "interaction", id: "choose" });
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="c"]')?.classList.contains("active"),
+      ).toBe(true),
+    );
+
+    const prev = document.getElementById("lxpack-prev") as HTMLButtonElement;
+    prev.click();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="c"]')?.classList.contains("active"),
+      ).toBe(true),
+    );
+  });
+
   it("jumps via flow after track events", async () => {
     init();
     window.lxpack?.setVariable("path", "jump");

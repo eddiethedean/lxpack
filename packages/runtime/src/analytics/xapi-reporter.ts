@@ -5,9 +5,11 @@ import {
   buildInteracted,
   buildLaunched,
   buildPassedFailed,
+  bootstrapCmi5LaunchParams,
   defaultPreviewActor,
   parseLaunchParamsFromWindow,
   StatementQueue,
+  type LaunchParams,
   type XapiSessionContext,
   type XapiStatement,
 } from "@lxpack/xapi";
@@ -21,14 +23,18 @@ import type { AnalyticsReporter } from "./reporter.js";
 export interface XapiReporterOptions {
   mockLrs?: boolean;
   onStatement?: (statement: XapiStatement) => void;
+  /** Inject launch params (tests); defaults to window query string. */
+  launchParams?: LaunchParams;
 }
 
 export class XapiReporter implements AnalyticsReporter {
-  private readonly session: XapiSessionContext;
-  private readonly activities: Map<string, CourseActivity>;
-  private readonly queue: StatementQueue;
+  private session: XapiSessionContext | null = null;
+  private queue: StatementQueue | null = null;
+  private readonly bootstrapPromise: Promise<void>;
   private readonly options?: XapiReporterOptions;
+  private readonly activities: Map<string, CourseActivity>;
   private lastExperienced?: string;
+  private launched = false;
 
   constructor(
     manifest: CourseManifest,
@@ -36,47 +42,83 @@ export class XapiReporter implements AnalyticsReporter {
     options?: XapiReporterOptions,
   ) {
     this.options = options;
-    const launch =
-      (globalThis as { location?: unknown }).location != null
-        ? parseLaunchParamsFromWindow()
-        : {};
-    const actor = launch.actor ?? defaultPreviewActor();
-
-    if (launch.fetch) {
-      console.warn(
-        "[lxpack cmi5] Launch fetch URL is present but cmi5 session bootstrap via fetch is not implemented in this release",
-      );
-    }
-
-    this.session = {
-      actor,
-      registration: launch.registration,
-      courseIri,
-      courseTitle: manifest.tracking?.xapi?.displayName ?? manifest.title,
-    };
-
     this.activities = new Map(
       enumerateActivities(manifest).map((a) => [a.id, a]),
     );
 
-    this.queue = new StatementQueue({
-      mock: options?.mockLrs ?? !launch.endpoint,
-      credentials: launch.endpoint
-        ? { endpoint: launch.endpoint, auth: launch.auth }
-        : undefined,
-      onError: (err) => {
-        console.warn("[lxpack xAPI] LRS error:", err);
-      },
-    });
+    const launch =
+      options?.launchParams ??
+      ((globalThis as { location?: unknown }).location != null
+        ? parseLaunchParamsFromWindow()
+        : {});
+
+    this.bootstrapPromise = this.bootstrapSession(
+      manifest,
+      courseIri,
+      launch,
+      options,
+    );
+  }
+
+  private async bootstrapSession(
+    manifest: CourseManifest,
+    courseIri: string,
+    launch: LaunchParams,
+    options?: XapiReporterOptions,
+  ): Promise<void> {
+    try {
+      const merged = await bootstrapCmi5LaunchParams(launch);
+      const actor = merged.actor ?? defaultPreviewActor();
+
+      if (merged.fetch && !merged.endpoint) {
+        console.error(
+          "[lxpack cmi5] Launch endpoint query parameter is required when using fetch",
+        );
+        return;
+      }
+
+      this.session = {
+        actor,
+        registration: merged.registration,
+        courseIri,
+        courseTitle: manifest.tracking?.xapi?.displayName ?? manifest.title,
+      };
+
+      this.queue = new StatementQueue({
+        mock: options?.mockLrs ?? !merged.endpoint,
+        credentials: merged.endpoint
+          ? { endpoint: merged.endpoint, auth: merged.auth }
+          : undefined,
+        onError: (err) => {
+          console.warn("[lxpack xAPI] LRS error:", err);
+        },
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[lxpack cmi5] Session bootstrap failed: ${message}`);
+    }
+  }
+
+  private async ensureReady(): Promise<boolean> {
+    await this.bootstrapPromise;
+    return this.session !== null && this.queue !== null;
   }
 
   private emit(statement: XapiStatement): void {
     this.options?.onStatement?.(statement);
-    this.queue.enqueue(statement);
+    void this.ensureReady().then((ready) => {
+      if (!ready || !this.queue) return;
+      this.queue.enqueue(statement);
+    });
   }
 
   onLaunched(): void {
-    this.emit(buildLaunched(this.session));
+    if (this.launched) return;
+    void this.ensureReady().then((ready) => {
+      if (!ready || !this.session) return;
+      this.launched = true;
+      this.emit(buildLaunched(this.session));
+    });
   }
 
   onExperienced(activityId: string): void {
@@ -84,38 +126,57 @@ export class XapiReporter implements AnalyticsReporter {
     this.lastExperienced = activityId;
     const activity = this.activities.get(activityId);
     if (!activity) return;
-    this.emit(buildExperienced(this.session, activity));
+    void this.ensureReady().then((ready) => {
+      if (!ready || !this.session) return;
+      this.emit(buildExperienced(this.session, activity));
+    });
   }
 
   onInteraction(id: string, data?: Record<string, unknown>): void {
-    const isSimulation =
-      data?.simulation != null ||
-      (typeof data?.type === "string" && data.type === "simulation");
-    if (isSimulation && data?.simulation && typeof data.simulation === "object") {
-      this.emit(
-        buildInteracted(this.session, id, {
-          simulation: data.simulation as Record<string, unknown>,
-        }),
-      );
-      return;
-    }
-    this.emit(buildInteracted(this.session, id, data));
+    void this.ensureReady().then((ready) => {
+      if (!ready || !this.session) return;
+      const isSimulation =
+        data?.simulation != null ||
+        (typeof data?.type === "string" && data.type === "simulation");
+      if (
+        isSimulation &&
+        data?.simulation &&
+        typeof data.simulation === "object"
+      ) {
+        this.emit(
+          buildInteracted(this.session, id, {
+            simulation: data.simulation as Record<string, unknown>,
+          }),
+        );
+        return;
+      }
+      this.emit(buildInteracted(this.session, id, data));
+    });
   }
 
   onAssessmentSubmitted(id: string, score: number, passed: boolean): void {
-    const activity = this.activities.get(id);
-    if (!activity) return;
-    this.emit(buildAnswered(this.session, activity, score, passed));
-    this.emit(buildPassedFailed(this.session, activity, passed));
+    void this.ensureReady().then((ready) => {
+      if (!ready || !this.session) return;
+      const activity = this.activities.get(id);
+      if (!activity) return;
+      this.emit(buildAnswered(this.session, activity, score, passed));
+      this.emit(buildPassedFailed(this.session, activity, passed));
+    });
   }
 
   onLessonCompleted(id: string): void {
-    const activity = this.activities.get(id);
-    if (!activity) return;
-    this.emit(buildCompleted(this.session, activity));
+    void this.ensureReady().then((ready) => {
+      if (!ready || !this.session) return;
+      const activity = this.activities.get(id);
+      if (!activity) return;
+      this.emit(buildCompleted(this.session, activity));
+    });
   }
 
   onTerminated(): void {
-    this.queue.flushTerminal();
+    void this.ensureReady().then((ready) => {
+      if (!ready || !this.queue) return;
+      this.queue.flushTerminal();
+    });
   }
 }

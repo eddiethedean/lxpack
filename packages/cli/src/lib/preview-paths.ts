@@ -1,6 +1,9 @@
 import { posix, resolve } from "node:path";
 import type { CourseManifest } from "@lxpack/validators";
-import { assertResolvedPathContained } from "@lxpack/validators";
+import {
+  assertResolvedPathContained,
+  isPackagablePathAliasBlocked,
+} from "@lxpack/validators";
 
 const COURSE_PREFIX = "/course/";
 
@@ -179,8 +182,23 @@ export function shouldBlockPreviewCourseRequest(
   urlPath: string,
   blockedRels?: ReadonlySet<string>,
 ): boolean {
-  return (
-    isPreviewBlockedCoursePath(urlPath, blockedRels) ||
-    isPreviewCoursePathEscaping(courseDir, urlPath)
-  );
+  if (isPreviewBlockedCoursePath(urlPath, blockedRels)) {
+    return true;
+  }
+  if (isPreviewCoursePathEscaping(courseDir, urlPath)) {
+    return true;
+  }
+  const path = urlPath.split("?")[0] ?? "";
+  if (!path.startsWith(COURSE_PREFIX)) {
+    return false;
+  }
+  const rel = normalizeCourseRelPath(urlPath);
+  if (rel === null) {
+    return true;
+  }
+  if (rel === "") {
+    return false;
+  }
+  const resolved = resolve(courseDir, rel);
+  return isPackagablePathAliasBlocked(courseDir, resolved, rel);
 }

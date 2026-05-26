@@ -1,9 +1,7 @@
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import type { Lesson } from "../schemas.js";
-import {
-  assertResolvedPathContained,
-  resolveCoursePath,
-} from "../course-paths.js";
+import { resolveCoursePath } from "../course-paths.js";
+import { assertPackagableFile } from "../packagable-path.js";
 import type { ValidationIssue } from "../validate.js";
 import { validateSafeRelativePath } from "../safe-relative-path.js";
 
@@ -38,11 +36,15 @@ export function validateMarkdownLesson(
     });
     return issues;
   }
-  const contained = assertResolvedPathContained(courseDir, resolved.path);
-  if (!contained.ok) {
+  const packagable = assertPackagableFile(
+    courseDir,
+    resolved.path,
+    lesson.file,
+  );
+  if (!packagable.ok) {
     issues.push({
       path: `lessons.${lesson.id}.file`,
-      message: contained.message,
+      message: packagable.message,
       severity: "error",
     });
     return issues;
@@ -54,6 +56,21 @@ export function validateMarkdownLesson(
       message: `Lesson path is not a file: ${lesson.file}`,
       severity: "error",
     });
+    return issues;
   }
+
+  const content = readFileSync(resolved.path, "utf-8");
+  if (
+    /\[[^\]]*\]\(\s*javascript:/i.test(content) ||
+    /!\[[^\]]*\]\(\s*javascript:/i.test(content)
+  ) {
+    issues.push({
+      path: `lessons.${lesson.id}.file`,
+      message:
+        "Markdown contains javascript: URI in a link or image; use https: URLs instead",
+      severity: "warning",
+    });
+  }
+
   return issues;
 }

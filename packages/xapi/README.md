@@ -23,6 +23,10 @@ Example course: [examples/xapi-awareness](https://github.com/eddiethedean/lxpack
 npm install @lxpack/xapi
 ```
 
+## cmi5 fetch bootstrap
+
+When a cmi5 launch URL includes `fetch=...`, call `bootstrapCmi5LaunchParams()` (or `fetchCmi5AuthToken()`) before sending statements. The AU must **POST** to the fetch URL (GET is not allowed per the cmi5 spec). The JSON response must include `auth-token`, which is sent as the xAPI `Authorization` header on subsequent LRS requests. Tokens are cached in `sessionStorage` keyed by fetch URL to survive page refresh without re-posting.
+
 ## Development
 
 From the monorepo root:

@@ -15,6 +15,12 @@ export {
   isPathContained,
   assertResolvedPathContained,
 } from "./course-paths.js";
+export {
+  assertPackagableFile,
+  isPackagablePathAliasBlocked,
+  isSensitiveCourseRel,
+  normalizeLogicalCourseRel,
+} from "./packagable-path.js";
 export { enumerateActivities, type CourseActivity } from "./activities.js";
 export { escapeHtml } from "./html.js";
 export {

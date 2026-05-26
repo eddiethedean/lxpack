@@ -81,7 +81,10 @@ export function init(): void {
     return false;
   }
 
-  function isNavItemReachable(targetId: string): boolean {
+  function isNavItemReachable(
+    targetId: string,
+    options?: { allowLinearPrevious?: boolean },
+  ): boolean {
     const hasFlow = Boolean(config.manifest.flow?.length);
     if (!hasFlow) return true;
     const currentId = navItems[currentIndex]?.id ?? "";
@@ -95,8 +98,10 @@ export function init(): void {
       runtime.getFlowContext(),
     );
     if (nextId === targetId) return true;
-    const prevId = resolvePreviousActivityId(config.manifest, currentId);
-    if (prevId === targetId) return true;
+    if (options?.allowLinearPrevious) {
+      const prevId = resolvePreviousActivityId(config.manifest, currentId);
+      if (prevId === targetId) return true;
+    }
     return false;
   }
 
@@ -141,7 +146,7 @@ export function init(): void {
         const idx = navItems.findIndex((n) => n.id === id);
         if (idx >= 0) void showItem(idx);
       },
-      isNavItemReachable,
+      (id) => isNavItemReachable(id, { allowLinearPrevious: true }),
     );
 
     updateProgressBar(runtime.getCompletionRatio());
@@ -169,7 +174,7 @@ export function init(): void {
     const id = navItems[currentIndex]?.id;
     if (!id) return;
     const prevId = resolvePreviousActivityId(config.manifest, id);
-    if (prevId) {
+    if (prevId && isNavItemReachable(prevId)) {
       const idx = navItems.findIndex((n) => n.id === prevId);
       if (idx >= 0) {
         void showItem(idx);

@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, writeFile, symlink } from "node:fs/promises";
+import { link, mkdir, mkdtemp, writeFile, symlink } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect } from "vitest";
@@ -15,6 +15,10 @@ describe("shouldSkipCourseFile", () => {
     expect(shouldSkipCourseFile("assets/.env")).toBe(true);
     expect(shouldSkipCourseFile(".git/config")).toBe(true);
     expect(shouldSkipCourseFile("lessons/intro.md")).toBe(false);
+  });
+
+  it("skips assessments prefix case-insensitively", () => {
+    expect(shouldSkipCourseFile("Assessments/quiz.yaml")).toBe(true);
   });
 });
 
@@ -84,6 +88,21 @@ describe("collectFiles", () => {
 
     const files = await collectFiles(dir, dir);
     expect(files.map((f) => f.path)).toEqual(["content.txt"]);
+  });
+
+  it("rejects hard links in the course tree", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-collect-hardlink-"));
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await mkdir(join(dir, "assessments"), { recursive: true });
+    await writeFile(join(dir, "assessments", "quiz.yaml"), "id: q\nquestions: []\n");
+    await link(
+      join(dir, "assessments", "quiz.yaml"),
+      join(dir, "lessons", "leak.md"),
+    );
+
+    await expect(collectFiles(dir, dir)).rejects.toThrow(
+      /Hard links are not allowed/,
+    );
   });
 
   it("rejects symlinks that escape the course directory", async () => {

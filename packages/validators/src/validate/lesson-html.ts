@@ -2,10 +2,8 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { validateInteractionTree } from "./course-extras.js";
 import type { Lesson } from "../schemas.js";
-import {
-  assertResolvedPathContained,
-  resolveCoursePath,
-} from "../course-paths.js";
+import { resolveCoursePath } from "../course-paths.js";
+import { assertPackagableFile, normalizeLogicalCourseRel } from "../packagable-path.js";
 import type { ValidationIssue } from "../validate.js";
 
 /** Safe relative path for HTML interaction folders (no quotes, spaces, or `..`). */
@@ -13,13 +11,14 @@ export const HTML_LESSON_PATH_PATTERN =
   /^[a-zA-Z0-9][a-zA-Z0-9_./-]*$/;
 
 export function validateHtmlLessonPath(path: string): string | null {
-  if (/["'<>]/.test(path) || /\s/.test(path)) {
+  const normalized = path.replace(/\\/g, "/");
+  if (/["'<>]/.test(normalized) || /\s/.test(normalized)) {
     return "HTML interaction path contains invalid characters (quotes, angle brackets, or whitespace)";
   }
-  if (path.includes("..")) {
+  if (normalized.includes("..")) {
     return "HTML interaction path must not contain '..' segments";
   }
-  if (!HTML_LESSON_PATH_PATTERN.test(path)) {
+  if (!HTML_LESSON_PATH_PATTERN.test(normalized)) {
     return "HTML interaction path must start with a letter and use only letters, numbers, /, _, ., and -";
   }
   return null;
@@ -80,11 +79,15 @@ export async function validateHtmlLesson(
     });
     return issues;
   }
-  const contained = assertResolvedPathContained(courseDir, resolved.path);
-  if (!contained.ok) {
+  const dirPackagable = assertPackagableFile(
+    courseDir,
+    resolved.path,
+    lesson.path,
+  );
+  if (!dirPackagable.ok) {
     issues.push({
       path: `lessons.${lesson.id}.path`,
-      message: contained.message,
+      message: dirPackagable.message,
       severity: "error",
     });
     return issues;
@@ -107,11 +110,16 @@ export async function validateHtmlLesson(
     });
     return issues;
   }
-  const indexContained = assertResolvedPathContained(courseDir, indexPath);
-  if (!indexContained.ok) {
+  const indexLogical = normalizeLogicalCourseRel(`${lesson.path}/index.html`);
+  const indexPackagable = assertPackagableFile(
+    courseDir,
+    indexPath,
+    indexLogical,
+  );
+  if (!indexPackagable.ok) {
     issues.push({
       path: `lessons.${lesson.id}.path`,
-      message: indexContained.message,
+      message: indexPackagable.message,
       severity: "error",
     });
     return issues;

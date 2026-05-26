@@ -42,6 +42,15 @@ export {
   type LaunchParams,
 } from "./launch.js";
 export {
+  bootstrapCmi5LaunchParams,
+  fetchCmi5AuthToken,
+  mergeLaunchWithCmi5Fetch,
+  readCachedCmi5AuthToken,
+  writeCachedCmi5AuthToken,
+  Cmi5FetchError,
+  type Cmi5FetchResponse,
+} from "./cmi5-fetch.js";
+export {
   StatementQueue,
   sendStatement,
   type LrsCredentials,

@@ -47,8 +47,7 @@ export async function validateCommand(options?: {
     console.log();
   }
 
-  const hasErrors = issues.some((i) => i.severity === "error");
-  const valid = result.valid && !hasErrors;
+  const valid = result.valid;
 
   for (const issue of issues) {
     const icon = issue.severity === "error" ? pc.red("✗") : pc.yellow("!");

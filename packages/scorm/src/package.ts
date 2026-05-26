@@ -1,7 +1,10 @@
 import { readFile, readdir, writeFile, mkdir, lstat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { assertResolvedPathContained } from "@lxpack/validators";
+import {
+  assertPackagableFile,
+  assertResolvedPathContained,
+} from "@lxpack/validators";
 import JSZip from "jszip";
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
@@ -85,7 +88,7 @@ export function shouldSkipCourseFile(
   if (normalized === "index.html") {
     return true;
   }
-  if (normalized.startsWith("assessments/")) {
+  if (normalized.toLowerCase().startsWith("assessments/")) {
     return true;
   }
   for (const segment of normalized.split("/")) {
@@ -128,6 +131,13 @@ export async function collectFiles(
       );
     }
 
+    if (stat.isFile() && stat.nlink > 1) {
+      const rel = relative(baseDir, fullPath).replace(/\\/g, "/");
+      throw new CoursePackagingError(
+        `Hard links are not allowed in course packages: ${rel}`,
+      );
+    }
+
     assertPackagablePath(baseDir, fullPath);
 
     if (stat.isDirectory()) {
@@ -138,6 +148,10 @@ export async function collectFiles(
       const rel = relative(baseDir, fullPath).replace(/\\/g, "/");
       if (shouldSkipCourseFile(rel, options?.extraSkipRel)) {
         continue;
+      }
+      const packagable = assertPackagableFile(baseDir, fullPath, rel);
+      if (!packagable.ok) {
+        throw new CoursePackagingError(packagable.message);
       }
       files.push({ path: rel, fullPath });
     }

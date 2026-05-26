@@ -32,7 +32,7 @@ describe("createAnalyticsReporter", () => {
     expect(createAnalyticsReporter(config)).toBeInstanceOf(NoopReporter);
   });
 
-  it("invokes onStatement once per event in preview with previewLog", () => {
+  it("invokes onStatement once per event in preview with previewLog", async () => {
     const onStatement = vi.fn();
     const config: RuntimeConfig = {
       manifest: {
@@ -62,7 +62,7 @@ describe("createAnalyticsReporter", () => {
       { mockLrs: true, onStatement },
     );
     xapiReporter.onLaunched();
-    expect(onStatement).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(onStatement).toHaveBeenCalledTimes(1));
 
     console.debug = original;
   });
