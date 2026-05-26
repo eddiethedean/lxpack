@@ -22,4 +22,21 @@ describe("validateAssessmentFilePath", () => {
     );
     expect(validateAssessmentFilePath("assessments/quiz.yaml")).toBeNull();
   });
+
+  it("rejects assessments/ without a file segment", () => {
+    expect(validateAssessmentFilePath("assessments/")).toContain(
+      "file under assessments/",
+    );
+    expect(validateAssessmentFilePath("assessments/sub/")).toContain(
+      "file under assessments/",
+    );
+  });
+});
+
+describe("validateSafeRelativePath edge cases", () => {
+  it("rejects absolute and invalid character paths", () => {
+    expect(validateSafeRelativePath("/etc/passwd")).toMatch(/Absolute/);
+    expect(validateSafeRelativePath("lessons/a<b.md")).toMatch(/invalid/);
+    expect(validateSafeRelativePath("-bad")).toMatch(/start with a letter/);
+  });
 });

@@ -1,3 +1,4 @@
+import { linkSync } from "node:fs";
 import { mkdir, mkdtemp, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -400,6 +401,87 @@ assessments:
     expect(result.valid).toBe(false);
     expect(
       result.issues.some((i) => i.path.startsWith("assessments.quiz")),
+    ).toBe(true);
+  });
+
+  it("rejects hard links under interaction directories", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-hardlink-interaction-"));
+    await mkdir(join(dir, "interactions", "lab"), { recursive: true });
+    await writeFile(join(dir, "interactions", "lab", "index.html"), "<html></html>");
+    await writeFile(join(dir, "interactions", "lab", "data.txt"), "x");
+    linkSync(
+      join(dir, "interactions", "lab", "data.txt"),
+      join(dir, "interactions", "lab", "linked.txt"),
+    );
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: lab
+    type: html
+    path: interactions/lab
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) => i.message.includes("Hard link not allowed")),
+    ).toBe(true);
+  });
+
+  it("rejects symlinked component overrides", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-outside-component-"));
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-symlink-component-"));
+    await writeFile(join(outside, "widget.js"), "export default {}");
+    await mkdir(join(dir, "components"), { recursive: true });
+    await symlink(join(outside, "widget.js"), join(dir, "components", "widget"));
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: intro
+    type: component
+    component: widget
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some(
+        (i) =>
+          i.message.includes("Symlink not allowed") ||
+          i.message.includes("escapes"),
+      ),
+    ).toBe(true);
+  });
+
+  it("reports assessment path that is a directory", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-assess-dir-"));
+    await mkdir(join(dir, "lessons"), { recursive: true });
+    await writeFile(join(dir, "lessons", "intro.md"), "# I");
+    await mkdir(join(dir, "assessments", "quiz.yaml"), { recursive: true });
+    await writeFile(
+      join(dir, "course.yaml"),
+      `title: T
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+assessments:
+  - id: quiz
+    file: assessments/quiz.yaml
+`,
+    );
+
+    const result = await validateCourse(dir);
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) => i.message.includes("not a file")),
     ).toBe(true);
   });
 

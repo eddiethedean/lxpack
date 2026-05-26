@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it, expect } from "vitest";
@@ -32,6 +32,23 @@ describe("loadManifest", () => {
     if (!Array.isArray(result)) {
       expect(result.manifest.title).toBe("Minimal Valid Course");
       expect(result.manifest.lessons).toHaveLength(2);
+    }
+  });
+
+  it("returns error when course.yaml escapes the course directory", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-outside-manifest-"));
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-symlink-manifest-"));
+    await writeFile(
+      join(outside, "course.yaml"),
+      "title: Outside\nversion: 1.0.0\nlessons: []\n",
+    );
+    await symlink(join(outside, "course.yaml"), join(dir, "course.yaml"));
+
+    const result = await loadManifest(dir);
+    expect(Array.isArray(result)).toBe(true);
+    if (Array.isArray(result)) {
+      expect(result[0]?.path).toBe("course.yaml");
+      expect(result[0]?.message).toContain("escapes");
     }
   });
 });
