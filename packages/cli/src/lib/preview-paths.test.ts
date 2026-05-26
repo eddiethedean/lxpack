@@ -185,6 +185,17 @@ describe("isPreviewBlockedCourseRel", () => {
 });
 
 describe("shouldBlockPreviewCourseRequest", () => {
+  it("allows non-course URLs", () => {
+    expect(shouldBlockPreviewCourseRequest("/tmp", "/runtime/app.js")).toBe(
+      false,
+    );
+  });
+
+  it("allows /course/ root without alias check", async () => {
+    const course = await mkdtemp(join(tmpdir(), "lxpack-preview-root-alias-"));
+    expect(shouldBlockPreviewCourseRequest(course, "/course/")).toBe(false);
+  });
+
   it("blocks in-tree alias to assessments", async () => {
     const course = await mkdtemp(join(tmpdir(), "lxpack-preview-alias-"));
     await mkdir(join(course, "lessons"), { recursive: true });

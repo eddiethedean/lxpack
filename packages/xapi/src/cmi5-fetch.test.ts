@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   bootstrapCmi5LaunchParams,
   Cmi5FetchError,
@@ -8,10 +8,36 @@ import {
   writeCachedCmi5AuthToken,
 } from "./cmi5-fetch.js";
 
+function installSessionStorageMock(): void {
+  const store = new Map<string, string>();
+  vi.stubGlobal("sessionStorage", {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      store.set(key, value);
+    },
+    removeItem: (key: string) => {
+      store.delete(key);
+    },
+    clear: () => {
+      store.clear();
+    },
+  });
+}
+
+function clearCmi5AuthCache(): void {
+  if (typeof sessionStorage !== "undefined") {
+    sessionStorage.clear();
+  }
+}
+
 describe("fetchCmi5AuthToken", () => {
+  beforeEach(() => {
+    installSessionStorageMock();
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
-    sessionStorage.clear();
+    clearCmi5AuthCache();
   });
 
   it("POSTs to the fetch URL and returns auth-token", async () => {
@@ -60,9 +86,13 @@ describe("fetchCmi5AuthToken", () => {
 });
 
 describe("bootstrapCmi5LaunchParams", () => {
+  beforeEach(() => {
+    installSessionStorageMock();
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
-    sessionStorage.clear();
+    clearCmi5AuthCache();
   });
 
   it("merges auth from fetch when launch has no auth", async () => {
@@ -109,8 +139,13 @@ describe("mergeLaunchWithCmi5Fetch", () => {
 });
 
 describe("readCachedCmi5AuthToken", () => {
+  beforeEach(() => {
+    installSessionStorageMock();
+  });
+
   afterEach(() => {
-    sessionStorage.clear();
+    vi.unstubAllGlobals();
+    clearCmi5AuthCache();
   });
 
   it("returns undefined when not cached", () => {

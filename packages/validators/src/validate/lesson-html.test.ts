@@ -22,6 +22,11 @@ describe("validateHtmlLessonPath", () => {
   it("accepts safe paths", () => {
     expect(validateHtmlLessonPath("interactions/phishing-lab")).toBeNull();
   });
+
+  it("normalizes backslashes before validation", () => {
+    expect(validateHtmlLessonPath("interactions\\phishing-lab")).toBeNull();
+    expect(validateHtmlLessonPath("interactions\\..\\secret")).toMatch(/\.\./);
+  });
 });
 
 describe("warnDirectLxpackApiInInteractionHtml", () => {
