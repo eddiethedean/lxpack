@@ -1,6 +1,6 @@
 # Developer documentation
 
-Technical references for **v0.3.5** contributors and integrators.
+Technical references for **v0.3.6** contributors and integrators.
 
 <div class="grid cards" markdown>
 
@@ -26,7 +26,7 @@ Technical references for **v0.3.5** contributors and integrators.
 
     ---
 
-    Package boundaries (v0.3.5).
+    Package boundaries (v0.3.6).
 
 -   :octicons-wrench-24: **[REFACTORING](REFACTORING.md)**
 
@@ -42,12 +42,12 @@ Technical references for **v0.3.5** contributors and integrators.
 |-------|----------------|--------|---------|
 | **1 — MVP** | **v0.1.x** | Shipped | CLI, validation, preview, SCORM 1.2, standalone HTML, MCQ assessments |
 | **2 — Runtime expansion** | **v0.2.x** | Shipped | SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
-| **3 — Modern standards** | **v0.3.5** | Shipped | xAPI, cmi5, analytics / simulation tracking |
+| **3 — Modern standards** | **v0.3.6** | Shipped | xAPI, cmi5, analytics / simulation tracking |
 | **4 — AI tooling** | TBD | Planned | Claude integration, AI repair, AI-generated interactions |
 | **5 — Ecosystem** | TBD | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **6 — Enterprise platform** | TBD | Planned | Cloud deployment, compliance tooling, hosted runtime |
 
-## Published npm packages (v0.3.5)
+## Published npm packages (v0.3.6)
 
 | Package | Role |
 |---------|------|
@@ -61,22 +61,22 @@ Technical references for **v0.3.5** contributors and integrators.
 
 Package READMEs live under `packages/*/README.md` in the repository.
 
-## Publishing v0.3.5
+## Publishing v0.3.6
 
-Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](../../CHANGELOG.md) accurate for `[0.3.5]`.
+Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](../../CHANGELOG.md) accurate for `[0.3.6]`.
 
 ```bash
-# From a clean main at 0.3.5 in all packages/*/package.json
+# From a clean main at 0.3.6 in all packages/*/package.json
 pnpm install --frozen-lockfile
 pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm test:coverage
 pnpm examples:validate
 bash scripts/build-docs.sh
 
-git tag v0.3.5
-git push origin v0.3.5
+git tag v0.3.6
+git push origin v0.3.6
 ```
 
-Pushing tag `v0.3.5` runs [.github/workflows/release.yml](../../.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
+Pushing tag `v0.3.6` runs [.github/workflows/release.yml](../../.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
 
 ## User-facing docs
 

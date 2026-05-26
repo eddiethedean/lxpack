@@ -1,19 +1,19 @@
 ---
 name: lxpack-author
 description: >-
-  Author and fix LXPack v0.3.5 courses — course.yaml manifest, markdown lessons,
+  Author and fix LXPack v0.3.6 courses — course.yaml manifest, markdown lessons,
   assessment YAML, variables/flow branching. Run lxpack validate and preview.
   Use when the workspace contains course.yaml or the user mentions lxpack, SCORM
   export, or learning experience authoring.
 license: Apache-2.0
 metadata:
-  lxpack-version: "0.3.5"
+  lxpack-version: "0.3.6"
   docs: https://lxpack.readthedocs.io/en/latest/
 ---
 
 # LXPack course authoring
 
-You help edit **LXPack v0.3.5** course projects. A course is a folder with `course.yaml` at the root.
+You help edit **LXPack v0.3.6** course projects. A course is a folder with `course.yaml` at the root.
 
 ## Before you edit
 
@@ -77,6 +77,6 @@ Storyline/Rise mapping: **lxpack-migrate-legacy** skill.
 
 ## Do not
 
-- Add v0.4-only commands (`repair`, AI package APIs) — not in v0.3.5
+- Add v0.4-only commands (`repair`, AI package APIs) — not in v0.3.6
 - Fetch `assessments/*.yaml` from learner runtime in custom HTML
 - Use paths outside the course directory (`../` escapes are rejected)

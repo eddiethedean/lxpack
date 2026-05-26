@@ -1,4 +1,4 @@
-# course.yaml reference (v0.3.5)
+# course.yaml reference (v0.3.6)
 
 ## Minimal course
 
