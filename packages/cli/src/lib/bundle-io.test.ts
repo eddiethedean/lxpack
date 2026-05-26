@@ -116,6 +116,24 @@ describe("loadComponentsStyles", () => {
   });
 });
 
+describe("readRuntimeBundle", () => {
+  it("rejects client.js that still imports @lxpack/validators", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-bundle-validators-"));
+    await writeFile(join(dir, "client.js"), 'import { x } from "@lxpack/validators";\n');
+    await writeFile(join(dir, "styles.css"), "body {}");
+
+    await expect(bundleIo.readRuntimeBundle(dir)).rejects.toThrow(
+      /@lxpack\/validators/,
+    );
+  });
+
+  it("accepts a self-contained client bundle from the built runtime", async () => {
+    const { clientJs } = await bundleIo.readRuntimeBundle();
+    expect(clientJs).not.toContain("@lxpack/validators");
+    expect(clientJs).not.toContain('from "./runtime.js"');
+  });
+});
+
 describe("readComponentsBundle", () => {
   afterEach(async () => {
     await restoreReadFileMock();

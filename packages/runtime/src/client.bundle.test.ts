@@ -15,4 +15,9 @@ describe("client browser bundle", () => {
     expect(source).not.toMatch(/=\s*process\.env\.VITEST\s*===/);
     expect(source).not.toMatch(/\bprocess\.env\.VITEST\b/);
   });
+
+  it("does not import @lxpack/validators (issue #3)", async () => {
+    const source = await readFile(clientBundlePath, "utf8");
+    expect(source).not.toContain("@lxpack/validators");
+  });
 });
