@@ -1,6 +1,6 @@
 {
   "name": "lxpack",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "private": true,
   "description": "AI-native learning experience compiler and runtime",
   "license": "Apache-2.0",
@@ -16,6 +16,7 @@
     "test": "pnpm -r --filter './packages/*' run test",
     "test:coverage": "pnpm -r --filter './packages/*' run test:coverage",
     "examples:validate": "bash scripts/validate-examples.sh",
+    "examples:test": "pnpm --filter @lxpack/cli test -- src/examples.test.ts && pnpm --filter @lxpack/runtime test -- src/examples.walkthrough.test.ts && pnpm --filter @lxpack/cli test -- src/examples.walkthrough.test.ts",
     "lint": "eslint \"packages/*/src/**/*.ts\"",
     "typecheck": "pnpm -r --filter './packages/*' run typecheck"
   },

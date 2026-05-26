@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/cli",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "CLI for building, validating, and packaging LXPack courses",
   "license": "Apache-2.0",
   "repository": {
@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
+    "happy-dom": "^17.4.4",
     "jszip": "^3.10.1",
     "tsup": "^8.4.0",
     "typescript": "^5.8.3",

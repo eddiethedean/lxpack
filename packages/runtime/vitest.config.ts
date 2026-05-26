@@ -6,6 +6,7 @@ export default defineConfig({
     environment: "happy-dom",
     setupFiles: ["./test/setup.ts"],
     include: ["src/**/*.test.ts"],
+    testTimeout: 30_000,
     coverage: {
       ...coverageConfig,
       thresholds: {

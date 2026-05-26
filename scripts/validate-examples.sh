@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Quick validation of all courses under examples/ (no build).
+# Full source + compiled checks: pnpm examples:test
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
