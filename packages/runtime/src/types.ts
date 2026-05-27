@@ -6,6 +6,7 @@ import type {
   QuestionFeedback,
   RuntimeAssessmentBundle,
 } from "@lxpack/validators";
+import type { TrackEventType } from "@lxpack/tracking-schema";
 
 /** Preview LMS persistence: localStorage vs SCORM 1.2/2004 simulators. */
 export type PreviewScormMode = "local" | "scorm12" | "scorm2004";
@@ -37,7 +38,7 @@ export interface RuntimeConfig {
 }
 
 export interface TrackEvent {
-  type: string;
+  type: TrackEventType;
   id?: string;
   data?: Record<string, unknown>;
 }

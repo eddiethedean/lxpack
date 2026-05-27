@@ -52,6 +52,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@lxpack/tracking-schema": "workspace:*",
     "@lxpack/validators": "workspace:*",
     "@lxpack/xapi": "workspace:*",
     "dompurify": "^3.4.5",
