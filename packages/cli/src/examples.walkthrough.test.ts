@@ -45,13 +45,6 @@ vi.mock("../../runtime/src/client/lessons/html.js", () => ({
   },
 }));
 
-vi.mock("../../runtime/src/client/lessons/spa.js", () => ({
-  renderSpaLesson: (contentEl: HTMLElement) => {
-    contentEl.innerHTML =
-      '<iframe class="lxpack-interaction-frame" title="SPA lesson"></iframe>';
-  },
-}));
-
 import { init } from "../../runtime/src/client.js";
 
 async function ensureBuiltAssets(): Promise<void> {

@@ -44,6 +44,7 @@ describe("client", () => {
     document.body.innerHTML = "";
     delete window.__LXPACK_CONFIG__;
     delete window.lxpack;
+    delete window.lxpackBridge;
   });
 
   it("throws when config is missing", () => {
@@ -184,6 +185,64 @@ describe("client", () => {
     expect(el.querySelector("iframe")?.getAttribute("src")).toBe(
       "/course/interactions/lab/index.html",
     );
+  });
+
+  it("renders SPA lessons in an iframe", async () => {
+    const { renderSpaLesson } = await import("./client/lessons/spa.js");
+    const el = document.createElement("div");
+    renderSpaLesson(el, "/course", "spa/lesson");
+    expect(el.querySelector("iframe")?.getAttribute("src")).toBe(
+      "/course/spa/lesson/index.html",
+    );
+  });
+
+  it("exposes lxpackBridge v1 for embedded SPA lessons", async () => {
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "SPA Bridge",
+        version: "1.0.0",
+        lessons: [{ id: "spa1", type: "spa", path: "spa/lesson" }],
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+      baseUrl: "/course",
+      mode: "preview",
+      assessments: {
+        quiz: {
+          id: "quiz",
+          passingScore: 0.7,
+          questions: [
+            {
+              id: "q1",
+              prompt: "P",
+              choices: [
+                { id: "a", text: "A" },
+                { id: "b", text: "B" },
+              ],
+            },
+          ],
+        },
+      },
+      answerKeys: { quiz: { q1: "a" } },
+    };
+    init();
+    await vi.waitFor(() => expect(window.lxpackBridge?.v1).toBeDefined());
+
+    window.lxpackBridge!.v1.completeLesson("spa1");
+    expect(window.lxpack?.getProgress().completedLessons).toContain("spa1");
+
+    window.lxpackBridge!.v1.submitAssessment({
+      id: "quiz",
+      score: 0.9,
+      passingScore: 0.7,
+      passed: true,
+    });
+    expect(window.lxpack?.getProgress().assessmentScores.quiz).toBe(0.9);
+
+    window.lxpackBridge!.v1.track({
+      type: "interaction",
+      id: "clicked",
+      data: { ok: true },
+    });
   });
 
   it("invokes nav handler only when lesson id is present", () => {

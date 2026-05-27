@@ -16,13 +16,6 @@ vi.mock("./client/lessons/html.js", () => ({
   },
 }));
 
-vi.mock("./client/lessons/spa.js", () => ({
-  renderSpaLesson: (contentEl: HTMLElement) => {
-    contentEl.innerHTML =
-      '<iframe class="lxpack-interaction-frame" title="SPA lesson"></iframe>';
-  },
-}));
-
 import { init } from "./client.js";
 import {
   clickComplete,
