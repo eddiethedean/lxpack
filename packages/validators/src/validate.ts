@@ -5,7 +5,10 @@ import { parse as parseYaml } from "yaml";
 import { detectFlowCycles, validateFlow } from "./flow-validate.js";
 import { validateXapiTracking } from "./xapi-validate.js";
 import { validateUnexpectedCourseFiles } from "./validate/course-extras.js";
-import { loadParsedAssessments } from "./course-assessments.js";
+import {
+  loadParsedAssessments,
+  loadParsedAssessmentsFromData,
+} from "./course-assessments.js";
 import {
   courseManifestSchema,
   type Assessment,
@@ -48,6 +51,8 @@ export interface ValidationResult {
 export interface ValidateCourseOptions {
   /** When set to `xapi` or `cmi5`, requires valid `tracking.xapi`. */
   exportTarget?: "scorm12" | "scorm2004" | "standalone" | "xapi" | "cmi5";
+  /** Optional injected assessments (adapter-driven; skips on-disk assessment file reads). */
+  assessmentData?: unknown[];
 }
 
 export async function loadManifest(
@@ -136,7 +141,10 @@ export async function validateCourseManifest(
     issues.push(...lessonIssues);
   }
 
-  const assessmentLoad = await loadParsedAssessments(resolvedDir, manifest);
+  const assessmentLoad =
+    options?.assessmentData != null
+      ? loadParsedAssessmentsFromData(manifest, options.assessmentData)
+      : await loadParsedAssessments(resolvedDir, manifest);
   issues.push(...assessmentLoad.issues);
 
   issues.push(...validateActivityIds(manifest));

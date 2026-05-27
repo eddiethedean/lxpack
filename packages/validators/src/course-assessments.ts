@@ -149,6 +149,71 @@ export function buildRuntimeAssessmentBundleFromParsed(
   return { assessments, answerKeys, configs, feedback };
 }
 
+export function loadParsedAssessmentsFromData(
+  manifest: CourseManifest,
+  data: unknown[],
+): ParsedAssessmentsResult {
+  const issues: ValidationIssue[] = [];
+  const parsed = new Map<string, Assessment>();
+
+  const assessmentIds = new Set<string>();
+  for (let i = 0; i < data.length; i++) {
+    const raw = data[i];
+    const result = assessmentSchema.safeParse(raw);
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const subPath = issue.path.length ? issue.path.join(".") : "root";
+        issues.push({
+          path: `assessments[${i}].${subPath}`,
+          message: issue.message,
+          severity: "error",
+        });
+      }
+      continue;
+    }
+
+    const id = result.data.id;
+    if (assessmentIds.has(id)) {
+      issues.push({
+        path: `assessments[${i}].id`,
+        message: `Duplicate assessment id: ${id}`,
+        severity: "error",
+      });
+      continue;
+    }
+    assessmentIds.add(id);
+    parsed.set(id, result.data);
+  }
+
+  const declared = manifest.assessments ?? [];
+  if (declared.length) {
+    for (const ref of declared) {
+      if (!parsed.has(ref.id)) {
+        issues.push({
+          path: `assessments.${ref.id}`,
+          message:
+            "Assessment is declared in course.yaml but was not provided in injected assessment data",
+          severity: "error",
+        });
+      }
+    }
+  }
+
+  return { parsed, issues };
+}
+
+export function buildRuntimeAssessmentBundleFromData(
+  manifest: CourseManifest,
+  data: unknown[],
+): { bundle: RuntimeAssessmentBundle; issues: ValidationIssue[] } {
+  const loaded = loadParsedAssessmentsFromData(manifest, data);
+  const errors = loaded.issues.filter((i) => i.severity === "error");
+  if (errors.length > 0) {
+    return { bundle: buildRuntimeAssessmentBundleFromParsed(new Map()), issues: loaded.issues };
+  }
+  return { bundle: buildRuntimeAssessmentBundleFromParsed(loaded.parsed), issues: loaded.issues };
+}
+
 export async function buildRuntimeAssessmentBundle(
   courseDir: string,
   manifest: CourseManifest,

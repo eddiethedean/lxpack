@@ -38,6 +38,49 @@ describe("@lxpack/api", () => {
     await rm(courseDir, { recursive: true, force: true });
   });
 
+  it("builds with injected assessment data (no on-disk YAML required)", async () => {
+    const { mkdtemp, cp, rm, writeFile } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-api-assess-"));
+    await cp(fixturePath("minimal-valid"), courseDir, { recursive: true });
+
+    // Remove the author YAML to prove injection works.
+    await rm(join(courseDir, "assessments"), { recursive: true, force: true });
+    await writeFile(
+      join(courseDir, "course.yaml"),
+      `title: Minimal Injected\nversion: 1.0.0\nlessons:\n  - id: intro\n    type: markdown\n    file: lessons/intro.md\nassessments:\n  - id: quiz\n    file: assessments/quiz.yaml\n`,
+    );
+
+    const result = await buildCourse({
+      courseDir,
+      target: "standalone",
+      dir: true,
+      output: "out",
+      assessments: [
+        {
+          id: "quiz",
+          title: "Quiz",
+          passingScore: 0.7,
+          questions: [
+            {
+              id: "q1",
+              prompt: "One?",
+              choices: [
+                { id: "a", text: "A", correct: true },
+                { id: "b", text: "B", correct: false },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.ok).toBe(true);
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
   it("merges lessonkit.json spa lessons into the manifest", async () => {
     const { mkdtemp, cp, rm, writeFile, mkdir } = await import("node:fs/promises");
     const { tmpdir } = await import("node:os");

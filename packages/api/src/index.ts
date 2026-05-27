@@ -3,7 +3,9 @@ import { join } from "node:path";
 import {
   validateCourse as validateCourseInternal,
   validateCourseManifest,
+  loadManifest,
   buildRuntimeAssessmentBundleFromParsed,
+  buildRuntimeAssessmentBundleFromData,
   courseManifestSchema,
   type CourseManifest,
   type ValidationIssue,
@@ -94,6 +96,8 @@ export interface BuildCourseOptions {
   dir?: boolean;
   /** Base output folder under courseDir when output is omitted. */
   outputBaseDir?: string;
+  /** Optional injected assessments (adapter-driven; no on-disk YAML required). */
+  assessments?: unknown[];
 }
 
 export type BuildCourseResult =
@@ -118,6 +122,33 @@ export async function buildCourse(
 ): Promise<BuildCourseResult> {
   const interchange = await loadLessonKitInterchange(options.courseDir);
   const validation = await (async () => {
+    // If injected assessment data is provided, avoid validating/reading assessment YAML from disk.
+    if (options.assessments != null) {
+      const loaded = await loadManifest(options.courseDir);
+      if (Array.isArray(loaded)) {
+        return { valid: false, issues: loaded };
+      }
+      const base = loaded.manifest;
+      const merged = interchange
+        ? mergeInterchangeIntoManifest(base, interchange.data)
+        : base;
+      const parsed = courseManifestSchema.safeParse(merged);
+      if (!parsed.success) {
+        return {
+          valid: false,
+          issues: parsed.error.issues.map((i) => ({
+            path: i.path.map(String).join(".") || "course.yaml",
+            message: i.message,
+            severity: "error" as const,
+          })),
+        };
+      }
+      return validateCourseManifest(options.courseDir, parsed.data, {
+        exportTarget: options.target,
+        assessmentData: options.assessments,
+      });
+    }
+
     if (!interchange) {
       return validateCourseInternal(options.courseDir, {
         exportTarget: options.target,
@@ -156,9 +187,26 @@ export async function buildCourse(
     };
   }
 
-  const assessmentBundle = buildRuntimeAssessmentBundleFromParsed(
-    validation.parsedAssessments ?? new Map(),
-  );
+  const assessmentInjection =
+    options.assessments != null
+      ? buildRuntimeAssessmentBundleFromData(
+          validation.manifest,
+          options.assessments,
+        )
+      : null;
+
+  if (assessmentInjection?.issues?.some((i) => i.severity === "error")) {
+    return {
+      ok: false,
+      target: options.target,
+      manifest: validation.manifest,
+      issues: [...validation.issues, ...assessmentInjection.issues],
+    };
+  }
+
+  const assessmentBundle =
+    assessmentInjection?.bundle ??
+    buildRuntimeAssessmentBundleFromParsed(validation.parsedAssessments ?? new Map());
 
   const [{ clientJs, css }, componentsBundleJs] = await Promise.all([
     readRuntimeBundle(),

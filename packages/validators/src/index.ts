@@ -7,7 +7,9 @@ export type { ValidationIssue, ValidateCourseOptions } from "./validate.js";
 export * from "./assessments.js";
 export {
   loadParsedAssessments,
+  loadParsedAssessmentsFromData,
   buildRuntimeAssessmentBundleFromParsed,
+  buildRuntimeAssessmentBundleFromData,
   buildRuntimeAssessmentBundle,
 } from "./course-assessments.js";
 export {
