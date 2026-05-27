@@ -109,7 +109,6 @@ export async function validateCourse(
   courseDir: string,
   options?: ValidateCourseOptions,
 ): Promise<ValidationResult> {
-  const issues: ValidationIssue[] = [];
   const resolvedDir = resolve(courseDir);
 
   const loaded = await loadManifest(resolvedDir);
@@ -118,6 +117,16 @@ export async function validateCourse(
   }
 
   const { manifest } = loaded;
+  return validateCourseManifest(resolvedDir, manifest, options);
+}
+
+export async function validateCourseManifest(
+  courseDir: string,
+  manifest: CourseManifest,
+  options?: ValidateCourseOptions,
+): Promise<ValidationResult> {
+  const issues: ValidationIssue[] = [];
+  const resolvedDir = resolve(courseDir);
 
   for (const lesson of manifest.lessons) {
     const lessonIssues = await lessonValidators[lesson.type](

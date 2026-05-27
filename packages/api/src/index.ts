@@ -2,7 +2,9 @@ import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import {
   validateCourse as validateCourseInternal,
+  validateCourseManifest,
   buildRuntimeAssessmentBundleFromParsed,
+  courseManifestSchema,
   type CourseManifest,
   type ValidationIssue,
 } from "@lxpack/validators";
@@ -15,6 +17,7 @@ import {
 } from "@lxpack/scorm";
 import { readComponentsBundle, readRuntimeBundle } from "./bundle-io.js";
 import { resolveBuildOutputPath } from "./output-paths.js";
+import { loadLessonKitInterchange } from "./interchange.js";
 
 export type { ExportTarget } from "@lxpack/scorm";
 export type { CourseManifest, ValidationIssue } from "@lxpack/validators";
@@ -39,9 +42,36 @@ export type ValidateCourseResult =
 export async function validateCourse(
   options: ValidateCourseOptions,
 ): Promise<ValidateCourseResult> {
-  const validation = await validateCourseInternal(options.courseDir, {
-    exportTarget: options.target,
-  });
+  const interchange = await loadLessonKitInterchange(options.courseDir);
+  const validation = await (async () => {
+    if (!interchange) {
+      return validateCourseInternal(options.courseDir, {
+        exportTarget: options.target,
+      });
+    }
+
+    const loaded = await validateCourseInternal(options.courseDir, {
+      exportTarget: options.target,
+    });
+    if (!loaded.manifest) return loaded;
+
+    const merged = mergeInterchangeIntoManifest(loaded.manifest, interchange.data);
+    const parsed = courseManifestSchema.safeParse(merged);
+    if (!parsed.success) {
+      return {
+        valid: false,
+        issues: parsed.error.issues.map((i) => ({
+          path: i.path.map(String).join(".") || "course.yaml",
+          message: i.message,
+          severity: "error" as const,
+        })),
+      };
+    }
+
+    return validateCourseManifest(options.courseDir, parsed.data, {
+      exportTarget: options.target,
+    });
+  })();
 
   const ok = validation.valid && Boolean(validation.manifest);
   if (!validation.manifest) {
@@ -86,9 +116,36 @@ export type BuildCourseResult =
 export async function buildCourse(
   options: BuildCourseOptions,
 ): Promise<BuildCourseResult> {
-  const validation = await validateCourseInternal(options.courseDir, {
-    exportTarget: options.target,
-  });
+  const interchange = await loadLessonKitInterchange(options.courseDir);
+  const validation = await (async () => {
+    if (!interchange) {
+      return validateCourseInternal(options.courseDir, {
+        exportTarget: options.target,
+      });
+    }
+
+    const loaded = await validateCourseInternal(options.courseDir, {
+      exportTarget: options.target,
+    });
+    if (!loaded.manifest) return loaded;
+
+    const merged = mergeInterchangeIntoManifest(loaded.manifest, interchange.data);
+    const parsed = courseManifestSchema.safeParse(merged);
+    if (!parsed.success) {
+      return {
+        valid: false,
+        issues: parsed.error.issues.map((i) => ({
+          path: i.path.map(String).join(".") || "course.yaml",
+          message: i.message,
+          severity: "error" as const,
+        })),
+      };
+    }
+
+    return validateCourseManifest(options.courseDir, parsed.data, {
+      exportTarget: options.target,
+    });
+  })();
 
   if (!validation.valid || !validation.manifest) {
     return {
@@ -165,5 +222,55 @@ export async function buildCourse(
     manifest,
     issues: validation.issues,
   };
+}
+
+function mergeInterchangeIntoManifest(
+  base: CourseManifest,
+  interchange: unknown,
+): CourseManifest {
+  const ix = interchange as {
+    lessons?: Array<{
+      id?: string;
+      title?: string;
+      type?: string;
+      path?: string;
+      build?: { outputDir?: string };
+    }>;
+    tracking?: { completion?: { threshold?: number } };
+  };
+
+  const merged: CourseManifest = {
+    ...base,
+    tracking: ix?.tracking?.completion?.threshold != null
+      ? {
+          ...(base.tracking ?? {}),
+          completion: {
+            threshold: Number(ix.tracking.completion.threshold),
+          },
+        }
+      : base.tracking,
+    lessons: [...base.lessons],
+  };
+
+  for (const l of ix.lessons ?? []) {
+    if (!l?.id || l.type !== "spa") continue;
+    const path = l.path ?? l.build?.outputDir;
+    if (!path) continue;
+
+    const idx = merged.lessons.findIndex((x) => x.id === l.id);
+    const lesson = {
+      id: l.id,
+      type: "spa" as const,
+      path,
+      ...(l.title ? { title: l.title } : {}),
+    };
+    if (idx >= 0) {
+      merged.lessons[idx] = { ...merged.lessons[idx], ...lesson } as never;
+    } else {
+      merged.lessons.push(lesson as never);
+    }
+  }
+
+  return merged;
 }
 
