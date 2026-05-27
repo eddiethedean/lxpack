@@ -24,6 +24,10 @@ for dir in "${ROOT}"/examples/*/; do
       branching-demo)
         node "$CLI" validate --target scorm2004
         ;;
+      lessonkit-spa)
+        node "$CLI" validate --target scorm12
+        node "$CLI" validate --target scorm2004
+        ;;
       xapi-awareness)
         node "$CLI" validate --target xapi
         ;;

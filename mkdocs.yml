@@ -113,6 +113,7 @@ nav:
       - guides/workflow-claude-design.md
       - guides/workflow-cursor.md
       - guides/workflow-claude-code.md
+      - guides/lessonkit-interoperability.md
       - guides/migrating-from-legacy-tools.md
   - Build courses:
       - guides/build-overview.md
