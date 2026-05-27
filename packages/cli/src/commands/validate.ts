@@ -1,8 +1,5 @@
-import {
-  formatErrorMessage,
-  validateCourse,
-  type ValidationIssue,
-} from "@lxpack/validators";
+import { validateCourse } from "@lxpack/api";
+import type { ValidationIssue } from "@lxpack/validators";
 import type { ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
 import { findCourseDir, loadLxpackConfig } from "../utils.js";
@@ -26,7 +23,9 @@ export async function validateCommand(options?: {
   try {
     config = await loadLxpackConfig(courseDir);
   } catch (err) {
-    console.error(pc.red(formatErrorMessage(err)));
+    console.error(
+      pc.red(err instanceof Error ? err.message : String(err)),
+    );
     process.exit(1);
   }
 
@@ -34,20 +33,21 @@ export async function validateCommand(options?: {
     | ExportTarget
     | undefined;
 
-  const result = await validateCourse(courseDir, {
-    exportTarget: target,
-  });
+  const result = await validateCourse({ courseDir, target });
   const issues: ValidationIssue[] = [...result.issues];
 
-  if (result.manifest) {
+  if (result.ok || result.manifest) {
+    const manifest = result.ok ? result.manifest : result.manifest;
+    if (manifest) {
     console.log(
-      pc.dim(`Course: ${result.manifest.title} v${result.manifest.version}`),
+      pc.dim(`Course: ${manifest.title} v${manifest.version}`),
     );
-    console.log(pc.dim(`Lessons: ${result.manifest.lessons.length}`));
+    console.log(pc.dim(`Lessons: ${manifest.lessons.length}`));
     console.log();
+    }
   }
 
-  const valid = result.valid;
+  const valid = result.ok;
 
   for (const issue of issues) {
     const icon = issue.severity === "error" ? pc.red("✗") : pc.yellow("!");

@@ -1,21 +1,9 @@
-import { mkdir } from "node:fs/promises";
-import { join } from "node:path";
-import { courseSlug, type ExportTarget } from "@lxpack/scorm";
+import { buildCourse } from "@lxpack/api";
+import type { ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
-import {
-  findCourseDir,
-  loadLxpackConfig,
-  readComponentsBundle,
-  readRuntimeBundle,
-  resolveOutputDir,
-} from "../utils.js";
+import { findCourseDir, loadLxpackConfig } from "../utils.js";
 import { resolveBuildOutputPath } from "../lib/lxpack-config.js";
-import {
-  loadValidatedCourseContext,
-  printValidationIssues,
-} from "../lib/validated-course.js";
-import { getDirPackager, getZipPackager } from "../packagers/index.js";
-import { formatErrorMessage, validateCourse } from "@lxpack/validators";
+import { formatErrorMessage } from "@lxpack/validators";
 import { CoursePackagingError } from "@lxpack/scorm";
 import {
   formatInvalidTargetMessage,
@@ -46,67 +34,40 @@ export async function buildCommand(options: {
     process.exit(1);
   }
 
-  const ctx = await loadValidatedCourseContext(courseDir, { exportTarget: target });
-  if (!ctx) {
-    console.error(pc.red("Cannot build: course validation failed"));
-    const validation = await validateCourse(courseDir, { exportTarget: target });
-    printValidationIssues(validation);
-    process.exit(1);
-  }
-
-  const { manifest, assessmentBundle } = ctx;
-  const [{ clientJs, css }, componentsBundleJs] = await Promise.all([
-    readRuntimeBundle(),
-    readComponentsBundle(),
-  ]);
-
-  const slug = courseSlug(manifest);
-
-  const outputBase = config?.output?.dir ?? ".lxpack";
-  const outputRoot = resolveOutputDir(courseDir, outputBase);
-  await mkdir(outputRoot, { recursive: true });
-
-  const packageOptions = {
-    courseDir,
-    manifest,
-    target,
-    runtimeClientJs: clientJs,
-    runtimeCss: css,
-    componentsBundleJs,
-    assessmentBundle,
-  };
-
   try {
     if (options.dir) {
       const outputDir = options.output
         ? resolveBuildOutputPath(courseDir, options.output)
-        : join(outputRoot, target);
-      const result = await getDirPackager(target).package({
-        ...packageOptions,
-        outputDir,
+        : undefined;
+      const result = await buildCourse({
+        courseDir,
+        target,
+        dir: true,
+        ...(outputDir ? { output: outputDir } : {}),
+        outputBaseDir: config?.output?.dir ?? ".lxpack",
       });
+      if (!result.ok) {
+        console.error(pc.red("Cannot build: course validation failed"));
+        process.exit(1);
+      }
       console.log(pc.green(`✓ Built ${target} package`));
       console.log(`  Output: ${result.outputDir}`);
       console.log(`  Files: ${result.fileCount}`);
     } else {
-      const defaultName =
-        target === "standalone"
-          ? `${slug}-standalone.zip`
-          : target === "scorm2004"
-            ? `${slug}-scorm2004.zip`
-            : target === "xapi"
-              ? `${slug}-xapi.zip`
-              : target === "cmi5"
-                ? `${slug}-cmi5.zip`
-                : `${slug}-scorm12.zip`;
       const outputPath = options.output
         ? resolveBuildOutputPath(courseDir, options.output)
-        : join(outputRoot, defaultName);
-
-      const result = await getZipPackager(target).package({
-        ...packageOptions,
-        outputPath,
+        : undefined;
+      const result = await buildCourse({
+        courseDir,
+        target,
+        dir: false,
+        ...(outputPath ? { output: outputPath } : {}),
+        outputBaseDir: config?.output?.dir ?? ".lxpack",
       });
+      if (!result.ok) {
+        console.error(pc.red("Cannot build: course validation failed"));
+        process.exit(1);
+      }
 
       console.log(pc.green(`✓ Built ${target} package`));
       console.log(`  Output: ${result.outputPath}`);

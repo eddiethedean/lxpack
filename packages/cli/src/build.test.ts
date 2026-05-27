@@ -287,13 +287,10 @@ describe("buildCommand", () => {
   });
 
   it("rethrows unexpected packaging errors", async () => {
-    const packagers = await import("./packagers/index.js");
-    vi.spyOn(packagers, "getZipPackager").mockReturnValue({
-      target: "scorm12",
-      package: async () => {
-        throw new Error("packager boom");
-      },
-    } as never);
+    const api = await import("@lxpack/api");
+    vi.spyOn(api, "buildCourse").mockRejectedValueOnce(
+      new Error("packager boom"),
+    );
     await expect(buildCommand({ target: "scorm12" })).rejects.toThrow(
       "packager boom",
     );
