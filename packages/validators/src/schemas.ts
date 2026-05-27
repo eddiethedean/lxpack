@@ -195,6 +195,7 @@ export type XapiTrackingConfig = z.infer<typeof xapiTrackingSchema>;
 export const runtimeConfigSchema = z
   .object({
     theme: z.string().default("modern"),
+    cssVariables: z.record(z.string()).optional(),
   })
   .strict()
   .optional();

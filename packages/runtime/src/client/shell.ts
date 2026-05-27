@@ -8,6 +8,12 @@ export function renderShell(manifest: CourseManifest): HTMLElement {
   const theme = manifest.runtime?.theme ?? "modern";
   app.className = `lxpack-theme-${theme.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
+  const vars = manifest.runtime?.cssVariables ?? {};
+  for (const [key, value] of Object.entries(vars)) {
+    if (!key.startsWith("--")) continue;
+    app.style.setProperty(key, value);
+  }
+
   const description = manifest.description
     ? `<p class="lxpack-description">${escapeHtml(manifest.description)}</p>`
     : "";
