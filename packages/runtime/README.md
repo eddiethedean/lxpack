@@ -13,9 +13,11 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Lesson type
 | Related | Package |
 |---------|---------|
 | CLI / preview | [`@lxpack/cli`](../cli/README.md) |
+| Programmatic build | [`@lxpack/api`](../api/README.md) |
 | Validation & bundles | [`@lxpack/validators`](../validators/README.md) |
 | Export shell | [`@lxpack/scorm`](../scorm/README.md) |
 | UI widgets | [`@lxpack/components`](../components/README.md) |
+| Track event types | [`@lxpack/tracking-schema`](../tracking-schema/README.md) |
 
 ## Install
 
@@ -39,7 +41,8 @@ Authoring HTML labs: [Building interactions](https://lxpack.readthedocs.io/en/la
 
 The CLI and SCORM packager embed `@lxpack/runtime/client` into exported courses. The client:
 
-- Renders markdown lessons, HTML interaction folders, and `type: component` lessons (via `window.__LXPACK_COMPONENTS__`)
+- Renders markdown lessons, HTML interaction folders, **`type: spa`** lessons (iframe to `path/index.html`), and `type: component` lessons (via `window.__LXPACK_COMPONENTS__`)
+- Applies optional `manifest.runtime.cssVariables` as CSS custom properties on the learner shell root
 - Resolves **next/previous** navigation with the flow engine when `course.yaml` defines `flow`; otherwise linear lesson order
 - Loads assessments from embedded config (`assessments`, `answerKeys`, `configs`, `feedback`); does not fetch author YAML in production exports
 - Renders quizzes with `renderAssessment()` — retakes, choice shuffle, and feedback modes from per-assessment config
@@ -47,6 +50,23 @@ The CLI and SCORM packager embed `@lxpack/runtime/client` into exported courses.
 - Persists progress via SCORM `suspend_data` / CMI (compact JSON, size-safe) or `localStorage` in preview mode
 
 Config is injected by the packager using [`safeJsonForHtml`](../scorm/README.md) from `@lxpack/scorm`.
+
+### SPA lessons and bridge API
+
+SPA lessons load in an iframe. Embedded apps should call the parent bridge (not `window.lxpack` inside the iframe):
+
+```js
+window.parent?.lxpackBridge?.v1?.completeLesson("phishing_101");
+window.parent?.lxpackBridge?.v1?.submitAssessment({
+  id: "final_quiz",
+  score: 0.9,
+  passingScore: 0.7,
+  passed: true,
+});
+window.parent?.lxpackBridge?.v1?.track({ type: "interaction", id: "clicked", data: { ok: true } });
+```
+
+Custom lesson renderers can register on `window.__LXPACK_LESSON_RENDERERS__` before the client boots.
 
 ## Flow and variables
 

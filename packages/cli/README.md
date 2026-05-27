@@ -12,6 +12,7 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [CLI referen
 
 | Related | Package |
 |---------|---------|
+| Programmatic API | [`@lxpack/api`](../api/README.md) |
 | Validation | [`@lxpack/validators`](../validators/README.md) |
 | Browser runtime | [`@lxpack/runtime`](../runtime/README.md) |
 | Export / ZIP | [`@lxpack/scorm`](../scorm/README.md) |
@@ -127,7 +128,20 @@ See [course.yaml reference](https://lxpack.readthedocs.io/en/latest/reference/co
 
 ## Programmatic use
 
-The CLI is built with [Commander](https://github.com/tj/commander.js). For library integration, import from the built package or depend on `@lxpack/validators`, `@lxpack/scorm`, `@lxpack/runtime`, and `@lxpack/components` directly.
+The CLI is built with [Commander](https://github.com/tj/commander.js). `validate` and `build` delegate to [`@lxpack/api`](../api/README.md), which returns structured results instead of exiting the process.
+
+```ts
+import { validateCourse, buildCourse } from "@lxpack/api";
+
+const result = await validateCourse({ courseDir: "/path/to/course", target: "scorm12" });
+if (!result.ok) {
+  for (const issue of result.issues) console.error(issue.path, issue.message);
+}
+
+await buildCourse({ courseDir: "/path/to/course", target: "scorm12" });
+```
+
+For lower-level control, depend on `@lxpack/validators`, `@lxpack/scorm`, `@lxpack/runtime`, and `@lxpack/components` directly. LessonKit workflows: [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/).
 
 ## Development
 

@@ -13,6 +13,7 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learni
 | Related | Package |
 |---------|---------|
 | CLI | [`@lxpack/cli`](../cli/README.md) |
+| Programmatic API | [`@lxpack/api`](../api/README.md) |
 | Packaging | [`@lxpack/scorm`](../scorm/README.md) |
 | Runtime | [`@lxpack/runtime`](../runtime/README.md) |
 | Components | [`@lxpack/components`](../components/README.md) |
@@ -30,8 +31,10 @@ Requires Node.js 20+.
 ```ts
 import {
   validateCourse,
+  validateCourseManifest,
   loadManifest,
   buildRuntimeAssessmentBundle,
+  buildRuntimeAssessmentBundleFromData,
   courseManifestSchema,
   type ValidationResult,
 } from "@lxpack/validators";
@@ -91,10 +94,13 @@ isPathContained(courseDir, abs); // true if inside course root
 | Export | Description |
 |--------|-------------|
 | `validateCourse(dir)` | Parse `course.yaml`, validate schema, flow, files, symlink containment |
+| `validateCourseManifest(dir, manifest, options?)` | Validate an in-memory manifest (optional `assessmentData` instead of on-disk YAML) |
 | `validateXapiTracking(manifest)` | Require HTTPS `tracking.xapi.activityIri` for xapi/cmi5 exports |
 | `getCourseActivityIri(manifest)` | Read course activity IRI from manifest |
 | `loadManifest(courseDir)` | Load and parse `course.yaml` |
 | `buildRuntimeAssessmentBundle(dir, manifest)` | Load assessments; split learner view, keys, configs, feedback |
+| `buildRuntimeAssessmentBundleFromData(manifest, data)` | Same bundle shape from in-memory assessment objects |
+| `loadParsedAssessmentsFromData(manifest, data)` | Parse injected assessment payloads with manifest cross-checks |
 | `toLearnerAssessment(assessment)` | Strip `correct` from choices; extract config and feedback maps |
 | `validateFlow(manifest)` | Flow rule and target validation |
 | `detectFlowCycles(manifest)` | Flow-jump cycle detection for branching graphs |
@@ -112,7 +118,9 @@ isPathContained(courseDir, abs); // true if inside course root
 Author-facing rules: [Course structure](https://lxpack.readthedocs.io/en/latest/guides/course-structure/) · [Quizzes and assessments](https://lxpack.readthedocs.io/en/latest/guides/quizzes-and-assessments/) · [Branching and paths](https://lxpack.readthedocs.io/en/latest/guides/branching-and-paths/).
 
 - Manifest shape: lessons, assessments, optional `variables` and `flow`, tracking rules
-- Lesson types: `markdown` (`file`), `html` (`path`), `component` (`component` + optional `props`)
+- Lesson types: `markdown` (`file`), `html` (`path`), `spa` (`path` with `index.html`), `component` (`component` + optional `props`)
+- SPA lessons: path containment, required `index.html`; warns when SPA HTML calls `window.lxpack` instead of `window.parent.lxpackBridge.v1`
+- `runtime.cssVariables` — optional map of CSS custom properties for the learner shell
 - Component IDs: built-in IDs or course overrides under `components/<id>/`
 - Flow rules: condition grammar, `goto` targets that reference known activity IDs, acyclic flow (errors for cycles)
 - Assessment YAML: strict MCQ schemas; optional `maxAttempts`, `shuffleChoices`, `showFeedback`; `explanation` per question

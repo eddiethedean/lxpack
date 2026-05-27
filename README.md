@@ -13,27 +13,31 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.3.6](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md#036---2026-05-26)
+**Current release:** [v0.4.0](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) — LessonKit interoperability (SPA lessons, programmatic API, shared tracking schema)
 
 ## Packages
 
 | Package | npm | README | Docs |
 |---------|-----|--------|------|
 | `@lxpack/cli` | [npm](https://www.npmjs.com/package/@lxpack/cli) | [packages/cli](packages/cli/README.md) | [CLI](https://lxpack.readthedocs.io/en/latest/reference/cli/) |
+| `@lxpack/api` | [npm](https://www.npmjs.com/package/@lxpack/api) | [packages/api](packages/api/README.md) | [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) |
 | `@lxpack/runtime` | [npm](https://www.npmjs.com/package/@lxpack/runtime) | [packages/runtime](packages/runtime/README.md) | [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/) |
 | `@lxpack/validators` | [npm](https://www.npmjs.com/package/@lxpack/validators) | [packages/validators](packages/validators/README.md) | [course.yaml](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) |
 | `@lxpack/scorm` | [npm](https://www.npmjs.com/package/@lxpack/scorm) | [packages/scorm](packages/scorm/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
 | `@lxpack/components` | [npm](https://www.npmjs.com/package/@lxpack/components) | [packages/components](packages/components/README.md) | [Components](https://lxpack.readthedocs.io/en/latest/reference/components/) |
+| `@lxpack/tracking-schema` | [npm](https://www.npmjs.com/package/@lxpack/tracking-schema) | [packages/tracking-schema](packages/tracking-schema/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
 | `@lxpack/xapi` | [npm](https://www.npmjs.com/package/@lxpack/xapi) | [packages/xapi](packages/xapi/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
 | `@lxpack/cmi5` | [npm](https://www.npmjs.com/package/@lxpack/cmi5) | [packages/cmi5](packages/cmi5/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
 
 ## Features
 
-- **Authoring** — `course.yaml` manifest; markdown, HTML, and component lessons; YAML assessments; optional variables and branching `flow`
+- **Authoring** — `course.yaml` manifest; markdown, HTML, component, and **SPA** lessons; YAML assessments; optional variables and branching `flow`
 - **Validation & preview** — schema checks, path containment; local preview with optional SCORM 1.2/2004 simulators ([config](https://lxpack.readthedocs.io/en/latest/reference/lxpack-config/))
 - **Export** — SCORM 1.2, SCORM 2004 (multi-SCO), standalone, xAPI, and cmi5 (`lxpack build --target …`)
-- **Runtime** — navigation, MCQ engine, HTML interactions, SCORM 1.2/2004 APIs, xAPI analytics
+- **Runtime** — navigation, MCQ engine, HTML interactions, SPA iframe lessons with parent **bridge API**, SCORM 1.2/2004 APIs, xAPI analytics
+- **Programmatic API** — `@lxpack/api` for validate/build from Node (LessonKit and other toolchains); optional `lessonkit.json` interchange metadata
 - **Components** — built-in widgets (`callout`, `image-card`, `checklist`)
+- **Theming** — optional `runtime.cssVariables` in `course.yaml` applied to the learner shell
 - **Packaging** — quiz keys embedded at build; author `assessments/*.yaml` not shipped in learner ZIPs
 
 ## Requirements
@@ -119,6 +123,31 @@ pnpm exec lxpack validate --target cmi5
 pnpm exec lxpack build --target cmi5
 ```
 
+**LessonKit SPA (built app folder + bridge API):**
+
+```bash
+cd examples/lessonkit-spa
+pnpm exec lxpack validate
+pnpm exec lxpack build --target scorm12
+```
+
+See [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/).
+
+## Programmatic API
+
+For integrations that should not shell out to the CLI, use `@lxpack/api`:
+
+```ts
+import { validateCourse, buildCourse } from "@lxpack/api";
+
+const validation = await validateCourse({ courseDir: "./my-course", target: "scorm2004" });
+if (!validation.ok) throw new Error("invalid course");
+
+await buildCourse({ courseDir: "./my-course", target: "scorm2004", output: ".lxpack/course.zip" });
+```
+
+Optional `lessonkit.json` at the course root merges SPA lesson metadata before validate/build. You can also pass in-memory `assessments` to `buildCourse` when YAML files should not live on disk.
+
 ## CLI reference
 
 Full option list and behavior: [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/).
@@ -162,6 +191,7 @@ my-course/
   lxpack.config.json   # Optional: defaultTarget, output dir
   lessons/             # Markdown lesson files
   interactions/        # HTML/JS interaction folders (index.html)
+  spa/                 # Optional: SPA lesson build output (folders with index.html)
   assessments/         # Quiz YAML (authoring only — not in export ZIPs)
   components/          # Optional overrides for @lxpack/components widgets
   assets/              # Static assets
@@ -226,7 +256,15 @@ Details: [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson
 |------|--------|-------------|
 | `markdown` | `file` | Markdown lesson under `lessons/` |
 | `html` | `path` | Folder with `index.html` under `interactions/` |
+| `spa` | `path` | Folder with `index.html` (e.g. Vite/React build output); use `window.parent.lxpackBridge.v1` for progress |
 | `component` | `component`, optional `props` | Built-in or course override widget from `@lxpack/components` |
+
+SPA lessons are rendered in an iframe. Report completion and assessments via the parent bridge:
+
+```js
+window.parent?.lxpackBridge?.v1?.completeLesson("my_spa_lesson");
+window.parent?.lxpackBridge?.v1?.track({ type: "interaction", id: "clicked" });
+```
 
 ### Assessment options (author YAML)
 
@@ -255,6 +293,7 @@ questions:
 flowchart LR
   course["course.yaml + assets"]
   cli["@lxpack/cli"]
+  api["@lxpack/api"]
   validators["@lxpack/validators"]
   components["@lxpack/components"]
   runtime["@lxpack/runtime"]
@@ -262,10 +301,12 @@ flowchart LR
   lms["LMS / browser"]
 
   course --> cli
-  cli --> validators
-  cli --> components
-  cli --> runtime
-  cli --> scorm
+  course --> api
+  cli --> api
+  api --> validators
+  api --> components
+  api --> runtime
+  api --> scorm
   scorm --> lms
   runtime --> lms
   components --> runtime
@@ -273,16 +314,19 @@ flowchart LR
 
 ```text
 packages/
-  cli/          @lxpack/cli         — init, preview, validate, build
-  runtime/      @lxpack/runtime     — browser client, flow, SCORM APIs, quiz
-  validators/   @lxpack/validators  — Zod schemas, validateCourse, bundles
-  scorm/        @lxpack/scorm       — SCORM / standalone / xAPI / cmi5 packaging
-  components/   @lxpack/components  — reusable lesson widgets
-  xapi/         @lxpack/xapi        — xAPI statements, transport, Tin Can XML
-  cmi5/         @lxpack/cmi5        — cmi5.xml generation
+  cli/              @lxpack/cli              — init, preview, validate, build
+  api/              @lxpack/api              — programmatic validate/build
+  runtime/          @lxpack/runtime          — browser client, flow, SCORM APIs, quiz, SPA bridge
+  validators/       @lxpack/validators       — Zod schemas, validateCourse, bundles
+  scorm/            @lxpack/scorm            — SCORM / standalone / xAPI / cmi5 packaging
+  components/       @lxpack/components       — reusable lesson widgets
+  tracking-schema/  @lxpack/tracking-schema  — canonical track() event types
+  xapi/             @lxpack/xapi             — xAPI statements, transport, Tin Can XML
+  cmi5/             @lxpack/cmi5             — cmi5.xml generation
 examples/
   security-awareness/   — linear SCORM 1.2 sample
   branching-demo/       — variables, flow, components, SCORM 2004
+  lessonkit-spa/        — SPA lesson + bridge API sample
   xapi-awareness/       — xAPI export sample
   cmi5-demo/            — cmi5 export sample
 test/
@@ -299,7 +343,8 @@ Operational guidance: [Troubleshooting](https://lxpack.readthedocs.io/en/latest/
 
 - **Assessments:** Author YAML under `assessments/` stays in the repo for editing. Exports embed learner-safe questions, answer keys, quiz config, and feedback text in the HTML config JSON (not as fetchable files). SCORM 2004 slices keys per SCO; SCORM 1.2, standalone, xAPI, and cmi5 use a single launch page with all keys (required for client-side scoring).
 - **Embedded JSON:** Config injected into HTML escapes `<` and `>` to prevent `</script>` breakout.
-- **HTML interactions:** Custom HTML under `interactions/` is trusted author content. Iframes use `allow-same-origin` so labs can call `window.parent.lxpack`; malicious interaction HTML could read parent config including answer keys.
+- **HTML interactions:** Custom HTML under `interactions/` is trusted author content. Iframes use `allow-same-origin` so labs can call `window.parent.lxpack` or `window.parent.lxpackBridge.v1`; malicious interaction HTML could read parent config including answer keys.
+- **SPA lessons:** Same iframe model as HTML labs. Prefer `lxpackBridge.v1` over direct `window.lxpack` (validators warn on the latter in SPA `index.html`).
 - **Path containment:** Validation, preview, and packaging resolve paths inside the course directory; symlinks that escape the course root are rejected. Preview blocks normalized traversal to author-only files.
 - **Markdown:** Rendered through a DOMPurify allowlist in the browser runtime. Custom HTML under `interactions/` is trusted author content (not sandboxed).
 - **SCORM 2004:** Sequencing uses a supported IMS Simple Sequencing subset; validate packages in SCORM Cloud or Moodle before production rollout.
@@ -377,6 +422,7 @@ Planned work and phase history: [Roadmap](https://lxpack.readthedocs.io/en/lates
 | Everyone new | [Get started](https://lxpack.readthedocs.io/en/latest/getting-started/) |
 | Instructional designers | [Claude Design workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-design/) · [Prompts](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/) |
 | Migrating from Storyline / Rise / HTML | [Legacy migration](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) · [HTML → LXPack prompts](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/#migration-from-legacy-tools) |
+| LessonKit / React SPAs | [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) |
 | Cursor (no Claude) | [Cursor workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-cursor/) |
 | Developers | [Claude Code workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-code/) · [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
 | AI agents | [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/) |
