@@ -68,3 +68,12 @@ Every module follows the same loop:
 | [Prompts for Claude & Cursor](prompts-for-claude.md) | One-off chat tasks with copy buttons |
 | [Library Skills](library-skills.md) | Installable agent expertise in Cursor / Claude Code |
 | [Workflow overview](workflow-overview.md) | Choosing a full authoring track |
+
+## Example courses in the repo
+
+| Folder | Demonstrates |
+|--------|----------------|
+| `examples/security-awareness` | Linear SCORM 1.2 |
+| `examples/branching-demo` | Variables, flow, SCORM 2004 |
+| `examples/xapi-awareness` / `cmi5-demo` | xAPI / cmi5 |
+| `examples/lessonkit-spa` | SPA lesson + bridge API |

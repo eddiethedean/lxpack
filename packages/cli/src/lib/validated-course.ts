@@ -1,5 +1,5 @@
 import {
-  validateCourse,
+  validateCourseWithInterchange,
   buildRuntimeAssessmentBundleFromParsed,
   type CourseManifest,
   type RuntimeAssessmentBundle,
@@ -19,7 +19,7 @@ export async function loadValidatedCourseContext(
   courseDir: string,
   options?: ValidateCourseOptions,
 ): Promise<ValidatedCourseContext | null> {
-  const validation = await validateCourse(courseDir, options);
+  const validation = await validateCourseWithInterchange(courseDir, options);
   if (!validation.valid || !validation.manifest) {
     return null;
   }

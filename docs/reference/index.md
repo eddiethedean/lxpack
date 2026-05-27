@@ -1,6 +1,6 @@
 # Reference
 
-Quick lookup for **v0.3.6** — CLI commands, manifest fields, and common fixes.
+Quick lookup for **v0.4.0** — CLI commands, manifest fields, and common fixes.
 
 <div class="grid cards" markdown>
 
@@ -26,7 +26,7 @@ Quick lookup for **v0.3.6** — CLI commands, manifest fields, and common fixes.
 
     ---
 
-    `markdown`, `html`, `component`.
+    `markdown`, `html`, `spa`, `component`.
 
 -   :octicons-puzzle-24: **[Components](components.md)**
 

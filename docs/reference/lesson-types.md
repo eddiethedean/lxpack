@@ -46,12 +46,26 @@ Built-in widget from `@lxpack/components` — no custom HTML required.
 
 Widgets: [Components](components.md).
 
+## spa
+
+Built web app folder (e.g. Vite output) with an `index.html` entrypoint. The lesson runs in an iframe; report progress via `window.parent.lxpackBridge.v1`.
+
+```yaml
+  - id: phishing_101
+    title: Phishing Awareness
+    type: spa
+    path: dist/lessons/phishing-101
+```
+
+Authoring: [LessonKit interoperability](../guides/lessonkit-interoperability.md).
+
 ## Choosing a type
 
 | Need | Type |
 |------|------|
 | Reading, policy, explanation | `markdown` |
 | Clicks, simulation, custom UI | `html` |
+| React / Vite / built app lesson | `spa` |
 | Callout, checklist, image card | `component` |
 
 ## See also

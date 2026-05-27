@@ -1,5 +1,8 @@
 # LXPack upgrades for LessonKit interoperability
 
+!!! note "Status (v0.4.0)"
+    Core interoperability shipped in **v0.4.0**: `type: spa`, `@lxpack/api`, `lessonkit.json` merge, `@lxpack/tracking-schema`, and `examples/lessonkit-spa/`. Items below marked **deferred** remain future work.
+
 This document proposes improvements to [LXPack](https://github.com/eddiethedean/lxpack) so it works
 better as the **packaging and LMS export layer** for
 [LessonKit](https://github.com/eddiethedean/lessonkit).

@@ -116,5 +116,25 @@ describe("@lxpack/api", () => {
 
     await rm(courseDir, { recursive: true, force: true });
   });
+
+  it("fails validation when lessonkit.json is malformed", async () => {
+    const { mkdtemp, cp, rm, writeFile } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-api-ix-bad-"));
+    await cp(fixturePath("minimal-valid"), courseDir, { recursive: true });
+    await writeFile(join(courseDir, "lessonkit.json"), "{ broken");
+
+    const result = await validateCourse({ courseDir, target: "standalone" });
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some(
+        (i) => i.path === "lessonkit.json" && i.severity === "error",
+      ),
+    ).toBe(true);
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
 });
 

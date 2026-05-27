@@ -12,3 +12,4 @@ site/
 # Installed copies — source of truth is library-skills/ (run library-skills/install.sh)
 .cursor/skills/
 .claude/skills/
+packages/ai

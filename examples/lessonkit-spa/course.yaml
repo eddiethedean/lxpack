@@ -13,3 +13,7 @@ lessons:
     type: spa
     path: spa/lessons/phishing-101
 
+assessments:
+  - id: final_quiz
+    file: assessments/final.yaml
+

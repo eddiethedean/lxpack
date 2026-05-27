@@ -1,12 +1,14 @@
-# LXPack architecture (v0.3.6)
+# LXPack architecture (v0.4.0)
 
-Internal layout after the SOLID refactor. Current release **v0.3.6**.
+Internal layout after the SOLID refactor. Current release **v0.4.0**.
 
 ## Package boundaries
 
 | Package | Role | Extension points |
 |---------|------|------------------|
-| `@lxpack/validators` | `course.yaml` schema (Zod), `validateCourse`, `validateXapiTracking`, assessment parsing, `enumerateActivities` | `lessonValidators` registry, Zod `superRefine` on variables |
+| `@lxpack/validators` | `course.yaml` schema (Zod), `validateCourse`, `validateCourseWithInterchange`, `validateXapiTracking`, assessment parsing, `enumerateActivities` | `lessonValidators` registry, Zod `superRefine` on variables |
+| `@lxpack/api` | Programmatic `validateCourse` / `buildCourse` for toolchains (LessonKit, CI) | Typed options, injected assessments, interchange merge |
+| `@lxpack/tracking-schema` | Shared track event types for runtime and adapters | Event type enums |
 | `@lxpack/xapi` | xAPI statement types, verb builders, launch params, LRS transport, Tin Can XML | `StatementQueue`, `onStatement` hook |
 | `@lxpack/cmi5` | cmi5.xml + block definitions from manifest activities | `generateCmi5Xml` |
 | `@lxpack/runtime` | Browser runtime, LMS bridges, **analytics reporters**, progress codec, quiz UI | `LmsBridge`, `AnalyticsReporter`, `AssessmentHost`, `lessonRenderers` |
@@ -20,12 +22,14 @@ Internal layout after the SOLID refactor. Current release **v0.3.6**.
 - **`analytics/`** — `NoopReporter` (SCORM/standalone default), `XapiReporter` (xAPI/cmi5/preview with `activityIri`), `createAnalyticsReporter` factory.
 - **`lms/`** — SCORM 1.2/2004 adapters; `xapi`/`cmi5` use `LocalBridge` for progress only (statements go to analytics).
 - **`progress/`** — `ProgressCodec`, size policy, suspend data limits.
+- **`client/lessons/spa.ts`** — iframe SPA lessons; parent exposes `window.lxpackBridge.v1` for completion and tracking.
 - **Subpaths:** `./client` (bundle), `./scorm12`, `./scorm2004` for LMS adapters.
 
 ## Validators (`@lxpack/validators`)
 
 - **`xapi-validate.ts`** — `validateXapiTracking`, `getCourseActivityIri` for xAPI/cmi5 builds.
 - **`activities.ts`** — `enumerateActivities` (canonical activity list for Node tooling).
+- **`interchange.ts`** — `loadLessonKitInterchange`, `mergeInterchangeIntoManifest`, `validateCourseWithInterchange` for `lessonkit.json` / `lxpack.import.json`.
 
 ## SCORM / export (`@lxpack/scorm`)
 

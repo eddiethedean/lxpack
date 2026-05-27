@@ -121,7 +121,7 @@ pnpm examples:validate
 - Reference **example courses** in prompts: “Match the flow pattern in `examples/branching-demo/course.yaml`.”
 - Ask Claude to run `lxpack validate` and paste stderr on failure.
 - For HTML interactions, require the `window.parent.lxpack.track` hook from [Building interactions](building-interactions.md).
-- Do not invent v0.4 CLI commands (`repair`, etc.) — not in v0.3.6.
+- Do not invent CLI subcommands beyond: `init`, `preview`, `validate`, `build` with `--target scorm12|scorm2004|standalone|xapi|cmi5` (`repair` is not implemented).
 
 ## Git workflow for teams
 

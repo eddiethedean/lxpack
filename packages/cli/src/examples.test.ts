@@ -184,6 +184,14 @@ describe("example courses", () => {
           ).resolves.toBeUndefined();
         }
 
+        const spaLesson = manifest.lessons.find((l) => l.type === "spa");
+        if (spaLesson?.type === "spa" && spaLesson.path) {
+          await expect(
+            access(join(outDir, spaLesson.path, "index.html")),
+          ).resolves.toBeUndefined();
+          expect(entryHtml).toContain("lxpack-interaction-frame");
+        }
+
         const app = await createCompiledStaticServer(outDir);
         previewApps.push(app);
 

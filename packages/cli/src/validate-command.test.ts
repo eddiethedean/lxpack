@@ -153,9 +153,9 @@ describe("validateCommand", () => {
         throw new Error(`exit:${code ?? 0}`);
       });
 
-    const validators = await import("@lxpack/validators");
-    vi.spyOn(validators, "validateCourse").mockResolvedValue({
-      valid: true,
+    const api = await import("@lxpack/api");
+    vi.spyOn(api, "validateCourse").mockResolvedValue({
+      ok: true,
       manifest: {
         title: "T",
         version: "1.0.0",

@@ -54,6 +54,7 @@ assessments:
 |--------|-----------------|
 | `markdown` | `file:` path to `.md` |
 | `html` | `path:` folder under `interactions/` |
+| `spa` | `path:` folder with `index.html` (built app output) |
 | `component` | `component:` id, optional `props:` |
 
 Each lesson needs unique `id` (safe characters: letters, numbers, underscore, hyphen).

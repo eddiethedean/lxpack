@@ -53,7 +53,7 @@ await buildCourse({ courseDir, target: "scorm2004", output: "dist/course.zip" })
 
 ## Optional interchange metadata (`lessonkit.json`)
 
-If `lessonkit.json` exists at the course root, `@lxpack/api` will merge supported fields into the
+If `lessonkit.json` exists at the course root, `@lxpack/api` and the `lxpack` CLI merge supported fields into the
 validated manifest prior to build.
 
 Today this is primarily used to provide SPA lesson metadata (id/title/path) from external tooling.

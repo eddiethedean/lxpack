@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-27
+
+### Added
+
+- **`type: spa` lessons** — package built web app folders (`path/index.html`) across all export targets; parent bridge API `window.parent.lxpackBridge.v1` for completion, assessments, and tracking
+- **`@lxpack/api`** — programmatic `validateCourse` and `buildCourse` with typed results, optional injected assessments, and interchange merge
+- **`@lxpack/tracking-schema`** — shared track event types for runtime and adapters
+- **`lessonkit.json` / `lxpack.import.json`** — optional interchange metadata merged at validate/build (CLI and API)
+- **Example** — `examples/lessonkit-spa/` demonstrating SPA + markdown in one course
+
+### Changed
+
+- CLI validate/build/preview merge `lessonkit.json` via shared `@lxpack/validators` interchange module (parity with `@lxpack/api`)
+- Documentation and library skills updated for v0.4.0 LessonKit interoperability
+
 ## [0.3.6] - 2026-05-26
 
 ### Fixed

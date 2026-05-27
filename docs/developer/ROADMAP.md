@@ -222,7 +222,7 @@ Features:
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.3.6
+**Latest release in phase:** v0.2.0
 
 Features:
 - **SCORM 2004** — multi-SCO export with sequencing/navigation in the manifest
@@ -236,7 +236,7 @@ Not in Phase 2: xAPI, cmi5 (now Phase 3), hot reload, themes, plugins.
 
 ## Phase 3 — Modern standards (shipped — v0.3.1)
 
-**Latest release:** v0.3.6
+**Latest release in phase:** v0.3.6
 
 Features:
 - **xAPI** — `lxpack build --target xapi`, `@lxpack/xapi` statement builders and Tin Can packaging
@@ -247,64 +247,27 @@ Features:
 
 Deferred to v0.3.1+: automated WCAG validation in preview/build.
 
-## Phase 0.4 — LessonKit interoperability (planned — v0.4.x)
+## Phase 0.4 — LessonKit interoperability (shipped — v0.4.0)
 
-This phase is focused on making LXPack a first-class **packaging and LMS export layer** for
+This phase makes LXPack a first-class **packaging and LMS export layer** for
 [LessonKit](https://github.com/eddiethedean/lessonkit): preserve React authoring, provide stable
 library APIs for CI/tooling, and align tracking semantics across runtimes.
 
 Source of truth: `docs/LXPACK_UPGRADES_FOR_LESSONKIT.md`.
 
-### Planned features
+### Shipped in v0.4.0
 
-- **SPA / React lesson type (`spa`)**
-  - Add a manifest lesson type that packages a built web app folder (e.g. Vite output) as a lesson:
-    `type: spa`, `path: <dir-with-index.html>`, optional runtime mount configuration.
-  - Works across targets: `standalone`, `scorm12`, `scorm2004` (SCO), `xapi`, `cmi5`.
-  - Provides a stable, versioned bridge API (`lxpackBridge.v1`) for embedded apps to report:
-    - lesson completion
-    - assessment results
-    - optional analytics passthrough (xAPI-friendly)
-  - Add an example course combining `spa` + markdown lessons in one package.
+- **SPA / React lesson type (`spa`)** — `type: spa`, `path: <dir-with-index.html>`; works across all export targets; `window.parent.lxpackBridge.v1` bridge API; example `examples/lessonkit-spa/`
+- **Programmatic validate/build API** — `@lxpack/api` with typed results, injected assessments, explicit `courseDir`
+- **Interchange schema** — optional `lessonkit.json` / `lxpack.import.json` merged at validate/build (CLI and API)
+- **Shared tracking event catalog** — `@lxpack/tracking-schema`
+- **Assessment build-time injection** — pass `assessments` to `buildCourse` without on-disk YAML
+- **Docs and examples** — [LessonKit interoperability](../guides/lessonkit-interoperability.md)
 
-- **Programmatic validate/build API**
-  - Add stable importable APIs for tools like `@lessonkit/lxpack` (avoid CLI subprocess + stdout parsing).
-  - Requirements:
-    - explicit path inputs (no implicit cwd walking)
-    - structured results and typed errors (errors + warnings)
-    - usable as npm deps in external workspaces (no pnpm requirement for consumers)
-  - Candidate: new `@lxpack/api` package (or a clearly-versioned API surface in an existing package).
+### Deferred beyond v0.4.0
 
-- **Interchange schema for LessonKit metadata**
-  - Support an optional interchange file at course root (e.g. `lessonkit.json` / `lxpack.import.json`)
-    describing course identity + lesson list + build outputs.
-  - Validation/build can merge interchange + generated `course.yaml` (or generate `course.yaml` at build time).
-
-- **Shared tracking event catalog**
-  - Publish a shared schema/enums mapping learning events to xAPI verbs and SCORM semantics.
-  - Goal: LessonKit and LXPack report the same analytics vocabulary and completion semantics.
-
-- **Assessment interchange / build-time injection**
-  - Allow assessments to be supplied as structured data at build time (in addition to on-disk YAML),
-    so adapters can extract quiz definitions from React without writing `assessments/*.yaml`.
-
-- **Extensibility for custom lesson runtimes (plugin slot)**
-  - Define a runtime registration surface for custom lesson runtimes (validate/bundle/preview hooks),
-    so LessonKit can integrate without forking LXPack lesson types.
-
-- **Theme token bridge**
-  - Accept external design tokens (e.g. CSS variables) so LessonKit preview and LXPack-packaged output
-    stay visually consistent.
-
-- **Docs and examples**
-  - Docs guide: “Package a React (LessonKit) course”
-  - Example: `examples/lessonkit-spa/` showing a Vite build + `lxpack build`
-  - Migration table: LessonKit component → LXPack lesson type / export mapping
-
-### Out of scope for v0.4.x
-
-- Marketplace-style plugin ecosystem (Phase 5)
-- Hosted preview/review infrastructure (Phase 5/6)
+- **Extensibility for custom lesson runtimes (plugin slot)** — runtime registration hooks for third-party lesson types
+- **Theme token bridge** — external design tokens for LessonKit ↔ LXPack visual parity
 
 ## Phase 4 — AI tooling
 

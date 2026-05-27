@@ -15,6 +15,7 @@ export const EXAMPLE_COURSES: ReadonlyArray<{
   { name: "branching-demo", targets: ["scorm2004"] },
   { name: "xapi-awareness", targets: ["xapi"] },
   { name: "cmi5-demo", targets: ["cmi5"] },
+  { name: "lessonkit-spa", targets: ["scorm12"] },
 ] as const;
 
 export type CompiledPackageExpectations = {

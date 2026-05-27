@@ -146,6 +146,14 @@ export async function clickPrev(): Promise<void> {
   btn("lxpack-prev").click();
 }
 
+/** Simulate SPA lesson completion via the parent bridge API. */
+export async function completeSpaLesson(lessonId: string): Promise<void> {
+  window.lxpackBridge?.v1?.completeLesson(lessonId);
+  await vi.waitFor(() => {
+    expect(window.lxpack?.getProgress().completedLessons).toContain(lessonId);
+  });
+}
+
 export async function clickComplete(): Promise<void> {
   btn("lxpack-complete").click();
 }

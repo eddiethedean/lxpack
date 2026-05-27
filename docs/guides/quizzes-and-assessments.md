@@ -2,7 +2,7 @@
 
 --8<-- "copy-tip.md"
 
-Quizzes live in **`assessments/*.yaml`**. They are **multiple-choice (MCQ)** in v0.3.6.
+Quizzes live in **`assessments/*.yaml`**. They are **multiple-choice (MCQ)** in v0.4.0.
 
 ## File example
 

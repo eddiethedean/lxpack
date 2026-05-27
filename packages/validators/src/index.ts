@@ -30,3 +30,11 @@ export {
   getCourseActivityIri,
 } from "./xapi-validate.js";
 export { xapiTrackingSchema, type XapiTrackingConfig } from "./schemas.js";
+export {
+  loadLessonKitInterchange,
+  mergeInterchangeIntoManifest,
+  validateCourseWithInterchange,
+  type InterchangeLesson,
+  type LessonKitInterchange,
+  type LoadInterchangeResult,
+} from "./interchange.js";

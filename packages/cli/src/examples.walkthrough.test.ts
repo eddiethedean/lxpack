@@ -16,6 +16,7 @@ import { REPO_ROOT } from "../../../test/helpers/paths.js";
 import { buildCommand } from "./commands/build.js";
 import {
   clickComplete,
+  completeSpaLesson,
   clickInteractionButton,
   clickNext,
   installComponentsMount,
@@ -41,6 +42,13 @@ vi.mock("../../runtime/src/client/lessons/html.js", () => ({
         src="about:blank"
       ></iframe>
     `;
+  },
+}));
+
+vi.mock("../../runtime/src/client/lessons/spa.js", () => ({
+  renderSpaLesson: (contentEl: HTMLElement) => {
+    contentEl.innerHTML =
+      '<iframe class="lxpack-interaction-frame" title="SPA lesson"></iframe>';
   },
 }));
 
@@ -95,6 +103,14 @@ describe.sequential("example compiled walkthroughs", () => {
     const firstId = config.manifest.lessons[0]!.id;
     await waitForActiveNav(firstId);
     await clickComplete();
+
+    const spaLesson = config.manifest.lessons.find((l) => l.type === "spa");
+    if (spaLesson?.type === "spa") {
+      await clickNext();
+      await waitForActiveNav(spaLesson.id);
+      await completeSpaLesson(spaLesson.id);
+      await clickNext();
+    }
 
     const htmlLesson = config.manifest.lessons.find((l) => l.type === "html");
     if (htmlLesson?.type === "html") {

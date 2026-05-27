@@ -16,9 +16,17 @@ vi.mock("./client/lessons/html.js", () => ({
   },
 }));
 
+vi.mock("./client/lessons/spa.js", () => ({
+  renderSpaLesson: (contentEl: HTMLElement) => {
+    contentEl.innerHTML =
+      '<iframe class="lxpack-interaction-frame" title="SPA lesson"></iframe>';
+  },
+}));
+
 import { init } from "./client.js";
 import {
   clickComplete,
+  completeSpaLesson,
   clickInteractionButton,
   clickNav,
   clickNext,
@@ -215,6 +223,28 @@ describe("all example courses", () => {
       interactionPath: "interactions/phishing-lab",
     });
     await clickComplete();
+    await clickNext();
+    await waitForActiveNav("final_quiz");
+    await submitQuizWithAnswerKey(config.answerKeys!.final_quiz);
+    expectAssessmentPassed("final_quiz");
+
+    window.dispatchEvent(new Event("beforeunload"));
+  });
+
+  it("lessonkit-spa: markdown, SPA bridge completion, and quiz", async () => {
+    const { courseDir, config } = await loadExampleRuntimeConfig(
+      "lessonkit-spa",
+    );
+    installCourseFetchMock(courseDir);
+    setupExampleDom();
+    window.__LXPACK_CONFIG__ = config;
+    init();
+
+    await waitForActiveNav("welcome");
+    await clickComplete();
+    await clickNext();
+    await waitForActiveNav("phishing_101");
+    await completeSpaLesson("phishing_101");
     await clickNext();
     await waitForActiveNav("final_quiz");
     await submitQuizWithAnswerKey(config.answerKeys!.final_quiz);

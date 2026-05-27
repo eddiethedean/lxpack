@@ -44,7 +44,7 @@ lxpack build --target xapi
 
 Runtime sends statements (launch, progress, interactions, assessments) via `XapiReporter`. Preview can log statements when `xapi.preview` is set in config.
 
-### cmi5 note (v0.3.6)
+### cmi5 note (v0.4.0)
 
 cmi5 packages include `cmi5.xml`. When the LMS launch URL includes a `fetch` parameter, the runtime POSTs to that URL once per session to obtain an `auth-token` for LRS requests (cached in `sessionStorage` on refresh). The launch URL must still include `endpoint` (and typically `actor`, `registration`).
 
