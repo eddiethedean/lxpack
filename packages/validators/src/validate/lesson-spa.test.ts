@@ -38,6 +38,40 @@ describe("validateSpaLesson", () => {
     expect(issues).toHaveLength(0);
   });
 
+  it("errors when spa path is unsafe", async () => {
+    const issues = await validateSpaLesson(fixturePath("spa-valid"), {
+      id: "bad_spa",
+      type: "spa" as const,
+      path: "dist/../escape",
+    });
+    expect(issues.some((i) => i.severity === "error")).toBe(true);
+  });
+
+  it("errors when spa directory is missing", async () => {
+    const issues = await validateSpaLesson(fixturePath("spa-valid"), {
+      id: "missing_spa",
+      type: "spa" as const,
+      path: "spa/lessons/does-not-exist",
+    });
+    expect(issues.some((i) => i.severity === "error")).toBe(true);
+  });
+
+  it("errors when spa index.html is missing", async () => {
+    const { mkdtemp, mkdir, cp, rm } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-spa-missing-index-"));
+    await cp(fixturePath("spa-valid"), courseDir, { recursive: true });
+    await mkdir(join(courseDir, "spa", "lessons", "no-index"), { recursive: true });
+
+    const issues = await validateSpaLesson(courseDir, {
+      id: "no_index",
+      type: "spa" as const,
+      path: "spa/lessons/no-index",
+    });
+    expect(issues.some((i) => i.severity === "error")).toBe(true);
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
   it("warns when spa index.html calls window.lxpack directly", async () => {
     const { mkdtemp, writeFile, cp, rm } = await import("node:fs/promises");
     const { tmpdir } = await import("node:os");

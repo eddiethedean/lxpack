@@ -85,6 +85,23 @@ describe("assessmentSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("rejects duplicate choice ids in a question", () => {
+    const result = assessmentSchema.safeParse({
+      id: "quiz",
+      questions: [
+        {
+          id: "q1",
+          prompt: "?",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "a", text: "A again", correct: false },
+          ],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe("courseManifestSchema", () => {
@@ -102,6 +119,15 @@ describe("courseManifestSchema", () => {
         title: "T",
         version: "1.0.0",
         variables: { flag: { default: true, type: "string" } },
+        lessons: [{ id: "a", type: "markdown", file: "a.md" }],
+      }).success,
+    ).toBe(false);
+
+    expect(
+      courseManifestSchema.safeParse({
+        title: "T",
+        version: "1.0.0",
+        variables: { flag: { default: "no", type: "boolean" } },
         lessons: [{ id: "a", type: "markdown", file: "a.md" }],
       }).success,
     ).toBe(false);

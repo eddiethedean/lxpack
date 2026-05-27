@@ -90,6 +90,14 @@ describe("validateFlow", () => {
     expect(issues.some((i) => i.message.includes("all: []"))).toBe(true);
   });
 
+  it("rejects empty any condition", () => {
+    const issues = validateFlow({
+      ...baseManifest,
+      flow: [{ when: { any: [] }, goto: "lab" }],
+    });
+    expect(issues.some((i) => i.message.includes("any: []"))).toBe(true);
+  });
+
   it("rejects lesson id in assessment.passed condition", () => {
     const issues = validateFlow({
       ...baseManifest,
