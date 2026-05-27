@@ -204,6 +204,19 @@ describe("resolveOutputDir", () => {
       "must stay inside the course directory",
     );
   });
+
+  it("rejects output dirs that are symlinks to outside the course", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-output-symlink-"));
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-output-outside-"));
+    mkdirSync(join(courseDir, ".lxpack"), { recursive: true });
+    await (await import("node:fs/promises")).symlink(
+      outside,
+      join(courseDir, ".lxpack", "out"),
+    );
+    expect(() => resolveOutputDir(courseDir, ".lxpack/out")).toThrow(
+      "must stay inside the course directory",
+    );
+  });
 });
 
 describe("resolveBuildOutputPath", () => {
@@ -234,6 +247,19 @@ describe("resolveBuildOutputPath", () => {
     await writeFile(out, "zip");
     expect(resolveBuildOutputPath(courseDir, "out.zip")).toBe(
       join(realpathSync(courseDir), "out.zip"),
+    );
+  });
+
+  it("rejects output files that are symlinks to outside the course", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-build-symlink-"));
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-build-symlink-outside-"));
+    await writeFile(join(outside, "x.zip"), "zip");
+    await (await import("node:fs/promises")).symlink(
+      join(outside, "x.zip"),
+      join(courseDir, "out.zip"),
+    );
+    expect(() => resolveBuildOutputPath(courseDir, "out.zip")).toThrow(
+      "must stay inside the course directory",
     );
   });
 });

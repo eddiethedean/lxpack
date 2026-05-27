@@ -313,4 +313,23 @@ describe("buildCommand", () => {
     await expect(buildCommand({ target: "scorm12" })).rejects.toThrow("exit:1");
     exit.mockRestore();
   });
+
+  it("exits when course fails validation for --dir builds", async () => {
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(
+      join(workDir, "course", "course.yaml"),
+      "title: Broken\nversion: 1.0.0\nlessons:\n  - id: intro\n    type: markdown\n    file: lessons/missing.md\n",
+    );
+
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(buildCommand({ target: "scorm12", dir: true })).rejects.toThrow(
+      "exit:1",
+    );
+    exit.mockRestore();
+  });
 });
