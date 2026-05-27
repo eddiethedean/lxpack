@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/cli",
-  "version": "0.3.7",
+  "version": "0.4.0",
   "description": "CLI for building, validating, and packaging LXPack courses",
   "license": "Apache-2.0",
   "repository": {
