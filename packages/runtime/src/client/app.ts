@@ -204,7 +204,8 @@ export function init(): void {
         return;
       }
     }
-    if (currentIndex > 0) void showItem(currentIndex - 1);
+    const hasFlow = Boolean(config.manifest.flow?.length);
+    if (!hasFlow && currentIndex > 0) void showItem(currentIndex - 1);
   });
 
   nextBtn.addEventListener("click", () => {
@@ -243,7 +244,7 @@ export function init(): void {
       if (
         isInteractionComplete(event.data) &&
         item?.kind === "lesson" &&
-        item.lesson.type === "html"
+        (item.lesson.type === "html" || item.lesson.type === "spa")
       ) {
         runtime.markInteractionLessonDone(item.id);
       }

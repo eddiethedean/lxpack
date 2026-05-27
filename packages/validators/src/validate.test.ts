@@ -253,4 +253,16 @@ questions:
     });
     expect(result.valid).toBe(true);
   });
+
+  it("fails when component lessons exist but components bundle is unavailable", async () => {
+    const result = await validateCourse(fixturePath("branching-demo"), {
+      hasComponentsBundle: false,
+    });
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some((i) =>
+        i.message.includes("@lxpack/components"),
+      ),
+    ).toBe(true);
+  });
 });

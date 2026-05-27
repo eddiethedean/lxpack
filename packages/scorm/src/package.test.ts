@@ -120,6 +120,8 @@ describe("packageCourse", () => {
     expect(zip.file("lxpack-components.js")).toBeTruthy();
     const index = await zip.file("index.html")?.async("string");
     expect(index).toContain("lxpack-components.js");
+    const ims = await zip.file("imsmanifest.xml")?.async("string");
+    expect(ims).toContain('href="lxpack-components.js"');
   });
 
   it("ships a self-contained production runtime bundle", async () => {

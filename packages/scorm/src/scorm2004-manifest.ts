@@ -15,6 +15,11 @@ export function scoLaunchPath(activityId: string): string {
   return `sco/${activityId}/index.html`;
 }
 
+const SHARED_RUNTIME_MANIFEST_FILES = new Set([
+  "lxpack-runtime.js",
+  "lxpack-components.js",
+]);
+
 export function buildScorm2004ManifestFiles(
   manifest: CourseManifest,
   courseFiles: string[],
@@ -81,10 +86,11 @@ export function generateScorm2004Manifest(
     </imsss:sequencing>`;
 
   const uniqueCourseFiles = [...new Set(courseFiles)]
-    .filter((f) => !f.startsWith("sco/"))
-    .map(
-      (href) => `      <file href="${escapeXml(href)}"/>`,
+    .filter(
+      (f) =>
+        !f.startsWith("sco/") && !SHARED_RUNTIME_MANIFEST_FILES.has(f),
     )
+    .map((href) => `      <file href="${escapeXml(href)}"/>`)
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>

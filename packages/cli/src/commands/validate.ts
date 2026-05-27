@@ -29,22 +29,17 @@ export async function validateCommand(options?: {
     process.exit(1);
   }
 
-  const target = resolveExportTarget(options?.target, config) as
-    | ExportTarget
-    | undefined;
+  const target = resolveExportTarget(options?.target, config) as ExportTarget;
 
   const result = await validateCourse({ courseDir, target });
   const issues: ValidationIssue[] = [...result.issues];
 
-  if (result.ok || result.manifest) {
-    const manifest = result.ok ? result.manifest : result.manifest;
-    if (manifest) {
+  if (result.manifest) {
     console.log(
-      pc.dim(`Course: ${manifest.title} v${manifest.version}`),
+      pc.dim(`Course: ${result.manifest.title} v${result.manifest.version}`),
     );
-    console.log(pc.dim(`Lessons: ${manifest.lessons.length}`));
+    console.log(pc.dim(`Lessons: ${result.manifest.lessons.length}`));
     console.log();
-    }
   }
 
   const valid = result.ok;

@@ -37,6 +37,32 @@ describe("generateScorm2004Manifest", () => {
     expect(xml).not.toContain("Bob's Course");
   });
 
+  it("lists shared runtime files once in shared_assets when file list includes them", async () => {
+    const loaded = await loadManifest(fixturePath("branching-demo"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+
+    const files = buildScorm2004ManifestFiles(
+      loaded.manifest,
+      ["lessons/intro.md"],
+      true,
+    );
+    const xml = generateScorm2004Manifest(loaded.manifest, files, {
+      hasComponentsBundle: true,
+    });
+
+    const sharedAssets = xml.match(
+      /<resource identifier="shared_assets"[\s\S]*?<\/resource>/,
+    );
+    expect(sharedAssets).toBeTruthy();
+    const block = sharedAssets![0];
+    expect((block.match(/<file href="lxpack-runtime\.js"\/>/g) ?? []).length).toBe(
+      1,
+    );
+    expect(
+      (block.match(/<file href="lxpack-components\.js"\/>/g) ?? []).length,
+    ).toBe(1);
+  });
+
   it("omits lxpack-components.js when no components bundle is shipped", async () => {
     const loaded = await loadManifest(fixturePath("branching-demo"));
     if (Array.isArray(loaded)) throw new Error("fixture failed");

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **SCORM 1.2:** `imsmanifest.xml` now lists `lxpack-components.js` when a components bundle is shipped
+- **SCORM 2004:** removed duplicate `<file>` entries for `lxpack-runtime.js` / `lxpack-components.js` in `shared_assets`
+- **Interchange validation:** `validateCourseWithInterchange` no longer returns stale pre-merge errors after `lessonkit.json` fixes the manifest; preview failure diagnostics use interchange merge (same as validate/build)
+- **Runtime navigation:** Prev button no longer linear-back into flow-skipped lessons; numeric flow conditions reject non-finite values (`NaN`)
+- **SPA lessons:** `interaction.done` parity with HTML lessons in runtime, validators, and docs
+- **Preview security:** block `lessonkit.json`, `lxpack.import.json`, and `node_modules/` under `/course/`; interchange files validated with packagable-path rules (symlink escape blocked)
+- **CLI:** `validate` and `preview` default export target aligned with `build` (`scorm12`); `build` prints validation issues on failure; component lessons fail validation when `@lxpack/components` bundle is unavailable
+
 ## [0.4.0] - 2026-05-27
 
 ### Added

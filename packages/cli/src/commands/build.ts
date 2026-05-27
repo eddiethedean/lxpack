@@ -2,6 +2,7 @@ import { buildCourse } from "@lxpack/api";
 import type { ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
 import { findCourseDir, loadLxpackConfig } from "../utils.js";
+import { printValidationIssues } from "../lib/validated-course.js";
 import { resolveBuildOutputPath } from "../lib/lxpack-config.js";
 import { formatErrorMessage } from "@lxpack/validators";
 import { CoursePackagingError } from "@lxpack/scorm";
@@ -48,6 +49,7 @@ export async function buildCommand(options: {
       });
       if (!result.ok) {
         console.error(pc.red("Cannot build: course validation failed"));
+        printValidationIssues({ valid: false, issues: result.issues });
         process.exit(1);
       }
       console.log(pc.green(`✓ Built ${target} package`));
@@ -66,6 +68,7 @@ export async function buildCommand(options: {
       });
       if (!result.ok) {
         console.error(pc.red("Cannot build: course validation failed"));
+        printValidationIssues({ valid: false, issues: result.issues });
         process.exit(1);
       }
 

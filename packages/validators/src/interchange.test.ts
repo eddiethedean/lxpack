@@ -1,5 +1,5 @@
 import { mkdirSync } from "node:fs";
-import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -148,6 +148,50 @@ assessments:
     await rm(courseDir, { recursive: true, force: true });
   });
 
+  it("does not retain pre-merge errors when lessonkit.json fixes spa path", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-stale-"));
+    await cp(fixturePath("minimal-valid"), courseDir, { recursive: true });
+
+    await mkdir(join(courseDir, "dist", "good-spa"), { recursive: true });
+    await writeFile(
+      join(courseDir, "dist", "good-spa", "index.html"),
+      "<!doctype html><html><body>spa</body></html>",
+    );
+
+    await writeFile(
+      join(courseDir, "lessonkit.json"),
+      JSON.stringify({
+        lessons: [{ id: "ix_spa", type: "spa", path: "dist/good-spa" }],
+      }),
+    );
+
+    await writeFile(
+      join(courseDir, "course.yaml"),
+      `title: Minimal Valid Course
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+  - id: lab
+    type: html
+    path: interactions/lab
+  - id: ix_spa
+    type: spa
+    path: dist/missing-spa
+assessments:
+  - id: quiz
+    file: assessments/quiz.yaml
+`,
+    );
+
+    const result = await validateCourseWithInterchange(courseDir);
+    expect(result.valid).toBe(true);
+    expect(result.issues.filter((i) => i.severity === "error")).toHaveLength(0);
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
   it("validateCourseWithInterchange supports assessmentData injection", async () => {
     const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-inject-"));
     await cp(fixturePath("minimal-valid"), courseDir, { recursive: true });
@@ -226,6 +270,27 @@ lessons:
       fixturePath("minimal-valid"),
     );
     expect(result.valid).toBe(true);
+  });
+
+  it("rejects symlinked lessonkit.json", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "lxpack-ix-out-"));
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-symlink-"));
+    await writeFile(
+      join(outside, "lessonkit.json"),
+      JSON.stringify({ lessons: [] }),
+    );
+    await symlink(join(outside, "lessonkit.json"), join(courseDir, "lessonkit.json"));
+
+    const result = await loadLessonKitInterchange(courseDir);
+    expect(result.status).toBe("error");
+    if (result.status === "error") {
+      expect(result.issues[0]?.message).toMatch(
+        /Symlink not allowed|Path escapes course directory/,
+      );
+    }
+
+    await rm(courseDir, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
   });
 
   it("returns read error when lessonkit.json is not readable", async () => {

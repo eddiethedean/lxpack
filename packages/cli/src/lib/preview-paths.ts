@@ -11,6 +11,8 @@ const STATIC_BLOCKED_RELS = [
   "course.yaml",
   "lxpack.config.json",
   "lxpack.config.ts",
+  "lessonkit.json",
+  "lxpack.import.json",
 ] as const;
 
 /** Build case-insensitive blocked relative paths for preview static serving. */
@@ -127,6 +129,9 @@ export function isPreviewBlockedCourseRel(
     return true;
   }
   if (lower.startsWith(".lxpack/") || lower === ".lxpack") {
+    return true;
+  }
+  if (lower === "node_modules" || lower.startsWith("node_modules/")) {
     return true;
   }
   for (const segment of normalized.split("/")) {

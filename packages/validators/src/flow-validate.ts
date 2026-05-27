@@ -24,7 +24,7 @@ export function collectAssessmentIds(manifest: CourseManifest): Set<string> {
 export function collectInteractionIds(manifest: CourseManifest): Set<string> {
   const ids = new Set<string>();
   for (const lesson of manifest.lessons) {
-    if (lesson.type === "html") {
+    if (lesson.type === "html" || lesson.type === "spa") {
       ids.add(lesson.id);
     }
   }
@@ -173,7 +173,7 @@ export function validateFlow(
       if (!interactionIds.has(i)) {
         issues.push({
           path: `${path}.when`,
-          message: `Unknown interaction id in condition (expected html lesson): ${i}`,
+          message: `Unknown interaction id in condition (expected html or spa lesson): ${i}`,
           severity: "error",
         });
       }

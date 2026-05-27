@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateImsManifest, manifestIdentifier } from "./manifest.js";
+import { buildManifestFileList } from "./package.js";
 
 const baseManifest = {
   title: "Security Awareness",
@@ -20,6 +21,20 @@ describe("manifestIdentifier", () => {
     expect(manifestIdentifier({ ...baseManifest, title: "!!!" })).toMatch(
       /^course-[a-z0-9]+$/,
     );
+  });
+});
+
+describe("buildManifestFileList", () => {
+  it("includes lxpack-components.js when includeComponents is true", () => {
+    const files = buildManifestFileList([{ path: "lessons/intro.md" }], {
+      includeComponents: true,
+    });
+    expect(files).toContain("lxpack-components.js");
+  });
+
+  it("omits lxpack-components.js by default", () => {
+    const files = buildManifestFileList([{ path: "lessons/intro.md" }]);
+    expect(files).not.toContain("lxpack-components.js");
   });
 });
 

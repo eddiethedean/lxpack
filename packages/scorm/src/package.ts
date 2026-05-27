@@ -162,8 +162,13 @@ export async function collectFiles(
 
 export function buildManifestFileList(
   courseFiles: Array<{ path: string }>,
+  options?: { includeComponents?: boolean },
 ): string[] {
-  return ["index.html", "lxpack-runtime.js", ...courseFiles.map((f) => f.path)];
+  const base = ["index.html", "lxpack-runtime.js"];
+  if (options?.includeComponents) {
+    base.push("lxpack-components.js");
+  }
+  return [...base, ...courseFiles.map((f) => f.path)];
 }
 
 export interface PackageSink {
@@ -217,7 +222,9 @@ async function writeSingleScoArtifacts(
   }
 
   if (target === "scorm12") {
-    const manifestFiles = buildManifestFileList(courseFiles);
+    const manifestFiles = buildManifestFileList(courseFiles, {
+      includeComponents: Boolean(componentsBundleJs),
+    });
     await writeArtifact(
       "imsmanifest.xml",
       generateImsManifest(manifest, manifestFiles),

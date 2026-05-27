@@ -53,6 +53,8 @@ export interface ValidateCourseOptions {
   exportTarget?: "scorm12" | "scorm2004" | "standalone" | "xapi" | "cmi5";
   /** Optional injected assessments (adapter-driven; skips on-disk assessment file reads). */
   assessmentData?: unknown[];
+  /** When false, courses with component lessons fail validation. */
+  hasComponentsBundle?: boolean;
 }
 
 export async function loadManifest(
@@ -170,6 +172,16 @@ export async function validateCourseManifest(
   }
 
   issues.push(...(await validateUnexpectedCourseFiles(resolvedDir, manifest)));
+
+  const hasComponentLessons = manifest.lessons.some((l) => l.type === "component");
+  if (hasComponentLessons && options?.hasComponentsBundle === false) {
+    issues.push({
+      path: "lessons",
+      message:
+        "Component lessons require the @lxpack/components runtime bundle (reinstall LXPack or run `pnpm build` from source)",
+      severity: "error",
+    });
+  }
 
   const exportTarget = options?.exportTarget;
   const requireXapiForExport =

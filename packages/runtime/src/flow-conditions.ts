@@ -9,7 +9,9 @@ export function variableValuesEqual(
   type?: "string" | "number" | "boolean",
 ): boolean {
   if (type === "number") {
-    return Number(actual) === Number(expected);
+    const a = Number(actual);
+    const e = Number(expected);
+    return Number.isFinite(a) && Number.isFinite(e) && a === e;
   }
   if (type === "boolean") {
     if (typeof actual !== "boolean" || typeof expected !== "boolean") {

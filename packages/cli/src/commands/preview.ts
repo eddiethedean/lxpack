@@ -3,7 +3,10 @@ import fastifyStatic from "@fastify/static";
 import pc from "picocolors";
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
-import { validateCourse } from "@lxpack/validators";
+import {
+  validateCourseWithInterchange,
+  type ValidationResult,
+} from "@lxpack/validators";
 import {
   loadValidatedCourseContext,
   printValidationIssues,
@@ -138,7 +141,7 @@ export async function startPreview(
   options: { port?: number; host?: string; target?: string } = {},
 ): Promise<{
   app: FastifyInstance;
-  validation: Awaited<ReturnType<typeof validateCourse>>;
+  validation: ValidationResult;
 }> {
   let config;
   try {
@@ -155,12 +158,14 @@ export async function startPreview(
   const exportTarget = resolveExportTarget(
     options.target,
     config,
-  ) as ExportTarget | undefined;
+  ) as ExportTarget;
 
   const ctx = await loadValidatedCourseContext(courseDir, { exportTarget });
 
   if (!ctx) {
-    const validation = await validateCourse(courseDir, { exportTarget });
+    const validation = await validateCourseWithInterchange(courseDir, {
+      exportTarget,
+    });
     if (!validation.manifest) {
       console.error(pc.red("Cannot preview: course manifest is invalid"));
       for (const issue of validation.issues) {

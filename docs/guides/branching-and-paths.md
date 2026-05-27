@@ -43,7 +43,7 @@ flow:
 |-----------|---------|
 | `variable.eq: [name, value]` | Variable equals value |
 | `assessment.passed: <id>` | Learner passed that quiz |
-| `interaction.done: <lesson_id>` | HTML lesson tracked completion |
+| `interaction.done: <lesson_id>` | HTML or SPA lesson tracked completion |
 | `all: [...]` / `any: [...]` | Combine conditions |
 
 ## Full example
@@ -68,7 +68,7 @@ lxpack validate
 Errors often mean:
 
 - `goto` points to a lesson `id` that does not exist  
-- `interaction.done` references a non-HTML lesson  
+- `interaction.done` references a lesson that is not `html` or `spa`  
 - Flow graph has impossible cycles (validator reports cycles)
 
 ## Authoring tip

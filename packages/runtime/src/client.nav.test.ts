@@ -53,7 +53,41 @@ describe("client navigation fallbacks", () => {
     );
   });
 
-  it("uses index fallback when flow resolution returns null", async () => {
+  it("uses next index fallback when flow resolution returns null", async () => {
+    vi.spyOn(flow, "resolveNextActivityId").mockReturnValue(null);
+    vi.spyOn(flow, "resolvePreviousActivityId").mockReturnValue(null);
+
+    init();
+    const next = document.getElementById("lxpack-next") as HTMLButtonElement;
+    next.click();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="b"]')?.classList.contains("active"),
+      ).toBe(true),
+    );
+
+    const prev = document.getElementById("lxpack-prev") as HTMLButtonElement;
+    prev.click();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="b"]')?.classList.contains("active"),
+      ).toBe(true),
+    );
+  });
+
+  it("uses prev index fallback when course has no flow rules", async () => {
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "Linear",
+        version: "1.0.0",
+        lessons: [
+          { id: "a", type: "markdown", file: "lessons/a.md" },
+          { id: "b", type: "markdown", file: "lessons/b.md" },
+        ],
+      },
+      baseUrl: "/course",
+      mode: "preview",
+    };
     vi.spyOn(flow, "resolveNextActivityId").mockReturnValue(null);
     vi.spyOn(flow, "resolvePreviousActivityId").mockReturnValue(null);
 

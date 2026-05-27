@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { assertPackagableFile } from "./packagable-path.js";
 import {
   courseManifestSchema,
   type CourseManifest,
@@ -45,6 +46,22 @@ export async function loadLessonKitInterchange(
   for (const fileName of INTERCHANGE_CANDIDATES) {
     const p = join(courseDir, fileName);
     if (!existsSync(p)) continue;
+
+    const resolvedPath = resolve(courseDir, fileName);
+    const packCheck = assertPackagableFile(courseDir, resolvedPath, fileName);
+    if (!packCheck.ok) {
+      return {
+        status: "error",
+        fileName,
+        issues: [
+          {
+            path: fileName,
+            message: packCheck.message,
+            severity: "error",
+          },
+        ],
+      };
+    }
 
     let raw: string;
     try {
@@ -195,6 +212,6 @@ export async function validateCourseWithInterchange(
   const revalidated = await validateCourseManifest(courseDir, merged, options);
   return {
     ...revalidated,
-    issues: [...loaded.issues, ...revalidated.issues],
+    issues: revalidated.issues,
   };
 }

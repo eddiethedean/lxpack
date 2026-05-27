@@ -258,4 +258,17 @@ describe("shouldBlockPreviewCourseRequest", () => {
       true,
     );
   });
+
+  it("blocks interchange metadata and node_modules", async () => {
+    const course = await mkdtemp(join(tmpdir(), "lxpack-preview-meta-"));
+    expect(shouldBlockPreviewCourseRequest(course, "/course/lessonkit.json")).toBe(
+      true,
+    );
+    expect(
+      shouldBlockPreviewCourseRequest(course, "/course/lxpack.import.json"),
+    ).toBe(true);
+    expect(
+      shouldBlockPreviewCourseRequest(course, "/course/node_modules/pkg/index.js"),
+    ).toBe(true);
+  });
 });

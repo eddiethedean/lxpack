@@ -9,5 +9,5 @@ export function resolveExportTarget(
   if (cliTarget !== undefined) {
     return cliTarget as ExportTarget;
   }
-  return config?.exports?.defaultTarget;
+  return (config?.exports?.defaultTarget ?? "scorm12") as ExportTarget;
 }

@@ -13,4 +13,10 @@ describe("variableValuesEqual", () => {
   it("uses strict equality when type is omitted", () => {
     expect(variableValuesEqual(1, "1")).toBe(false);
   });
+
+  it("rejects non-finite numbers", () => {
+    expect(variableValuesEqual(undefined, undefined, "number")).toBe(false);
+    expect(variableValuesEqual("x", "y", "number")).toBe(false);
+    expect(variableValuesEqual(Number.NaN, Number.NaN, "number")).toBe(false);
+  });
 });

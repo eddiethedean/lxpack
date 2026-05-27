@@ -199,7 +199,7 @@ export class LxpackRuntime implements AssessmentHost {
    */
   markInteractionLessonDone(lessonId: string): void {
     const lesson = this.manifest.lessons.find((l) => l.id === lessonId);
-    if (!lesson || lesson.type !== "html") return;
+    if (!lesson || (lesson.type !== "html" && lesson.type !== "spa")) return;
     this.state.progress.suspendData[`interaction_${lessonId}`] = true;
     this.persist();
   }

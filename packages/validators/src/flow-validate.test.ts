@@ -78,7 +78,7 @@ describe("validateFlow", () => {
       flow: [{ when: { interaction: { done: "quiz" } }, goto: "lab" }],
     });
     expect(
-      issues.some((i) => i.message.includes("expected html lesson")),
+      issues.some((i) => i.message.includes("expected html or spa lesson")),
     ).toBe(true);
   });
 

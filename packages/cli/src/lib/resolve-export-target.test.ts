@@ -18,7 +18,7 @@ describe("resolveExportTarget", () => {
     ).toBe("scorm2004");
   });
 
-  it("returns undefined when neither is set", () => {
-    expect(resolveExportTarget(undefined, null)).toBeUndefined();
+  it("defaults to scorm12 when neither CLI target nor config default is set", () => {
+    expect(resolveExportTarget(undefined, null)).toBe("scorm12");
   });
 });

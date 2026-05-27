@@ -40,8 +40,10 @@ export type ValidateCourseResult =
 export async function validateCourse(
   options: ValidateCourseOptions,
 ): Promise<ValidateCourseResult> {
+  const componentsBundleJs = await readComponentsBundle();
   const validation = await validateCourseWithInterchange(options.courseDir, {
     exportTarget: options.target,
+    hasComponentsBundle: componentsBundleJs !== undefined,
   });
 
   const ok = validation.valid && Boolean(validation.manifest);
@@ -89,9 +91,15 @@ export type BuildCourseResult =
 export async function buildCourse(
   options: BuildCourseOptions,
 ): Promise<BuildCourseResult> {
+  const [{ clientJs, css }, componentsBundleJs] = await Promise.all([
+    readRuntimeBundle(),
+    readComponentsBundle(),
+  ]);
+
   const validation = await validateCourseWithInterchange(options.courseDir, {
     exportTarget: options.target,
     assessmentData: options.assessments,
+    hasComponentsBundle: componentsBundleJs !== undefined,
   });
 
   if (!validation.valid || !validation.manifest) {
@@ -123,11 +131,6 @@ export async function buildCourse(
   const assessmentBundle =
     assessmentInjection?.bundle ??
     buildRuntimeAssessmentBundleFromParsed(validation.parsedAssessments ?? new Map());
-
-  const [{ clientJs, css }, componentsBundleJs] = await Promise.all([
-    readRuntimeBundle(),
-    readComponentsBundle(),
-  ]);
 
   const manifest = validation.manifest;
   const slug = courseSlug(manifest);
