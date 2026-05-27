@@ -1,0 +1,15 @@
+title: LessonKit SPA Demo
+version: 1.0.0
+tracking:
+  completion:
+    threshold: 0.9
+lessons:
+  - id: welcome
+    title: Welcome
+    type: markdown
+    file: lessons/welcome.md
+  - id: phishing_101
+    title: Phishing Awareness (SPA)
+    type: spa
+    path: dist/lessons/phishing-101
+

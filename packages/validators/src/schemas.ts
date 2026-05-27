@@ -67,6 +67,21 @@ export const htmlLessonSchema = z
   })
   .strict();
 
+export const spaLessonSchema = z
+  .object({
+    id: activityIdSchema,
+    type: z.literal("spa"),
+    path: z.string().min(1),
+    title: z.string().optional(),
+    runtime: z
+      .object({
+        mount: z.string().min(1).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
 export const componentLessonSchema = z
   .object({
     id: activityIdSchema,
@@ -80,6 +95,7 @@ export const componentLessonSchema = z
 export const lessonSchema = z.discriminatedUnion("type", [
   markdownLessonSchema,
   htmlLessonSchema,
+  spaLessonSchema,
   componentLessonSchema,
 ]);
 

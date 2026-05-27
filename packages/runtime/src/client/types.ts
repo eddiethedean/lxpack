@@ -9,6 +9,18 @@ export type NavItem =
 declare global {
   interface Window {
     lxpack?: ReturnType<LxpackRuntime["getAPI"]>;
+    lxpackBridge?: {
+      v1: {
+        completeLesson: (lessonId: string) => void;
+        submitAssessment: (options: {
+          id: string;
+          score: number;
+          passingScore?: number;
+          passed?: boolean;
+        }) => void;
+        track: (event: unknown) => void;
+      };
+    };
     __LXPACK_CONFIG__?: RuntimeConfig;
     __LXPACK_COMPONENTS__?: {
       mount: (

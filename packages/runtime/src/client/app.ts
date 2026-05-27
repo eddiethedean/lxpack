@@ -29,6 +29,29 @@ export function init(): void {
 
   const lxpackApi = runtime.getAPI();
   window.lxpack = lxpackApi;
+
+  window.lxpackBridge = {
+    v1: {
+      completeLesson: (lessonId: string) => {
+        runtime.completeLesson(lessonId);
+      },
+      submitAssessment: (options: {
+        id: string;
+        score: number;
+        passingScore?: number;
+        passed?: boolean;
+      }) => {
+        const passingScore =
+          typeof options.passingScore === "number" ? options.passingScore : 0.7;
+        runtime.submitAssessment(options.id, options.score, passingScore);
+      },
+      track: (event: unknown) => {
+        // Delegate to the existing public API. Runtime enforces event shapes downstream.
+        lxpackApi.track(event as never);
+      },
+    },
+  };
+
   renderShell(config.manifest);
 
   const navEl = document.querySelector(".lxpack-nav") as HTMLElement;

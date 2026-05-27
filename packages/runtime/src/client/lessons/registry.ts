@@ -1,6 +1,7 @@
 import type { Lesson } from "@lxpack/validators";
 import { renderMarkdown } from "./markdown.js";
 import { renderHtmlInteraction } from "./html.js";
+import { renderSpaLesson } from "./spa.js";
 import { renderComponentLesson } from "./component.js";
 
 export interface LessonRenderContext {
@@ -29,6 +30,14 @@ export const lessonRenderers: Record<Lesson["type"], LessonRenderer> = {
       return;
     }
     renderHtmlInteraction(ctx.contentEl, ctx.baseUrl, l.path);
+  },
+  spa: async (lesson, ctx) => {
+    const l = lesson as Extract<Lesson, { type: "spa" }>;
+    if (!l.path) {
+      ctx.contentEl.innerHTML = `<p class="lxpack-error">Invalid lesson configuration</p>`;
+      return;
+    }
+    renderSpaLesson(ctx.contentEl, ctx.baseUrl, l.path);
   },
   component: async (lesson, ctx) => {
     const l = lesson as Extract<Lesson, { type: "component" }>;
