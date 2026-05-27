@@ -6,5 +6,5 @@ lessons:
     file: lessons/intro.md
   - id: spa_lesson
     type: spa
-    path: dist/lessons/spa-lesson
+    path: spa/lessons/spa-lesson
 

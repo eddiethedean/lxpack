@@ -11,5 +11,5 @@ lessons:
   - id: phishing_101
     title: Phishing Awareness (SPA)
     type: spa
-    path: dist/lessons/phishing-101
+    path: spa/lessons/phishing-101
 

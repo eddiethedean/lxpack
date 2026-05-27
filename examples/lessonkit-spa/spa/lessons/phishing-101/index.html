@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phishing 101</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        padding: 24px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      button {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>SPA lesson (example)</h2>
+    <p>
+      This is a placeholder for a Vite-built LessonKit lesson. It demonstrates calling the parent bridge.
+    </p>
+
+    <div class="row">
+      <button id="complete">Mark complete</button>
+      <button id="assessment">Submit assessment (pass)</button>
+      <button id="track">Track interaction</button>
+    </div>
+
+    <script>
+      const bridge = window.parent?.lxpackBridge?.v1;
+      const fallback = window.parent?.lxpack;
+
+      document.getElementById("complete")?.addEventListener("click", () => {
+        bridge?.completeLesson?.("phishing_101") ?? fallback?.completeLesson?.("phishing_101");
+      });
+
+      document.getElementById("assessment")?.addEventListener("click", () => {
+        bridge?.submitAssessment?.({ id: "final_quiz", score: 1, passingScore: 0.7, passed: true }) ??
+          fallback?.submitAssessment?.("final_quiz", 1, 0.7);
+      });
+
+      document.getElementById("track")?.addEventListener("click", () => {
+        bridge?.track?.({ type: "interaction", id: "clicked", data: { ok: true } }) ??
+          fallback?.track?.({ type: "interaction", id: "clicked", data: { ok: true } });
+      });
+    </script>
+  </body>
+</html>
+
