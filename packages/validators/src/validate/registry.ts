@@ -10,7 +10,7 @@ export type LessonValidator = (
   lesson: Lesson,
 ) => ValidationIssue[] | Promise<ValidationIssue[]>;
 
-export const lessonValidators: Record<Lesson["type"], LessonValidator> = {
+export const lessonValidators: Record<string, LessonValidator> = {
   markdown: (courseDir, lesson) =>
     validateMarkdownLesson(courseDir, lesson as Extract<Lesson, { type: "markdown" }>),
   html: (courseDir, lesson) =>
@@ -20,3 +20,14 @@ export const lessonValidators: Record<Lesson["type"], LessonValidator> = {
   component: (courseDir, lesson) =>
     validateComponentLesson(courseDir, lesson as Extract<Lesson, { type: "component" }>),
 };
+
+export function registerLessonValidator(
+  type: string,
+  validator: LessonValidator,
+): void {
+  lessonValidators[type] = validator;
+}
+
+export function getLessonValidator(type: string): LessonValidator | undefined {
+  return lessonValidators[type];
+}

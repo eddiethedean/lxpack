@@ -14,7 +14,7 @@ import {
   type Assessment,
   type CourseManifest,
 } from "./schemas.js";
-import { lessonValidators } from "./validate/registry.js";
+import { getLessonValidator } from "./validate/registry.js";
 import { validateActivityIds } from "./validate/ids.js";
 
 import { assertResolvedPathContained } from "./course-paths.js";
@@ -134,7 +134,16 @@ export async function validateCourseManifest(
   const resolvedDir = resolve(courseDir);
 
   for (const lesson of manifest.lessons) {
-    const lessonIssues = await lessonValidators[lesson.type](
+    const validator = getLessonValidator(lesson.type);
+    if (!validator) {
+      issues.push({
+        path: `lessons.${lesson.id}.type`,
+        message: `Unknown lesson type: ${lesson.type}`,
+        severity: "error",
+      });
+      continue;
+    }
+    const lessonIssues = await validator(
       resolvedDir,
       lesson,
     );

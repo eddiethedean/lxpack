@@ -3,6 +3,7 @@ import { renderMarkdown } from "./markdown.js";
 import { renderHtmlInteraction } from "./html.js";
 import { renderSpaLesson } from "./spa.js";
 import { renderComponentLesson } from "./component.js";
+import type { BrowserLessonRenderer } from "../types.js";
 
 export interface LessonRenderContext {
   contentEl: HTMLElement;
@@ -14,7 +15,7 @@ export type LessonRenderer = (
   ctx: LessonRenderContext,
 ) => Promise<void>;
 
-export const lessonRenderers: Record<Lesson["type"], LessonRenderer> = {
+const defaultLessonRenderers: Record<string, LessonRenderer> = {
   markdown: async (lesson, ctx) => {
     const l = lesson as Extract<Lesson, { type: "markdown" }>;
     if (!l.file) {
@@ -49,3 +50,11 @@ export const lessonRenderers: Record<Lesson["type"], LessonRenderer> = {
     );
   },
 };
+
+export function getLessonRenderer(type: string): LessonRenderer | undefined {
+  const plugin = window.__LXPACK_LESSON_RENDERERS__?.[type];
+  if (plugin) {
+    return plugin as BrowserLessonRenderer as LessonRenderer;
+  }
+  return defaultLessonRenderers[type];
+}

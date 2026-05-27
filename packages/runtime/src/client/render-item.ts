@@ -2,7 +2,7 @@ import type { RuntimeConfig } from "../types.js";
 import type { AssessmentHost } from "../quiz/host.js";
 import { renderAssessment } from "../quiz/index.js";
 import { loadAssessment } from "./assessment-loader.js";
-import { lessonRenderers } from "./lessons/registry.js";
+import { getLessonRenderer } from "./lessons/registry.js";
 import type { NavItem } from "./types.js";
 
 export async function renderItem(
@@ -14,7 +14,11 @@ export async function renderItem(
   onSubmitted: () => void,
 ): Promise<void> {
   if (item.kind === "lesson") {
-    const renderer = lessonRenderers[item.lesson.type];
+    const renderer = getLessonRenderer(item.lesson.type);
+    if (!renderer) {
+      contentEl.innerHTML = `<p class="lxpack-error">No renderer registered for lesson type: ${item.lesson.type}</p>`;
+      return;
+    }
     await renderer(item.lesson, { contentEl, baseUrl });
     return;
   }
