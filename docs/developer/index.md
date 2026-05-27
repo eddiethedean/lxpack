@@ -63,7 +63,7 @@ Package READMEs live under `packages/*/README.md` in the repository.
 
 ## Publishing v0.3.6
 
-Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](../../CHANGELOG.md) accurate for `[0.3.6]`.
+Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) accurate for `[0.3.6]`.
 
 ```bash
 # From a clean main at 0.3.6 in all packages/*/package.json
@@ -76,7 +76,7 @@ git tag v0.3.6
 git push origin v0.3.6
 ```
 
-Pushing tag `v0.3.6` runs [.github/workflows/release.yml](../../.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
+Pushing tag `v0.3.6` runs [.github/workflows/release.yml](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
 
 ## User-facing docs
 
