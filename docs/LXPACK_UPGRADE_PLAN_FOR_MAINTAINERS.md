@@ -301,7 +301,7 @@ lxpack preview --lessonkit ./lessonkit.json --spa dist/
   - **Recipe A — Single SCO SPA** (default LessonKit): one `type: spa` lesson; completion via bridge.
   - **Recipe B — Multi SCO**: one SPA folder per `lessonId`; flow optional; map `lesson_completed` per SCO.
 - Validators emit **warnings** when interchange lessons omit `path` or id collisions would break SCORM 2004.
-- Optional: `buildCourse({ scormLayout: "single-sco-spa" | "multi-sco-spa" })` expands interchange automatically.
+- SCORM SPA layout is determined by `build`/`packageLessonkit` `target` (SCORM 1.2 = single SCO; SCORM 2004 = multi-SCO) and lesson count; use `inferScormSpaLayout()` from `@lxpack/validators` for docs/warnings only.
 
 **Open question for maintainers:** Should multi-lesson React apps *ever* share one SPA build (hash router), or should LXPack enforce per-lesson builds for true multi-SCO?
 

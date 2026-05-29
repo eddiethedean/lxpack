@@ -3,6 +3,8 @@ dist/
 *.tsbuildinfo
 .DS_Store
 .lxpack/
+pkg-out/
+**/pkg-out/
 *.zip
 coverage/
 .env

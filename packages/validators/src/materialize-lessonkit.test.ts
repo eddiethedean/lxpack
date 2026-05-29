@@ -1,7 +1,7 @@
 import { existsSync, symlinkSync } from "node:fs";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   materializeLessonkitProject,
@@ -146,8 +146,11 @@ describe("materializeLessonkitProject", () => {
   it("rejects SPA dest path outside course root", async () => {
     const spaSource = await mkdtemp(join(tmpdir(), "lxpack-spa-bad-"));
     await writeFile(join(spaSource, "index.html"), "<html></html>");
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-course-"));
+    const escapePath = resolve(courseDir, "..", "..", "escape");
 
     const result = await materializeLessonkitProject({
+      courseDir,
       interchange: {
         ...interchange,
         lessons: [{ id: "spa1", type: "spa", path: "../../../escape" }],
@@ -156,11 +159,10 @@ describe("materializeLessonkitProject", () => {
     });
 
     expect(result.ok).toBe(false);
+    expect(existsSync(escapePath)).toBe(false);
 
     await rm(spaSource, { recursive: true, force: true });
-    if (result.ok) {
-      await rm(result.courseDir, { recursive: true, force: true });
-    }
+    await rm(courseDir, { recursive: true, force: true });
   });
 
   it("rejects symlink inside SPA payload", async () => {

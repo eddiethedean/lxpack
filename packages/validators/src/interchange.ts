@@ -115,8 +115,12 @@ export function mergeInterchangeIntoManifest(
   base: CourseManifest,
   interchange: LessonkitInterchangeV1,
 ): CourseManifest {
+  const resolvedTitle =
+    interchange.course?.title ?? interchange.course?.id;
+
   const merged: CourseManifest = {
     ...base,
+    ...(resolvedTitle ? { title: resolvedTitle } : {}),
     tracking: interchange.tracking
       ? {
           ...(base.tracking ?? {}),
@@ -289,7 +293,16 @@ export async function validateCourseWithInterchange(
       return { valid: false, issues: parseIssues };
     }
 
-    return validateCourseManifest(courseDir, manifest, options);
+    const validated = await validateCourseManifest(courseDir, manifest, options);
+    const interchangeData = options?.interchange ?? interchange?.data;
+    if (interchangeData) {
+      return withInterchangeWarnings(
+        validated,
+        interchangeData,
+        interchange?.fileName ?? "lessonkit.json",
+      );
+    }
+    return validated;
   }
 
   if (!interchange) {

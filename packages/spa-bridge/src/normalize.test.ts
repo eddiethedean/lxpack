@@ -14,6 +14,10 @@ describe("normalizeScore", () => {
     expect(normalizeScore({ score: 8, maxScore: 10 })).toBe(0.8);
   });
 
+  it("treats already-scaled score as 0–1 when maxScore is set", () => {
+    expect(normalizeScore({ score: 0.9, maxScore: 10 })).toBe(0.9);
+  });
+
   it("treats 0–100 as percent when > 1", () => {
     expect(normalizeScore({ score: 80 })).toBe(0.8);
   });
@@ -31,6 +35,12 @@ describe("normalizePassingThreshold", () => {
   it("scales with maxScore", () => {
     expect(
       normalizePassingThreshold({ passingScore: 7, maxScore: 10 }),
+    ).toBe(0.7);
+  });
+
+  it("treats already-scaled passing score when maxScore is set", () => {
+    expect(
+      normalizePassingThreshold({ passingScore: 0.7, maxScore: 10 }),
     ).toBe(0.7);
   });
 

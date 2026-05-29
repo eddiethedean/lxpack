@@ -75,6 +75,19 @@ describe("interchange", () => {
     await rm(courseDir, { recursive: true, force: true });
   });
 
+  it("mergeInterchangeIntoManifest updates course title from interchange", () => {
+    const merged = mergeInterchangeIntoManifest(
+      { ...baseManifest, title: "YAML Title" },
+      {
+        format: "lessonkit",
+        version: "1",
+        course: { title: "Interchange Title" },
+        lessons: [{ id: "spa_old", type: "spa", path: "dist/x" }],
+      },
+    );
+    expect(merged.title).toBe("Interchange Title");
+  });
+
   it("mergeInterchangeIntoManifest updates tracking, lessons, and paths", () => {
     const merged = mergeInterchangeIntoManifest(baseManifest, {
       format: "lessonkit",
@@ -317,6 +330,38 @@ lessons:
     if (result.status === "error") {
       expect(result.issues[0]?.message).toContain("Failed to read");
     }
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
+  it("validateCourseWithInterchange attaches interchange warnings with assessmentData + interchange option", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-warn-"));
+    await mkdir(join(courseDir, "dist", "shared"), { recursive: true });
+    await writeFile(
+      join(courseDir, "dist", "shared", "index.html"),
+      "<!doctype html><html><body></body></html>",
+    );
+
+    const interchange = {
+      format: "lessonkit" as const,
+      version: "1" as const,
+      course: { title: "Warn Course" },
+      lessons: [
+        { id: "a", type: "spa" as const, path: "dist/shared" },
+        { id: "b", type: "spa" as const, path: "dist/shared" },
+      ],
+      runtime: { themePreset: "lessonkit:unknown" },
+    };
+
+    const result = await validateCourseWithInterchange(courseDir, {
+      assessmentData: [],
+      interchange,
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.issues.filter((i) => i.severity === "warning").length).toBeGreaterThan(
+      0,
+    );
 
     await rm(courseDir, { recursive: true, force: true });
   });

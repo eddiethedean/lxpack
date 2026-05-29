@@ -27,6 +27,12 @@ describe("mapLessonkitTelemetryToLxpack", () => {
 });
 
 describe("mapLessonkitTelemetryToBridgeAction", () => {
+  it("maps course_completed to completeCourse", () => {
+    expect(
+      mapLessonkitTelemetryToBridgeAction({ name: "course_completed" }),
+    ).toEqual({ kind: "completeCourse" });
+  });
+
   it("maps lesson_completed to completeLesson", () => {
     expect(
       mapLessonkitTelemetryToBridgeAction({

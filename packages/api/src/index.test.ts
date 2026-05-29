@@ -174,6 +174,7 @@ describe("@lxpack/api", () => {
       dir: true,
       output: "pkg-out",
       outputBaseDir: ".lxpack",
+      debug: true,
     });
 
     expect(result.ok).toBe(true);

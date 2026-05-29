@@ -418,6 +418,35 @@ describe("buildCommand", () => {
     process.chdir(join(workDir, "course"));
   });
 
+  it("exits when spa-lesson id is unknown for lessonkit build", async () => {
+    const interchangePath = join(workDir, "lessonkit-unknown-spa.json");
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+
+    process.chdir(workDir);
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      buildCommand({
+        lessonkit: interchangePath,
+        spaLesson: ["unknown=/tmp/dist"],
+        target: "scorm12",
+      }),
+    ).rejects.toThrow("exit:1");
+    exit.mockRestore();
+  });
+
   it("exits when lessonkit interchange is invalid", async () => {
     const interchangePath = join(workDir, "bad-lessonkit.json");
     const { writeFile } = await import("node:fs/promises");

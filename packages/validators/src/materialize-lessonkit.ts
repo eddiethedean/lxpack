@@ -3,7 +3,9 @@ import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { stringify as stringifyYaml } from "yaml";
+import { resolveCoursePath } from "./course-paths.js";
 import { assertPackagableFile } from "./packagable-path.js";
+import { validateHtmlLessonPath } from "./validate/lesson-html.js";
 import {
   assessmentsFromInterchange,
   interchangeToManifest,
@@ -29,13 +31,20 @@ export type MaterializeLessonkitResult =
 
 async function copySpaPayload(
   sourceDir: string,
-  destDir: string,
   courseDir: string,
   relPath: string,
   lessonId: string,
 ): Promise<ValidationIssue | null> {
   const resolvedSource = resolve(sourceDir);
-  const resolvedDest = resolve(destDir);
+  const resolvedRel = resolveCoursePath(courseDir, relPath);
+  if (!resolvedRel.ok) {
+    return {
+      path: `lessons.${lessonId}.path`,
+      message: resolvedRel.message,
+      severity: "error",
+    };
+  }
+  const resolvedDest = resolvedRel.path;
 
   if (!existsSync(resolvedSource)) {
     return {
@@ -76,6 +85,15 @@ async function copySpaPayload(
     return {
       path: `spaDirs.${lessonId}`,
       message: "SPA source directory must contain index.html",
+      severity: "error",
+    };
+  }
+
+  const pathError = validateHtmlLessonPath(relPath);
+  if (pathError) {
+    return {
+      path: `lessons.${lessonId}.path`,
+      message: pathError,
       severity: "error",
     };
   }
@@ -164,10 +182,8 @@ export async function materializeLessonkitProject(
         continue;
       }
 
-      const dest = join(courseDir, relPath);
       const copyIssue = await copySpaPayload(
         source,
-        dest,
         courseDir,
         relPath,
         lesson.id,

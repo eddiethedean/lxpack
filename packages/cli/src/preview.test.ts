@@ -196,6 +196,72 @@ describe("startPreviewFromLessonkit", () => {
     await result.cleanup();
     await rm(workDir, { recursive: true, force: true });
   }, 60_000);
+
+  it("uses lxpack.config.json defaultTarget when --target is omitted", async () => {
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-preview-lk-xapi-"));
+    const spaDir = join(workDir, "spa");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+    const interchangePath = join(workDir, "lessonkit.json");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "Preview LK xAPI" },
+        lessons: [{ id: "spa1", type: "spa", path: "spa" }],
+        tracking: {
+          xapi: { activityIri: "https://example.com/courses/preview-lk" },
+        },
+      }),
+    );
+    await writeFile(
+      join(workDir, "lxpack.config.json"),
+      JSON.stringify({ exports: { defaultTarget: "xapi" } }),
+    );
+    process.chdir(workDir);
+
+    const result = await previewCommands.startPreviewFromLessonkit({
+      lessonkitPath: interchangePath,
+      spaLesson: [{ id: "spa1", path: spaDir }],
+    });
+    expect(result.validation.valid).toBe(true);
+    await result.app.close();
+    await result.cleanup();
+    process.chdir(REPO_ROOT);
+    await rm(workDir, { recursive: true, force: true });
+  }, 60_000);
+
+  it("fails when defaultTarget is xapi but interchange lacks activityIri", async () => {
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-preview-lk-xapi-bad-"));
+    const spaDir = join(workDir, "spa");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+    const interchangePath = join(workDir, "lessonkit.json");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        lessons: [{ id: "spa1", type: "spa", path: "spa" }],
+      }),
+    );
+    await writeFile(
+      join(workDir, "lxpack.config.json"),
+      JSON.stringify({ exports: { defaultTarget: "xapi" } }),
+    );
+    process.chdir(workDir);
+
+    await expect(
+      previewCommands.startPreviewFromLessonkit({
+        lessonkitPath: interchangePath,
+        spaLesson: [{ id: "spa1", path: spaDir }],
+      }),
+    ).rejects.toThrow(/validation failed/i);
+
+    process.chdir(REPO_ROOT);
+    await rm(workDir, { recursive: true, force: true });
+  }, 60_000);
 });
 
 describe("createPreviewServer", () => {

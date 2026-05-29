@@ -16,6 +16,7 @@ import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
   parseSpaLessonOption,
+  validateSpaDirsForInterchange,
 } from "../lib/lessonkit-build.js";
 import {
   loadValidatedCourseContext,
@@ -169,6 +170,10 @@ export async function startPreviewFromLessonkit(options: {
     options.spaLesson,
     options.spaDist,
   );
+  const spaDirError = validateSpaDirsForInterchange(loaded.data, spaDirs);
+  if (spaDirError) {
+    throw new Error(spaDirError);
+  }
 
   const materialized = await materializeLessonkitProject({
     interchange: loaded.data,
@@ -188,11 +193,21 @@ export async function startPreviewFromLessonkit(options: {
     await rm(courseDir, { recursive: true, force: true }).catch(() => {});
   };
 
-  const exportTarget = options.target as ExportTarget | undefined;
+  let config = null;
+  try {
+    config = await loadLxpackConfig(process.cwd());
+  } catch {
+    /* optional lxpack.config.json */
+  }
+  const exportTarget = resolveExportTarget(
+    options.target,
+    config,
+  ) as ExportTarget;
   const assessments = resolvePackageAssessments(loaded.data, loaded.data.assessments);
   const validation = await validateCourseWithInterchange(courseDir, {
     exportTarget,
     assessmentData: assessments,
+    interchange: loaded.data,
   });
 
   if (!validation.valid || !validation.manifest) {

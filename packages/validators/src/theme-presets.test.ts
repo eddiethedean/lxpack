@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   resolveRuntimeFromInterchange,
   warnThemePresetCssOverlap,
+  warnUnknownThemePreset,
 } from "./theme-presets.js";
 
 describe("resolveRuntimeFromInterchange", () => {
@@ -18,6 +19,14 @@ describe("resolveRuntimeFromInterchange", () => {
       cssVariables: { "--lk-color-primary": "#000" },
     });
     expect(resolved?.cssVariables?.["--lk-color-primary"]).toBe("#000");
+  });
+});
+
+describe("warnUnknownThemePreset", () => {
+  it("warns on unrecognized preset names", () => {
+    expect(
+      warnUnknownThemePreset({ themePreset: "lessonkit:unknown" }),
+    ).toContain("Unknown runtime.themePreset");
   });
 });
 

@@ -6,7 +6,6 @@ import {
   type ValidationIssue,
 } from "@lxpack/validators";
 import type { ExportTarget } from "@lxpack/scorm";
-import type { ScormSpaLayout } from "@lxpack/validators";
 import { buildCourse, type BuildCourseResult } from "./build-course.js";
 
 export interface PackageLessonkitOptions {
@@ -19,14 +18,14 @@ export interface PackageLessonkitOptions {
   dir?: boolean;
   courseDir?: string;
   outputBaseDir?: string;
+  /** Resolve relative output paths against this directory (defaults to process.cwd()). */
+  outputAnchorDir?: string;
   writeAuthoringFiles?: boolean;
   debug?: boolean;
-  /** SCORM SPA layout hint (inferred from lesson count when omitted). */
-  scormLayout?: ScormSpaLayout;
 }
 
 export type PackageLessonkitResult =
-  | (Extract<BuildCourseResult, { ok: true }> & { courseDir: string })
+  | (Extract<BuildCourseResult, { ok: true }> & { courseDir?: string })
   | {
       ok: false;
       target: ExportTarget;
@@ -55,6 +54,7 @@ export async function packageLessonkit(
   }
 
   const courseDir = materialized.courseDir;
+  const keepStaging = Boolean(options.debug || options.courseDir);
   const assessments = resolvePackageAssessments(
     options.interchange,
     options.assessments,
@@ -67,30 +67,29 @@ export async function packageLessonkit(
       output: options.output,
       dir: options.dir,
       outputBaseDir: options.outputBaseDir,
+      outputAnchorDir: options.outputAnchorDir ?? process.cwd(),
       assessments,
+      interchange: options.interchange,
     });
 
     if (!built.ok) {
-      if (!options.debug && !options.courseDir) {
-        await rm(courseDir, { recursive: true, force: true }).catch(() => {});
-      }
       return {
         ok: false,
         target: options.target,
-        courseDir: options.debug || options.courseDir ? courseDir : undefined,
+        courseDir: keepStaging ? courseDir : undefined,
         issues: built.issues,
       };
     }
 
-    return { ...built, courseDir };
+    return {
+      ...built,
+      courseDir: keepStaging ? courseDir : undefined,
+    };
   } catch (err) {
-    if (!options.debug && !options.courseDir) {
-      await rm(courseDir, { recursive: true, force: true }).catch(() => {});
-    }
     return {
       ok: false,
       target: options.target,
-      courseDir: options.debug || options.courseDir ? courseDir : undefined,
+      courseDir: keepStaging ? courseDir : undefined,
       issues: [
         {
           path: "packageLessonkit",
@@ -99,5 +98,9 @@ export async function packageLessonkit(
         },
       ],
     };
+  } finally {
+    if (!keepStaging) {
+      await rm(courseDir, { recursive: true, force: true }).catch(() => {});
+    }
   }
 }

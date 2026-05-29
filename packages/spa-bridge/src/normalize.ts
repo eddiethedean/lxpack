@@ -6,7 +6,10 @@ export function normalizeScore(raw: {
   const { score, maxScore } = raw;
   if (!Number.isFinite(score)) return null;
   if (typeof maxScore === "number" && maxScore > 0) {
-    return Math.min(1, Math.max(0, score / maxScore));
+    if (score > 1) {
+      return Math.min(1, Math.max(0, score / maxScore));
+    }
+    return Math.min(1, Math.max(0, score));
   }
   if (score > 1 && score <= 100) {
     return Math.min(1, Math.max(0, score / 100));
@@ -26,7 +29,10 @@ export function normalizePassingThreshold(raw: {
     return DEFAULT_BRIDGE_PASSING_SCORE;
   }
   if (typeof maxScore === "number" && maxScore > 0) {
-    return Math.min(1, Math.max(0, passingScore / maxScore));
+    if (passingScore > 1) {
+      return Math.min(1, Math.max(0, passingScore / maxScore));
+    }
+    return Math.min(1, Math.max(0, passingScore));
   }
   if (passingScore > 1 && passingScore <= 100) {
     return Math.min(1, Math.max(0, passingScore / 100));

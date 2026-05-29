@@ -212,11 +212,41 @@ export class LxpackRuntime implements AssessmentHost {
   }
 
   completeCourse(): void {
-    for (const lesson of this.manifest.lessons) {
+    const scope = this.completionScope;
+    const lessons =
+      scope?.kind === "lesson"
+        ? this.manifest.lessons.filter((l) => l.id === scope.id)
+        : scope?.kind === "assessment"
+          ? []
+          : this.manifest.lessons;
+
+    const assessments =
+      scope?.kind === "assessment"
+        ? (this.manifest.assessments ?? []).filter((a) => a.id === scope.id)
+        : scope
+          ? []
+          : (this.manifest.assessments ?? []);
+
+    for (const lesson of lessons) {
       if (!this.state.isLessonComplete(lesson.id)) {
-        this.completeLesson(lesson.id);
+        this.state.completeLesson(lesson.id);
+        this.analytics.onLessonCompleted(lesson.id);
+      }
+      if (lesson.type === "html" || lesson.type === "spa") {
+        this.state.progress.suspendData[`interaction_${lesson.id}`] = true;
       }
     }
+
+    for (const ref of assessments) {
+      if (!this.state.isAssessmentPassed(ref.id)) {
+        const passing = this.state.getAssessmentPassingScoreForTrack(ref.id);
+        this.state.applyAssessmentResult(ref.id, passing, passing);
+        this.analytics.onAssessmentSubmitted(ref.id, passing, true);
+      }
+    }
+
+    this.updateCompletion();
+    this.persist();
   }
 
   setCurrentLesson(lessonId: string): void {

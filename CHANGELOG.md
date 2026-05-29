@@ -12,18 +12,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **`@lxpack/spa-bridge`** — typed child SDK (`getLxpackBridge`), score normalization, `createLxpackBridgeHost` for the runtime
-- **`@lxpack/tracking-schema`** — `mapLessonkitTelemetryToLxpack` / `mapLessonkitTelemetryToBridgeAction` for LessonKit event names
+- **`@lxpack/tracking-schema`** — `mapLessonkitTelemetryToLxpack` / `mapLessonkitTelemetryToBridgeAction` for LessonKit event names (including `course_completed` → `completeCourse`)
 - **Theme presets** — `runtime.themePreset` in interchange (`lessonkit:default`, `lessonkit:brand`) resolves to `cssVariables`
-- **CLI** — `lxpack preview --lessonkit` with `--spa-lesson` / `--spa-dist`
+- **CLI** — `lxpack preview --lessonkit` and `lxpack validate --lessonkit` with `--spa-lesson` / `--spa-dist`
 - **`@lxpack/conformance`** — shared export-target matrix runner for CI
 - **`@lxpack/lessonkit`** — meta-package re-exporting package, bridge, interchange, and telemetry APIs
 - **Docs** — [SPA bridge](https://lxpack.readthedocs.io/en/latest/reference/spa-bridge/), [SCORM SPA recipes](https://lxpack.readthedocs.io/en/latest/guides/scorm-spa-recipes/), [API stability](https://lxpack.readthedocs.io/en/latest/developer/api-stability/)
 
 ### Changed
 
-- Runtime bridge host uses `@lxpack/spa-bridge`; `completeCourse()` added to `lxpackBridge.v1`
+- Runtime bridge host uses `@lxpack/spa-bridge`; `completeCourse()` on `lxpackBridge.v1` marks in-scope lessons, passes assessments, and sets html/spa interaction suspend keys
 - Interchange `tracking.xapi` supported in `lessonkit.json` v1
 - SPA validators warn when `index.html` omits `lxpackBridge` references
+- **`packageLessonkit`:** drops temp staging after successful build unless `debug` or explicit `courseDir`; resolves output paths against project cwd via `outputAnchorDir`
+
+### Fixed
+
+- **Runtime / SPA bridge:** bridge `track` uses the same wrapper as `window.lxpack` (flow + interaction completion); bridge completions refresh nav/progress; `completeCourse()` respects SCORM 2004 per-SCO launch scope
+- **SPA bridge:** score normalization when `maxScore` is set but values are already 0–1; non-finite scores rejected; optional `passed` honored on `submitAssessment`
+- **LessonKit:** validate SPA destination paths before copy (path escape); interchange warnings on build/preview/API when assessments are injected; preview `--lessonkit` respects `lxpack.config.json` default export target; merge `course.title` from interchange
+- **LessonKit schema:** reject invalid SPA paths, duplicate lesson ids, and `path` / `build.outputDir` conflicts at parse time; warn on unknown `themePreset`
+- **CLI:** reject unknown or missing `--spa-lesson` ids up front
+- **Preview:** guard async markdown renders against stale navigation
 
 ## [0.5.0] - 2026-05-29
 

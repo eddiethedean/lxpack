@@ -14,6 +14,7 @@ import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
   parseSpaLessonOption,
+  validateSpaDirsForInterchange,
 } from "../lib/lessonkit-build.js";
 
 export async function buildCommand(options: {
@@ -64,6 +65,11 @@ export async function buildCommand(options: {
         spaLessons,
         options.spaDist,
       );
+      const spaDirError = validateSpaDirsForInterchange(loaded.data, spaDirs);
+      if (spaDirError) {
+        console.error(pc.red(`Cannot build: ${spaDirError}`));
+        process.exit(1);
+      }
 
       const result = await packageLessonkit({
         interchange: loaded.data,
@@ -88,7 +94,9 @@ export async function buildCommand(options: {
         console.log(`  Output: ${result.outputPath}`);
       }
       console.log(`  Files: ${result.fileCount}`);
-      console.log(`  Staging: ${result.courseDir}`);
+      if (result.courseDir) {
+        console.log(`  Staging: ${result.courseDir}`);
+      }
       return;
     }
 

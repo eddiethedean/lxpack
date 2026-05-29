@@ -8,6 +8,8 @@ import type { BrowserLessonRenderer } from "../types.js";
 export interface LessonRenderContext {
   contentEl: HTMLElement;
   baseUrl: string;
+  /** When true, abort DOM updates (e.g. user navigated away during async load). */
+  isStale?: () => boolean;
 }
 
 export type LessonRenderer = (
@@ -22,7 +24,7 @@ const defaultLessonRenderers: Record<string, LessonRenderer> = {
       ctx.contentEl.innerHTML = `<p class="lxpack-error">Invalid lesson configuration</p>`;
       return;
     }
-    await renderMarkdown(ctx.contentEl, ctx.baseUrl, l.file);
+    await renderMarkdown(ctx.contentEl, ctx.baseUrl, l.file, ctx.isStale);
   },
   html: async (lesson, ctx) => {
     const l = lesson as Extract<Lesson, { type: "html" }>;

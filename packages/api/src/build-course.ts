@@ -5,6 +5,7 @@ import {
   buildRuntimeAssessmentBundleFromParsed,
   buildRuntimeAssessmentBundleFromData,
   type CourseManifest,
+  type LessonkitInterchangeV1,
   type ValidationIssue,
 } from "@lxpack/validators";
 import {
@@ -23,8 +24,11 @@ export interface BuildCourseOptions {
   output?: string;
   dir?: boolean;
   outputBaseDir?: string;
+  /** Directory used to resolve relative output paths (defaults to courseDir). */
+  outputAnchorDir?: string;
   assessments?: unknown[];
-  scormLayout?: import("@lxpack/validators").ScormSpaLayout;
+  /** In-memory interchange (restores lessonkit warnings when assessments are injected). */
+  interchange?: LessonkitInterchangeV1;
 }
 
 export type BuildCourseResult =
@@ -55,6 +59,7 @@ export async function buildCourse(
   const validation = await validateCourseWithInterchange(options.courseDir, {
     exportTarget: options.target,
     assessmentData: options.assessments,
+    interchange: options.interchange,
     hasComponentsBundle: componentsBundleJs !== undefined,
   });
 
@@ -90,8 +95,9 @@ export async function buildCourse(
 
   const manifest = validation.manifest;
   const slug = courseSlug(manifest);
+  const outputAnchor = options.outputAnchorDir ?? options.courseDir;
   const outputBase = options.outputBaseDir ?? ".lxpack";
-  const outputRoot = resolveBuildOutputPath(options.courseDir, outputBase);
+  const outputRoot = resolveBuildOutputPath(outputAnchor, outputBase);
   await mkdir(outputRoot, { recursive: true });
 
   const packageOptions = {
@@ -106,7 +112,7 @@ export async function buildCourse(
 
   if (options.dir) {
     const outputDir = options.output
-      ? resolveBuildOutputPath(options.courseDir, options.output)
+      ? resolveBuildOutputPath(outputAnchor, options.output)
       : join(outputRoot, options.target);
     const result =
       options.target === "scorm2004"
@@ -133,7 +139,7 @@ export async function buildCourse(
             ? `${slug}-cmi5.zip`
             : `${slug}-scorm12.zip`;
   const outputPath = options.output
-    ? resolveBuildOutputPath(options.courseDir, options.output)
+    ? resolveBuildOutputPath(outputAnchor, options.output)
     : join(outputRoot, defaultName);
 
   const result = await packageCourse({ ...packageOptions, outputPath });

@@ -1,8 +1,4 @@
-import {
-  DEFAULT_BRIDGE_PASSING_SCORE,
-  normalizePassingThreshold,
-  normalizeScore,
-} from "./normalize.js";
+import { normalizePassingThreshold, normalizeScore } from "./normalize.js";
 import type { LxpackBridgeRoot, LxpackBridgeV1 } from "./types.js";
 
 export interface BridgeHostRuntime {
@@ -23,17 +19,22 @@ export function createLxpackBridgeHost(
     completeLesson: (lessonId) => runtime.completeLesson(lessonId),
     completeCourse: () => runtime.completeCourse(),
     submitAssessment: (options) => {
-      const scaled =
-        normalizeScore({
-          score: options.score,
-          maxScore: options.maxScore,
-        }) ?? options.score;
-      const passing =
-        normalizePassingThreshold({
-          passingScore: options.passingScore,
-          maxScore: options.maxScore,
-        }) ?? DEFAULT_BRIDGE_PASSING_SCORE;
-      runtime.submitAssessment(options.id, scaled, passing);
+      const scaled = normalizeScore({
+        score: options.score,
+        maxScore: options.maxScore,
+      });
+      if (scaled === null) return;
+      const passing = normalizePassingThreshold({
+        passingScore: options.passingScore,
+        maxScore: options.maxScore,
+      });
+      let score = scaled;
+      if (options.passed === true) {
+        score = Math.max(scaled, passing);
+      } else if (options.passed === false) {
+        score = Math.min(scaled, Math.max(0, passing - 0.001));
+      }
+      runtime.submitAssessment(options.id, score, passing);
     },
     track: (event) => runtime.track(event),
   };

@@ -78,9 +78,29 @@ export function createCliProgram(): Command {
       "-t, --target <target>",
       "Export target for validation (scorm12, scorm2004, standalone, xapi, cmi5); xapi/cmi5 rules apply when selected or set as defaultTarget",
     )
-    .action(async (options: { target?: string }) => {
-      await validateCommand(options);
-    });
+    .option(
+      "--lessonkit <path>",
+      "Validate from lessonkit.json interchange (use with --spa-lesson or --spa-dist)",
+    )
+    .option(
+      "--spa-lesson <id=path>",
+      "SPA lesson id and absolute dist path (repeatable; used with --lessonkit)",
+      (value: string, previous: string[] = []) => [...previous, value],
+    )
+    .option(
+      "--spa-dist <path>",
+      "SPA dist folder when interchange has a single lesson",
+    )
+    .action(
+      async (options: {
+        target?: string;
+        lessonkit?: string;
+        spaLesson?: string[];
+        spaDist?: string;
+      }) => {
+        await validateCommand(options);
+      },
+    );
 
   program
     .command("build")

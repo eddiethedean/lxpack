@@ -10,7 +10,9 @@ import { formatIssuePath, type ValidationIssue } from "./validate.js";
 import {
   resolveRuntimeFromInterchange,
   warnThemePresetCssOverlap,
+  warnUnknownThemePreset,
 } from "./theme-presets.js";
+import { validateHtmlLessonPath } from "./validate/lesson-html.js";
 
 const interchangeSpaLessonSchema = z
   .object({
@@ -74,7 +76,46 @@ export const lessonkitInterchangeSchema = z
       .strict()
       .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    const seenIds = new Set<string>();
+    for (let i = 0; i < data.lessons.length; i++) {
+      const lesson = data.lessons[i]!;
+      if (seenIds.has(lesson.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate lesson id "${lesson.id}"`,
+          path: ["lessons", i, "id"],
+        });
+      }
+      seenIds.add(lesson.id);
+
+      if (
+        lesson.path &&
+        lesson.build?.outputDir &&
+        lesson.path !== lesson.build.outputDir
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "path and build.outputDir both set but differ; use one authoritative path",
+          path: ["lessons", i, "path"],
+        });
+      }
+
+      const rel = lesson.path ?? lesson.build?.outputDir;
+      if (rel) {
+        const pathError = validateHtmlLessonPath(rel);
+        if (pathError) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: pathError,
+            path: ["lessons", i, "path"],
+          });
+        }
+      }
+    }
+  });
 
 export type LessonkitInterchangeV1 = z.infer<typeof lessonkitInterchangeSchema>;
 
@@ -179,6 +220,14 @@ export function collectLessonkitInterchangeWarnings(
     issues.push({
       path: pathLabel,
       message: themeWarn,
+      severity: "warning",
+    });
+  }
+  const unknownPreset = warnUnknownThemePreset(interchange.runtime);
+  if (unknownPreset) {
+    issues.push({
+      path: pathLabel,
+      message: unknownPreset,
       severity: "warning",
     });
   }

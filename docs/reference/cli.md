@@ -2,7 +2,7 @@
 
 --8<-- "copy-tip.md"
 
-**v0.5.0** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
+**v0.6.0** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
 
 ## Copy-paste commands
 
@@ -20,7 +20,7 @@ Commands discover the course by walking up from the current directory until they
 |---------|-------------|
 | `lxpack init <name>` | Create a new course (`-d, --dir`, `-f, --force`) |
 | `lxpack preview` | Local preview server (`-p, --port`, `-H, --host`, `-t, --target`, `--lessonkit`) |
-| `lxpack validate` | Validate structure (`-t, --target` for export rules) |
+| `lxpack validate` | Validate structure (`-t, --target`, `--lessonkit` for interchange) |
 | `lxpack build` | Package for LMS (`-t, --target`, `-o, --output`, `--dir`, `--lessonkit`) |
 
 ## `init`
@@ -58,6 +58,14 @@ lxpack preview --lessonkit ./lessonkit.json \
 lxpack validate
 lxpack validate --target scorm12
 lxpack validate --target xapi
+lxpack validate --lessonkit ./lessonkit.json --spa-lesson spa1=/abs/path/to/dist
+```
+
+LessonKit interchange validation (same SPA flags as `build --lessonkit`):
+
+```bash title="lxpack validate --lessonkit"
+lxpack validate --lessonkit ./lessonkit.json \
+  --spa-lesson spa1=/abs/path/to/dist
 ```
 
 | Target | Extra checks |

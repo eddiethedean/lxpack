@@ -127,4 +127,66 @@ describe("lessonkitInterchangeSchema", () => {
     expect(merged.runtime?.cssVariables?.["--lk-primary"]).toBe("#2563eb");
     expect(merged.lessons.some((l) => l.id === "spa1")).toBe(true);
   });
+
+  it("mergeInterchangeIntoManifest updates course title from interchange", () => {
+    const base: CourseManifest = {
+      title: "Old Title",
+      version: "1.0.0",
+      lessons: [{ id: "intro", type: "markdown", file: "lessons/intro.md" }],
+    };
+    const merged = mergeInterchangeIntoManifest(base, {
+      ...validInterchange,
+      course: { title: "New Title" },
+    });
+    expect(merged.title).toBe("New Title");
+  });
+
+  it("rejects duplicate lesson ids at parse time", () => {
+    const result = parseLessonkitInterchange({
+      format: "lessonkit",
+      version: "1",
+      lessons: [
+        { id: "dup", type: "spa", path: "dist/a" },
+        { id: "dup", type: "spa", path: "dist/b" },
+      ],
+    });
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects path and build.outputDir conflict", () => {
+    const result = parseLessonkitInterchange({
+      format: "lessonkit",
+      version: "1",
+      lessons: [
+        {
+          id: "spa1",
+          type: "spa",
+          path: "dist/a",
+          build: { outputDir: "dist/b" },
+        },
+      ],
+    });
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects invalid spa path segments", () => {
+    const result = parseLessonkitInterchange({
+      format: "lessonkit",
+      version: "1",
+      lessons: [{ id: "spa1", type: "spa", path: "../escape" }],
+    });
+    expect(result.ok).toBe(false);
+  });
+
+  it("warns on unknown themePreset", () => {
+    const warnings = collectLessonkitInterchangeWarnings({
+      format: "lessonkit",
+      version: "1",
+      lessons: [{ id: "a", type: "spa", path: "dist/a" }],
+      runtime: { themePreset: "lessonkit:unknown" },
+    });
+    expect(warnings.some((w) => w.message.includes("Unknown runtime.themePreset"))).toBe(
+      true,
+    );
+  });
 });

@@ -507,6 +507,68 @@ describe("LxpackRuntime", () => {
     expect(runtime.getProgress().completedLessons).toEqual([]);
   });
 
+  it("completeCourse marks all lessons, assessments, and html interaction keys", () => {
+    const runtime = new LxpackRuntime({
+      manifest: {
+        title: "Full",
+        version: "1.0.0",
+        lessons: [
+          { id: "spa1", type: "spa", path: "spa/one" },
+          { id: "html1", type: "html", path: "interactions/lab" },
+        ],
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+      baseUrl: ".",
+      mode: "preview",
+      assessments: { quiz: { passingScore: 0.7 } },
+    });
+
+    runtime.completeCourse();
+    expect(runtime.getProgress().completedLessons).toEqual(["spa1", "html1"]);
+    expect(runtime.isAssessmentPassed("quiz")).toBe(true);
+    expect(runtime.getProgress().suspendData["interaction_spa1"]).toBe(true);
+    expect(runtime.getProgress().suspendData["interaction_html1"]).toBe(true);
+    expect(runtime.getCompletionRatio()).toBe(1);
+  });
+
+  it("completeCourse respects SCORM 2004 single-SCO lesson scope", () => {
+    const runtime = new LxpackRuntime({
+      manifest: {
+        title: "Scoped",
+        version: "1.0.0",
+        lessons: [
+          { id: "a", type: "markdown", file: "a.md" },
+          { id: "b", type: "markdown", file: "b.md" },
+        ],
+      },
+      baseUrl: ".",
+      mode: "scorm2004",
+      activityId: "a",
+    });
+
+    runtime.completeCourse();
+    expect(runtime.getProgress().completedLessons).toEqual(["a"]);
+  });
+
+  it("completeCourse respects SCORM 2004 assessment-only scope", () => {
+    const runtime = new LxpackRuntime({
+      manifest: {
+        title: "Scoped quiz",
+        version: "1.0.0",
+        lessons: [{ id: "a", type: "markdown", file: "a.md" }],
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+      baseUrl: ".",
+      mode: "scorm2004",
+      activityId: "quiz",
+      assessments: { quiz: { passingScore: 0.7 } },
+    });
+
+    runtime.completeCourse();
+    expect(runtime.getProgress().completedLessons).toEqual([]);
+    expect(runtime.isAssessmentPassed("quiz")).toBe(true);
+  });
+
   it("tracks events without interaction id", () => {
     const runtime = new LxpackRuntime({
       manifest,

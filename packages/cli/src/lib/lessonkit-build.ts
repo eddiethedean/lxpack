@@ -82,3 +82,21 @@ export function buildSpaDirsFromInterchange(
 
   return spaDirs;
 }
+
+export function validateSpaDirsForInterchange(
+  interchange: LessonkitInterchangeV1,
+  spaDirs: Record<string, string>,
+): string | null {
+  const lessonIds = new Set(interchange.lessons.map((l) => l.id));
+  for (const id of Object.keys(spaDirs)) {
+    if (!lessonIds.has(id)) {
+      return `Unknown SPA lesson id "${id}" in --spa-lesson`;
+    }
+  }
+  for (const lesson of interchange.lessons) {
+    if (!spaDirs[lesson.id]) {
+      return `Missing --spa-lesson or --spa-dist for lesson "${lesson.id}"`;
+    }
+  }
+  return null;
+}

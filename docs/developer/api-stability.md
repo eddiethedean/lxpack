@@ -7,8 +7,8 @@ Targets for **v0.6.0** and the path to LessonKit **1.0.0**.
 ### `lxpackBridge.v1`
 
 - `completeLesson(lessonId: string)`
-- `completeCourse()` (marks all lessons complete)
-- `submitAssessment({ id, score, passingScore?, maxScore? })` — scores **0–1** at the bridge
+- `completeCourse()` — marks in-scope lessons complete, passes assessments at their thresholds, and sets `interaction_*` suspend keys for html/spa lessons (respects SCORM 2004 per-SCO launch scope)
+- `submitAssessment({ id, score, passingScore?, maxScore?, passed? })` — scores are **0–1** when `maxScore` is omitted; when `maxScore` is set, `score` / `passingScore` are raw points if **> 1**, otherwise treated as already scaled **0–1**
 - `track?(event)` — canonical `@lxpack/tracking-schema` shapes
 
 Types: `@lxpack/spa-bridge`

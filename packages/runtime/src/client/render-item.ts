@@ -12,6 +12,7 @@ export async function renderItem(
   baseUrl: string,
   item: NavItem,
   onSubmitted: () => void,
+  isStale?: () => boolean,
 ): Promise<void> {
   if (item.kind === "lesson") {
     const renderer = getLessonRenderer(item.lesson.type);
@@ -19,7 +20,7 @@ export async function renderItem(
       contentEl.innerHTML = `<p class="lxpack-error">No renderer registered for lesson type: ${item.lesson.type}</p>`;
       return;
     }
-    await renderer(item.lesson, { contentEl, baseUrl });
+    await renderer(item.lesson, { contentEl, baseUrl, isStale });
     return;
   }
 

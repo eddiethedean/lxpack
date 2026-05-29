@@ -144,6 +144,241 @@ describe("validateCommand", () => {
     exit.mockRestore();
   });
 
+  it("validates lessonkit interchange with --spa-dist for a single lesson", async () => {
+    const { mkdtemp, writeFile, mkdir, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-validate-lk-dist-"));
+    const spaDir = join(workDir, "spa-dist");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+    await writeFile(
+      join(workDir, "lessonkit.json"),
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        lessons: [{ id: "only", type: "spa", path: "dist/only" }],
+      }),
+    );
+    process.chdir(workDir);
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      validateCommand({
+        lessonkit: join(workDir, "lessonkit.json"),
+        spaDist: spaDir,
+      }),
+    ).rejects.toThrow("exit:0");
+    exit.mockRestore();
+    await rm(workDir, { recursive: true, force: true });
+  });
+
+  it("validates lessonkit interchange with --spa-lesson", async () => {
+    const { mkdtemp, writeFile, mkdir, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-validate-lk-"));
+    const spaDir = join(workDir, "spa-dist");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+    await writeFile(
+      join(workDir, "lessonkit.json"),
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "LK Validate" },
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+    process.chdir(workDir);
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      validateCommand({
+        lessonkit: join(workDir, "lessonkit.json"),
+        spaLesson: [`spa1=${spaDir}`],
+      }),
+    ).rejects.toThrow("exit:0");
+    expect(log.mock.calls.some((c) => String(c[0]).includes("passed"))).toBe(
+      true,
+    );
+    exit.mockRestore();
+    await rm(workDir, { recursive: true, force: true });
+  });
+
+  it("exits when lessonkit materialize fails", async () => {
+    const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-validate-lk-mat-"));
+    const spaDir = join(workDir, "empty-spa");
+    await writeFile(
+      join(workDir, "lessonkit.json"),
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+    process.chdir(workDir);
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      validateCommand({
+        lessonkit: join(workDir, "lessonkit.json"),
+        spaLesson: [`spa1=${spaDir}`],
+      }),
+    ).rejects.toThrow("exit:1");
+    expect(log.mock.calls.some((c) => String(c[0]).includes("failed"))).toBe(
+      true,
+    );
+    exit.mockRestore();
+    await rm(workDir, { recursive: true, force: true });
+  });
+
+  it("exits when lxpack.config.json is invalid during lessonkit validate", async () => {
+    const { mkdtemp, writeFile, mkdir, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-validate-lk-cfg-"));
+    const spaDir = join(workDir, "spa");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+    await writeFile(join(workDir, "lxpack.config.json"), "{ bad");
+    await writeFile(
+      join(workDir, "lessonkit.json"),
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+    process.chdir(workDir);
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      validateCommand({
+        lessonkit: join(workDir, "lessonkit.json"),
+        spaLesson: [`spa1=${spaDir}`],
+      }),
+    ).rejects.toThrow("exit:1");
+    expect(
+      error.mock.calls.some((c) => String(c[0]).includes("lxpack.config.json")),
+    ).toBe(true);
+    exit.mockRestore();
+    await rm(workDir, { recursive: true, force: true });
+  });
+
+  it("exits when lessonkit interchange file is invalid", async () => {
+    const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-validate-lk-bad-"));
+    await writeFile(join(workDir, "lessonkit.json"), "{ not json");
+    process.chdir(workDir);
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      validateCommand({ lessonkit: join(workDir, "lessonkit.json") }),
+    ).rejects.toThrow("exit:1");
+    expect(
+      error.mock.calls.some((c) => String(c[0]).includes("invalid lessonkit")),
+    ).toBe(true);
+    exit.mockRestore();
+    await rm(workDir, { recursive: true, force: true });
+  });
+
+  it("exits when lessonkit spa-lesson id is unknown", async () => {
+    const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-validate-lk-unk-"));
+    await writeFile(
+      join(workDir, "lessonkit.json"),
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+    process.chdir(workDir);
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      validateCommand({
+        lessonkit: join(workDir, "lessonkit.json"),
+        spaLesson: ["unknown=/tmp/dist"],
+      }),
+    ).rejects.toThrow("exit:1");
+    expect(error.mock.calls.some((c) => String(c[0]).includes("Unknown"))).toBe(
+      true,
+    );
+    exit.mockRestore();
+    await rm(workDir, { recursive: true, force: true });
+  });
+
+  it("exits when lessonkit spa-lesson id is missing", async () => {
+    const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-validate-lk-miss-"));
+    await writeFile(
+      join(workDir, "lessonkit.json"),
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+    process.chdir(workDir);
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      validateCommand({
+        lessonkit: join(workDir, "lessonkit.json"),
+      }),
+    ).rejects.toThrow("exit:1");
+    expect(error.mock.calls.some((c) => String(c[0]).includes("Missing"))).toBe(
+      true,
+    );
+    exit.mockRestore();
+    await rm(workDir, { recursive: true, force: true });
+  });
+
   it("prints warning severity issues", async () => {
     process.chdir(fixturePath("minimal-valid"));
     const log = vi.spyOn(console, "log").mockImplementation(() => {});

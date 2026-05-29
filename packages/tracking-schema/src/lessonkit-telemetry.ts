@@ -35,6 +35,7 @@ export type TrackingSchemaEvent = {
 
 export type LessonkitBridgeAction =
   | { kind: "completeLesson"; lessonId: string }
+  | { kind: "completeCourse" }
   | {
       kind: "submitAssessment";
       id: string;
@@ -80,6 +81,8 @@ export function mapLessonkitTelemetryToBridgeAction(
   event: LessonkitTelemetryEvent,
 ): LessonkitBridgeAction | null {
   switch (event.name) {
+    case "course_completed":
+      return { kind: "completeCourse" };
     case "lesson_completed":
       return event.lessonId
         ? { kind: "completeLesson", lessonId: event.lessonId }

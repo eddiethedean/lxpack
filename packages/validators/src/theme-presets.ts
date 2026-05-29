@@ -48,6 +48,14 @@ export function resolveRuntimeFromInterchange(
   };
 }
 
+export function warnUnknownThemePreset(
+  runtime?: InterchangeRuntimeInput,
+): string | null {
+  if (!runtime?.themePreset) return null;
+  if (runtime.themePreset in THEME_PRESET_VARIABLES) return null;
+  return `Unknown runtime.themePreset "${runtime.themePreset}" (known: ${Object.keys(THEME_PRESET_VARIABLES).join(", ")})`;
+}
+
 export function warnThemePresetCssOverlap(
   runtime?: InterchangeRuntimeInput,
 ): string | null {

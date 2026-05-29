@@ -25,4 +25,35 @@ describe("createLxpackBridgeHost", () => {
     expect(submitAssessment).toHaveBeenCalledWith("q", 0.8, 0.7);
     expect(track).toHaveBeenCalled();
   });
+
+  it("honors passed flag on submitAssessment", () => {
+    const submitAssessment = vi.fn();
+    const root = createLxpackBridgeHost({
+      completeLesson: vi.fn(),
+      completeCourse: vi.fn(),
+      submitAssessment,
+      track: vi.fn(),
+    });
+
+    root.v1.submitAssessment({
+      id: "q",
+      score: 0.2,
+      passingScore: 0.7,
+      passed: true,
+    });
+    expect(submitAssessment).toHaveBeenCalledWith("q", 0.7, 0.7);
+  });
+
+  it("ignores submitAssessment when score is non-finite", () => {
+    const submitAssessment = vi.fn();
+    const root = createLxpackBridgeHost({
+      completeLesson: vi.fn(),
+      completeCourse: vi.fn(),
+      submitAssessment,
+      track: vi.fn(),
+    });
+
+    root.v1.submitAssessment({ id: "q", score: Number.NaN });
+    expect(submitAssessment).not.toHaveBeenCalled();
+  });
 });

@@ -28,6 +28,9 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 | `@lxpack/tracking-schema` | [npm](https://www.npmjs.com/package/@lxpack/tracking-schema) | [packages/tracking-schema](packages/tracking-schema/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
 | `@lxpack/xapi` | [npm](https://www.npmjs.com/package/@lxpack/xapi) | [packages/xapi](packages/xapi/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
 | `@lxpack/cmi5` | [npm](https://www.npmjs.com/package/@lxpack/cmi5) | [packages/cmi5](packages/cmi5/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
+| `@lxpack/spa-bridge` | [npm](https://www.npmjs.com/package/@lxpack/spa-bridge) | [packages/spa-bridge](packages/spa-bridge/README.md) | [SPA bridge](https://lxpack.readthedocs.io/en/latest/reference/spa-bridge/) |
+| `@lxpack/lessonkit` | [npm](https://www.npmjs.com/package/@lxpack/lessonkit) | [packages/lessonkit](packages/lessonkit/README.md) | [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) |
+| `@lxpack/conformance` | [npm](https://www.npmjs.com/package/@lxpack/conformance) | [packages/conformance](packages/conformance/README.md) | [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
 
 ## Features
 

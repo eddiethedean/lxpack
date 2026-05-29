@@ -3,6 +3,7 @@ import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
   parseSpaLessonOption,
+  validateSpaDirsForInterchange,
 } from "./lessonkit-build.js";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -82,6 +83,19 @@ describe("lessonkit-build helpers", () => {
     expect(loaded.ok).toBe(true);
 
     await rm(dir, { recursive: true, force: true });
+  });
+
+  it("validateSpaDirsForInterchange rejects unknown and missing lesson ids", () => {
+    const interchange = {
+      format: "lessonkit" as const,
+      version: "1" as const,
+      lessons: [{ id: "spa1", type: "spa" as const, path: "dist/spa1" }],
+    };
+    expect(
+      validateSpaDirsForInterchange(interchange, { unknown: "/tmp/x" }),
+    ).toMatch(/Unknown SPA lesson/);
+    expect(validateSpaDirsForInterchange(interchange, {})).toMatch(/Missing/);
+    expect(validateSpaDirsForInterchange(interchange, { spa1: "/tmp/x" })).toBeNull();
   });
 
   it("buildSpaDirsFromInterchange maps spa-dist for single lesson", () => {

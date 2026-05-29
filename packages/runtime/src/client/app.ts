@@ -31,14 +31,6 @@ export function init(): void {
   const lxpackApi = runtime.getAPI();
   window.lxpack = lxpackApi;
 
-  window.lxpackBridge = createLxpackBridgeHost({
-    completeLesson: (lessonId) => runtime.completeLesson(lessonId),
-    completeCourse: () => runtime.completeCourse(),
-    submitAssessment: (id, score, passingScore) =>
-      runtime.submitAssessment(id, score, passingScore),
-    track: (event) => lxpackApi.track(event as never),
-  });
-
   renderShell(config.manifest);
 
   const navEl = document.querySelector(".lxpack-nav") as HTMLElement;
@@ -125,6 +117,18 @@ export function init(): void {
     return passed;
   }
 
+  function afterBridgeCompletion(lessonId?: string): void {
+    if (!applyFlowJump()) {
+      if (lessonId) {
+        const idx = navItems.findIndex((n) => n.id === lessonId);
+        if (idx >= 0) void showItem(idx);
+        else void showItem(currentIndex);
+      } else {
+        void showItem(currentIndex);
+      }
+    }
+  }
+
   async function showItem(index: number): Promise<void> {
     const item = navItems[index];
     if (!item) return;
@@ -134,9 +138,17 @@ export function init(): void {
     currentIndex = index;
 
     try {
-      await renderItem(config, runtime, contentEl, config.baseUrl, item, () => {
-        void showItem(currentIndex);
-      });
+      await renderItem(
+        config,
+        runtime,
+        contentEl,
+        config.baseUrl,
+        item,
+        () => {
+          void showItem(currentIndex);
+        },
+        () => seq !== renderSeq,
+      );
     } catch (err) {
       if (seq !== renderSeq) return;
       const message = err instanceof Error ? err.message : String(err);
@@ -240,6 +252,20 @@ export function init(): void {
       applyFlowJump();
     }
   };
+
+  window.lxpackBridge = createLxpackBridgeHost({
+    completeLesson: (lessonId) => {
+      runtime.completeLesson(lessonId);
+      afterBridgeCompletion(lessonId);
+    },
+    completeCourse: () => {
+      runtime.completeCourse();
+      afterBridgeCompletion();
+    },
+    submitAssessment: (id, score, passingScore) =>
+      runtime.submitAssessment(id, score, passingScore),
+    track: (event) => lxpackApi.track(event as never),
+  });
 
   const terminate = () => runtime.terminate();
   window.addEventListener("beforeunload", terminate);
