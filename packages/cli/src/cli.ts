@@ -38,13 +38,38 @@ export function createCliProgram(): Command {
       "-t, --target <target>",
       "Validate export requirements (uses lxpack.config.json defaultTarget when omitted)",
     )
-    .action(async (options: { port: string; host: string; target?: string }) => {
-      await previewCommand({
-        port: Number(options.port),
-        host: options.host,
-        target: options.target,
-      });
-    });
+    .option(
+      "--lessonkit <path>",
+      "Preview from lessonkit.json interchange (use with --spa-lesson or --spa-dist)",
+    )
+    .option(
+      "--spa-lesson <id=path>",
+      "SPA lesson id and absolute dist path (repeatable; used with --lessonkit)",
+      (value: string, previous: string[] = []) => [...previous, value],
+    )
+    .option(
+      "--spa-dist <path>",
+      "SPA dist folder when interchange has a single lesson",
+    )
+    .action(
+      async (options: {
+        port: string;
+        host: string;
+        target?: string;
+        lessonkit?: string;
+        spaLesson?: string[];
+        spaDist?: string;
+      }) => {
+        await previewCommand({
+          port: Number(options.port),
+          host: options.host,
+          target: options.target,
+          lessonkit: options.lessonkit,
+          spaLesson: options.spaLesson,
+          spaDist: options.spaDist,
+        });
+      },
+    );
 
   program
     .command("validate")

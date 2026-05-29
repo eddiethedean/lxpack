@@ -114,6 +114,8 @@ nav:
       - guides/workflow-cursor.md
       - guides/workflow-claude-code.md
       - guides/lessonkit-interoperability.md
+      - guides/scorm-spa-recipes.md
+      - guides/migrating-from-lessonkit-lxpack-adapter.md
       - guides/migrating-from-legacy-tools.md
   - Build courses:
       - guides/build-overview.md
@@ -136,6 +138,7 @@ nav:
       - reference/components.md
       - reference/tracking-and-completion.md
       - reference/lessonkit-interchange.md
+      - reference/spa-bridge.md
       - reference/troubleshooting.md
   - Developer:
       - developer/index.md
@@ -144,6 +147,7 @@ nav:
       - developer/ROADMAP.md
       - developer/ARCHITECTURE.md
       - developer/REFACTORING.md
+      - developer/api-stability.md
   - Maintainers:
       - readthedocs-setup.md
   - Changelog: https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md

@@ -34,6 +34,8 @@ export {
   loadLessonKitInterchange,
   mergeInterchangeIntoManifest,
   validateCourseWithInterchange,
+  inferScormSpaLayout,
+  type ScormSpaLayout,
   type InterchangeLesson,
   type LessonKitInterchange,
   type LessonkitInterchangeV1,
@@ -45,8 +47,13 @@ export {
   parseLessonkitInterchange,
   interchangeToManifest,
   assessmentsFromInterchange,
+  collectLessonkitInterchangeWarnings,
   spaLessonRelativePath,
 } from "./lessonkit-interchange.js";
+export {
+  resolveRuntimeFromInterchange,
+  THEME_PRESET_VARIABLES,
+} from "./theme-presets.js";
 export {
   materializeLessonkitProject,
   resolvePackageAssessments,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  collectLessonkitInterchangeWarnings,
   interchangeToManifest,
   lessonkitInterchangeSchema,
   parseLessonkitInterchange,
@@ -102,6 +103,18 @@ describe("lessonkitInterchangeSchema", () => {
       ],
     });
     expect(manifest.assessments?.[0]?.id).toBe("quiz");
+  });
+
+  it("collectLessonkitInterchangeWarnings flags shared paths", () => {
+    const warnings = collectLessonkitInterchangeWarnings({
+      format: "lessonkit",
+      version: "1",
+      lessons: [
+        { id: "a", type: "spa", path: "dist/shared" },
+        { id: "b", type: "spa", path: "dist/shared" },
+      ],
+    });
+    expect(warnings.some((w) => w.severity === "warning")).toBe(true);
   });
 
   it("mergeInterchangeIntoManifest applies runtime cssVariables", () => {

@@ -1,4 +1,7 @@
 import { existsSync } from "node:fs";
+import { mkdtemp, writeFile, mkdir, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { execSync } from "node:child_process";
 import { fixturePath, REPO_ROOT } from "../../test/helpers/paths.js";
@@ -152,6 +155,47 @@ describe("loadPreviewStyles", () => {
     expect(css).toContain("--lxpack-bg");
     expect(css).toContain("margin: 0");
   });
+});
+
+describe("startPreviewFromLessonkit", () => {
+  beforeAll(() => {
+    const client = `${REPO_ROOT}/packages/runtime/dist/client.js`;
+    if (!existsSync(client)) {
+      execSync("pnpm --filter @lxpack/runtime build", {
+        cwd: REPO_ROOT,
+        stdio: "pipe",
+      });
+    }
+  });
+
+  it("materializes interchange and starts preview server", async () => {
+    const workDir = await mkdtemp(join(tmpdir(), "lxpack-preview-lk-"));
+    const spaDir = join(workDir, "spa");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(
+      join(spaDir, "index.html"),
+      '<html><script>window.parent.lxpackBridge</script></html>',
+    );
+    const interchangePath = join(workDir, "lessonkit.json");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "Preview LK" },
+        lessons: [{ id: "spa1", type: "spa", path: "spa" }],
+      }),
+    );
+
+    const result = await previewCommands.startPreviewFromLessonkit({
+      lessonkitPath: interchangePath,
+      spaLesson: [{ id: "spa1", path: spaDir }],
+    });
+    expect(result.validation.valid).toBe(true);
+    await result.app.close();
+    await result.cleanup();
+    await rm(workDir, { recursive: true, force: true });
+  }, 60_000);
 });
 
 describe("createPreviewServer", () => {
@@ -329,6 +373,55 @@ describe("previewCommand", () => {
       },
     );
     expect(listen).toHaveBeenCalled();
+  });
+
+  it("uses startPreviewFromLessonkit when --lessonkit is set", async () => {
+    const listen = vi.fn().mockResolvedValue(undefined);
+    const close = vi.fn().mockResolvedValue(undefined);
+    const cleanup = vi.fn().mockResolvedValue(undefined);
+    await previewCommands.previewCommand(
+      {
+        lessonkit: "/tmp/lessonkit.json",
+        spaLesson: ["spa1=/tmp/spa"],
+        port: 4010,
+        host: "127.0.0.1",
+      },
+      {
+        startPreviewFromLessonkit: async () => ({
+          app: { listen, close },
+          validation: { valid: true, issues: [] },
+          courseDir: "/tmp/lk",
+          cleanup,
+        }),
+        logPreviewStarted: vi.fn(),
+      },
+    );
+
+    expect(listen).toHaveBeenCalled();
+    expect(cleanup).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
+  it("exits when lessonkit preview validation fails", async () => {
+    const exit = vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+      throw new Error(`exit:${code ?? 0}`);
+    });
+    await expect(
+      previewCommands.previewCommand(
+        { lessonkit: "/tmp/bad.json", spaLesson: ["a=/b"] },
+        {
+          startPreviewFromLessonkit: async () => {
+            throw Object.assign(new Error("validation failed"), {
+              validation: {
+                valid: false,
+                issues: [{ path: "x", message: "bad", severity: "error" as const }],
+              },
+            });
+          },
+        },
+      ),
+    ).rejects.toThrow("exit:1");
+    exit.mockRestore();
   });
 
   it("uses default dependency resolution when deps are empty", async () => {

@@ -10,6 +10,7 @@ import { renderShell, updateProgressBar } from "./shell.js";
 import { renderItem } from "./render-item.js";
 import { escapeHtml } from "./html-utils.js";
 import { isInteractionComplete } from "../interaction-complete.js";
+import { createLxpackBridgeHost } from "@lxpack/spa-bridge";
 
 export function init(): void {
   const config = getConfig();
@@ -30,27 +31,13 @@ export function init(): void {
   const lxpackApi = runtime.getAPI();
   window.lxpack = lxpackApi;
 
-  window.lxpackBridge = {
-    v1: {
-      completeLesson: (lessonId: string) => {
-        runtime.completeLesson(lessonId);
-      },
-      submitAssessment: (options: {
-        id: string;
-        score: number;
-        passingScore?: number;
-        passed?: boolean;
-      }) => {
-        const passingScore =
-          typeof options.passingScore === "number" ? options.passingScore : 0.7;
-        runtime.submitAssessment(options.id, options.score, passingScore);
-      },
-      track: (event: unknown) => {
-        // Delegate to the existing public API. Runtime enforces event shapes downstream.
-        lxpackApi.track(event as never);
-      },
-    },
-  };
+  window.lxpackBridge = createLxpackBridgeHost({
+    completeLesson: (lessonId) => runtime.completeLesson(lessonId),
+    completeCourse: () => runtime.completeCourse(),
+    submitAssessment: (id, score, passingScore) =>
+      runtime.submitAssessment(id, score, passingScore),
+    track: (event) => lxpackApi.track(event as never),
+  });
 
   renderShell(config.manifest);
 

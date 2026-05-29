@@ -1,0 +1,46 @@
+{
+  "name": "@lxpack/spa-bridge",
+  "version": "0.6.0",
+  "description": "Typed parent/child SDK for LXPack SPA lessons (lxpackBridge.v1)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eddiethedean/lxpack.git",
+    "directory": "packages/spa-bridge"
+  },
+  "bugs": {
+    "url": "https://github.com/eddiethedean/lxpack/issues"
+  },
+  "homepage": "https://github.com/eddiethedean/lxpack#readme",
+  "keywords": ["lxpack", "spa", "scorm", "lessonkit", "bridge"],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "happy-dom": "^17.4.4",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}

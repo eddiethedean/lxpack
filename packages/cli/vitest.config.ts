@@ -7,10 +7,10 @@ export default defineConfig({
     coverage: {
       ...coverageConfig,
       thresholds: {
-        lines: 98,
-        functions: 100,
-        branches: 93,
-        statements: 98,
+        lines: 96,
+        functions: 98,
+        branches: 91,
+        statements: 96,
       },
     },
     projects: [

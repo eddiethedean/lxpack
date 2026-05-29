@@ -163,7 +163,7 @@ lxpack build --target scorm12
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.5.0
+**Latest release:** v0.6.0
 
 ### Shipped features
 
@@ -210,9 +210,16 @@ See [ROADMAP.md](ROADMAP.md#phase-04--lessonkit-interoperability-shipped--v040) 
 
 **Shipped:** `packageLessonkit()`, interchange schema v1, interchange-only validation, `lxpack build --lessonkit`, [lessonkit interchange reference](../reference/lessonkit-interchange.md).
 
-**v0.6+:** Bridge SDK, telemetry map, preview from interchange, conformance harness, `@lxpack/lessonkit` meta-package — see [ROADMAP.md](ROADMAP.md#v06-lessonkit-integration-and-platform).
-
 **Source of truth:** [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
+
+---
+
+## Phase 0.6 — LessonKit bridge and conformance (shipped — v0.6.0)
+
+- `@lxpack/spa-bridge`, telemetry map, theme presets, `lxpack preview --lessonkit`
+- `@lxpack/conformance`, `@lxpack/lessonkit`, SCORM SPA recipes, [API stability](api-stability.md)
+
+See [ROADMAP.md](ROADMAP.md#phase-06--lessonkit-bridge-and-conformance-shipped--v060).
 
 ---
 

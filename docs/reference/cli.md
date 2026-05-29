@@ -19,7 +19,7 @@ Commands discover the course by walking up from the current directory until they
 | Command | Description |
 |---------|-------------|
 | `lxpack init <name>` | Create a new course (`-d, --dir`, `-f, --force`) |
-| `lxpack preview` | Local preview server (`-p, --port`, `-H, --host`, `-t, --target`) |
+| `lxpack preview` | Local preview server (`-p, --port`, `-H, --host`, `-t, --target`, `--lessonkit`) |
 | `lxpack validate` | Validate structure (`-t, --target` for export rules) |
 | `lxpack build` | Package for LMS (`-t, --target`, `-o, --output`, `--dir`, `--lessonkit`) |
 
@@ -44,6 +44,13 @@ lxpack preview --target xapi
 Default: `http://127.0.0.1:3847`
 
 Uses the same `defaultTarget` resolution as `build` when `--target` is omitted. Warns when `--host` is not loopback (embedded assessment keys). Fails if validation fails (same as build).
+
+LessonKit interchange preview (same flags as `build --lessonkit`):
+
+```bash title="lxpack preview --lessonkit"
+lxpack preview --lessonkit ./lessonkit.json \
+  --spa-lesson spa1=/abs/path/to/dist
+```
 
 ## `validate`
 

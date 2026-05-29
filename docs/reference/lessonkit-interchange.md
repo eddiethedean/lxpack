@@ -47,8 +47,8 @@ Both are merged at `lxpack validate` / `lxpack build` when a `course.yaml` exist
 | `lessons` | yes | At least one SPA lesson; each needs `path` or `build.outputDir` |
 | `course` | no | `title` becomes manifest title |
 | `assessments` | no | Full MCQ objects; use with `buildCourse({ assessments })` or `packageLessonkit` without on-disk YAML |
-| `tracking` | no | `completion.threshold` (0–1) |
-| `runtime` | no | `theme`, `cssVariables` (no LessonKit theme package dependency) |
+| `tracking` | no | `completion.threshold` (0–1); optional `xapi.activityIri` (https) for xAPI/cmi5 |
+| `runtime` | no | `theme`, `cssVariables`, `themePreset` (`lessonkit:default`, `lessonkit:brand`) |
 
 ## Programmatic packaging
 

@@ -177,9 +177,9 @@ packages/
   tracking-schema/
   xapi/
   cmi5/
-  spa-bridge/          # Phase 0.5 (planned)
-  conformance/         # Phase 0.5 (planned)
-  lessonkit/           # Phase 0.5 (planned, optional meta-package)
+  spa-bridge/          # Phase 0.6 (shipped)
+  conformance/         # Phase 0.6 (shipped)
+  lessonkit/           # Phase 0.6 (shipped, meta-package)
 examples/
   security-awareness/
   branching-demo/
@@ -278,7 +278,7 @@ Shipped checklist: [LXPACK_UPGRADES_FOR_LESSONKIT.md](../LXPACK_UPGRADES_FOR_LES
 
 **Latest release in phase:** v0.5.0
 
-Shrink `@lessonkit/lxpack` so LXPack owns interchange and project materialization; bridge contracts, conformance, and the meta-package follow in **v0.6+**.
+Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridge SDK, conformance, and meta-package.
 
 **Source of truth:** [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
 
@@ -289,37 +289,29 @@ Shrink `@lessonkit/lxpack` so LXPack owns interchange and project materializatio
 - **CLI** — `lxpack build --lessonkit` with `--spa-lesson` / `--spa-dist`
 - **Docs** — [lessonkit interchange reference](../reference/lessonkit-interchange.md)
 
-### Deferred to v0.6+
+## Phase 0.6 — LessonKit bridge and conformance (shipped — v0.6.0)
 
-Remaining LessonKit integration work from the upgrade plan (see [v0.6+](#v06-lessonkit-integration-and-platform)):
+**Latest release in phase:** v0.6.0
 
-- **`@lxpack/spa-bridge`** — typed host/child SDK, score normalization, bridge versioning, validator warnings
-- **Telemetry map** — `mapLessonkitTelemetryToLxpack()`; LessonKit ↔ LXPack / xAPI table
-- **Theme interchange** — `runtime.cssVariables` and optional presets without `@lessonkit/themes`
-- **`lxpack preview --lessonkit`** — preview from interchange + SPA build output
-- **SCORM layout recipes** — single-SCO vs multi-SCO SPA guidance; optional `scormLayout` on build
-- **`@lxpack/conformance`** — shared fixtures and export-target matrix for LXPack and LessonKit CI
-- **`@lxpack/lessonkit`** — meta-package re-exports and adapter deprecation path
+### Shipped in v0.6.0
 
-### API stability (LessonKit 1.0.0 gate — target v0.6+)
+- **`@lxpack/spa-bridge`** — typed child SDK, score normalization, `createLxpackBridgeHost`, `completeCourse` on v1 bridge
+- **Telemetry map** — `mapLessonkitTelemetryToLxpack` / `mapLessonkitTelemetryToBridgeAction` in `@lxpack/tracking-schema`
+- **Theme interchange** — `runtime.themePreset` presets (`lessonkit:default`, `lessonkit:brand`)
+- **`lxpack preview --lessonkit`** — preview from interchange + SPA dist
+- **SCORM SPA recipes** — [scorm-spa-recipes](../guides/scorm-spa-recipes.md); `inferScormSpaLayout()`; interchange warnings for shared paths
+- **`@lxpack/conformance`** — export-target matrix for shared CI
+- **`@lxpack/lessonkit`** — meta-package; [migration guide](../guides/migrating-from-lessonkit-lxpack-adapter.md)
+- **API stability** — [api-stability.md](api-stability.md) documents LessonKit 1.0 gate contracts
 
-Stabilize after bridge SDK and conformance land:
-
-- `lxpackBridge.v1` signatures and 0–1 score semantics for `submitAssessment`
-- `lessonkit.json` `format` + `version` with documented migrations
-- `ExportTarget`, `buildCourse` / `packageLessonkit` result shapes
-- SPA lesson `type: spa` + `path` → folder with `index.html`
-
-Coordinate with LessonKit **0.9.x** (conformance harness) and **1.0.0** (stable public API).
+Coordinate with LessonKit **0.9.x** (adopt `@lxpack/conformance`) and **1.0.0** (stable public API).
 
 ## v0.6+ — LessonKit integration and platform
 
 ### LessonKit integration (remaining)
 
-- **`@lxpack/spa-bridge`** (P0) — see deferred list under Phase 0.5
-- **Tracking, theme, preview, SCORM recipes** (P1–P2)
-- **`@lxpack/conformance`** (P2)
-- **`@lxpack/lessonkit`** meta-package (P3)
+- Deeper bridge **v2** / capability negotiation (future)
+- `lxpack preview` hot-reload for Vite dev servers (future)
 
 ### Phase 5 — AI tooling (v0.6+)
 
@@ -359,9 +351,9 @@ Features:
 | `@lxpack/cmi5` | 3 |
 | `@lxpack/api` | 0.4 (shipped) |
 | `@lxpack/tracking-schema` | 0.4 (shipped) |
-| `@lxpack/spa-bridge` | 0.6+ (planned) |
-| `@lxpack/conformance` | 0.6+ (planned) |
-| `@lxpack/lessonkit` | 0.6+ (planned, optional) |
+| `@lxpack/spa-bridge` | 0.6 (shipped) |
+| `@lxpack/conformance` | 0.6 (shipped) |
+| `@lxpack/lessonkit` | 0.6 (shipped) |
 
 ---
 

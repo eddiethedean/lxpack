@@ -6,7 +6,7 @@ description: >-
   legacy authoring tools.
 license: Apache-2.0
 metadata:
-  lxpack-version: "0.5.0"
+  lxpack-version: "0.6.0"
 ---
 
 # Migrate legacy eLearning to LXPack

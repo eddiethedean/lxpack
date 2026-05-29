@@ -17,3 +17,5 @@ export const TRACK_EVENT_XAPI_VERB: Record<TrackEventType, string> = {
   assessment: "answered",
 };
 
+export * from "./lessonkit-telemetry.js";
+

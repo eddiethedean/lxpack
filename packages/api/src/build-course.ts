@@ -24,6 +24,7 @@ export interface BuildCourseOptions {
   dir?: boolean;
   outputBaseDir?: string;
   assessments?: unknown[];
+  scormLayout?: import("@lxpack/validators").ScormSpaLayout;
 }
 
 export type BuildCourseResult =

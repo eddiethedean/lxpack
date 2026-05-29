@@ -44,13 +44,13 @@ Technical references for **v0.5.0** contributors and integrators.
 | **2 — Runtime expansion** | **v0.2.x** | Shipped | SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
 | **3 — Modern standards** | **v0.3.x** | Shipped | xAPI, cmi5, analytics / simulation tracking |
 | **0.4 — LessonKit interoperability** | **v0.4.0** | Shipped | SPA lessons, `@lxpack/api`, `lessonkit.json`, `@lxpack/tracking-schema` |
-| **0.5 — LessonKit integration depth** | **v0.5.0** | Shipped | `packageLessonkit()`, interchange schema v1, `lxpack build --lessonkit` — [upgrade plan](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md) |
-| **0.5 (deferred) / v0.6+** | **v0.6+** | Planned | `@lxpack/spa-bridge`, telemetry map, preview `--lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit` |
+| **0.5 — LessonKit integration depth** | **v0.5.0** | Shipped | `packageLessonkit()`, interchange schema v1, `lxpack build --lessonkit` |
+| **0.6 — LessonKit bridge & conformance** | **v0.6.0** | Shipped | `@lxpack/spa-bridge`, telemetry map, `preview --lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit` |
 | **5 — AI tooling** | **v0.6+** | Planned | Claude integration, AI repair, AI-generated interactions |
 | **6 — Ecosystem** | **v0.6+** | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **7 — Enterprise platform** | **v0.7+** | Planned | Cloud deployment, compliance tooling, hosted runtime |
 
-## Published npm packages (v0.5.0)
+## Published npm packages (v0.6.0)
 
 | Package | Role |
 |---------|------|
@@ -63,25 +63,29 @@ Technical references for **v0.5.0** contributors and integrators.
 | `@lxpack/components` | Built-in UI widgets |
 | `@lxpack/api` | Programmatic `validateCourse` / `buildCourse` |
 | `@lxpack/tracking-schema` | Shared tracking event types |
+| `@lxpack/spa-bridge` | SPA iframe bridge SDK |
+| `@lxpack/conformance` | Shared export conformance matrix |
+| `@lxpack/lessonkit` | LessonKit integration facade |
 
 Package READMEs live under `packages/*/README.md` in the repository.
 
-## Publishing v0.5.0
+## Publishing v0.6.0
 
-Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) accurate for `[0.5.0]`.
+Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) accurate for `[0.6.0]`.
 
 ```bash
-# From a clean main at 0.5.0 in all packages/*/package.json
+# From a clean main at 0.6.0 in all packages/*/package.json
 pnpm install --frozen-lockfile
 pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm test:coverage
 pnpm examples:validate && pnpm examples:test
+pnpm --filter @lxpack/conformance test
 bash scripts/build-docs.sh
 
-git tag v0.5.0
-git push origin v0.5.0
+git tag v0.6.0
+git push origin v0.6.0
 ```
 
-Pushing tag `v0.5.0` runs [.github/workflows/release.yml](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
+Pushing tag `v0.6.0` runs [.github/workflows/release.yml](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
 
 ## User-facing docs
 

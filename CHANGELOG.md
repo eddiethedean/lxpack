@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-05-29
+
+### Added
+
+- **`@lxpack/spa-bridge`** — typed child SDK (`getLxpackBridge`), score normalization, `createLxpackBridgeHost` for the runtime
+- **`@lxpack/tracking-schema`** — `mapLessonkitTelemetryToLxpack` / `mapLessonkitTelemetryToBridgeAction` for LessonKit event names
+- **Theme presets** — `runtime.themePreset` in interchange (`lessonkit:default`, `lessonkit:brand`) resolves to `cssVariables`
+- **CLI** — `lxpack preview --lessonkit` with `--spa-lesson` / `--spa-dist`
+- **`@lxpack/conformance`** — shared export-target matrix runner for CI
+- **`@lxpack/lessonkit`** — meta-package re-exporting package, bridge, interchange, and telemetry APIs
+- **Docs** — [SPA bridge](https://lxpack.readthedocs.io/en/latest/reference/spa-bridge/), [SCORM SPA recipes](https://lxpack.readthedocs.io/en/latest/guides/scorm-spa-recipes/), [API stability](https://lxpack.readthedocs.io/en/latest/developer/api-stability/)
+
+### Changed
+
+- Runtime bridge host uses `@lxpack/spa-bridge`; `completeCourse()` added to `lxpackBridge.v1`
+- Interchange `tracking.xapi` supported in `lessonkit.json` v1
+- SPA validators warn when `index.html` omits `lxpackBridge` references
+
 ## [0.5.0] - 2026-05-29
 
 ### Added

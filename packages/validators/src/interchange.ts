@@ -6,9 +6,11 @@ import {
   assessmentsFromInterchange,
   interchangeToManifest,
   parseLessonkitInterchange,
+  collectLessonkitInterchangeWarnings,
   spaLessonRelativePath,
   type LessonkitInterchangeV1,
 } from "./lessonkit-interchange.js";
+import { resolveRuntimeFromInterchange } from "./theme-presets.js";
 import {
   courseManifestSchema,
   type CourseManifest,
@@ -115,26 +117,25 @@ export function mergeInterchangeIntoManifest(
 ): CourseManifest {
   const merged: CourseManifest = {
     ...base,
-    tracking:
-      interchange.tracking?.completion?.threshold != null
-        ? {
-            ...(base.tracking ?? {}),
-            completion: {
-              threshold: Number(interchange.tracking.completion.threshold),
-            },
-          }
-        : base.tracking,
-    runtime: {
-      theme: interchange.runtime?.theme ?? base.runtime?.theme ?? "modern",
-      ...(base.runtime?.cssVariables || interchange.runtime?.cssVariables
-        ? {
-            cssVariables: {
-              ...base.runtime?.cssVariables,
-              ...interchange.runtime?.cssVariables,
-            },
-          }
-        : {}),
-    },
+    tracking: interchange.tracking
+      ? {
+          ...(base.tracking ?? {}),
+          ...(interchange.tracking.completion?.threshold != null
+            ? {
+                completion: {
+                  threshold: Number(interchange.tracking.completion.threshold),
+                },
+              }
+            : {}),
+          ...(interchange.tracking.xapi
+            ? { xapi: interchange.tracking.xapi }
+            : {}),
+        }
+      : base.tracking,
+    runtime:
+      resolveRuntimeFromInterchange(interchange.runtime) ??
+      base.runtime ??
+      { theme: "modern" },
     lessons: [...base.lessons],
     assessments: [...(base.assessments ?? [])],
   };
@@ -198,6 +199,24 @@ function resolveInterchangeLoad(
   return loadLessonKitInterchange(courseDir);
 }
 
+function withInterchangeWarnings(
+  result: ValidationResult,
+  interchange: LessonkitInterchangeV1,
+  pathLabel: string,
+): ValidationResult {
+  const warnings = collectLessonkitInterchangeWarnings(interchange, pathLabel);
+  if (!warnings.length) return result;
+  return { ...result, issues: [...result.issues, ...warnings] };
+}
+
+export type ScormSpaLayout = "single-sco-spa" | "multi-sco-spa";
+
+export function inferScormSpaLayout(
+  interchange: LessonkitInterchangeV1,
+): ScormSpaLayout {
+  return interchange.lessons.length <= 1 ? "single-sco-spa" : "multi-sco-spa";
+}
+
 function mergeAssessmentData(
   options: ValidateCourseWithInterchangeOptions | undefined,
   interchange: LessonkitInterchangeV1 | undefined,
@@ -240,10 +259,15 @@ export async function validateCourseWithInterchange(
     }
 
     const assessmentData = mergeAssessmentData(options, interchange.data);
-    return validateCourseManifest(resolvedDir, manifest, {
+    const validated = await validateCourseManifest(resolvedDir, manifest, {
       ...options,
       assessmentData,
     });
+    return withInterchangeWarnings(
+      validated,
+      interchange.data,
+      interchange.fileName,
+    );
   }
 
   if (options?.assessmentData != null) {
@@ -291,8 +315,9 @@ export async function validateCourseWithInterchange(
     ...options,
     assessmentData,
   });
-  return {
-    ...revalidated,
-    issues: revalidated.issues,
-  };
+  return withInterchangeWarnings(
+    revalidated,
+    interchange.data,
+    interchange.fileName,
+  );
 }

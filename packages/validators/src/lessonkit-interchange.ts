@@ -3,9 +3,14 @@ import {
   activityIdSchema,
   assessmentSchema,
   courseManifestSchema,
+  xapiTrackingSchema,
   type CourseManifest,
 } from "./schemas.js";
 import { formatIssuePath, type ValidationIssue } from "./validate.js";
+import {
+  resolveRuntimeFromInterchange,
+  warnThemePresetCssOverlap,
+} from "./theme-presets.js";
 
 const interchangeSpaLessonSchema = z
   .object({
@@ -56,6 +61,7 @@ export const lessonkitInterchangeSchema = z
           })
           .strict()
           .optional(),
+        xapi: xapiTrackingSchema.optional(),
       })
       .strict()
       .optional(),
@@ -133,24 +139,24 @@ export function interchangeToManifest(
     version: "1.0.0",
     lessons,
     ...(assessments?.length ? { assessments } : {}),
-    ...(interchange.tracking?.completion?.threshold != null
+    ...(interchange.tracking
       ? {
           tracking: {
-            completion: {
-              threshold: Number(interchange.tracking.completion.threshold),
-            },
-          },
-        }
-      : {}),
-    ...(interchange.runtime
-      ? {
-          runtime: {
-            theme: interchange.runtime.theme ?? "modern",
-            ...(interchange.runtime.cssVariables
-              ? { cssVariables: interchange.runtime.cssVariables }
+            ...(interchange.tracking.completion?.threshold != null
+              ? {
+                  completion: {
+                    threshold: Number(interchange.tracking.completion.threshold),
+                  },
+                }
+              : {}),
+            ...(interchange.tracking.xapi
+              ? { xapi: interchange.tracking.xapi }
               : {}),
           },
         }
+      : {}),
+    ...(resolveRuntimeFromInterchange(interchange.runtime)
+      ? { runtime: resolveRuntimeFromInterchange(interchange.runtime) }
       : {}),
   };
 
@@ -161,6 +167,34 @@ export function interchangeToManifest(
     );
   }
   return parsed.data;
+}
+
+export function collectLessonkitInterchangeWarnings(
+  interchange: LessonkitInterchangeV1,
+  pathLabel = "lessonkit.json",
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  const themeWarn = warnThemePresetCssOverlap(interchange.runtime);
+  if (themeWarn) {
+    issues.push({
+      path: pathLabel,
+      message: themeWarn,
+      severity: "warning",
+    });
+  }
+  if (interchange.lessons.length > 1) {
+    const paths = interchange.lessons.map((l) => spaLessonRelativePath(l));
+    const unique = new Set(paths);
+    if (unique.size < paths.length) {
+      issues.push({
+        path: pathLabel,
+        message:
+          "Multiple SPA lessons share the same path; use distinct dist folders for multi-SCO SCORM 2004 (see scorm-spa-recipes guide)",
+        severity: "warning",
+      });
+    }
+  }
+  return issues;
 }
 
 /** Assessment payloads embedded in interchange (for injection without on-disk YAML). */

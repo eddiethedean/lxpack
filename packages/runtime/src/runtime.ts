@@ -211,6 +211,14 @@ export class LxpackRuntime implements AssessmentHost {
     this.persist();
   }
 
+  completeCourse(): void {
+    for (const lesson of this.manifest.lessons) {
+      if (!this.state.isLessonComplete(lesson.id)) {
+        this.completeLesson(lesson.id);
+      }
+    }
+  }
+
   setCurrentLesson(lessonId: string): void {
     this.state.setCurrentLesson(lessonId);
     this.bridge.setLocation(lessonId);

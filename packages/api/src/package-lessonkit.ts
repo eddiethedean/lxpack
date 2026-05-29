@@ -6,6 +6,7 @@ import {
   type ValidationIssue,
 } from "@lxpack/validators";
 import type { ExportTarget } from "@lxpack/scorm";
+import type { ScormSpaLayout } from "@lxpack/validators";
 import { buildCourse, type BuildCourseResult } from "./build-course.js";
 
 export interface PackageLessonkitOptions {
@@ -20,6 +21,8 @@ export interface PackageLessonkitOptions {
   outputBaseDir?: string;
   writeAuthoringFiles?: boolean;
   debug?: boolean;
+  /** SCORM SPA layout hint (inferred from lesson count when omitted). */
+  scormLayout?: ScormSpaLayout;
 }
 
 export type PackageLessonkitResult =

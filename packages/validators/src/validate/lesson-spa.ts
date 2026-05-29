@@ -141,6 +141,15 @@ export async function validateSpaLesson(
     issues.push(apiWarning);
   }
 
+  if (!/lxpackBridge/.test(indexHtml)) {
+    issues.push({
+      path: `lessons.${lesson.id}.path`,
+      message:
+        "SPA index.html does not reference lxpackBridge; import @lxpack/spa-bridge getLxpackBridge() or call window.parent.lxpackBridge.v1",
+      severity: "warning",
+    });
+  }
+
   issues.push(
     ...(await validateInteractionTree(
       courseDir,

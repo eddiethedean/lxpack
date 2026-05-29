@@ -1,4 +1,4 @@
-# LessonKit interoperability (LXPack v0.5)
+# LessonKit interoperability (LXPack v0.6)
 
 LXPack can act as the **packaging and LMS export layer** for React-authored courses built with
 LessonKit.
@@ -8,7 +8,9 @@ This guide covers the interoperability surface:
 - `type: spa` lessons (built app folders packaged as lessons)
 - the parent bridge API (`window.parent.lxpackBridge.v1`)
 - programmatic validate/build via `@lxpack/api`
-- **`packageLessonkit()`** — materialize and build without hand-written `course.yaml` (v0.5.0)
+- **`packageLessonkit()`** — materialize and build without hand-written `course.yaml`
+- **`@lxpack/spa-bridge`** — import `getLxpackBridge()` in SPA builds (v0.6.0)
+- **`lxpack preview --lessonkit`** — preview without a checked-in `course.yaml` (v0.6.0)
 - versioned interchange metadata via `lessonkit.json` (v1 schema)
 
 ## `type: spa` lessons
@@ -27,16 +29,22 @@ lessons:
 
 ## Bridge API: `window.parent.lxpackBridge.v1`
 
-SPA lessons are rendered inside an iframe. To report progress back to the LXPack shell, call the
-parent bridge:
+SPA lessons are rendered inside an iframe. Prefer **`@lxpack/spa-bridge`** in your SPA bundle:
 
 ```js
-window.parent?.lxpackBridge?.v1?.completeLesson("phishing_101");
-window.parent?.lxpackBridge?.v1?.submitAssessment({ id: "final_quiz", score: 0.9, passingScore: 0.7 });
-window.parent?.lxpackBridge?.v1?.track({ type: "interaction", id: "clicked", data: { ok: true } });
+import { getLxpackBridge } from "@lxpack/spa-bridge";
+
+const bridge = getLxpackBridge();
+bridge?.completeLesson("phishing_101");
+bridge?.submitAssessment({ id: "final_quiz", score: 0.9, passingScore: 0.7 });
+bridge?.track?.({ type: "interaction", id: "clicked", data: { ok: true } });
 ```
 
-Fallback (for older shells) is `window.parent.lxpack`.
+See [SPA bridge reference](../reference/spa-bridge.md). Fallback (older shells): `window.parent.lxpack`.
+
+## Telemetry mapping (v0.6.0)
+
+LessonKit telemetry event names map to LXPack `track()` events via `mapLessonkitTelemetryToLxpack` from `@lxpack/tracking-schema` (or `@lxpack/lessonkit`).
 
 ## Programmatic build/validate (`@lxpack/api`)
 
@@ -75,6 +83,16 @@ CLI:
 ```bash
 lxpack build --lessonkit ./lessonkit.json --spa-lesson lesson_id=/abs/path/to/dist
 ```
+
+Preview:
+
+```bash
+lxpack preview --lessonkit ./lessonkit.json --spa-lesson lesson_id=/abs/path/to/dist
+```
+
+## SCORM SPA layouts (v0.6.0)
+
+See [SCORM SPA recipes](scorm-spa-recipes.md) for single-SCO vs multi-SCO guidance. Use `inferScormSpaLayout()` from `@lxpack/validators` when automating layouts.
 
 ## Migration mapping (high level)
 

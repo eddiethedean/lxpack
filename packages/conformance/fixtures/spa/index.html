@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Conformance SPA</title>
+  </head>
+  <body>
+    <button id="done">Complete</button>
+    <script>
+      const bridge = window.parent?.lxpackBridge?.v1;
+      document.getElementById("done")?.addEventListener("click", () => {
+        bridge?.completeLesson?.("conformance_spa");
+      });
+    </script>
+  </body>
+</html>

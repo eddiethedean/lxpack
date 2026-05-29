@@ -4,9 +4,19 @@ import pc from "picocolors";
 import type { CourseManifest } from "@lxpack/validators";
 import type { RuntimeAssessmentBundle } from "@lxpack/validators";
 import {
+  materializeLessonkitProject,
   validateCourseWithInterchange,
+  buildRuntimeAssessmentBundleFromData,
+  buildRuntimeAssessmentBundleFromParsed,
+  resolvePackageAssessments,
+  formatErrorMessage,
   type ValidationResult,
 } from "@lxpack/validators";
+import {
+  buildSpaDirsFromInterchange,
+  loadLessonkitInterchangeFile,
+  parseSpaLessonOption,
+} from "../lib/lessonkit-build.js";
 import {
   loadValidatedCourseContext,
   printValidationIssues,
@@ -136,6 +146,80 @@ export async function createPreviewServer(
   return app;
 }
 
+export async function startPreviewFromLessonkit(options: {
+  lessonkitPath: string;
+  spaLesson: Array<{ id: string; path: string }>;
+  spaDist?: string;
+  target?: string;
+}): Promise<{
+  app: FastifyInstance;
+  validation: ValidationResult;
+  courseDir: string;
+  cleanup: () => Promise<void>;
+}> {
+  const loaded = await loadLessonkitInterchangeFile(options.lessonkitPath);
+  if (!loaded.ok) {
+    throw new Error(
+      loaded.issues.map((i) => i.message).join("; ") || "Invalid lessonkit interchange",
+    );
+  }
+
+  const spaDirs = buildSpaDirsFromInterchange(
+    loaded.data,
+    options.spaLesson,
+    options.spaDist,
+  );
+
+  const materialized = await materializeLessonkitProject({
+    interchange: loaded.data,
+    spaDirs,
+  });
+
+  if (!materialized.ok) {
+    const err = new Error("materialize failed");
+    (err as Error & { issues: typeof materialized.issues }).issues =
+      materialized.issues;
+    throw err;
+  }
+
+  const courseDir = materialized.courseDir;
+  const cleanup = async () => {
+    const { rm } = await import("node:fs/promises");
+    await rm(courseDir, { recursive: true, force: true }).catch(() => {});
+  };
+
+  const exportTarget = options.target as ExportTarget | undefined;
+  const assessments = resolvePackageAssessments(loaded.data, loaded.data.assessments);
+  const validation = await validateCourseWithInterchange(courseDir, {
+    exportTarget,
+    assessmentData: assessments,
+  });
+
+  if (!validation.valid || !validation.manifest) {
+    const err = new Error("validation failed");
+    (err as Error & { validation: ValidationResult }).validation = validation;
+    throw err;
+  }
+
+  const bundleResult = assessments?.length
+    ? buildRuntimeAssessmentBundleFromData(validation.manifest, assessments)
+    : {
+        bundle: buildRuntimeAssessmentBundleFromParsed(
+          validation.parsedAssessments ?? new Map(),
+        ),
+        issues: [] as ValidationResult["issues"],
+      };
+  const assessmentBundle = bundleResult.bundle;
+
+  const app = await createPreviewServer(
+    courseDir,
+    validation.manifest,
+    assessmentBundle,
+  );
+
+  return { app, validation, courseDir, cleanup };
+}
+
 export async function startPreview(
   courseDir: string,
   options: { port?: number; host?: string; target?: string } = {},
@@ -191,6 +275,7 @@ export async function startPreview(
 export interface PreviewCommandDeps {
   findCourseDir?: typeof findCourseDir;
   startPreview?: typeof startPreview;
+  startPreviewFromLessonkit?: typeof startPreviewFromLessonkit;
   logPreviewStarted?: typeof logPreviewStarted;
 }
 
@@ -200,6 +285,8 @@ export function resolvePreviewDeps(
   return {
     findCourseDir: deps?.findCourseDir ?? findCourseDir,
     startPreview: deps?.startPreview ?? startPreview,
+    startPreviewFromLessonkit:
+      deps?.startPreviewFromLessonkit ?? startPreviewFromLessonkit,
     logPreviewStarted: deps?.logPreviewStarted ?? logPreviewStarted,
   };
 }
@@ -219,16 +306,19 @@ export async function previewCommand(
     port?: number;
     host?: string;
     target?: string;
+    lessonkit?: string;
+    spaLesson?: string[];
+    spaDist?: string;
   },
   deps?: PreviewCommandDeps,
 ): Promise<void> {
   const {
     findCourseDir: resolveCourseDir,
     startPreview: resolveStartPreview,
+    startPreviewFromLessonkit: resolveStartPreviewFromLessonkit,
     logPreviewStarted: resolveLogStarted,
   } = resolvePreviewDeps(deps);
 
-  const courseDir = resolveCourseDir();
   const port = options.port ?? 3847;
   const host = options.host ?? "127.0.0.1";
 
@@ -250,7 +340,51 @@ export async function previewCommand(
     process.exit(1);
   }
 
-  const { app } = await resolveStartPreview(courseDir, options);
+  let app: FastifyInstance;
+  let cleanup: (() => Promise<void>) | undefined;
+
+  if (options.lessonkit) {
+    const spaLessons = (options.spaLesson ?? []).map(parseSpaLessonOption);
+    try {
+      const result = await resolveStartPreviewFromLessonkit({
+        lessonkitPath: options.lessonkit,
+        spaLesson: spaLessons,
+        spaDist: options.spaDist,
+        target: options.target,
+      });
+      cleanup = result.cleanup;
+      app = result.app;
+    } catch (err) {
+      console.error(pc.red("Cannot preview: lessonkit interchange failed"));
+      const validation = (err as { validation?: ValidationResult }).validation;
+      if (validation) {
+        printValidationIssues(validation);
+      } else if ((err as { issues?: ValidationResult["issues"] }).issues) {
+        printValidationIssues({
+          valid: false,
+          issues: (err as { issues: ValidationResult["issues"] }).issues,
+        });
+      } else {
+        console.error(pc.red(formatErrorMessage(err)));
+      }
+      process.exit(1);
+    }
+  } else {
+    const courseDir = resolveCourseDir();
+    const started = await resolveStartPreview(courseDir, options);
+    app = started.app;
+  }
+
+  const onShutdown = async () => {
+    await app.close();
+    await cleanup?.();
+  };
+  process.once("SIGINT", () => {
+    void onShutdown().finally(() => process.exit(0));
+  });
+  process.once("SIGTERM", () => {
+    void onShutdown().finally(() => process.exit(0));
+  });
 
   try {
     await app.listen({ port, host });

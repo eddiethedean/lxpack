@@ -7,7 +7,7 @@ description: >-
   SCORM export, LessonKit, or learning experience authoring.
 license: Apache-2.0
 metadata:
-  lxpack-version: "0.5.0"
+  lxpack-version: "0.6.0"
   docs: https://lxpack.readthedocs.io/en/latest/
 ---
 

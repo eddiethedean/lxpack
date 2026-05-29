@@ -13,7 +13,7 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.5.0](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) — LessonKit thin packaging (`packageLessonkit`, interchange schema v1)
+**Current release:** [v0.6.0](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) — LessonKit bridge SDK, preview from interchange, conformance matrix, `@lxpack/lessonkit`
 
 ## Packages
 

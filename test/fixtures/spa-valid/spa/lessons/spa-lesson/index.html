@@ -8,8 +8,8 @@
   <body>
     <div id="root">SPA fixture</div>
     <script>
-      // No bridge calls in fixture by default.
-      console.log("spa fixture");
+      const bridge = window.parent?.lxpackBridge?.v1;
+      bridge?.completeLesson?.("spa-lesson");
     </script>
   </body>
 </html>

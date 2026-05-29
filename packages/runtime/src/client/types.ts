@@ -14,18 +14,7 @@ export type BrowserLessonRenderer = (
 declare global {
   interface Window {
     lxpack?: ReturnType<LxpackRuntime["getAPI"]>;
-    lxpackBridge?: {
-      v1: {
-        completeLesson: (lessonId: string) => void;
-        submitAssessment: (options: {
-          id: string;
-          score: number;
-          passingScore?: number;
-          passed?: boolean;
-        }) => void;
-        track: (event: unknown) => void;
-      };
-    };
+    lxpackBridge?: import("@lxpack/spa-bridge").LxpackBridgeRoot;
     __LXPACK_CONFIG__?: RuntimeConfig;
     __LXPACK_LESSON_RENDERERS__?: Record<string, BrowserLessonRenderer>;
     __LXPACK_COMPONENTS__?: {

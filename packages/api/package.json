@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/api",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Programmatic validate/build API for LXPack",
   "license": "Apache-2.0",
   "repository": {
