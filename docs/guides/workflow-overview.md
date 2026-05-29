@@ -69,4 +69,4 @@ See [Build courses](build-overview.md) for lesson, quiz, and export depth. For A
 - [Library Skills](library-skills.md)
 
 !!! info "v0.4.0 scope"
-    No `lxpack repair` or bundled AI CLI yet — Claude edits files; `lxpack` validates and packages. Phase 4 may add more automation.
+    No `lxpack repair` or bundled AI CLI yet — Claude edits files; `lxpack` validates and packages. Phase 5 may add more automation.

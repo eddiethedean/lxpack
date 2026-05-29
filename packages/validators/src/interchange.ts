@@ -3,6 +3,13 @@ import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { assertPackagableFile } from "./packagable-path.js";
 import {
+  assessmentsFromInterchange,
+  interchangeToManifest,
+  parseLessonkitInterchange,
+  spaLessonRelativePath,
+  type LessonkitInterchangeV1,
+} from "./lessonkit-interchange.js";
+import {
   courseManifestSchema,
   type CourseManifest,
 } from "./schemas.js";
@@ -17,28 +24,26 @@ import {
   type ValidationResult,
 } from "./validate.js";
 
-export type InterchangeLesson = {
-  id: string;
-  title?: string;
-  type: "spa";
-  path?: string;
-  build?: { outputDir?: string };
-};
-
-export type LessonKitInterchange = {
-  format?: string;
-  version?: string;
-  course?: { id?: string; title?: string };
-  lessons?: InterchangeLesson[];
-  tracking?: { completion?: { threshold?: number } };
-};
+export type { InterchangeLesson, LessonkitInterchangeV1, LessonKitInterchange } from "./lessonkit-interchange.js";
+export {
+  assessmentsFromInterchange,
+  interchangeToManifest,
+  lessonkitInterchangeSchema,
+  parseLessonkitInterchange,
+  spaLessonRelativePath,
+} from "./lessonkit-interchange.js";
 
 export type LoadInterchangeResult =
   | { status: "missing" }
-  | { status: "loaded"; fileName: string; data: LessonKitInterchange }
+  | { status: "loaded"; fileName: string; data: LessonkitInterchangeV1 }
   | { status: "error"; fileName: string; issues: ValidationIssue[] };
 
 const INTERCHANGE_CANDIDATES = ["lessonkit.json", "lxpack.import.json"] as const;
+
+export interface ValidateCourseWithInterchangeOptions extends ValidateCourseOptions {
+  /** In-memory interchange (skips on-disk lessonkit.json for merge). */
+  interchange?: LessonkitInterchangeV1;
+}
 
 export async function loadLessonKitInterchange(
   courseDir: string,
@@ -81,8 +86,12 @@ export async function loadLessonKitInterchange(
     }
 
     try {
-      const data = JSON.parse(raw) as LessonKitInterchange;
-      return { status: "loaded", fileName, data };
+      const json = JSON.parse(raw) as unknown;
+      const parsed = parseLessonkitInterchange(json, fileName);
+      if (!parsed.ok) {
+        return { status: "error", fileName, issues: parsed.issues };
+      }
+      return { status: "loaded", fileName, data: parsed.data };
     } catch (err) {
       return {
         status: "error",
@@ -102,7 +111,7 @@ export async function loadLessonKitInterchange(
 
 export function mergeInterchangeIntoManifest(
   base: CourseManifest,
-  interchange: LessonKitInterchange,
+  interchange: LessonkitInterchangeV1,
 ): CourseManifest {
   const merged: CourseManifest = {
     ...base,
@@ -115,12 +124,23 @@ export function mergeInterchangeIntoManifest(
             },
           }
         : base.tracking,
+    runtime: {
+      theme: interchange.runtime?.theme ?? base.runtime?.theme ?? "modern",
+      ...(base.runtime?.cssVariables || interchange.runtime?.cssVariables
+        ? {
+            cssVariables: {
+              ...base.runtime?.cssVariables,
+              ...interchange.runtime?.cssVariables,
+            },
+          }
+        : {}),
+    },
     lessons: [...base.lessons],
+    assessments: [...(base.assessments ?? [])],
   };
 
-  for (const l of interchange.lessons ?? []) {
-    if (!l?.id || l.type !== "spa") continue;
-    const path = l.path ?? l.build?.outputDir;
+  for (const l of interchange.lessons) {
+    const path = spaLessonRelativePath(l);
     if (!path) continue;
 
     const idx = merged.lessons.findIndex((x) => x.id === l.id);
@@ -134,6 +154,17 @@ export function mergeInterchangeIntoManifest(
       merged.lessons[idx] = { ...merged.lessons[idx], ...lesson } as never;
     } else {
       merged.lessons.push(lesson as never);
+    }
+  }
+
+  const assessmentIds = new Set(merged.assessments?.map((a) => a.id) ?? []);
+  for (const a of interchange.assessments ?? []) {
+    if (!assessmentIds.has(a.id)) {
+      merged.assessments = [
+        ...(merged.assessments ?? []),
+        { id: a.id, file: `assessments/${a.id}.yaml` },
+      ];
+      assessmentIds.add(a.id);
     }
   }
 
@@ -153,21 +184,67 @@ function manifestParseIssues(
   }));
 }
 
+function resolveInterchangeLoad(
+  courseDir: string,
+  options?: ValidateCourseWithInterchangeOptions,
+): Promise<LoadInterchangeResult> | LoadInterchangeResult {
+  if (options?.interchange) {
+    return {
+      status: "loaded",
+      fileName: "lessonkit.json",
+      data: options.interchange,
+    };
+  }
+  return loadLessonKitInterchange(courseDir);
+}
+
+function mergeAssessmentData(
+  options: ValidateCourseWithInterchangeOptions | undefined,
+  interchange: LessonkitInterchangeV1 | undefined,
+): unknown[] | undefined {
+  if (options?.assessmentData != null) {
+    return options.assessmentData;
+  }
+  if (interchange) {
+    return assessmentsFromInterchange(interchange);
+  }
+  return undefined;
+}
+
 /**
  * Validates a course directory, merging optional lessonkit.json / lxpack.import.json
  * into the manifest before validation (same behavior as @lxpack/api and lxpack CLI).
  */
 export async function validateCourseWithInterchange(
   courseDir: string,
-  options?: ValidateCourseOptions,
+  options?: ValidateCourseWithInterchangeOptions,
 ): Promise<ValidationResult> {
-  const interchangeLoad = await loadLessonKitInterchange(courseDir);
+  const interchangeLoad = await resolveInterchangeLoad(courseDir, options);
   if (interchangeLoad.status === "error") {
     return { valid: false, issues: interchangeLoad.issues };
   }
 
   const interchange =
     interchangeLoad.status === "loaded" ? interchangeLoad : null;
+  const resolvedDir = resolve(courseDir);
+  const hasCourseYaml = existsSync(join(resolvedDir, "course.yaml"));
+
+  if (!hasCourseYaml && interchange) {
+    const manifest = interchangeToManifest(interchange.data);
+    const parseIssues = manifestParseIssues(
+      manifest,
+      interchange.fileName,
+    );
+    if (parseIssues) {
+      return { valid: false, issues: parseIssues };
+    }
+
+    const assessmentData = mergeAssessmentData(options, interchange.data);
+    return validateCourseManifest(resolvedDir, manifest, {
+      ...options,
+      assessmentData,
+    });
+  }
 
   if (options?.assessmentData != null) {
     const loaded = await loadManifest(courseDir);
@@ -209,7 +286,11 @@ export async function validateCourseWithInterchange(
     return { valid: false, issues: [...loaded.issues, ...parseIssues] };
   }
 
-  const revalidated = await validateCourseManifest(courseDir, merged, options);
+  const assessmentData = mergeAssessmentData(options, interchange.data);
+  const revalidated = await validateCourseManifest(courseDir, merged, {
+    ...options,
+    assessmentData,
+  });
   return {
     ...revalidated,
     issues: revalidated.issues,

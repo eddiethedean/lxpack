@@ -1,4 +1,4 @@
-# LXPack architecture (v0.4.0)
+# LXPack architecture (v0.5.0)
 
 Internal layout after the SOLID refactor. Current release **v0.4.0**.
 
@@ -29,7 +29,9 @@ Internal layout after the SOLID refactor. Current release **v0.4.0**.
 
 - **`xapi-validate.ts`** — `validateXapiTracking`, `getCourseActivityIri` for xAPI/cmi5 builds.
 - **`activities.ts`** — `enumerateActivities` (canonical activity list for Node tooling).
-- **`interchange.ts`** — `loadLessonKitInterchange`, `mergeInterchangeIntoManifest`, `validateCourseWithInterchange` for `lessonkit.json` / `lxpack.import.json`.
+- **`lessonkit-interchange.ts`** — Zod schema v1, `interchangeToManifest`, `parseLessonkitInterchange`
+- **`materialize-lessonkit.ts`** — `materializeLessonkitProject` (staging course tree from interchange + SPA dirs)
+- **`interchange.ts`** — `loadLessonKitInterchange`, `mergeInterchangeIntoManifest`, `validateCourseWithInterchange` (including interchange-only projects)
 
 ## SCORM / export (`@lxpack/scorm`)
 

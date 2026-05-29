@@ -5,7 +5,7 @@ description: >-
   for LMS deployment. Use when packaging courses or configuring tracking.xapi.
 license: Apache-2.0
 metadata:
-  lxpack-version: "0.4.0"
+  lxpack-version: "0.5.0"
 ---
 
 # LXPack export / build
@@ -16,6 +16,18 @@ metadata:
 lxpack validate --target TARGET
 lxpack build --target TARGET
 ```
+
+### LessonKit interchange (v0.5.0)
+
+Package from `lessonkit.json` without a hand-written `course.yaml`:
+
+```bash
+lxpack build --lessonkit ./lessonkit.json \
+  --spa-lesson lesson_id=/abs/path/to/dist \
+  --target scorm12
+```
+
+Or use `@lxpack/api` `packageLessonkit()` from Node/CI.
 
 Default output: `.lxpack/<course>-<target>.zip` unless `-o` or `lxpack.config.json` overrides.
 

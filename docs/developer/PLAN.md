@@ -195,7 +195,28 @@ Out of scope for v0.2: xAPI, cmi5, hot reload, theme wiring, plugin marketplace.
 
 ---
 
-## Phase 4 — AI tooling
+## Phase 0.4 — LessonKit interoperability (shipped — v0.4.0)
+
+- SPA / React lesson type (`type: spa`) and `lxpackBridge.v1`
+- `@lxpack/api` — programmatic `validateCourse` / `buildCourse`
+- `lessonkit.json` / `lxpack.import.json` interchange merge
+- `@lxpack/tracking-schema` and in-memory assessment injection
+
+See [ROADMAP.md](ROADMAP.md#phase-04--lessonkit-interoperability-shipped--v040) for full shipped list.
+
+---
+
+## Phase 0.5 — LessonKit integration depth (shipped — v0.5.0)
+
+**Shipped:** `packageLessonkit()`, interchange schema v1, interchange-only validation, `lxpack build --lessonkit`, [lessonkit interchange reference](../reference/lessonkit-interchange.md).
+
+**v0.6+:** Bridge SDK, telemetry map, preview from interchange, conformance harness, `@lxpack/lessonkit` meta-package — see [ROADMAP.md](ROADMAP.md#v06-lessonkit-integration-and-platform).
+
+**Source of truth:** [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
+
+---
+
+## Phase 5 — AI tooling (v0.6+)
 
 - Claude prompt generation and repair workflows
 - AI-generated assessments and interactions
@@ -203,15 +224,16 @@ Out of scope for v0.2: xAPI, cmi5, hot reload, theme wiring, plugin marketplace.
 
 ---
 
-## Phase 5 — Ecosystem
+## Phase 6 — Ecosystem (v0.6+)
 
 - plugin marketplace
 - component marketplace
 - LMS integrations and hosted review environments
+- custom lesson runtime plugin slot
 
 ---
 
-## Phase 6 — Enterprise platform
+## Phase 7 — Enterprise platform (v0.7+)
 
 - cloud deployment
 - analytics dashboards
@@ -246,7 +268,7 @@ course/
 | AI-native | No | Yes |
 | Git-friendly | Weak | Strong |
 | Web-native | Partial | Yes |
-| Open ecosystem | Limited | Planned (Phase 5+) |
+| Open ecosystem | Limited | Planned (Phase 6+) |
 | Developer extensibility | Limited | Strong |
 | Custom interactions | Difficult | Easy |
 

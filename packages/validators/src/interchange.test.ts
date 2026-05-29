@@ -20,6 +20,17 @@ const baseManifest: CourseManifest = {
   ],
 };
 
+function lessonkitJson(
+  body: Record<string, unknown>,
+): string {
+  return JSON.stringify({
+    format: "lessonkit",
+    version: "1",
+    lessons: [{ id: "default_spa", type: "spa", path: "dist/default" }],
+    ...body,
+  });
+}
+
 describe("interchange", () => {
   it("returns missing when no interchange file exists", async () => {
     const result = await loadLessonKitInterchange(fixturePath("minimal-valid"));
@@ -50,7 +61,9 @@ describe("interchange", () => {
     const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-import-"));
     await writeFile(
       join(courseDir, "lxpack.import.json"),
-      JSON.stringify({ lessons: [{ id: "ix", type: "spa", path: "dist/x" }] }),
+      lessonkitJson({
+        lessons: [{ id: "ix", type: "spa", path: "dist/x" }],
+      }),
     );
 
     const result = await loadLessonKitInterchange(courseDir);
@@ -64,6 +77,8 @@ describe("interchange", () => {
 
   it("mergeInterchangeIntoManifest updates tracking, lessons, and paths", () => {
     const merged = mergeInterchangeIntoManifest(baseManifest, {
+      format: "lessonkit",
+      version: "1",
       tracking: { completion: { threshold: 0.75 } },
       lessons: [
         { id: "spa_old", type: "spa", path: "new/path", title: "Updated" },
@@ -73,8 +88,6 @@ describe("interchange", () => {
           build: { outputDir: "dist/spa-new" },
           title: "New SPA",
         },
-        { id: "skip", type: "spa" },
-        { id: "not-spa", type: "spa" as never },
       ],
     });
 
@@ -90,7 +103,6 @@ describe("interchange", () => {
     if (added?.type === "spa") {
       expect(added.path).toBe("dist/spa-new");
     }
-    expect(merged.lessons.some((l) => l.id === "skip")).toBe(false);
   });
 
   it("validateCourseWithInterchange merges spa lessons from lessonkit.json", async () => {
@@ -107,7 +119,7 @@ describe("interchange", () => {
 
     await writeFile(
       join(courseDir, "lessonkit.json"),
-      JSON.stringify({
+      lessonkitJson({
         lessons: [
           {
             id: "ix_spa",
@@ -160,7 +172,7 @@ assessments:
 
     await writeFile(
       join(courseDir, "lessonkit.json"),
-      JSON.stringify({
+      lessonkitJson({
         lessons: [{ id: "ix_spa", type: "spa", path: "dist/good-spa" }],
       }),
     );
@@ -253,7 +265,8 @@ lessons:
 
     await writeFile(
       join(courseDir, "lessonkit.json"),
-      JSON.stringify({
+      lessonkitJson({
+        lessons: [{ id: "intro", type: "spa", path: "dist/x" }],
         tracking: { completion: { threshold: 2 } },
       }),
     );
@@ -277,7 +290,9 @@ lessons:
     const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-symlink-"));
     await writeFile(
       join(outside, "lessonkit.json"),
-      JSON.stringify({ lessons: [] }),
+      lessonkitJson({
+        lessons: [{ id: "ix", type: "spa", path: "dist/ix" }],
+      }),
     );
     await symlink(join(outside, "lessonkit.json"), join(courseDir, "lessonkit.json"));
 
@@ -318,7 +333,7 @@ lessons:
     );
     await writeFile(
       join(courseDir, "lessonkit.json"),
-      JSON.stringify({
+      lessonkitJson({
         lessons: [{ id: "ix_spa", type: "spa", path: "dist/spa" }],
       }),
     );
@@ -365,17 +380,103 @@ assessments:
     await rm(courseDir, { recursive: true, force: true });
   });
 
-  it("returns early when base validation has no manifest", async () => {
-    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-noman-"));
+  it("returns early when course.yaml fails before interchange merge", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-badcy-"));
+    await writeFile(join(courseDir, "course.yaml"), "title: [\nversion: 1\n");
     await writeFile(
       join(courseDir, "lessonkit.json"),
-      JSON.stringify({ lessons: [{ id: "x", type: "spa", path: "dist/x" }] }),
+      lessonkitJson({
+        lessons: [{ id: "x", type: "spa", path: "dist/x" }],
+      }),
     );
 
     const result = await validateCourseWithInterchange(courseDir);
     expect(result.valid).toBe(false);
     expect(result.manifest).toBeUndefined();
-    expect(result.issues.some((i) => i.path === "course.yaml")).toBe(true);
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
+  it("merges assessments from interchange on standard validate path", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-assess-"));
+    await cp(fixturePath("minimal-valid"), courseDir, { recursive: true });
+    await rm(join(courseDir, "assessments"), { recursive: true, force: true });
+
+    await mkdir(join(courseDir, "dist", "spa"), { recursive: true });
+    await writeFile(join(courseDir, "dist", "spa", "index.html"), "<html></html>");
+
+    await writeFile(
+      join(courseDir, "lessonkit.json"),
+      lessonkitJson({
+        lessons: [{ id: "ix_spa", type: "spa", path: "dist/spa" }],
+        assessments: [
+          {
+            id: "quiz",
+            passingScore: 0.7,
+            questions: [
+              {
+                id: "q1",
+                prompt: "One?",
+                choices: [
+                  { id: "a", text: "A", correct: true },
+                  { id: "b", text: "B" },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = await validateCourseWithInterchange(courseDir);
+    expect(result.valid).toBe(true);
+    expect(result.parsedAssessments?.has("quiz")).toBe(true);
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
+  it("uses in-memory interchange option without on-disk file", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-mem-"));
+    await mkdir(join(courseDir, "dist", "x"), { recursive: true });
+    await writeFile(
+      join(courseDir, "dist", "x", "index.html"),
+      "<!doctype html><html><body></body></html>",
+    );
+
+    const result = await validateCourseWithInterchange(courseDir, {
+      interchange: {
+        format: "lessonkit",
+        version: "1",
+        course: { title: "In memory" },
+        lessons: [{ id: "x", type: "spa", path: "dist/x" }],
+      },
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.manifest?.title).toBe("In memory");
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
+  it("validates interchange-only project without course.yaml", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-only-"));
+    await mkdir(join(courseDir, "dist", "x"), { recursive: true });
+    await writeFile(
+      join(courseDir, "dist", "x", "index.html"),
+      "<!doctype html><html><body>spa</body></html>",
+    );
+    await writeFile(
+      join(courseDir, "lessonkit.json"),
+      lessonkitJson({
+        course: { title: "Interchange Only" },
+        lessons: [{ id: "x", type: "spa", path: "dist/x", title: "SPA" }],
+      }),
+    );
+
+    const result = await validateCourseWithInterchange(courseDir);
+    expect(result.valid).toBe(true);
+    expect(result.manifest?.title).toBe("Interchange Only");
+    expect(result.manifest?.lessons.some((l) => l.id === "x")).toBe(true);
 
     await rm(courseDir, { recursive: true, force: true });
   });

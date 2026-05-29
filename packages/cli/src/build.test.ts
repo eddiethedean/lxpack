@@ -314,6 +314,129 @@ describe("buildCommand", () => {
     exit.mockRestore();
   });
 
+  it("builds from lessonkit interchange with --spa-lesson", async () => {
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    const spaDir = join(workDir, "spa-dist");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+
+    const interchangePath = join(workDir, "lessonkit.json");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "LK Build" },
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+
+    const logs: string[] = [];
+    const logSpy = vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
+      logs.push(args.map(String).join(" "));
+    });
+
+    process.chdir(workDir);
+    await buildCommand({
+      lessonkit: interchangePath,
+      spaLesson: [`spa1=${spaDir}`],
+      target: "scorm12",
+      output: ".lxpack/custom-lk.zip",
+    });
+    logSpy.mockRestore();
+    process.chdir(join(workDir, "course"));
+
+    const outLine = logs.find((l) => l.trimStart().startsWith("Output:"));
+    expect(outLine).toBeTruthy();
+    const zipPath = outLine!.replace(/^\s*Output:\s*/, "").trim();
+    expect(existsSync(zipPath)).toBe(true);
+  });
+
+  it("builds lessonkit with --dir and custom output under .lxpack", async () => {
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    const spaDir = join(workDir, "spa-dist-dir");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+
+    const interchangePath = join(workDir, "lessonkit-dir.json");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "LK Dir" },
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+
+    const logs: string[] = [];
+    const logSpy = vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
+      logs.push(args.map(String).join(" "));
+    });
+
+    process.chdir(workDir);
+    await buildCommand({
+      lessonkit: interchangePath,
+      spaLesson: [`spa1=${spaDir}`],
+      target: "scorm12",
+      dir: true,
+      output: ".lxpack/lessonkit-unpacked",
+    });
+    logSpy.mockRestore();
+    process.chdir(join(workDir, "course"));
+
+    const outLine = logs.find((l) => l.trimStart().startsWith("Output:"));
+    expect(outLine).toBeTruthy();
+    const outDir = outLine!.replace(/^\s*Output:\s*/, "").trim();
+    expect(existsSync(join(outDir, "index.html"))).toBe(true);
+  });
+
+  it("exits when lessonkit package validation fails", async () => {
+    const interchangePath = join(workDir, "lessonkit-missing-spa.json");
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "No SPA" },
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+
+    process.chdir(workDir);
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      buildCommand({ lessonkit: interchangePath, target: "scorm12" }),
+    ).rejects.toThrow("exit:1");
+    exit.mockRestore();
+    process.chdir(join(workDir, "course"));
+  });
+
+  it("exits when lessonkit interchange is invalid", async () => {
+    const interchangePath = join(workDir, "bad-lessonkit.json");
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(interchangePath, "{ broken");
+
+    process.chdir(workDir);
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation((code?: number) => {
+        throw new Error(`exit:${code ?? 0}`);
+      });
+
+    await expect(
+      buildCommand({ lessonkit: interchangePath, spaLesson: ["spa1=/tmp/x"] }),
+    ).rejects.toThrow("exit:1");
+    exit.mockRestore();
+    process.chdir(join(workDir, "course"));
+  });
+
   it("exits when course fails validation for --dir builds", async () => {
     const { writeFile } = await import("node:fs/promises");
     await writeFile(

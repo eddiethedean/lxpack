@@ -169,12 +169,17 @@ Long-term interoperability — not scheduled for v0.2.
 ```text
 packages/
   cli/
+  api/
   runtime/
   validators/
   scorm/
   components/
+  tracking-schema/
   xapi/
   cmi5/
+  spa-bridge/          # Phase 0.5 (planned)
+  conformance/         # Phase 0.5 (planned)
+  lessonkit/           # Phase 0.5 (planned, optional meta-package)
 examples/
   security-awareness/
   branching-demo/
@@ -253,7 +258,7 @@ This phase makes LXPack a first-class **packaging and LMS export layer** for
 [LessonKit](https://github.com/eddiethedean/lessonkit): preserve React authoring, provide stable
 library APIs for CI/tooling, and align tracking semantics across runtimes.
 
-Source of truth: `docs/LXPACK_UPGRADES_FOR_LESSONKIT.md`.
+Shipped checklist: [LXPACK_UPGRADES_FOR_LESSONKIT.md](../LXPACK_UPGRADES_FOR_LESSONKIT.md). Next phase: [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
 
 ### Shipped in v0.4.0
 
@@ -264,26 +269,75 @@ Source of truth: `docs/LXPACK_UPGRADES_FOR_LESSONKIT.md`.
 - **Assessment build-time injection** — pass `assessments` to `buildCourse` without on-disk YAML
 - **Docs and examples** — [LessonKit interoperability](../guides/lessonkit-interoperability.md)
 
-### Deferred beyond v0.4.0
+### Deferred to v0.5.0 / v0.6+
 
-- **Extensibility for custom lesson runtimes (plugin slot)** — runtime registration hooks for third-party lesson types
-- **Theme token bridge** — external design tokens for LessonKit ↔ LXPack visual parity
+- **v0.5.0** — `packageLessonkit()`, versioned interchange schema (see Phase 0.5)
+- **v0.6+** — `@lxpack/spa-bridge`, telemetry map, preview from interchange, conformance harness, `@lxpack/lessonkit` meta-package (see Phase 0.5 and [v0.6+](#v06-lessonkit-integration-and-platform))
+- **Extensibility for custom lesson runtimes (plugin slot)** — runtime registration hooks (v0.6+ ecosystem)
 
-## Phase 4 — AI tooling
+## Phase 0.5 — LessonKit integration depth (shipped — v0.5.0)
+
+**Latest release in phase:** v0.5.0
+
+Shrink `@lessonkit/lxpack` so LXPack owns interchange and project materialization; bridge contracts, conformance, and the meta-package follow in **v0.6+**.
+
+**Source of truth:** [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
+
+### Shipped in v0.5.0
+
+- **`packageLessonkit()`** in `@lxpack/api` — materialize `course.yaml`, copy SPA dirs with path containment, prefer in-memory assessments; no hand-built project tree required
+- **Interchange schema owned by LXPack** — versioned Zod schema for `lessonkit.json` (`format: lessonkit`, `version: 1`); `validateCourse` accepts interchange-only projects
+- **CLI** — `lxpack build --lessonkit` with `--spa-lesson` / `--spa-dist`
+- **Docs** — [lessonkit interchange reference](../reference/lessonkit-interchange.md)
+
+### Deferred to v0.6+
+
+Remaining LessonKit integration work from the upgrade plan (see [v0.6+](#v06-lessonkit-integration-and-platform)):
+
+- **`@lxpack/spa-bridge`** — typed host/child SDK, score normalization, bridge versioning, validator warnings
+- **Telemetry map** — `mapLessonkitTelemetryToLxpack()`; LessonKit ↔ LXPack / xAPI table
+- **Theme interchange** — `runtime.cssVariables` and optional presets without `@lessonkit/themes`
+- **`lxpack preview --lessonkit`** — preview from interchange + SPA build output
+- **SCORM layout recipes** — single-SCO vs multi-SCO SPA guidance; optional `scormLayout` on build
+- **`@lxpack/conformance`** — shared fixtures and export-target matrix for LXPack and LessonKit CI
+- **`@lxpack/lessonkit`** — meta-package re-exports and adapter deprecation path
+
+### API stability (LessonKit 1.0.0 gate — target v0.6+)
+
+Stabilize after bridge SDK and conformance land:
+
+- `lxpackBridge.v1` signatures and 0–1 score semantics for `submitAssessment`
+- `lessonkit.json` `format` + `version` with documented migrations
+- `ExportTarget`, `buildCourse` / `packageLessonkit` result shapes
+- SPA lesson `type: spa` + `path` → folder with `index.html`
+
+Coordinate with LessonKit **0.9.x** (conformance harness) and **1.0.0** (stable public API).
+
+## v0.6+ — LessonKit integration and platform
+
+### LessonKit integration (remaining)
+
+- **`@lxpack/spa-bridge`** (P0) — see deferred list under Phase 0.5
+- **Tracking, theme, preview, SCORM recipes** (P1–P2)
+- **`@lxpack/conformance`** (P2)
+- **`@lxpack/lessonkit`** meta-package (P3)
+
+### Phase 5 — AI tooling (v0.6+)
 
 Features:
 - Claude integration
 - AI repair and accessibility remediation
 - AI-generated interactions
 
-## Phase 5 — Ecosystem
+### Phase 6 — Ecosystem (v0.6+)
 
 Features:
 - plugin marketplace
 - component marketplace
 - hosted previews
+- custom lesson runtime plugin slot (deferred from Phase 0.4)
 
-## Phase 6 — Enterprise platform
+### Phase 7 — Enterprise platform (v0.7+)
 
 Features:
 - cloud deployment
@@ -304,6 +358,11 @@ Features:
 | `@lxpack/components` | 2 |
 | `@lxpack/xapi` | 3 |
 | `@lxpack/cmi5` | 3 |
+| `@lxpack/api` | 0.4 (shipped) |
+| `@lxpack/tracking-schema` | 0.4 (shipped) |
+| `@lxpack/spa-bridge` | 0.6+ (planned) |
+| `@lxpack/conformance` | 0.6+ (planned) |
+| `@lxpack/lessonkit` | 0.6+ (planned, optional) |
 
 ---
 

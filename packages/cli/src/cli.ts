@@ -67,8 +67,28 @@ export function createCliProgram(): Command {
     )
     .option("-o, --output <path>", "Output file or directory path")
     .option("--dir", "Output as directory instead of ZIP")
+    .option(
+      "--lessonkit <path>",
+      "Build from lessonkit.json interchange (use with --spa-lesson or --spa-dist)",
+    )
+    .option(
+      "--spa-lesson <id=path>",
+      "SPA lesson id and absolute dist path (repeatable; used with --lessonkit)",
+      (value: string, previous: string[] = []) => [...previous, value],
+    )
+    .option(
+      "--spa-dist <path>",
+      "SPA dist folder when interchange has a single lesson",
+    )
     .action(
-      async (options: { target?: string; output?: string; dir?: boolean }) => {
+      async (options: {
+        target?: string;
+        output?: string;
+        dir?: boolean;
+        lessonkit?: string;
+        spaLesson?: string[];
+        spaDist?: string;
+      }) => {
         await buildCommand(options);
       },
     );

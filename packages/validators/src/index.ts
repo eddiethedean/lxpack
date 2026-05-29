@@ -36,5 +36,21 @@ export {
   validateCourseWithInterchange,
   type InterchangeLesson,
   type LessonKitInterchange,
+  type LessonkitInterchangeV1,
   type LoadInterchangeResult,
+  type ValidateCourseWithInterchangeOptions,
 } from "./interchange.js";
+export {
+  lessonkitInterchangeSchema,
+  parseLessonkitInterchange,
+  interchangeToManifest,
+  assessmentsFromInterchange,
+  spaLessonRelativePath,
+} from "./lessonkit-interchange.js";
+export {
+  materializeLessonkitProject,
+  resolvePackageAssessments,
+  parseInterchangeInput,
+  type MaterializeLessonkitOptions,
+  type MaterializeLessonkitResult,
+} from "./materialize-lessonkit.js";

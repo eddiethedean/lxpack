@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fixturePath } from "../../../test/helpers/paths.js";
-import { validateCourse, buildCourse } from "./index.js";
+import { validateCourse, buildCourse, packageLessonkit } from "./index.js";
 
 describe("@lxpack/api", () => {
   it("validates a known-good fixture course", async () => {
@@ -100,7 +100,14 @@ describe("@lxpack/api", () => {
       JSON.stringify({
         format: "lessonkit",
         version: "1",
-        lessons: [{ id: "ix_spa", title: "IX SPA", type: "spa", path: "dist/lessons/ix-spa" }],
+        lessons: [
+          {
+            id: "ix_spa",
+            title: "IX SPA",
+            type: "spa",
+            path: "dist/lessons/ix-spa",
+          },
+        ],
       }),
     );
 
@@ -135,6 +142,49 @@ describe("@lxpack/api", () => {
     ).toBe(true);
 
     await rm(courseDir, { recursive: true, force: true });
+  });
+
+  it("packageLessonkit materializes and builds SCORM 12", async () => {
+    const { mkdtemp, rm, writeFile } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+
+    const spaSource = await mkdtemp(join(tmpdir(), "lxpack-pkg-spa-"));
+    await writeFile(
+      join(spaSource, "index.html"),
+      "<!doctype html><html><body>spa</body></html>",
+    );
+
+    const result = await packageLessonkit({
+      interchange: {
+        format: "lessonkit",
+        version: "1",
+        course: { title: "Packaged SPA" },
+        lessons: [
+          {
+            id: "phishing_101",
+            type: "spa",
+            path: "spa/lessons/phishing-101",
+            title: "Phishing",
+          },
+        ],
+      },
+      spaDirs: { phishing_101: spaSource },
+      target: "scorm12",
+      dir: true,
+      output: "pkg-out",
+      outputBaseDir: ".lxpack",
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.courseDir).toBeTruthy();
+      expect(result.outputDir).toContain("pkg-out");
+      expect(result.fileCount).toBeGreaterThan(0);
+      await rm(result.courseDir, { recursive: true, force: true });
+    }
+
+    await rm(spaSource, { recursive: true, force: true });
   });
 });
 

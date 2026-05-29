@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-29
+
+### Added
+
+- **`packageLessonkit()`** (`@lxpack/api`) — materialize `course.yaml`, copy SPA build folders with path containment, and build LMS packages without a hand-authored project tree
+- **LessonKit interchange schema (v1)** — Zod-validated `lessonkit.json` (`format: lessonkit`, `version: 1`); `parseLessonkitInterchange`, `interchangeToManifest`, `materializeLessonkitProject` in `@lxpack/validators`
+- **Interchange-only validation** — `validateCourseWithInterchange` accepts courses with interchange but no `course.yaml`
+- **CLI** — `lxpack build --lessonkit <path> --spa-lesson id=/abs/dist` (and `--spa-dist` for single-SPA courses)
+- **Docs** — [lessonkit.json interchange reference](https://lxpack.readthedocs.io/en/latest/reference/lessonkit-interchange/)
+- **Example** — `examples/lessonkit-spa/scripts/package-via-api.mjs`
+
+### Changed
+
+- Interchange files must declare `format: "lessonkit"` and `version: "1"` (invalid interchange fails with path-qualified Zod errors)
+- `mergeInterchangeIntoManifest` merges `runtime.cssVariables` and interchange assessment refs
+
 ## [0.4.0] - 2026-05-27
 
 ### Added

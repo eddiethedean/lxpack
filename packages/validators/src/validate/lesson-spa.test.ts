@@ -23,6 +23,27 @@ describe("warnDirectLxpackApiInSpaHtml", () => {
       ),
     ).toBeNull();
   });
+
+  it("does not warn when parent.lxpack is used", () => {
+    expect(
+      warnDirectLxpackApiInSpaHtml(
+        "window.parent.lxpack.track({});",
+        "lessons.lab.path",
+      ),
+    ).toBeNull();
+  });
+
+  it("warns on lxpack.submitAssessment without parent", () => {
+    const issue = warnDirectLxpackApiInSpaHtml(
+      "lxpack.submitAssessment({ id: 'q' });",
+      "lessons.lab.path",
+    );
+    expect(issue?.severity).toBe("warning");
+  });
+
+  it("returns null when no lxpack API is referenced", () => {
+    expect(warnDirectLxpackApiInSpaHtml("<html></html>", "p")).toBeNull();
+  });
 });
 
 describe("validateSpaLesson", () => {
@@ -69,6 +90,23 @@ describe("validateSpaLesson", () => {
       path: "spa/lessons/no-index",
     });
     expect(issues.some((i) => i.severity === "error")).toBe(true);
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
+  it("errors when spa path is a file not a directory", async () => {
+    const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-spa-file-"));
+    await writeFile(join(courseDir, "not-a-dir"), "not a directory");
+
+    const issues = await validateSpaLesson(courseDir, {
+      id: "file_spa",
+      type: "spa" as const,
+      path: "not-a-dir",
+    });
+    expect(issues.some((i) => i.message.includes("not a directory"))).toBe(
+      true,
+    );
     await rm(courseDir, { recursive: true, force: true });
   });
 

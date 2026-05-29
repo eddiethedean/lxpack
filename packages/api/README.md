@@ -103,7 +103,27 @@ The course manifest must still declare `assessments: [{ id: quiz, file: ... }]`;
 
 ## LessonKit interchange (`lessonkit.json`)
 
-If `lessonkit.json` exists at the course root, the API merges supported fields (SPA lessons, completion threshold) into the manifest before validation and build. See [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/).
+v1 interchange requires `format: "lessonkit"` and `version: "1"`. See [lessonkit interchange reference](https://lxpack.readthedocs.io/en/latest/reference/lessonkit-interchange/).
+
+## `packageLessonkit()` (v0.5.0)
+
+Package without hand-written `course.yaml`:
+
+```ts
+import { packageLessonkit } from "@lxpack/api";
+
+const result = await packageLessonkit({
+  interchange: {
+    format: "lessonkit",
+    version: "1",
+    course: { title: "My SPA Course" },
+    lessons: [{ id: "main", type: "spa", path: "dist/main" }],
+  },
+  spaDirs: { main: "/abs/path/to/vite-dist" },
+  target: "scorm12",
+  assessments: [/* optional MCQ payloads */],
+});
+```
 
 ## Exports
 
@@ -111,6 +131,7 @@ If `lessonkit.json` exists at the course root, the API merges supported fields (
 |--------|-------------|
 | `validateCourse(options)` | Validate course directory; returns `{ ok, manifest?, issues }` |
 | `buildCourse(options)` | Validate and package; returns paths and file counts |
+| `packageLessonkit(options)` | Materialize interchange + SPA dirs, then build |
 | `ExportTarget` | Re-exported from `@lxpack/scorm` |
 | `CourseManifest`, `ValidationIssue` | Re-exported from `@lxpack/validators` |
 

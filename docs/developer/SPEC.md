@@ -252,7 +252,7 @@ Markdown is sanitized with a DOMPurify allowlist in the browser runtime. Custom 
 
 ---
 
-# Plugin System (Phase 5+)
+# Plugin System (Phase 6+)
 
 Planned plugin types: export targets, runtime extensions, assessment types, analytics, themes.
 
@@ -323,7 +323,7 @@ Not implemented in v0.1.x.
 - Stricter sanitization for custom HTML interactions (author `index.html` is trusted)
 - CSP enforcement for interactions
 - Sandboxed interaction iframes
-- Signed plugins (Phase 5+)
+- Signed plugins (Phase 6+)
 
 ---
 

@@ -1,6 +1,6 @@
 # Developer documentation
 
-Technical references for **v0.4.0** contributors and integrators.
+Technical references for **v0.5.0** contributors and integrators.
 
 <div class="grid cards" markdown>
 
@@ -26,7 +26,7 @@ Technical references for **v0.4.0** contributors and integrators.
 
     ---
 
-    Package boundaries (v0.4.0).
+    Package boundaries (v0.5.0).
 
 -   :octicons-wrench-24: **[REFACTORING](REFACTORING.md)**
 
@@ -44,11 +44,13 @@ Technical references for **v0.4.0** contributors and integrators.
 | **2 — Runtime expansion** | **v0.2.x** | Shipped | SCORM 2004 multi-SCO, branching, variables, quiz engine, `@lxpack/components` |
 | **3 — Modern standards** | **v0.3.x** | Shipped | xAPI, cmi5, analytics / simulation tracking |
 | **0.4 — LessonKit interoperability** | **v0.4.0** | Shipped | SPA lessons, `@lxpack/api`, `lessonkit.json`, `@lxpack/tracking-schema` |
-| **4 — AI tooling** | TBD | Planned | Claude integration, AI repair, AI-generated interactions |
-| **5 — Ecosystem** | TBD | Planned | Plugin marketplace, component marketplace, hosted previews |
-| **6 — Enterprise platform** | TBD | Planned | Cloud deployment, compliance tooling, hosted runtime |
+| **0.5 — LessonKit integration depth** | **v0.5.0** | Shipped | `packageLessonkit()`, interchange schema v1, `lxpack build --lessonkit` — [upgrade plan](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md) |
+| **0.5 (deferred) / v0.6+** | **v0.6+** | Planned | `@lxpack/spa-bridge`, telemetry map, preview `--lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit` |
+| **5 — AI tooling** | **v0.6+** | Planned | Claude integration, AI repair, AI-generated interactions |
+| **6 — Ecosystem** | **v0.6+** | Planned | Plugin marketplace, component marketplace, hosted previews |
+| **7 — Enterprise platform** | **v0.7+** | Planned | Cloud deployment, compliance tooling, hosted runtime |
 
-## Published npm packages (v0.4.0)
+## Published npm packages (v0.5.0)
 
 | Package | Role |
 |---------|------|

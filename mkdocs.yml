@@ -135,6 +135,7 @@ nav:
       - reference/lesson-types.md
       - reference/components.md
       - reference/tracking-and-completion.md
+      - reference/lessonkit-interchange.md
       - reference/troubleshooting.md
   - Developer:
       - developer/index.md

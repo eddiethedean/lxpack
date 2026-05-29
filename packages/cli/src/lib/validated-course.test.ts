@@ -55,6 +55,7 @@ describe("loadValidatedCourseContext", () => {
       join(courseDir, "lessonkit.json"),
       JSON.stringify({
         format: "lessonkit",
+        version: "1",
         lessons: [
           {
             id: "ix_spa",
