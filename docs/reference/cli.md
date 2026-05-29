@@ -2,7 +2,7 @@
 
 --8<-- "copy-tip.md"
 
-**v0.4.0** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
+**v0.5.0** · Requires Node.js 20+ and `@lxpack/cli` on your PATH.
 
 ## Copy-paste commands
 
@@ -21,7 +21,7 @@ Commands discover the course by walking up from the current directory until they
 | `lxpack init <name>` | Create a new course (`-d, --dir`, `-f, --force`) |
 | `lxpack preview` | Local preview server (`-p, --port`, `-H, --host`, `-t, --target`) |
 | `lxpack validate` | Validate structure (`-t, --target` for export rules) |
-| `lxpack build` | Package for LMS (`-t, --target`, `-o, --output`, `--dir`) |
+| `lxpack build` | Package for LMS (`-t, --target`, `-o, --output`, `--dir`, `--lessonkit`) |
 
 ## `init`
 
@@ -73,8 +73,21 @@ lxpack build --target standalone --dir -o ./out/standalone
 | Option | Description |
 |--------|-------------|
 | `-t, --target` | `scorm12` (default), `scorm2004`, `standalone`, `xapi`, `cmi5` |
-| `-o, --output` | Output ZIP or directory path |
+| `-o, --output` | Output ZIP or directory path (relative paths resolve inside the materialized course for `--lessonkit`) |
 | `--dir` | Unpacked directory instead of ZIP |
+| `--lessonkit <path>` | Build from `lessonkit.json` interchange instead of `course.yaml` |
+| `--spa-lesson <id=path>` | SPA lesson id and **absolute** path to dist folder with `index.html` (repeatable) |
+| `--spa-dist <path>` | Shorthand when the interchange has a single SPA lesson |
+
+LessonKit interchange build (no `course.yaml` in cwd):
+
+```bash title="lxpack build --lessonkit"
+lxpack build --lessonkit ./lessonkit.json \
+  --spa-lesson spa1=/abs/path/to/spa/dist \
+  --target scorm12
+```
+
+See [lessonkit.json interchange](lessonkit-interchange.md) and [LessonKit interoperability](../guides/lessonkit-interoperability.md).
 
 Default output directory: `.lxpack/` (or `output.dir` in `lxpack.config.json`).
 
@@ -88,5 +101,6 @@ Default output directory: `.lxpack/` (or `output.dir` in `lxpack.config.json`).
 ## See also
 
 - [lxpack.config.json](lxpack-config.md)  
+- [lessonkit.json interchange](lessonkit-interchange.md)  
 - [Troubleshooting](troubleshooting.md)  
 - [Your first course](../getting-started/your-first-course.md)

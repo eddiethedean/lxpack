@@ -66,22 +66,22 @@ Technical references for **v0.5.0** contributors and integrators.
 
 Package READMEs live under `packages/*/README.md` in the repository.
 
-## Publishing v0.4.0
+## Publishing v0.5.0
 
-Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) accurate for `[0.4.0]`.
+Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) accurate for `[0.5.0]`.
 
 ```bash
-# From a clean main at 0.4.0 in all packages/*/package.json
+# From a clean main at 0.5.0 in all packages/*/package.json
 pnpm install --frozen-lockfile
 pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm test:coverage
-pnpm examples:validate
+pnpm examples:validate && pnpm examples:test
 bash scripts/build-docs.sh
 
-git tag v0.4.0
-git push origin v0.4.0
+git tag v0.5.0
+git push origin v0.5.0
 ```
 
-Pushing tag `v0.4.0` runs [.github/workflows/release.yml](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
+Pushing tag `v0.5.0` runs [.github/workflows/release.yml](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
 
 ## User-facing docs
 

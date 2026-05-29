@@ -269,9 +269,8 @@ Shipped checklist: [LXPACK_UPGRADES_FOR_LESSONKIT.md](../LXPACK_UPGRADES_FOR_LES
 - **Assessment build-time injection** — pass `assessments` to `buildCourse` without on-disk YAML
 - **Docs and examples** — [LessonKit interoperability](../guides/lessonkit-interoperability.md)
 
-### Deferred to v0.5.0 / v0.6+
+### Deferred to v0.6+
 
-- **v0.5.0** — `packageLessonkit()`, versioned interchange schema (see Phase 0.5)
 - **v0.6+** — `@lxpack/spa-bridge`, telemetry map, preview from interchange, conformance harness, `@lxpack/lessonkit` meta-package (see Phase 0.5 and [v0.6+](#v06-lessonkit-integration-and-platform))
 - **Extensibility for custom lesson runtimes (plugin slot)** — runtime registration hooks (v0.6+ ecosystem)
 
