@@ -20,6 +20,15 @@ export type {
   PackageLessonkitResult,
 } from "./package-lessonkit.js";
 export { buildCourse, packageLessonkit };
+export {
+  getRuntimeAssetsDir,
+  readRuntimeBundle,
+  readComponentsBundle,
+  loadLearnerStyles,
+  getEmbeddedStyles,
+  loadRuntimeStyles,
+  loadComponentsStyles,
+} from "./bundle-io.js";
 
 export interface ValidateCourseOptions {
   courseDir: string;

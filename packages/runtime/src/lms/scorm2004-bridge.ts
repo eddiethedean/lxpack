@@ -5,13 +5,26 @@ import type { CompletionState } from "./completion-state.js";
 import type { LmsBridge } from "./bridge.js";
 
 export class Scorm2004Bridge implements LmsBridge {
+  private sessionReady = false;
+
   constructor(private readonly connection: Scorm2004Connection) {}
 
   init(): void {
-    this.connection.Initialize();
+    const ok = this.connection.Initialize() === "true";
+    if (!ok) {
+      console.warn(
+        "[lxpack] SCORM 2004 Initialize failed; progress will not persist to the LMS",
+      );
+      this.sessionReady = false;
+      return;
+    }
+    this.sessionReady = true;
   }
 
   restoreProgress(defaults: CourseProgress): CourseProgress {
+    if (!this.sessionReady) {
+      return defaults;
+    }
     const saved = this.connection.GetValue("cmi.suspend_data");
     if (saved) {
       const { progress, parsed } = parseStoredProgress(saved, defaults);
@@ -33,15 +46,26 @@ export class Scorm2004Bridge implements LmsBridge {
   }
 
   persist(_progress: CourseProgress, serialized: string): void {
+    if (!this.sessionReady) {
+      return;
+    }
     this.connection.setSuspendData(serialized);
-    this.connection.Commit();
+    if (this.connection.Commit() !== "true") {
+      console.warn("[lxpack] SCORM 2004 Commit failed");
+    }
   }
 
   setLocation(lessonId: string): void {
+    if (!this.sessionReady) {
+      return;
+    }
     this.connection.setLocation(lessonId);
   }
 
   applyCompletion(state: CompletionState): void {
+    if (!this.sessionReady) {
+      return;
+    }
     this.connection.setScoreScaled(state.ratio);
     if (state.anyAssessmentFailed) {
       this.connection.setSuccessStatus("failed");
@@ -68,6 +92,12 @@ export class Scorm2004Bridge implements LmsBridge {
   }
 
   terminate(): void {
-    this.connection.Terminate();
+    if (!this.sessionReady) {
+      return;
+    }
+    if (this.connection.Terminate() !== "true") {
+      console.warn("[lxpack] SCORM 2004 Terminate failed");
+    }
+    this.sessionReady = false;
   }
 }

@@ -16,6 +16,8 @@ export interface Scorm2004ApiLike {
 }
 
 const SCORM_ERROR_NONE = "0";
+const SCORM_ERROR_NOT_INITIALIZED = "102";
+const SCORM_ERROR_TERMINATED = "104";
 const PREVIEW_STORAGE_KEY = "lxpack_scorm2004_preview";
 
 export function findScorm2004Api(maxDepth = 500): Scorm2004ApiLike | null {
@@ -154,35 +156,72 @@ export class Scorm2004Simulator implements Scorm2004ApiLike {
 
 export class Scorm2004Adapter implements Scorm2004ApiLike {
   private api: Scorm2004ApiLike;
+  private initialized = false;
+  private terminated = false;
+  private lastError = SCORM_ERROR_NONE;
 
   constructor(api: Scorm2004ApiLike) {
     this.api = api;
   }
 
   Initialize(): string {
-    return this.api.Initialize("");
+    if (this.initialized) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
+    const result = this.api.Initialize("");
+    if (result === "true") {
+      this.initialized = true;
+      this.terminated = false;
+      this.lastError = SCORM_ERROR_NONE;
+    }
+    return result;
   }
 
   Terminate(): string {
-    return this.api.Terminate("");
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_TERMINATED;
+      return "false";
+    }
+    const result = this.api.Terminate("");
+    if (result === "true") {
+      this.terminated = true;
+      this.lastError = SCORM_ERROR_NONE;
+    }
+    return result;
   }
 
   GetValue(element: string): string {
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "";
+    }
+    this.lastError = SCORM_ERROR_NONE;
     return this.api.GetValue(element);
   }
 
   SetValue(element: string, value: string): string {
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
+    this.lastError = SCORM_ERROR_NONE;
     const v =
       element === "cmi.suspend_data" ? trimSuspendData(value) : value;
     return this.api.SetValue(element, v);
   }
 
   Commit(): string {
+    if (!this.initialized || this.terminated) {
+      this.lastError = SCORM_ERROR_NOT_INITIALIZED;
+      return "false";
+    }
+    this.lastError = SCORM_ERROR_NONE;
     return this.api.Commit("");
   }
 
   GetLastError(): string {
-    return this.api.GetLastError();
+    return this.lastError;
   }
 
   GetErrorString(errorCode?: string): string {

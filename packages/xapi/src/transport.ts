@@ -15,6 +15,7 @@ export interface StatementTransportOptions {
 export class StatementQueue {
   private queue: XapiStatement[] = [];
   private flushing = false;
+  private terminalFlushPending = false;
 
   constructor(private readonly options: StatementTransportOptions) {}
 
@@ -28,31 +29,52 @@ export class StatementQueue {
   }
 
   async flush(options?: { keepalive?: boolean }): Promise<void> {
-    if (this.flushing || !this.options.credentials?.endpoint) return;
+    if (!this.options.credentials?.endpoint) return;
+    if (this.flushing) {
+      if (options?.keepalive) {
+        this.terminalFlushPending = true;
+      }
+      return;
+    }
     this.flushing = true;
     const endpoint = normalizeEndpoint(this.options.credentials.endpoint);
-    while (this.queue.length > 0) {
-      const statement = this.queue.shift()!;
-      try {
-        await sendStatement(
-          endpoint,
-          this.options.credentials.auth,
-          statement,
-          { keepalive: options?.keepalive },
-        );
-      } catch (err) {
-        this.queue.unshift(statement);
-        this.options.onError?.(err, statement);
-        break;
+    try {
+      while (this.queue.length > 0) {
+        const statement = this.queue.shift()!;
+        try {
+          await sendStatement(
+            endpoint,
+            this.options.credentials.auth,
+            statement,
+            { keepalive: options?.keepalive },
+          );
+        } catch (err) {
+          this.queue.unshift(statement);
+          this.options.onError?.(err, statement);
+          break;
+        }
+      }
+    } finally {
+      this.flushing = false;
+      if (this.terminalFlushPending) {
+        this.terminalFlushPending = false;
+        await this.flush({ keepalive: true });
       }
     }
-    this.flushing = false;
   }
 
   /** Best-effort flush for page unload (uses fetch keepalive when available). */
   flushTerminal(): void {
     void this.flush({ keepalive: true });
   }
+}
+
+function formatAuthorizationHeader(auth: string): string {
+  const trimmed = auth.trim();
+  if (/^(Basic|Bearer)\s+/i.test(trimmed)) {
+    return trimmed;
+  }
+  return `Basic ${trimmed}`;
 }
 
 function normalizeEndpoint(endpoint: string): string {
@@ -71,7 +93,7 @@ export async function sendStatement(
     "X-Experience-API-Version": "1.0.3",
   };
   if (auth) {
-    headers.Authorization = auth.startsWith("Basic ") ? auth : `Basic ${auth}`;
+    headers.Authorization = formatAuthorizationHeader(auth);
   }
 
   const res = await fetch(endpoint, {

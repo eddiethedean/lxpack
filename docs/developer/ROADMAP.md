@@ -289,6 +289,19 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 - **CLI** — `lxpack build --lessonkit` with `--spa-lesson` / `--spa-dist`
 - **Docs** — [lessonkit interchange reference](../reference/lessonkit-interchange.md)
 
+## Phase 0.6.1 — Bugfix patch (shipped — v0.6.1)
+
+**Latest release in phase:** v0.6.1
+
+### Shipped in v0.6.1
+
+- Omit `lessonkit.json` / `lxpack.import.json` from LMS export ZIPs
+- LessonKit CLI loads `lxpack.config.json` beside the interchange file
+- Assessment navigation race guard; shared export CSS with preview
+- cmi5 POST fetch fix; xAPI Bearer auth and terminal flush retry
+- SCORM bridge session guards; SCORM 2004 adapter post-terminate guards
+- `lxpack init --force` clears stale root artifacts
+
 ## Phase 0.6 — LessonKit bridge and conformance (shipped — v0.6.0)
 
 **Latest release in phase:** v0.6.0

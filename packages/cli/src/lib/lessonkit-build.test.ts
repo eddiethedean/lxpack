@@ -3,6 +3,7 @@ import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
   parseSpaLessonOption,
+  resolveLessonkitConfigDir,
   validateSpaDirsForInterchange,
 } from "./lessonkit-build.js";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
@@ -10,6 +11,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 describe("lessonkit-build helpers", () => {
+  it("resolveLessonkitConfigDir returns parent of interchange file", () => {
+    expect(resolveLessonkitConfigDir("/proj/sub/lessonkit.json")).toBe(
+      "/proj/sub",
+    );
+  });
+
   it("parseSpaLessonOption splits id and path", () => {
     expect(parseSpaLessonOption("lesson_a=/tmp/dist")).toEqual({
       id: "lesson_a",

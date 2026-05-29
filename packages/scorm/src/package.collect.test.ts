@@ -90,6 +90,18 @@ describe("collectFiles", () => {
     expect(files.map((f) => f.path)).toEqual(["content.txt"]);
   });
 
+  it("skips lessonkit interchange metadata files", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-collect-interchange-"));
+    await writeFile(join(dir, "lessonkit.json"), '{"format":"lessonkit"}');
+    await writeFile(join(dir, "lxpack.import.json"), "{}");
+    await writeFile(join(dir, "keep.txt"), "ok");
+
+    const files = await collectFiles(dir, dir);
+    expect(files.map((f) => f.path)).toEqual(["keep.txt"]);
+    expect(shouldSkipCourseFile("lessonkit.json")).toBe(true);
+    expect(shouldSkipCourseFile("lxpack.import.json")).toBe(true);
+  });
+
   it("rejects hard links in the course tree", async () => {
     const dir = await mkdtemp(join(tmpdir(), "lxpack-collect-hardlink-"));
     await mkdir(join(dir, "lessons"), { recursive: true });

@@ -84,8 +84,8 @@ describe("Scorm2004Simulator", () => {
 describe("Scorm2004Adapter", () => {
   it("delegates to the underlying API", () => {
     const inner: Scorm2004Simulator = new Scorm2004Simulator();
-    inner.Initialize();
     const adapter = new Scorm2004Adapter(inner);
+    expect(adapter.Initialize()).toBe("true");
     adapter.setLocation("lesson-1");
     expect(adapter.GetValue("cmi.location")).toBe("lesson-1");
     adapter.setCompletionStatus("completed");

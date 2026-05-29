@@ -1,8 +1,8 @@
 # API stability (LessonKit 1.0 gate)
 
-Targets for **v0.6.0** and the path to LessonKit **1.0.0**.
+Targets for **v0.6.1** and the path to LessonKit **1.0.0**.
 
-## Stable in v0.6.0
+## Stable in v0.6.1
 
 ### `lxpackBridge.v1`
 

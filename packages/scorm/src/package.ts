@@ -42,6 +42,8 @@ const SKIP_FILES = new Set([
   "course.yaml",
   "lxpack.config.ts",
   "lxpack.config.json",
+  "lessonkit.json",
+  "lxpack.import.json",
 ]);
 
 const BLOCKED_PACKAGING_SEGMENTS = new Set([".git", ".env"]);

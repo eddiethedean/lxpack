@@ -18,6 +18,7 @@ import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
   parseSpaLessonOption,
+  resolveLessonkitConfigDir,
   validateSpaDirsForInterchange,
 } from "../lib/lessonkit-build.js";
 
@@ -76,7 +77,9 @@ export async function validateCommand(options?: {
 
     let config;
     try {
-      config = await loadLxpackConfig(process.cwd());
+      config = await loadLxpackConfig(
+        resolveLessonkitConfigDir(options.lessonkit),
+      );
     } catch (err) {
       console.error(
         pc.red(err instanceof Error ? err.message : String(err)),

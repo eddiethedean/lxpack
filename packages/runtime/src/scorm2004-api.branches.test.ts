@@ -110,8 +110,8 @@ describe("scorm2004-api branches", () => {
 
   it("adapter helpers set values on the wrapped API", () => {
     const inner = new Scorm2004Simulator({ persistToStorage: false });
-    inner.Initialize();
     const adapter = new Scorm2004Adapter(inner);
+    expect(adapter.Initialize()).toBe("true");
     adapter.setSuspendData("{}");
     adapter.setCompletionStatus("completed");
     adapter.setSuccessStatus("passed");

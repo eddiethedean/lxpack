@@ -28,10 +28,11 @@ function mockLms(initialData?: Partial<ScormData>): Scorm12Simulator {
 function mockScorm2004(initial?: Record<string, string>): Scorm2004Simulator {
   const sim = new Scorm2004Simulator({ persistToStorage: false });
   if (initial) {
-    sim.Initialize();
-    for (const [key, value] of Object.entries(initial)) {
-      sim.SetValue(key, value);
-    }
+    // Prime LMS fields without Initialize; Scorm2004Bridge calls Initialize on startup.
+    Object.assign(
+      (sim as Scorm2004Simulator & { data: Record<string, string> }).data,
+      initial,
+    );
   }
   vi.spyOn(scorm2004Api, "createScorm2004Connection").mockReturnValue(sim);
   return sim;

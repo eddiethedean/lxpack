@@ -1,9 +1,14 @@
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import {
   parseLessonkitInterchange,
   type LessonkitInterchangeV1,
 } from "@lxpack/validators";
+
+/** Directory containing lessonkit.json (for lxpack.config.json resolution). */
+export function resolveLessonkitConfigDir(interchangePath: string): string {
+  return dirname(resolve(interchangePath));
+}
 
 export function parseSpaLessonOption(value: string): { id: string; path: string } {
   const eq = value.indexOf("=");

@@ -40,6 +40,23 @@ describe("fetchCmi5AuthToken", () => {
     clearCmi5AuthCache();
   });
 
+  it("always POSTs even when init overrides method", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: { get: () => "application/json" },
+      json: async () => ({ "auth-token": "abc123" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchCmi5AuthToken("https://lms.example/cmi5/fetch/0", {
+      method: "GET",
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://lms.example/cmi5/fetch/0",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
   it("POSTs to the fetch URL and returns auth-token", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,

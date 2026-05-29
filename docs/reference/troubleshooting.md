@@ -34,6 +34,13 @@ Plain-language fixes for common `lxpack validate` and `lxpack build` messages.
 | Unknown lesson type | `type:` not markdown/html/component | Fix `type` spelling |
 | Assessment validation failed | Quiz YAML structure | One `correct: true` per question; unique `id`s |
 
+## LessonKit interchange
+
+| Problem | Fix |
+|---------|-----|
+| `lxpack build --lessonkit` ignores project `lxpack.config.json` | Run from any directory, but keep `lxpack.config.json` in the **same folder as `lessonkit.json`** (v0.6.1+). Older CLIs only read config from the shell cwd. |
+| `lessonkit.json` appears inside LMS ZIP | Upgrade to v0.6.1+; interchange files are author metadata and are excluded from exports. |
+
 ## Export-specific errors
 
 | Message (typical) | Meaning | Fix |

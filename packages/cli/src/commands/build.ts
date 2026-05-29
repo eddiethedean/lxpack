@@ -14,6 +14,7 @@ import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
   parseSpaLessonOption,
+  resolveLessonkitConfigDir,
   validateSpaDirsForInterchange,
 } from "../lib/lessonkit-build.js";
 
@@ -27,8 +28,10 @@ export async function buildCommand(options: {
 }): Promise<void> {
   let config;
   try {
-    const courseDir = options.lessonkit ? process.cwd() : findCourseDir();
-    config = await loadLxpackConfig(courseDir);
+    const configDir = options.lessonkit
+      ? resolveLessonkitConfigDir(options.lessonkit)
+      : findCourseDir();
+    config = await loadLxpackConfig(configDir);
   } catch (err) {
     console.error(pc.red(formatErrorMessage(err)));
     process.exit(1);
@@ -71,6 +74,7 @@ export async function buildCommand(options: {
         process.exit(1);
       }
 
+      const lessonkitProjectDir = resolveLessonkitConfigDir(options.lessonkit);
       const result = await packageLessonkit({
         interchange: loaded.data,
         spaDirs,
@@ -78,6 +82,7 @@ export async function buildCommand(options: {
         dir: options.dir,
         ...(options.output ? { output: options.output } : {}),
         outputBaseDir: config?.output?.dir ?? ".lxpack",
+        outputAnchorDir: lessonkitProjectDir,
         assessments: loaded.data.assessments,
       });
 

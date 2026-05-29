@@ -30,6 +30,7 @@ export async function renderItem(
     item.id,
     item.file,
   );
+  if (isStale?.()) return;
   renderAssessment(
     contentEl,
     payload ?? {

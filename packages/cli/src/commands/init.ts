@@ -214,6 +214,20 @@ export async function initCommand(
   }
 
   if (options.force) {
+    for (const name of [
+      "course.yaml",
+      "lxpack.config.json",
+      ".gitignore",
+    ]) {
+      const filePath = join(targetDir, name);
+      if (existsSync(filePath)) {
+        await rm(filePath, { force: true });
+      }
+    }
+    const lxpackOut = join(targetDir, ".lxpack");
+    if (existsSync(lxpackOut)) {
+      await rm(lxpackOut, { recursive: true, force: true });
+    }
     for (const sub of [
       "assessments",
       "interactions",

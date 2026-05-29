@@ -1,6 +1,6 @@
 # Developer documentation
 
-Technical references for **v0.5.0** contributors and integrators.
+Technical references for **v0.6.1** contributors and integrators.
 
 <div class="grid cards" markdown>
 
@@ -26,7 +26,7 @@ Technical references for **v0.5.0** contributors and integrators.
 
     ---
 
-    Package boundaries (v0.5.0).
+    Package boundaries (v0.6.1).
 
 -   :octicons-wrench-24: **[REFACTORING](REFACTORING.md)**
 
@@ -46,11 +46,12 @@ Technical references for **v0.5.0** contributors and integrators.
 | **0.4 — LessonKit interoperability** | **v0.4.0** | Shipped | SPA lessons, `@lxpack/api`, `lessonkit.json`, `@lxpack/tracking-schema` |
 | **0.5 — LessonKit integration depth** | **v0.5.0** | Shipped | `packageLessonkit()`, interchange schema v1, `lxpack build --lessonkit` |
 | **0.6 — LessonKit bridge & conformance** | **v0.6.0** | Shipped | `@lxpack/spa-bridge`, telemetry map, `preview --lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit` |
+| **0.6.1 — Patch** | **v0.6.1** | Shipped | Packaging/metadata fixes, LessonKit config path, SCORM session guards, export CSS parity, xAPI auth/flush |
 | **5 — AI tooling** | **v0.6+** | Planned | Claude integration, AI repair, AI-generated interactions |
 | **6 — Ecosystem** | **v0.6+** | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **7 — Enterprise platform** | **v0.7+** | Planned | Cloud deployment, compliance tooling, hosted runtime |
 
-## Published npm packages (v0.6.0)
+## Published npm packages (v0.6.1)
 
 | Package | Role |
 |---------|------|
@@ -69,23 +70,23 @@ Technical references for **v0.5.0** contributors and integrators.
 
 Package READMEs live under `packages/*/README.md` in the repository.
 
-## Publishing v0.6.0
+## Publishing
 
-Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) accurate for `[0.6.0]`.
+Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) accurate for the release version.
 
 ```bash
-# From a clean main at 0.6.0 in all packages/*/package.json
+# From a clean main with matching versions in all packages/*/package.json
 pnpm install --frozen-lockfile
 pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm test:coverage
 pnpm examples:validate && pnpm examples:test
 pnpm --filter @lxpack/conformance test
 bash scripts/build-docs.sh
 
-git tag v0.6.0
-git push origin v0.6.0
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
-Pushing tag `v0.6.0` runs [.github/workflows/release.yml](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm at the tag version. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
+Pushing a `v*.*.*` tag runs [.github/workflows/release.yml](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml): full checks, then publishes all `packages/*` to npm. Read the Docs can track the same tag as **stable** (see [readthedocs-setup.md](../readthedocs-setup.md)).
 
 ## User-facing docs
 

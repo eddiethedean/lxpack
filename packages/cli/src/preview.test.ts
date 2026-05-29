@@ -490,6 +490,91 @@ describe("previewCommand", () => {
     exit.mockRestore();
   });
 
+  it("exits when lessonkit preview fails with issues only", async () => {
+    const exit = vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+      throw new Error(`exit:${code ?? 0}`);
+    });
+    await expect(
+      previewCommands.previewCommand(
+        { lessonkit: "/tmp/bad.json", spaLesson: ["a=/b"] },
+        {
+          startPreviewFromLessonkit: async () => {
+            throw Object.assign(new Error("materialize failed"), {
+              issues: [{ path: "x", message: "bad", severity: "error" as const }],
+            });
+          },
+        },
+      ),
+    ).rejects.toThrow("exit:1");
+    exit.mockRestore();
+  });
+
+  it("closes the server and lessonkit cleanup on SIGINT", async () => {
+    const listen = vi.fn().mockResolvedValue(undefined);
+    const close = vi.fn().mockResolvedValue(undefined);
+    const cleanup = vi.fn().mockResolvedValue(undefined);
+    const exit = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
+    let onSigint: (() => void) | undefined;
+    const onceSpy = vi
+      .spyOn(process, "once")
+      .mockImplementation((event: string | symbol, handler: () => void) => {
+        if (event === "SIGINT") {
+          onSigint = handler as () => void;
+        }
+        return process;
+      });
+
+    await previewCommands.previewCommand(
+      {
+        lessonkit: "/tmp/lessonkit.json",
+        spaLesson: ["spa1=/tmp/spa"],
+        port: 4014,
+        host: "127.0.0.1",
+      },
+      {
+        startPreviewFromLessonkit: async () => ({
+          app: { listen, close },
+          validation: { valid: true, issues: [] },
+          courseDir: "/tmp/lk",
+          cleanup,
+        }),
+        logPreviewStarted: vi.fn(),
+      },
+    );
+
+    onSigint!();
+    await vi.waitFor(() => close.mock.calls.length > 0);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(close).toHaveBeenCalled();
+    expect(cleanup).toHaveBeenCalled();
+    expect(exit).toHaveBeenCalledWith(0);
+    onceSpy.mockRestore();
+    exit.mockRestore();
+  });
+
+  it("accepts IPv6 loopback without a host warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const listen = vi.fn().mockResolvedValue(undefined);
+    await previewCommands.previewCommand(
+      { port: 4013, host: "[::1]" },
+      {
+        findCourseDir: () => fixturePath("minimal-valid"),
+        startPreview: async () => ({
+          app: { listen, close: vi.fn() },
+          validation: { valid: true, issues: [] },
+        }),
+        logPreviewStarted: vi.fn(),
+      },
+    );
+    expect(
+      warn.mock.calls.some((c) => String(c[0]).includes("non-loopback host")),
+    ).toBe(false);
+    warn.mockRestore();
+  });
+
   it("uses default dependency resolution when deps are empty", async () => {
     const listen = vi.fn().mockResolvedValue(undefined);
     await previewCommands.previewCommand(

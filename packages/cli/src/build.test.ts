@@ -352,6 +352,41 @@ describe("buildCommand", () => {
     expect(existsSync(zipPath)).toBe(true);
   });
 
+  it("lessonkit build uses lxpack.config.json beside interchange, not cwd", async () => {
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    const projectDir = join(workDir, "lk-project");
+    const spaDir = join(projectDir, "spa-dist");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+    await writeFile(
+      join(projectDir, "lxpack.config.json"),
+      JSON.stringify({ exports: { defaultTarget: "standalone" } }),
+    );
+    const interchangePath = join(projectDir, "lessonkit.json");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "LK Config Dir" },
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+
+    process.chdir(workDir);
+    await buildCommand({
+      lessonkit: interchangePath,
+      spaLesson: [`spa1=${spaDir}`],
+    });
+    process.chdir(join(workDir, "course"));
+
+    expect(
+      existsSync(
+        resolve(projectDir, ".lxpack", "lk-config-dir-standalone.zip"),
+      ),
+    ).toBe(true);
+  });
+
   it("builds lessonkit with --dir and custom output under .lxpack", async () => {
     const { writeFile, mkdir } = await import("node:fs/promises");
     const spaDir = join(workDir, "spa-dist-dir");

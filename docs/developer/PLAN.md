@@ -163,7 +163,7 @@ lxpack build --target scorm12
 
 ## Phase 2 — Runtime expansion (shipped — v0.2.0)
 
-**Latest release:** v0.6.0
+**Latest release:** v0.6.1
 
 ### Shipped features
 
@@ -213,6 +213,10 @@ See [ROADMAP.md](ROADMAP.md#phase-04--lessonkit-interoperability-shipped--v040) 
 **Source of truth:** [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
 
 ---
+
+## Phase 0.6.1 — Bugfix patch (shipped — v0.6.1)
+
+Packaging, LessonKit config resolution, runtime/SCORM/xAPI fixes — see [CHANGELOG](../../CHANGELOG.md#061---2026-05-29).
 
 ## Phase 0.6 — LessonKit bridge and conformance (shipped — v0.6.0)
 

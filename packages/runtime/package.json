@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/runtime",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Web-native course runtime for LXPack",
   "license": "Apache-2.0",
   "repository": {

@@ -5,7 +5,7 @@ description: >-
   for LMS deployment. Use when packaging courses or configuring tracking.xapi.
 license: Apache-2.0
 metadata:
-  lxpack-version: "0.6.0"
+  lxpack-version: "0.6.1"
 ---
 
 # LXPack export / build

@@ -74,12 +74,12 @@ export async function fetchCmi5AuthToken(
   }
 
   const res = await fetch(fetchUrl, {
+    ...init,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...(init?.headers as Record<string, string> | undefined),
     },
-    ...init,
     body: init?.body ?? undefined,
   });
 

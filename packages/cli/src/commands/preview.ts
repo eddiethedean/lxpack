@@ -16,6 +16,7 @@ import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
   parseSpaLessonOption,
+  resolveLessonkitConfigDir,
   validateSpaDirsForInterchange,
 } from "../lib/lessonkit-build.js";
 import {
@@ -195,7 +196,9 @@ export async function startPreviewFromLessonkit(options: {
 
   let config = null;
   try {
-    config = await loadLxpackConfig(process.cwd());
+    config = await loadLxpackConfig(
+      resolveLessonkitConfigDir(options.lessonkitPath),
+    );
   } catch {
     /* optional lxpack.config.json */
   }

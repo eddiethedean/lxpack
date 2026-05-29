@@ -89,4 +89,25 @@ describe("initCommand", () => {
     expect(existsSync(join(targetDir, "interactions", "old-lab"))).toBe(false);
     expect(existsSync(join(targetDir, "assessments", "final.yaml"))).toBe(true);
   });
+
+  it("removes stale root files and .lxpack when --force is used", async () => {
+    const parent = await mkdtemp(join(tmpdir(), "lxpack-init-force-root-"));
+    dirs.push(parent);
+    process.chdir(parent);
+
+    await initCommand("existing", { dir: "existing" });
+    const targetDir = join(parent, "existing");
+    await writeFile(join(targetDir, "course.yaml"), "title: Stale\nversion: 1.0.0\n");
+    await mkdir(join(targetDir, ".lxpack"), { recursive: true });
+    await writeFile(join(targetDir, ".lxpack", "old.zip"), "zip");
+
+    await initCommand("existing", { dir: "existing", force: true });
+
+    const yaml = await import("node:fs/promises").then((fs) =>
+      fs.readFile(join(targetDir, "course.yaml"), "utf-8"),
+    );
+    expect(yaml).toContain("Existing");
+    expect(yaml).not.toContain("Stale");
+    expect(existsSync(join(targetDir, ".lxpack", "old.zip"))).toBe(false);
+  });
 });

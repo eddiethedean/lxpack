@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-05-29
+
+### Fixed
+
+- **Runtime:** assessment UI no longer renders into the wrong activity after fast navigation (`isStale` guard on assessment load)
+- **SCORM packaging:** `lessonkit.json` and `lxpack.import.json` are omitted from LMS export ZIPs (parity with preview)
+- **cmi5:** `fetchCmi5AuthToken` always uses POST even when `RequestInit.method` is overridden
+- **CLI:** `--lessonkit` build/validate/preview load `lxpack.config.json` from the interchange file’s directory, not only `process.cwd()`
+- **API / exports:** `readRuntimeBundle` merges `@lxpack/components` CSS like preview (`loadLearnerStyles` shared with CLI)
+- **xAPI:** preserve `Bearer` authorization headers; terminal flush retries after an in-flight flush completes
+- **SCORM bridges:** honor LMS `Initialize` / `Commit` / `Finish` failures; skip persist/restore when the session is not ready
+- **SCORM 2004:** `Scorm2004Adapter` blocks Get/Set after `Terminate` (matches SCORM 1.2 adapter behavior)
+- **CLI:** `lxpack init --force` removes stale `course.yaml`, `lxpack.config.json`, `.lxpack/`, and `.gitignore` at the project root
+
 ## [0.6.0] - 2026-05-29
 
 ### Added

@@ -2,6 +2,19 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
+import {
+  getEmbeddedStyles,
+  loadComponentsStyles,
+  loadLearnerStyles,
+  loadRuntimeStyles,
+} from "./learner-styles.js";
+
+export {
+  getEmbeddedStyles,
+  loadComponentsStyles,
+  loadLearnerStyles,
+  loadRuntimeStyles,
+};
 
 const require = createRequire(import.meta.url);
 
@@ -13,7 +26,6 @@ export async function readRuntimeBundle(
   assetsDir = getRuntimeAssetsDir(),
 ): Promise<{ clientJs: string; css: string }> {
   const clientPath = join(assetsDir, "client.js");
-  const cssPath = join(assetsDir, "styles.css");
 
   if (!existsSync(clientPath)) {
     throw new Error(
@@ -23,7 +35,7 @@ export async function readRuntimeBundle(
 
   const [clientJs, css] = await Promise.all([
     readFile(clientPath, "utf-8"),
-    existsSync(cssPath) ? readFile(cssPath, "utf-8") : Promise.resolve(""),
+    loadLearnerStyles(assetsDir),
   ]);
 
   if (clientJs.includes('from "./runtime.js"')) {
@@ -49,4 +61,3 @@ export async function readComponentsBundle(): Promise<string | undefined> {
     return undefined;
   }
 }
-

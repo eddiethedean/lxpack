@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/spa-bridge",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Typed parent/child SDK for LXPack SPA lessons (lxpackBridge.v1)",
   "license": "Apache-2.0",
   "repository": {
