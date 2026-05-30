@@ -25,7 +25,7 @@ Pick the path that matches how you work:
 
     [:octicons-arrow-right-24: Start here](guides/file-based/index.md)
 
--   :octicons-sparkles-24: **AI-assisted authoring**
+-   :octicons-sparkles-fill-24: **AI authoring**
 
     ---
 
