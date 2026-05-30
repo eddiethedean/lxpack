@@ -289,6 +289,15 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 - **CLI** — `lxpack build --lessonkit` with `--spa-lesson` / `--spa-dist`
 - **Docs** — [lessonkit interchange reference](../reference/lessonkit-interchange.md)
 
+## Phase 0.6.2 — Node.js 18 support (shipped — v0.6.2)
+
+**Latest release in phase:** v0.6.2
+
+### Shipped in v0.6.2
+
+- **Node.js 18 and 20** — all `@lxpack/*` packages and the CLI support Node.js 18 and 20 (`engines.node` is `>=18`)
+- **CI matrix** — lint, build, typecheck, test, examples, conformance, and coverage run on Node 18 and 20
+
 ## Phase 0.6.1 — Bugfix patch (shipped — v0.6.1)
 
 **Latest release in phase:** v0.6.1

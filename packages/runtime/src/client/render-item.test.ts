@@ -37,7 +37,7 @@ describe("renderItem assessments", () => {
     document.body.innerHTML = "";
   });
 
-  it("skips render when navigation becomes stale during load", async () => {
+  it("leaves DOM unchanged when navigation becomes stale during load", async () => {
     let resolveLoad!: () => void;
     const loadDone = new Promise<void>((resolve) => {
       resolveLoad = resolve;
@@ -63,6 +63,8 @@ describe("renderItem assessments", () => {
     });
 
     const contentEl = document.createElement("div");
+    contentEl.innerHTML =
+      '<div class="lxpack-assessment"><p>Previous quiz content</p></div>';
     const runtime = {
       getProgress: () => ({
         assessmentScores: {},
@@ -90,8 +92,8 @@ describe("renderItem assessments", () => {
     resolveLoad();
     await renderPromise;
 
-    expect(contentEl.querySelector(".lxpack-assessment")).toBeNull();
-    expect(contentEl.innerHTML).toBe("");
+    expect(contentEl.querySelector(".lxpack-assessment")).toBeTruthy();
+    expect(contentEl.innerHTML).toContain("Previous quiz content");
   });
 
   it("renders assessment when navigation is still current", async () => {

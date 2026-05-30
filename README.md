@@ -364,6 +364,7 @@ pnpm typecheck      # TypeScript per package
 pnpm test           # Vitest across packages
 pnpm test:coverage  # coverage thresholds per package
 pnpm examples:validate  # validate all courses under examples/ (requires build)
+pnpm examples:test      # compile + walk example courses in happy-dom (requires build)
 ```
 
 ### Preview SCORM simulation
@@ -397,9 +398,9 @@ pnpm --filter @lxpack/cli build
 
 | Workflow | Trigger | Steps |
 |----------|---------|--------|
-| [CI](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/ci.yml) | Push/PR to `main` or `master` | lint, build, typecheck, test |
-| [Checks](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/checks.yml) | Reusable / release | lint, build, typecheck, test, **coverage** |
-| [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish all `@lxpack/*` packages to npm |
+| [CI](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/ci.yml) | Push/PR to `main` or `master` | Invokes reusable **Checks** on Node **18 and 20** |
+| [Checks](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/checks.yml) | Called by CI and Release | lint, build, typecheck, test, **examples**, **conformance**, **coverage** (matrix Node 18 and 20); **docs** (MkDocs on Python 3.12) |
+| [Release](https://github.com/eddiethedean/lxpack/blob/main/.github/workflows/release.yml) | Tag `v*.*.*` | checks, then publish all `@lxpack/*` packages to npm (Node 20) |
 
 To cut a release:
 

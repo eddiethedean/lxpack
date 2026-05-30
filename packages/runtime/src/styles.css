@@ -337,6 +337,12 @@ body {
   border-color: var(--lxpack-accent-hover) !important;
 }
 
+.lxpack-loading {
+  margin: 2rem 0;
+  color: var(--lxpack-muted);
+  font-size: 0.9375rem;
+}
+
 .lxpack-error {
   color: var(--lxpack-danger);
 }

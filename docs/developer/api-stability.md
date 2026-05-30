@@ -1,8 +1,8 @@
 # API stability (LessonKit 1.0 gate)
 
-Targets for **v0.6.1** and the path to LessonKit **1.0.0**.
+Targets for **v0.6.2** and the path to LessonKit **1.0.0**.
 
-## Stable in v0.6.1
+## Stable in v0.6.2
 
 ### `lxpackBridge.v1`
 
@@ -21,6 +21,7 @@ Types: `@lxpack/spa-bridge`
 ### Programmatic packaging
 
 - `packageLessonkit()` / `buildCourse()` result shapes (`ok`, `issues`, `outputPath`, `courseDir`)
+- `packageLessonkit({ configDir })` resolves `target` and `outputBaseDir` from `lxpack.config.json` when omitted (parity with CLI `--lessonkit`)
 - `ExportTarget`: `scorm12`, `scorm2004`, `standalone`, `xapi`, `cmi5`
 
 ### SPA lessons

@@ -430,6 +430,38 @@ describe("packageCourse", () => {
     expect(zip.file("lxpack-components.js")).toBeTruthy();
     expect(zip.file("cmi5.xml")).toBeTruthy();
   });
+
+  it("packages spa-valid fixture as SCORM 1.2 zip including SPA assets", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-spa-valid-"));
+    const zipPath = join(outDir, "spa-valid.zip");
+    outputPaths.push(outDir);
+
+    const loaded = await loadManifest(fixturePath("spa-valid"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed");
+    const spaBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("spa-valid"),
+      loaded.manifest,
+    );
+    const { clientJs, css } = await loadBuiltRuntime();
+
+    const result = await packageCourse({
+      courseDir: fixturePath("spa-valid"),
+      manifest: loaded.manifest,
+      outputPath: zipPath,
+      target: "scorm12",
+      runtimeClientJs: clientJs,
+      runtimeCss: css,
+      assessmentBundle: spaBundle,
+    });
+
+    expect(result.outputPath).toBe(zipPath);
+    const zip = await JSZip.loadAsync(await readFile(zipPath));
+    const names = Object.keys(zip.files);
+    expect(names.some((n) => n.includes("spa/lessons/spa-lesson/index.html"))).toBe(
+      true,
+    );
+    expect(names).not.toContain("lessonkit.json");
+  });
 });
 
 describe("packageStandaloneDir", () => {

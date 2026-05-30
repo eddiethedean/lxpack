@@ -120,7 +120,8 @@ const result = await packageLessonkit({
     lessons: [{ id: "main", type: "spa", path: "dist/main" }],
   },
   spaDirs: { main: "/abs/path/to/vite-dist" },
-  target: "scorm12",
+  configDir: "/path/to/project", // optional — loads lxpack.config.json for defaultTarget / output.dir
+  target: "scorm12", // optional when configDir (or outputAnchorDir) has lxpack.config.json
   assessments: [/* optional MCQ payloads */],
 });
 ```

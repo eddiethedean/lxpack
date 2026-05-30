@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Runtime:** clear content area when navigating so stale async renders no longer leave the previous lesson visible; delayed iframe `track()` resolves html/spa lessons by interaction id (with fallback for sub-step ids on the current lesson)
+- **CLI:** `lxpack init --force` removes stale `lessonkit.json` and `lxpack.import.json`
+- **Validators:** `lessonkit.json` / `lxpack.import.json` no longer trigger false “included in export” warnings
+- **API:** `packageLessonkit()` accepts optional `configDir` and resolves `target` / `outputBaseDir` from `lxpack.config.json` when omitted (CLI parity)
+
+### Changed
+
+- **Validators:** markdown validation warns on `vbscript:` and `data:text/html` URIs (aligned with runtime sanitizer)
+
 ## [0.6.2] - 2026-05-30
 
 ### Changed

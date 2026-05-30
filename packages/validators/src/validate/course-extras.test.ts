@@ -42,6 +42,15 @@ describe("validateUnexpectedCourseFiles", () => {
     const issues = await validateUnexpectedCourseFiles(dir, manifest);
     expect(issues).toHaveLength(0);
   });
+
+  it("ignores lessonkit interchange metadata at course root", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-extras-lk-"));
+    await writeFile(join(dir, "lessonkit.json"), '{"format":"lessonkit"}');
+    await writeFile(join(dir, "lxpack.import.json"), "{}");
+
+    const issues = await validateUnexpectedCourseFiles(dir, manifest);
+    expect(issues).toHaveLength(0);
+  });
 });
 
 describe("validateInteractionTree", () => {

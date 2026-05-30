@@ -60,16 +60,23 @@ export function validateMarkdownLesson(
   }
 
   const content = readFileSync(resolved.path, "utf-8");
-  if (
-    /\[[^\]]*\]\(\s*javascript:/i.test(content) ||
-    /!\[[^\]]*\]\(\s*javascript:/i.test(content)
-  ) {
-    issues.push({
-      path: `lessons.${lesson.id}.file`,
-      message:
-        "Markdown contains javascript: URI in a link or image; use https: URLs instead",
-      severity: "warning",
-    });
+  const unsafeUriPatterns: Array<{ pattern: RegExp; scheme: string }> = [
+    { pattern: /\[[^\]]*\]\(\s*javascript:/i, scheme: "javascript:" },
+    { pattern: /!\[[^\]]*\]\(\s*javascript:/i, scheme: "javascript:" },
+    { pattern: /\[[^\]]*\]\(\s*vbscript:/i, scheme: "vbscript:" },
+    { pattern: /!\[[^\]]*\]\(\s*vbscript:/i, scheme: "vbscript:" },
+    { pattern: /\[[^\]]*\]\(\s*data:text\/html/i, scheme: "data:text/html" },
+    { pattern: /!\[[^\]]*\]\(\s*data:text\/html/i, scheme: "data:text/html" },
+  ];
+  for (const { pattern, scheme } of unsafeUriPatterns) {
+    if (pattern.test(content)) {
+      issues.push({
+        path: `lessons.${lesson.id}.file`,
+        message: `Markdown contains ${scheme} URI in a link or image; use https: URLs instead`,
+        severity: "warning",
+      });
+      break;
+    }
   }
 
   return issues;

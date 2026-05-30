@@ -217,6 +217,8 @@ export async function initCommand(
     for (const name of [
       "course.yaml",
       "lxpack.config.json",
+      "lessonkit.json",
+      "lxpack.import.json",
       ".gitignore",
     ]) {
       const filePath = join(targetDir, name);

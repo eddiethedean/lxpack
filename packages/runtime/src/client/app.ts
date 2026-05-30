@@ -11,6 +11,7 @@ import { renderItem } from "./render-item.js";
 import { escapeHtml } from "./html-utils.js";
 import { isInteractionComplete } from "../interaction-complete.js";
 import { createLxpackBridgeHost } from "@lxpack/spa-bridge";
+import { findHtmlSpaLessonByInteractionId } from "./interaction-lesson.js";
 
 export function init(): void {
   const config = getConfig();
@@ -136,6 +137,7 @@ export function init(): void {
     const seq = ++renderSeq;
     runtime.setCurrentLesson(item.id);
     currentIndex = index;
+    contentEl.innerHTML = '<p class="lxpack-loading">Loading…</p>';
 
     try {
       await renderItem(
@@ -238,14 +240,20 @@ export function init(): void {
   const originalTrack = lxpackApi.track.bind(lxpackApi);
   lxpackApi.track = (event) => {
     originalTrack(event);
-    if (event.type === "interaction") {
-      const item = navItems[currentIndex];
-      if (
-        isInteractionComplete(event.data) &&
-        item?.kind === "lesson" &&
-        (item.lesson.type === "html" || item.lesson.type === "spa")
-      ) {
-        runtime.markInteractionLessonDone(item.id);
+    if (event.type === "interaction" && event.id && isInteractionComplete(event.data)) {
+      const byInteractionId = findHtmlSpaLessonByInteractionId(
+        navItems,
+        event.id,
+      );
+      const current = navItems[currentIndex];
+      const item =
+        byInteractionId ??
+        (current?.kind === "lesson" &&
+        (current.lesson.type === "html" || current.lesson.type === "spa")
+          ? current
+          : undefined);
+      if (item?.kind === "lesson") {
+        runtime.markInteractionLessonDone(item.lesson.id);
       }
     }
     if (event.type === "interaction" || event.type === "assessment") {

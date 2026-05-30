@@ -187,5 +187,58 @@ describe("@lxpack/api", () => {
 
     await rm(spaSource, { recursive: true, force: true });
   });
+
+  it("packageLessonkit resolves target from lxpack.config.json beside configDir", async () => {
+    const { mkdtemp, rm, writeFile } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+
+    const projectDir = await mkdtemp(join(tmpdir(), "lxpack-pkg-config-"));
+    await writeFile(
+      join(projectDir, "lxpack.config.json"),
+      JSON.stringify({
+        exports: { defaultTarget: "standalone" },
+        output: { dir: ".lxpack" },
+      }),
+    );
+
+    const spaSource = await mkdtemp(join(tmpdir(), "lxpack-pkg-spa-"));
+    await writeFile(
+      join(spaSource, "index.html"),
+      "<!doctype html><html><body>spa</body></html>",
+    );
+
+    const result = await packageLessonkit({
+      configDir: projectDir,
+      interchange: {
+        format: "lessonkit",
+        version: "1",
+        course: { title: "Config Target" },
+        lessons: [
+          {
+            id: "spa1",
+            type: "spa",
+            path: "spa/app",
+            title: "SPA",
+          },
+        ],
+      },
+      spaDirs: { spa1: spaSource },
+      dir: true,
+      output: "api-config-out",
+      outputAnchorDir: projectDir,
+      debug: true,
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.target).toBe("standalone");
+      expect(result.outputDir).toContain("api-config-out");
+      await rm(result.courseDir!, { recursive: true, force: true });
+    }
+
+    await rm(spaSource, { recursive: true, force: true });
+    await rm(projectDir, { recursive: true, force: true });
+  });
 });
 

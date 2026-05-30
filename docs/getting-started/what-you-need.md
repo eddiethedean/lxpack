@@ -15,14 +15,14 @@ Node.js is a free runtime that powers the `lxpack` command. LXPack supports **No
     1. Open [https://nodejs.org](https://nodejs.org) and download the **LTS** installer.
     2. Run the installer and accept the defaults.
     3. Open **Terminal** (search “Terminal” in Spotlight).
-    4. Type `node --version` and press Enter. You should see `v20` or higher.
+    4. Type `node --version` and press Enter. You should see `v18` or `v20` (for example `v20.19.0`).
 
 === "Windows"
 
     1. Open [https://nodejs.org](https://nodejs.org) and download the **LTS** installer.
     2. Run the installer. Leave “Add to PATH” enabled.
     3. Open **Command Prompt** or **PowerShell** (search in the Start menu).
-    4. Type `node --version` and press Enter. You should see `v20` or higher.
+    4. Type `node --version` and press Enter. You should see `v18` or `v20` (for example `v20.19.0`).
 
 !!! tip "Corporate machines"
     If IT manages software installs, ask them to install **Node.js 18 LTS or 20 LTS**. You only need Node and npm (included with Node) — not a full development stack.

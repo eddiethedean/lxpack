@@ -18,6 +18,8 @@ const KNOWN_TOP_LEVEL = new Set([
   "node_modules",
   "package.json",
   "README.md",
+  "lessonkit.json",
+  "lxpack.import.json",
 ]);
 
 const SENSITIVE_TOP_LEVEL = new Set([".env", ".git"]);

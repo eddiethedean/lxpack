@@ -90,6 +90,26 @@ describe("initCommand", () => {
     expect(existsSync(join(targetDir, "assessments", "final.yaml"))).toBe(true);
   });
 
+  it("removes stale lessonkit interchange when --force is used", async () => {
+    const parent = await mkdtemp(join(tmpdir(), "lxpack-init-force-lk-"));
+    dirs.push(parent);
+    process.chdir(parent);
+
+    await initCommand("existing", { dir: "existing" });
+    const targetDir = join(parent, "existing");
+    await writeFile(
+      join(targetDir, "lessonkit.json"),
+      '{"format":"lessonkit","version":"1","course":{"title":"Stale"}}',
+    );
+    await writeFile(join(targetDir, "lxpack.import.json"), "{}");
+
+    await initCommand("existing", { dir: "existing", force: true });
+
+    expect(existsSync(join(targetDir, "lessonkit.json"))).toBe(false);
+    expect(existsSync(join(targetDir, "lxpack.import.json"))).toBe(false);
+    expect(existsSync(join(targetDir, "course.yaml"))).toBe(true);
+  });
+
   it("removes stale root files and .lxpack when --force is used", async () => {
     const parent = await mkdtemp(join(tmpdir(), "lxpack-init-force-root-"));
     dirs.push(parent);

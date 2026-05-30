@@ -7,12 +7,20 @@ import {
 } from "@lxpack/validators";
 import type { ExportTarget } from "@lxpack/scorm";
 import { buildCourse, type BuildCourseResult } from "./build-course.js";
+import {
+  loadLxpackConfig,
+  resolveDefaultExportTarget,
+  resolveOutputBaseDir,
+} from "./lxpack-config.js";
 
 export interface PackageLessonkitOptions {
   interchange: LessonkitInterchangeV1;
   /** SPA lesson id → absolute path to folder with index.html */
   spaDirs: Record<string, string>;
-  target: ExportTarget;
+  /** Export target; when omitted, uses lxpack.config.json beside configDir */
+  target?: ExportTarget;
+  /** Directory containing lxpack.config.json (defaults to outputAnchorDir or cwd) */
+  configDir?: string;
   assessments?: unknown[];
   output?: string;
   dir?: boolean;
@@ -36,6 +44,12 @@ export type PackageLessonkitResult =
 export async function packageLessonkit(
   options: PackageLessonkitOptions,
 ): Promise<PackageLessonkitResult> {
+  const configDir =
+    options.configDir ?? options.outputAnchorDir ?? process.cwd();
+  const config = await loadLxpackConfig(configDir);
+  const target = options.target ?? resolveDefaultExportTarget(config);
+  const outputBaseDir = resolveOutputBaseDir(config, options.outputBaseDir);
+
   const materialized = await materializeLessonkitProject({
     interchange: options.interchange,
     spaDirs: options.spaDirs,
@@ -47,7 +61,7 @@ export async function packageLessonkit(
   if (!materialized.ok) {
     return {
       ok: false,
-      target: options.target,
+      target,
       courseDir: materialized.courseDir,
       issues: materialized.issues,
     };
@@ -63,10 +77,10 @@ export async function packageLessonkit(
   try {
     const built = await buildCourse({
       courseDir,
-      target: options.target,
+      target,
       output: options.output,
       dir: options.dir,
-      outputBaseDir: options.outputBaseDir,
+      outputBaseDir,
       outputAnchorDir: options.outputAnchorDir ?? process.cwd(),
       assessments,
       interchange: options.interchange,
@@ -75,7 +89,7 @@ export async function packageLessonkit(
     if (!built.ok) {
       return {
         ok: false,
-        target: options.target,
+        target,
         courseDir: keepStaging ? courseDir : undefined,
         issues: built.issues,
       };
@@ -88,7 +102,7 @@ export async function packageLessonkit(
   } catch (err) {
     return {
       ok: false,
-      target: options.target,
+      target,
       courseDir: keepStaging ? courseDir : undefined,
       issues: [
         {
