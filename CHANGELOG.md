@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-05-30
+
 ### Fixed
 
 - **Runtime:** clear content area when navigating so stale async renders no longer leave the previous lesson visible; delayed iframe `track()` resolves html/spa lessons by interaction id (with fallback for sub-step ids on the current lesson)
@@ -16,13 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Validators:** markdown validation warns on `vbscript:` and `data:text/html` URIs (aligned with runtime sanitizer)
-
-## [0.6.2] - 2026-05-30
-
-### Changed
-
 - **Node.js:** all `@lxpack/*` packages and the CLI now support **Node.js 18 and 20** (`engines.node` is `>=18`). CI runs lint, build, typecheck, test, examples, conformance, and coverage on both versions.
+- **Validators:** markdown validation warns on `vbscript:` and `data:text/html` URIs (aligned with runtime sanitizer)
 
 ## [0.6.1] - 2026-05-29
 

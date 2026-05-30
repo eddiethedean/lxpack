@@ -47,7 +47,7 @@ Technical references for **v0.6.2** contributors and integrators.
 | **0.5 — LessonKit integration depth** | **v0.5.0** | Shipped | `packageLessonkit()`, interchange schema v1, `lxpack build --lessonkit` |
 | **0.6 — LessonKit bridge & conformance** | **v0.6.0** | Shipped | `@lxpack/spa-bridge`, telemetry map, `preview --lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit` |
 | **0.6.1 — Patch** | **v0.6.1** | Shipped | Packaging/metadata fixes, LessonKit config path, SCORM session guards, export CSS parity, xAPI auth/flush |
-| **0.6.2 — Patch** | **v0.6.2** | Shipped | Node.js 18 and 20 support; CI on Node 18 and 20 |
+| **0.6.2 — Patch** | **v0.6.2** | Shipped | Node.js 18 and 20; runtime navigation fixes; LessonKit/API parity; validator and init `--force` cleanup |
 | **5 — AI tooling** | **v0.6+** | Planned | Claude integration, AI repair, AI-generated interactions |
 | **6 — Ecosystem** | **v0.6+** | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **7 — Enterprise platform** | **v0.7+** | Planned | Cloud deployment, compliance tooling, hosted runtime |

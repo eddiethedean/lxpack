@@ -297,6 +297,9 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 
 - **Node.js 18 and 20** — all `@lxpack/*` packages and the CLI support Node.js 18 and 20 (`engines.node` is `>=18`)
 - **CI matrix** — lint, build, typecheck, test, examples, conformance, and coverage run on Node 18 and 20
+- **Runtime navigation** — clear stale lesson UI on fast navigation; delayed iframe `track()` resolves html/spa lessons by interaction id
+- **LessonKit/API parity** — `packageLessonkit({ configDir })` loads `lxpack.config.json`; `init --force` clears interchange metadata
+- **Validators** — interchange files no longer warn as export payloads; markdown warns on unsafe URI schemes blocked at runtime
 
 ## Phase 0.6.1 — Bugfix patch (shipped — v0.6.1)
 

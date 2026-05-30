@@ -220,7 +220,7 @@ Packaging, LessonKit config resolution, runtime/SCORM/xAPI fixes — see [CHANGE
 
 ## Phase 0.6.2 — Node.js 18 support (shipped — v0.6.2)
 
-Node.js 18 and 20 (`engines.node` `>=18`); CI matrix on both versions — see [CHANGELOG](../../CHANGELOG.md#062---2026-05-30).
+Node.js 18 and 20, runtime navigation fixes, LessonKit/API parity, validator cleanup — see [CHANGELOG](../../CHANGELOG.md#062---2026-05-30).
 
 ## Phase 0.6 — LessonKit bridge and conformance (shipped — v0.6.0)
 
