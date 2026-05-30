@@ -30,7 +30,8 @@ not_in_nav: |
 theme:
   name: material
   language: en
-  logo: material/school-outline
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
   icon:
     repo: fontawesome/brands/github
   palette:
