@@ -4,7 +4,7 @@
 [![npm version](https://img.shields.io/npm/v/@lxpack/components)](https://www.npmjs.com/package/@lxpack/components)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/node-18%20%7C%2020-brightgreen)](https://nodejs.org/)
 
 Reusable UI widgets for LXPack `type: component` lessons — built-ins, registry API, and a browser bundle for SCORM and preview.
 
@@ -23,7 +23,7 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Components 
 npm install @lxpack/components
 ```
 
-Requires Node.js 20+ for the build toolchain. The published browser bundle runs in modern browsers.
+Requires Node.js 18 or 20 (18+) for the build toolchain. The published browser bundle runs in modern browsers.
 
 ## Package exports
 

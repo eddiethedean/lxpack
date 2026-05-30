@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/xapi",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "xAPI statement builders and transport for LXPack",
   "license": "Apache-2.0",
   "repository": {
@@ -14,7 +14,7 @@
   "homepage": "https://github.com/eddiethedean/lxpack#readme",
   "keywords": ["lxpack", "xapi", "tincan", "lrs", "elearning"],
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "publishConfig": {
     "access": "public"

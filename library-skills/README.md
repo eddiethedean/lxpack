@@ -55,7 +55,7 @@ Re-run install after `git pull` to refresh skills from upstream.
 
 ## Requirements
 
-- Node.js 20+ and `@lxpack/cli` on your `PATH` for `scripts/*.sh` — [Install the CLI](https://lxpack.readthedocs.io/en/latest/getting-started/install-cli/)
+- Node.js 18 or 20 and `@lxpack/cli` on your `PATH` for `scripts/*.sh` — [Install the CLI](https://lxpack.readthedocs.io/en/latest/getting-started/install-cli/)
 - Agent product that discovers `SKILL.md` (Cursor Skills, Claude Code skills, etc.)
 
 ## Related documentation

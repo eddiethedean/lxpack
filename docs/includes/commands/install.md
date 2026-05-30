@@ -1,4 +1,4 @@
-```bash title="Install LXPack CLI (Node.js 20+)"
+```bash title="Install LXPack CLI (Node.js 18 or 20)"
 npm install -g @lxpack/cli
 ```
 

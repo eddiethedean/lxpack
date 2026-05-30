@@ -6,9 +6,9 @@ Before you create a course, gather these tools. You do **not** need to be an app
 
 LXPack runs on **macOS**, **Windows**, or **Linux**. You need administrator rights (or IT approval) to install Node.js.
 
-## 2. Node.js (version 20 or newer)
+## 2. Node.js (version 18 or newer)
 
-Node.js is a free runtime that powers the `lxpack` command.
+Node.js is a free runtime that powers the `lxpack` command. LXPack supports **Node.js 18 and 20**; either is fine. **Node 20 LTS** is recommended when your organization allows it.
 
 === "macOS"
 
@@ -25,7 +25,7 @@ Node.js is a free runtime that powers the `lxpack` command.
     4. Type `node --version` and press Enter. You should see `v20` or higher.
 
 !!! tip "Corporate machines"
-    If IT manages software installs, ask them to install **Node.js 20 LTS**. You only need Node and npm (included with Node) — not a full development stack.
+    If IT manages software installs, ask them to install **Node.js 18 LTS or 20 LTS**. You only need Node and npm (included with Node) — not a full development stack.
 
 ## 3. The LXPack command-line tool
 
@@ -41,7 +41,7 @@ Verify:
 lxpack --version
 ```
 
-**Success looks like:** a version number (for example `0.6.1`), not “command not found.”
+**Success looks like:** a version number (for example `0.6.2`), not “command not found.”
 
 Details: [Install the CLI](install-cli.md).
 

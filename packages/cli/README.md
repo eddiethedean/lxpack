@@ -4,7 +4,7 @@
 [![npm version](https://img.shields.io/npm/v/@lxpack/cli)](https://www.npmjs.com/package/@lxpack/cli)
 [![CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/node-18%20%7C%2020-brightgreen)](https://nodejs.org/)
 
 Command-line tool for scaffolding, previewing, validating, and packaging LXPack courses.
 
@@ -27,7 +27,7 @@ npm install -g @lxpack/cli
 # or: pnpm add -g @lxpack/cli
 ```
 
-Requires Node.js 20+.
+Requires Node.js 18 or 20 (18+).
 
 ## Quick start
 

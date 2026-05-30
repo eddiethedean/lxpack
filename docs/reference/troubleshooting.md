@@ -16,7 +16,7 @@ Plain-language fixes for common `lxpack validate` and `lxpack build` messages.
 | Problem | Fix |
 |---------|-----|
 | `lxpack: command not found` | Install CLI: [Install the CLI](../getting-started/install-cli.md) |
-| `node: command not found` | Install Node.js 20+ |
+| `node: command not found` | Install Node.js 18 or 20 |
 
 ## Path and file errors
 

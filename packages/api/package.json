@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/api",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Programmatic validate/build API for LXPack",
   "license": "Apache-2.0",
   "repository": {
@@ -14,7 +14,7 @@
   "homepage": "https://github.com/eddiethedean/lxpack#readme",
   "keywords": ["lxpack", "api", "scorm", "xapi", "cmi5", "elearning"],
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/conformance",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Shared LessonKit/LXPack export conformance fixtures and matrix runner",
   "license": "Apache-2.0",
   "repository": {
@@ -8,7 +8,7 @@
     "url": "https://github.com/eddiethedean/lxpack.git",
     "directory": "packages/conformance"
   },
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=18" },
   "publishConfig": { "access": "public" },
   "type": "module",
   "exports": {

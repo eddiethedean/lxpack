@@ -218,6 +218,10 @@ See [ROADMAP.md](ROADMAP.md#phase-04--lessonkit-interoperability-shipped--v040) 
 
 Packaging, LessonKit config resolution, runtime/SCORM/xAPI fixes — see [CHANGELOG](../../CHANGELOG.md#061---2026-05-29).
 
+## Phase 0.6.2 — Node.js 18 support (shipped — v0.6.2)
+
+Node.js 18 and 20 (`engines.node` `>=18`); CI matrix on both versions — see [CHANGELOG](../../CHANGELOG.md#062---2026-05-30).
+
 ## Phase 0.6 — LessonKit bridge and conformance (shipped — v0.6.0)
 
 - `@lxpack/spa-bridge`, telemetry map, theme presets, `lxpack preview --lessonkit`

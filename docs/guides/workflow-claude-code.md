@@ -11,7 +11,7 @@ The validate → preview → build loop is identical to the [Claude Design workf
 
 ## Prerequisites
 
-- Node.js 20+, `@lxpack/cli` installed globally (or via `pnpm exec` from the LXPack monorepo)
+- Node.js 18 or 20, `@lxpack/cli` installed globally (or via `pnpm exec` from the LXPack monorepo)
 - Cursor with Claude Code enabled
 - Comfort with Terminal, YAML, and HTML
 

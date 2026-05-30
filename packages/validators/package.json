@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/validators",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Course manifest validation for LXPack",
   "license": "Apache-2.0",
   "repository": {
@@ -14,7 +14,7 @@
   "homepage": "https://github.com/eddiethedean/lxpack#readme",
   "keywords": ["lxpack", "scorm", "lms", "elearning", "validation", "zod"],
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "publishConfig": {
     "access": "public"

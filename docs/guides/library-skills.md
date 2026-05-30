@@ -89,7 +89,7 @@ Use both: install Library Skills for day-to-day authoring; keep prompt snippets 
 
 ## Requirements
 
-- Node.js 20+
+- Node.js 18 or 20
 - `@lxpack/cli` globally or `pnpm exec lxpack` when hacking LXPack from source
 - Agent product that supports `SKILL.md` discovery
 

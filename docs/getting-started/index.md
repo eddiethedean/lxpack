@@ -8,7 +8,7 @@ New to LXPack? Follow this path once — then jump to [workflows](../guides/work
 
     ---
 
-    Node.js 20+, Terminal, and a text editor. No coding background required.
+    Node.js 18 or 20, Terminal, and a text editor. No coding background required.
 
     [What you need](what-you-need.md)
 

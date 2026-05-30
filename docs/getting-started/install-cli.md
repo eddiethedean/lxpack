@@ -6,9 +6,9 @@ The `lxpack` command creates courses, runs preview, checks for errors, and build
 
 ## Install
 
-With Node.js 20+ installed:
+With Node.js 18 or 20 installed:
 
-```bash title="Install LXPack CLI (Node.js 20+)"
+```bash title="Install LXPack CLI (Node.js 18 or 20)"
 npm install -g @lxpack/cli
 ```
 
@@ -20,7 +20,7 @@ npm install -g @lxpack/cli
 lxpack --version
 ```
 
-You should see the installed version (for example `0.6.1`).
+You should see the installed version (for example `0.6.2`).
 
 ## Create a course folder
 
@@ -69,7 +69,7 @@ Node’s global bin folder may not be on your PATH.
 node --version
 ```
 
-Must be **v20.0.0** or higher. Upgrade Node from [nodejs.org](https://nodejs.org) if needed.
+Must be **v18.0.0** or higher (18.x or 20.x). Upgrade Node from [nodejs.org](https://nodejs.org) if needed.
 
 ## Updating LXPack
 

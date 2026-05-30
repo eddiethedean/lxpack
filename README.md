@@ -5,7 +5,7 @@
 [![Release](https://github.com/eddiethedean/lxpack/actions/workflows/release.yml/badge.svg)](https://github.com/eddiethedean/lxpack/actions/workflows/release.yml)
 [![npm](https://img.shields.io/npm/v/@lxpack/cli)](https://www.npmjs.com/package/@lxpack/cli)
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/node-18%20%7C%2020-brightgreen)](https://nodejs.org/)
 
 **AI-native learning experience compiler and runtime** — build web-native courses from declarative manifests, preview them locally, validate structure with schemas, and export SCORM 1.2, SCORM 2004, xAPI, cmi5, or standalone packages for your LMS.
 
@@ -13,7 +13,7 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.6.1](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) — bugfix patch (packaging, LessonKit config, SCORM session guards, export CSS parity)
+**Current release:** [v0.6.2](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) — Node.js 18 and 20 support
 
 ## Packages
 
@@ -45,7 +45,7 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) **20+** — see [What you need](https://lxpack.readthedocs.io/en/latest/getting-started/what-you-need/)
+- [Node.js](https://nodejs.org/) **18 or 20** (18+) — see [What you need](https://lxpack.readthedocs.io/en/latest/getting-started/what-you-need/)
 - [pnpm](https://pnpm.io/) **9.15** (see `packageManager` in `package.json`) — for developing LXPack from source
 
 ## Install
