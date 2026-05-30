@@ -218,6 +218,10 @@ See [ROADMAP.md](ROADMAP.md#phase-04-lessonkit-interoperability-shipped-v040) fo
 
 Packaging, LessonKit config resolution, runtime/SCORM/xAPI fixes — see [Changelog](../project/changelog.md#061-2026-05-29).
 
+## Phase 0.6.3 — Flow and navigation patch (shipped — v0.6.3)
+
+Position-aware flow (`from`), runtime nav UX, CLI error-handling parity — see [Changelog](../project/changelog.md#063-2026-05-30).
+
 ## Phase 0.6.2 — Node.js 18 support (shipped — v0.6.2)
 
 Node.js 18 and 20, runtime navigation fixes, LessonKit/API parity, validator cleanup — see [Changelog](../project/changelog.md#062-2026-05-30).

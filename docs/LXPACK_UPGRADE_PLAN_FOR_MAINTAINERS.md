@@ -354,7 +354,7 @@ lxpack preview --lessonkit ./lessonkit.json --spa dist/
 
 ## LXPack release history and future work
 
-**Shipped (v0.5.0–v0.6.2):**
+**Shipped (v0.5.0–v0.6.3):**
 
 | Release | Theme | Key deliverables |
 |---------|--------|------------------|
@@ -362,6 +362,7 @@ lxpack preview --lessonkit ./lessonkit.json --spa dist/
 | **v0.6.0** | Bridge SDK + conformance | `@lxpack/spa-bridge`, telemetry map, `lxpack preview --lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit` |
 | **v0.6.1** | Packaging fixes | Omit interchange from LMS ZIPs; config resolution beside `lessonkit.json` |
 | **v0.6.2** | Node 18 + runtime fixes | Node 18/20 CI matrix; navigation fixes; `packageLessonkit({ configDir })` |
+| **v0.6.3** | Flow + nav patch | Position-aware flow (`from`); sidebar/Prev/Next UX; CLI lessonkit config parity |
 
 **Future (v0.7+):**
 

@@ -2,7 +2,7 @@
 
 > **For LXPack maintainers:** see **[Upgrade plan for maintainers](lxpack-upgrades.md#upgrade-plan-for-lxpack-maintainers)** for the forward-looking upgrade plan (responsibility shifts, proposed APIs, release sequence). This page is the historical checklist and LessonKit-side integration status.
 >
-> **LessonKit [1.0.0](https://github.com/eddiethedean/lessonkit)** ships `@lessonkit/lxpack`, `@lessonkit/cli`, and the golden packaging example. **LXPack v0.4.0–v0.6.2** shipped SPA lessons, `@lxpack/api`, `packageLessonkit()`, `@lxpack/spa-bridge`, `@lxpack/conformance`, and `@lxpack/lessonkit`. See [LessonKit interoperability](lessonkit-interoperability.md) for current usage.
+> **LessonKit [1.0.0](https://github.com/eddiethedean/lessonkit)** ships `@lessonkit/lxpack`, `@lessonkit/cli`, and the golden packaging example. **LXPack v0.4.0–v0.6.3** shipped SPA lessons, `@lxpack/api`, `packageLessonkit()`, `@lxpack/spa-bridge`, `@lxpack/conformance`, and `@lxpack/lessonkit`. See [LessonKit interoperability](lessonkit-interoperability.md) for current usage.
 
 This document captures the improvements we wanted in [LXPack](https://github.com/eddiethedean/lxpack) so it works
 better as the **packaging and LMS export layer** for
@@ -31,7 +31,7 @@ LessonKit’s **shipped** path:
 3. Build with Vite (`lessonkit build` → `dist/`).
 4. Package with **`@lessonkit/lxpack`** (`packageLessonkitCourse`) or **`lessonkit package --target scorm12`**.
 
-LXPack validates, runs the learner shell, and emits SCORM/xAPI/cmi5 artifacts via `@lxpack/api` **0.6.2+**.
+LXPack validates, runs the learner shell, and emits SCORM/xAPI/cmi5 artifacts via `@lxpack/api` **0.6.3+**.
 
 See [LessonKit packaging](https://lessonkit.readthedocs.io/en/latest/reference/packaging.html) and [examples/lxpack-golden](https://github.com/eddiethedean/lessonkit/tree/main/examples/lxpack-golden).
 

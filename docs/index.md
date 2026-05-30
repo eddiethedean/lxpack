@@ -52,7 +52,7 @@ Pick the path that matches how you work:
 </div>
 
 <div class="lx-callout">
-  <strong>Node.js:</strong> 18 or 20 for <code>lxpack</code> CLI · LessonKit <code>lessonkit package</code> requires <code>@lxpack/api</code> 0.6.2+.
+  <strong>Node.js:</strong> 18 or 20 for <code>lxpack</code> CLI · LessonKit <code>lessonkit package</code> requires <code>@lxpack/api</code> 0.6.3+.
 </div>
 
 ## How it works

@@ -20,7 +20,7 @@ npm install -g @lxpack/cli
 lxpack --version
 ```
 
-You should see the installed version (for example `0.6.2`).
+You should see the installed version (for example `0.6.3`).
 
 ## Create a course folder
 

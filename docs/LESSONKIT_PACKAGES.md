@@ -1,6 +1,6 @@
 # LessonKit and LXPack packages (1.0+)
 
-[LessonKit 1.0](https://github.com/eddiethedean/lessonkit) and [LXPack 0.6.2](https://github.com/eddiethedean/lxpack) are complementary: **LessonKit owns React authoring and the author CLI**; **LXPack owns validation, learner runtime, and LMS export**.
+[LessonKit 1.0](https://github.com/eddiethedean/lessonkit) and [LXPack 0.6.3](https://github.com/eddiethedean/lxpack) are complementary: **LessonKit owns React authoring and the author CLI**; **LXPack owns validation, learner runtime, and LMS export**.
 
 **`@lessonkit/lxpack` is not legacy** — it is the primary adapter LessonKit uses to call LXPack.
 
@@ -29,7 +29,7 @@ Docs: [lessonkit.readthedocs.io](https://lessonkit.readthedocs.io/en/latest/)
 
 ## LXPack packages (`@lxpack/*`)
 
-Published from this repository. **Current release: 0.6.2.** Requires Node.js **18+**.
+Published from this repository. **Current release: 0.6.3.** Requires Node.js **18+**.
 
 | Package | When to use |
 |---------|-------------|

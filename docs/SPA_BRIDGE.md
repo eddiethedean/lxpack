@@ -1,6 +1,6 @@
 Embedded SPA lessons run in an iframe. The parent LXPack runtime exposes **`window.lxpackBridge.v1`** for completion, assessments, and tracking.
 
-Requires **LXPack v0.6.2+** and **`@lxpack/spa-bridge`** in SPA bundles.
+Requires **LXPack v0.6.3+** and **`@lxpack/spa-bridge`** in SPA bundles.
 
 ## Child SDK (`@lxpack/spa-bridge`)
 

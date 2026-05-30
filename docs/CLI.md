@@ -1,4 +1,4 @@
-**v0.6.2** · Requires Node.js 18 or 20 and `@lxpack/cli` on your PATH.
+**v0.6.3** · Requires Node.js 18 or 20 and `@lxpack/cli` on your PATH.
 
 ## Copy-paste commands
 

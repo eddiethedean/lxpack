@@ -1,8 +1,8 @@
-# LessonKit interoperability (LXPack 0.6.2+)
+# LessonKit interoperability (LXPack 0.6.3+)
 
 [LXPack](https://github.com/eddiethedean/lxpack) validates and packages [LessonKit](https://github.com/eddiethedean/lessonkit) React courses for LMS delivery. **`@lessonkit/lxpack`** is the adapter between the two.
 
-Requires **Node.js 18+** and LXPack **`@lxpack/api` 0.6.2+**.
+Requires **Node.js 18+** and LXPack **`@lxpack/api` 0.6.3+**.
 
 **LessonKit current release:** [1.0.0](https://github.com/eddiethedean/lessonkit) · npm `@lessonkit/*` · docs [lessonkit.readthedocs.io](https://lessonkit.readthedocs.io/en/latest/)
 
@@ -59,7 +59,7 @@ flowchart LR
     CLI["@lessonkit/cli"]
     LKL["@lessonkit/lxpack"]
   end
-  subgraph lxp [LXPack 0.6.2]
+  subgraph lxp [LXPack 0.6.3]
     API["@lxpack/api"]
     RT["@lxpack/runtime"]
     PKG["SCORM · xAPI · cmi5"]
@@ -162,7 +162,7 @@ LessonKit telemetry event names map to LXPack `track()` via `mapLessonkitTelemet
 
 ## Package map
 
-| LessonKit (1.0) | LXPack (0.6.2) | Role |
+| LessonKit (1.0) | LXPack (0.6.3) | Role |
 |-----------------|----------------|------|
 | `@lessonkit/react` | — | React components, hooks, `ThemeProvider` |
 | `@lessonkit/core` | — | Identity, telemetry catalog |
