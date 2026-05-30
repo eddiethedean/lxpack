@@ -28,7 +28,7 @@ Quick lookup for **v0.6.2** — CLI commands, manifest fields, and common fixes.
 
     `markdown`, `html`, `spa`, `component`.
 
--   :octicons-puzzle-24: **[Components](components.md)**
+-   :octicons-stack-24: **[Components](components.md)**
 
     ---
 

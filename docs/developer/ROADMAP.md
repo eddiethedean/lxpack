@@ -258,7 +258,7 @@ This phase makes LXPack a first-class **packaging and LMS export layer** for
 [LessonKit](https://github.com/eddiethedean/lessonkit): preserve React authoring, provide stable
 library APIs for CI/tooling, and align tracking semantics across runtimes.
 
-Shipped checklist: [LXPACK_UPGRADES_FOR_LESSONKIT.md](../LXPACK_UPGRADES_FOR_LESSONKIT.md). Next phase: [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
+Shipped checklist: [Historical LessonKit checklist](../reference/lxpack-upgrades.md#historical-checklist-lessonkit-team). Next phase: [Maintainer upgrade plan](../reference/lxpack-upgrades.md#upgrade-plan-for-lxpack-maintainers).
 
 ### Shipped in v0.4.0
 
@@ -279,7 +279,7 @@ Shipped checklist: [LXPACK_UPGRADES_FOR_LESSONKIT.md](../LXPACK_UPGRADES_FOR_LES
 
 Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridge SDK, conformance, and meta-package.
 
-**Source of truth:** [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
+**Source of truth:** [Maintainer upgrade plan](../reference/lxpack-upgrades.md#upgrade-plan-for-lxpack-maintainers).
 
 ### Shipped in v0.5.0
 

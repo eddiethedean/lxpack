@@ -10,7 +10,7 @@ Technical references for **v0.6.2** contributors and integrators.
 
     Functional requirements, manifest, runtime, security.
 
--   :octicons-map-24: **[ROADMAP](ROADMAP.md)**
+-   :octicons-project-roadmap-24: **[ROADMAP](ROADMAP.md)**
 
     ---
 
@@ -28,7 +28,7 @@ Technical references for **v0.6.2** contributors and integrators.
 
     Package boundaries (v0.6.2).
 
--   :octicons-wrench-24: **[REFACTORING](REFACTORING.md)**
+-   :octicons-tools-24: **[REFACTORING](REFACTORING.md)**
 
     ---
 

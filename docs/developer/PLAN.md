@@ -210,7 +210,7 @@ See [ROADMAP.md](ROADMAP.md#phase-04-lessonkit-interoperability-shipped-v040) fo
 
 **Shipped:** `packageLessonkit()`, interchange schema v1, interchange-only validation, `lxpack build --lessonkit`, [lessonkit interchange reference](../reference/lessonkit-interchange.md).
 
-**Source of truth:** [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md).
+**Source of truth:** [Maintainer upgrade plan](../reference/lxpack-upgrades.md#upgrade-plan-for-lxpack-maintainers).
 
 ---
 

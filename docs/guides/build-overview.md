@@ -53,7 +53,7 @@ Every module follows the same loop:
 
     Stakeholder review and SCORM simulators in preview.
 
--   :octicons-cloud-upload-24: **[Export to LMS](export-to-lms.md)**
+-   :octicons-upload-24: **[Export to LMS](export-to-lms.md)**
 
     ---
 
