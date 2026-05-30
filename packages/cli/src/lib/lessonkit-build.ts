@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import pc from "picocolors";
 import {
   parseLessonkitInterchange,
   type LessonkitInterchangeV1,
@@ -25,6 +26,21 @@ export function parseSpaLessonOption(value: string): { id: string; path: string 
     );
   }
   return { id, path: resolve(path) };
+}
+
+export function parseSpaLessonOptions(
+  values: string[],
+): Array<{ id: string; path: string }> {
+  const spaLessons: Array<{ id: string; path: string }> = [];
+  for (const value of values) {
+    try {
+      spaLessons.push(parseSpaLessonOption(value));
+    } catch (err) {
+      console.error(pc.red(err instanceof Error ? err.message : String(err)));
+      process.exit(1);
+    }
+  }
+  return spaLessons;
 }
 
 export async function loadLessonkitInterchangeFile(

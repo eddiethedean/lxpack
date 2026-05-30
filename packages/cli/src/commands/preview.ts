@@ -15,7 +15,7 @@ import {
 import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
-  parseSpaLessonOption,
+  parseSpaLessonOptions,
   resolveLessonkitConfigDir,
   validateSpaDirsForInterchange,
 } from "../lib/lessonkit-build.js";
@@ -194,14 +194,9 @@ export async function startPreviewFromLessonkit(options: {
     await rm(courseDir, { recursive: true, force: true }).catch(() => {});
   };
 
-  let config = null;
-  try {
-    config = await loadLxpackConfig(
-      resolveLessonkitConfigDir(options.lessonkitPath),
-    );
-  } catch {
-    /* optional lxpack.config.json */
-  }
+  const config = await loadLxpackConfig(
+    resolveLessonkitConfigDir(options.lessonkitPath),
+  );
   const exportTarget = resolveExportTarget(
     options.target,
     config,
@@ -362,7 +357,7 @@ export async function previewCommand(
   let cleanup: (() => Promise<void>) | undefined;
 
   if (options.lessonkit) {
-    const spaLessons = (options.spaLesson ?? []).map(parseSpaLessonOption);
+    const spaLessons = parseSpaLessonOptions(options.spaLesson ?? []);
     try {
       const result = await resolveStartPreviewFromLessonkit({
         lessonkitPath: options.lessonkit,
@@ -388,7 +383,13 @@ export async function previewCommand(
       process.exit(1);
     }
   } else {
-    const courseDir = resolveCourseDir();
+    let courseDir: string;
+    try {
+      courseDir = resolveCourseDir();
+    } catch (err) {
+      console.error(pc.red(err instanceof Error ? err.message : String(err)));
+      process.exit(1);
+    }
     const started = await resolveStartPreview(courseDir, options);
     app = started.app;
   }

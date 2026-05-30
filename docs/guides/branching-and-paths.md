@@ -25,19 +25,32 @@ if (window.parent.lxpack) {
 
 ## Flow rules
 
-Each rule has `when` (condition) and `goto` (lesson `id`):
+Each rule has `when` (condition) and `goto` (activity `id`). Optional `from` limits when the rule runs:
 
 ```yaml
 flow:
-  - when:
+  - from: choose_path
+    when:
       variable:
         eq: [track, advanced]
     goto: advanced_lab
-  - when:
+  - from: choose_path
+    when:
+      variable:
+        eq: [track, basic]
+    goto: wrap_up
+  - from: final_quiz
+    when:
       assessment:
         passed: final_quiz
     goto: wrap_up
 ```
+
+| Field | Meaning |
+|-------|---------|
+| `from` | Activity id the learner is on when this rule is evaluated (recommended for `variable.eq`) |
+| `when` | Condition that must be true |
+| `goto` | Next activity id when the rule matches |
 
 | Condition | Meaning |
 |-----------|---------|
@@ -45,6 +58,8 @@ flow:
 | `assessment.passed: <id>` | Learner passed that quiz |
 | `interaction.done: <lesson_id>` | HTML or SPA lesson tracked completion |
 | `all: [...]` / `any: [...]` | Combine conditions |
+
+`interaction.done` and `assessment.passed` rules infer `from` when omitted. `variable.eq` rules without `from` apply on every navigation (validator warns).
 
 ## Full example
 

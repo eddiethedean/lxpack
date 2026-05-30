@@ -1,6 +1,6 @@
 {
   "name": "lxpack",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "private": true,
   "description": "AI-native learning experience compiler and runtime",
   "license": "Apache-2.0",

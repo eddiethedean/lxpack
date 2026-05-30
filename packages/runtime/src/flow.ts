@@ -1,5 +1,41 @@
-import type { CourseManifest, FlowRule } from "@lxpack/validators";
+import type { Condition, CourseManifest, FlowRule } from "@lxpack/validators";
 import { evaluateCondition } from "./flow-conditions.js";
+
+function inferFlowRuleSource(condition: Condition): string | null {
+  if ("interaction" in condition && condition.interaction?.done) {
+    return condition.interaction.done;
+  }
+  if ("assessment" in condition && condition.assessment?.passed) {
+    return condition.assessment.passed;
+  }
+  if ("all" in condition && condition.all?.length) {
+    for (const c of condition.all) {
+      const inferred = inferFlowRuleSource(c);
+      if (inferred !== null) return inferred;
+    }
+  }
+  if ("any" in condition && condition.any?.length) {
+    for (const c of condition.any) {
+      const inferred = inferFlowRuleSource(c);
+      if (inferred !== null) return inferred;
+    }
+  }
+  return null;
+}
+
+function ruleAppliesFromActivity(
+  rule: FlowRule,
+  currentActivityId: string,
+): boolean {
+  if (rule.from !== undefined) {
+    return rule.from === currentActivityId;
+  }
+  const inferred = inferFlowRuleSource(rule.when);
+  if (inferred !== null) {
+    return inferred === currentActivityId;
+  }
+  return true;
+}
 
 export interface FlowContext {
   getVariable: (name: string) => unknown;
@@ -15,12 +51,16 @@ export { evaluateCondition } from "./flow-conditions.js";
 export function resolveFlowGoto(
   manifest: CourseManifest,
   ctx: FlowContext,
+  currentActivityId: string,
 ): string | null {
   const rules = manifest.flow;
   if (!rules?.length) return null;
 
   for (const rule of rules) {
-    if (evaluateCondition(rule.when, ctx)) {
+    if (
+      ruleAppliesFromActivity(rule, currentActivityId) &&
+      evaluateCondition(rule.when, ctx)
+    ) {
       return rule.goto;
     }
   }
@@ -52,7 +92,7 @@ export function resolveNextActivityId(
   currentId: string,
   ctx: FlowContext,
 ): string | null {
-  const flowTarget = resolveFlowGoto(manifest, ctx);
+  const flowTarget = resolveFlowGoto(manifest, ctx, currentId);
   if (flowTarget && flowTarget !== currentId) {
     return flowTarget;
   }

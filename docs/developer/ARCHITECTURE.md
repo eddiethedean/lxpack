@@ -1,6 +1,6 @@
-# LXPack architecture (v0.6.2)
+# LXPack architecture (v0.6.3)
 
-Internal layout after the SOLID refactor. Current release **v0.6.2**.
+Internal layout after the SOLID refactor. Current release **v0.6.3**.
 
 ## Package boundaries
 
@@ -46,8 +46,9 @@ Internal layout after the SOLID refactor. Current release **v0.6.2**.
 ## Adding features
 
 1. **New lesson type** — extend Zod `lessonSchema`, validators, client lesson registry.
-2. **New export target** — extend `ExportTarget`, `assemblePackage`, CLI packagers.
-3. **New analytics backend** — implement `AnalyticsReporter`, register in `analytics/factory.ts`.
-4. **New LMS** — implement `LmsBridge`, register in `lms/factory.ts`.
+2. **Flow rules** — optional `from` on `flowRuleSchema`; `resolveFlowGoto(manifest, ctx, currentActivityId)` in runtime.
+3. **New export target** — extend `ExportTarget`, `assemblePackage`, CLI packagers.
+4. **New analytics backend** — implement `AnalyticsReporter`, register in `analytics/factory.ts`.
+5. **New LMS** — implement `LmsBridge`, register in `lms/factory.ts`.
 
 See also [REFACTORING.md](./REFACTORING.md) for invariants and CI commands.

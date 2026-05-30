@@ -150,7 +150,13 @@ describe("client navigation fallbacks", () => {
       ).toBe(true),
     );
 
+    const navB = document.querySelector(
+      '[data-nav-id="b"]',
+    ) as HTMLButtonElement;
+    expect(navB.disabled).toBe(true);
+
     const prev = document.getElementById("lxpack-prev") as HTMLButtonElement;
+    expect(prev.disabled).toBe(true);
     prev.click();
     await vi.waitFor(() =>
       expect(
@@ -228,7 +234,13 @@ describe("client navigation fallbacks", () => {
           { id: "intro", type: "markdown", file: "lessons/intro.md" },
           { id: "wrap", type: "markdown", file: "lessons/wrap.md" },
         ],
-        flow: [{ when: { assessment: { passed: "final" } }, goto: "wrap" }],
+        flow: [
+          {
+            from: "intro",
+            when: { assessment: { passed: "final" } },
+            goto: "wrap",
+          },
+        ],
         assessments: [{ id: "final", file: "assessments/final.yaml" }],
       },
       assessments: {

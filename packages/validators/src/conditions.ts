@@ -44,6 +44,7 @@ export const conditionSchema: z.ZodType<Condition> = z.lazy(() =>
 
 export const flowRuleSchema = z
   .object({
+    from: z.string().min(1).optional(),
     when: conditionSchema,
     goto: z.string().min(1),
   })

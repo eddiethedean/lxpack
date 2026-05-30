@@ -139,13 +139,8 @@ describe("all example courses", () => {
     await vi.waitFor(() => {
       expect(document.body.textContent).toContain("Wrap up");
     });
-    // Flow rule `path == advanced` always resolves to component_lesson; clear it
-    // so Next can reach the quiz before the post-quiz wrap_up flow rule applies.
-    window.lxpack?.setVariable("path", "intro");
-    await vi.waitFor(() =>
-      expect(window.lxpack?.getVariable("path")).toBe("intro"),
-    );
     await clickNext();
+    await waitForActiveNav("final_quiz");
     await waitForSelector("#lxpack-assessment-form");
     await submitQuizWithAnswerKey(config.answerKeys!.final_quiz);
     expectAssessmentPassed("final_quiz");
@@ -173,6 +168,15 @@ describe("all example courses", () => {
       interactionPath: "interactions/choose-path",
     });
     expect(window.lxpack?.getVariable("path")).toBe("intro");
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="wrap_up"].active'),
+      ).toBeTruthy(),
+    );
+    const componentNav = document.querySelector(
+      '[data-nav-id="component_lesson"]',
+    ) as HTMLButtonElement | null;
+    expect(componentNav?.disabled).toBe(true);
 
     window.dispatchEvent(new Event("beforeunload"));
   });

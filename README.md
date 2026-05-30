@@ -13,7 +13,7 @@
 
 LXPack treats courses as programmable learning applications (markdown lessons, HTML interactions, reusable components, branching flow, YAML assessments), not slide decks. It is designed for AI-assisted authoring workflows (Claude Code, Claude Design) and enterprise LMS deployment.
 
-**Current release:** [v0.6.2](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) — Node.js 18 and 20; runtime navigation fixes; LessonKit/API parity
+**Current release:** [v0.6.3](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) — position-aware flow (`from`), runtime nav fixes, CLI parity
 
 ## Packages
 
@@ -214,11 +214,13 @@ variables:
     type: string
 
 flow:
-  - when:
+  - from: choose_path
+    when:
       variable:
         eq: [track, advanced]
     goto: advanced_lab
-  - when:
+  - from: final_quiz
+    when:
       assessment:
         passed: final_quiz
     goto: wrap_up

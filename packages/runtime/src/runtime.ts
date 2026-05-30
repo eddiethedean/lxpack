@@ -333,7 +333,11 @@ export class LxpackRuntime implements AssessmentHost {
   }
 
   resolveFlowNavigation(): string | null {
-    return resolveFlowGoto(this.manifest, this.getFlowContext());
+    return resolveFlowGoto(
+      this.manifest,
+      this.getFlowContext(),
+      this.state.progress.currentLessonId,
+    );
   }
 
   terminate(): void {

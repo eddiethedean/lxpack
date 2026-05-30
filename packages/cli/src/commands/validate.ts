@@ -17,7 +17,7 @@ import { printValidationIssues } from "../lib/validated-course.js";
 import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
-  parseSpaLessonOption,
+  parseSpaLessonOptions,
   resolveLessonkitConfigDir,
   validateSpaDirsForInterchange,
 } from "../lib/lessonkit-build.js";
@@ -88,7 +88,7 @@ export async function validateCommand(options?: {
     }
 
     const target = resolveExportTarget(options?.target, config) as ExportTarget;
-    const spaLessons = (options.spaLesson ?? []).map(parseSpaLessonOption);
+    const spaLessons = parseSpaLessonOptions(options.spaLesson ?? []);
     const spaDirs = buildSpaDirsFromInterchange(
       loaded.data,
       spaLessons,
@@ -128,7 +128,13 @@ export async function validateCommand(options?: {
     return;
   }
 
-  const courseDir = findCourseDir();
+  let courseDir: string;
+  try {
+    courseDir = findCourseDir();
+  } catch (err) {
+    console.error(pc.red(err instanceof Error ? err.message : String(err)));
+    process.exit(1);
+  }
 
   let config;
   try {

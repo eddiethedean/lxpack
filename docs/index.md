@@ -5,7 +5,7 @@ hide:
 
 <div class="lx-hero">
   <div class="lx-hero-badges">
-    <span class="lx-badge lx-badge--accent">v0.6.2</span>
+    <span class="lx-badge lx-badge--accent">v0.6.3</span>
     <span class="lx-badge">SCORM · xAPI · cmi5</span>
     <span class="lx-badge">AI-native authoring</span>
   </div>

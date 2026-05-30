@@ -94,6 +94,19 @@ function validateConditionShape(
   return issues;
 }
 
+function conditionUsesVariableEq(condition: Condition): boolean {
+  if ("variable" in condition && condition.variable?.eq) {
+    return true;
+  }
+  if ("all" in condition && condition.all) {
+    return condition.all.some(conditionUsesVariableEq);
+  }
+  if ("any" in condition && condition.any) {
+    return condition.any.some(conditionUsesVariableEq);
+  }
+  return false;
+}
+
 function collectConditionRefs(
   condition: Condition,
   refs: {
@@ -144,6 +157,23 @@ export function validateFlow(
       });
     }
 
+    if (rule.from !== undefined) {
+      if (!activityIds.has(rule.from)) {
+        issues.push({
+          path: `${path}.from`,
+          message: `Unknown activity id: ${rule.from}`,
+          severity: "error",
+        });
+      }
+    } else if (conditionUsesVariableEq(rule.when)) {
+      issues.push({
+        path,
+        message:
+          "Flow rules with variable.eq should include `from` (activity id) so the rule applies only when leaving that step",
+        severity: "warning",
+      });
+    }
+
     const refs = {
       variables: new Set<string>(),
       assessments: new Set<string>(),
@@ -181,6 +211,42 @@ export function validateFlow(
   });
 
   return issues;
+}
+
+function inferFlowRuleSource(condition: Condition): string | null {
+  if ("interaction" in condition && condition.interaction?.done) {
+    return condition.interaction.done;
+  }
+  if ("assessment" in condition && condition.assessment?.passed) {
+    return condition.assessment.passed;
+  }
+  if ("all" in condition && condition.all?.length) {
+    for (const c of condition.all) {
+      const inferred = inferFlowRuleSource(c);
+      if (inferred !== null) return inferred;
+    }
+  }
+  if ("any" in condition && condition.any?.length) {
+    for (const c of condition.any) {
+      const inferred = inferFlowRuleSource(c);
+      if (inferred !== null) return inferred;
+    }
+  }
+  return null;
+}
+
+function ruleAppliesFromActivity(
+  rule: FlowRule,
+  currentActivityId: string,
+): boolean {
+  if (rule.from !== undefined) {
+    return rule.from === currentActivityId;
+  }
+  const inferred = inferFlowRuleSource(rule.when);
+  if (inferred !== null) {
+    return inferred === currentActivityId;
+  }
+  return true;
 }
 
 function conditionCouldApplyAt(
@@ -229,6 +295,7 @@ export function detectFlowCycles(manifest: CourseManifest): string[] {
       if (
         rule.goto !== current &&
         activityIds.has(rule.goto) &&
+        ruleAppliesFromActivity(rule, current) &&
         conditionCouldApplyAt(rule.when, current, interactionIds)
       ) {
         return rule.goto;

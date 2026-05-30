@@ -68,15 +68,19 @@ variables:
 
 ```yaml
 flow:
-  - when:
+  - from: choose_path
+    when:
       variable:
         eq: [role, manager]
     goto: manager_module
-  - when:
+  - from: final_quiz
+    when:
       assessment:
         passed: final_quiz
     goto: completion
 ```
+
+Optional `from` is the activity id the learner must be on for the rule to run. Use `from` with `variable.eq` so persistent variables do not redirect learners on unrelated steps. Rules with `interaction.done` or `assessment.passed` infer `from` when omitted.
 
 See [Branching and paths](../guides/branching-and-paths.md).
 

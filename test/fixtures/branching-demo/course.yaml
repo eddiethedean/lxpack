@@ -8,11 +8,18 @@ variables:
     type: string
 
 flow:
-  - when:
+  - from: choose_path
+    when:
       variable:
         eq: [path, advanced]
     goto: component_lesson
-  - when:
+  - from: choose_path
+    when:
+      variable:
+        eq: [path, intro]
+    goto: wrap_up
+  - from: final_quiz
+    when:
       assessment:
         passed: final_quiz
     goto: wrap_up

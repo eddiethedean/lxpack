@@ -286,14 +286,21 @@ describe("buildCommand", () => {
     await rm(join(process.cwd(), "assets"), { recursive: true, force: true });
   });
 
-  it("rethrows unexpected packaging errors", async () => {
+  it("exits on unexpected packaging errors", async () => {
     const api = await import("@lxpack/api");
     vi.spyOn(api, "buildCourse").mockRejectedValueOnce(
       new Error("packager boom"),
     );
-    await expect(buildCommand({ target: "scorm12" })).rejects.toThrow(
-      "packager boom",
+    const exit = vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+      throw new Error(`exit:${code ?? 0}`);
+    });
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(buildCommand({ target: "scorm12" })).rejects.toThrow("exit:1");
+    expect(error.mock.calls.some((c) => String(c[0]).includes("packager boom"))).toBe(
+      true,
     );
+    exit.mockRestore();
+    error.mockRestore();
     vi.restoreAllMocks();
   });
 
@@ -448,6 +455,35 @@ describe("buildCommand", () => {
 
     await expect(
       buildCommand({ lessonkit: interchangePath, target: "scorm12" }),
+    ).rejects.toThrow("exit:1");
+    exit.mockRestore();
+    process.chdir(join(workDir, "course"));
+  });
+
+  it("exits when --spa-lesson value is malformed", async () => {
+    const interchangePath = join(workDir, "lessonkit-spa-parse.json");
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    const spaDir = join(workDir, "spa-parse");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "LK" },
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+    process.chdir(workDir);
+    const exit = vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+      throw new Error(`exit:${code ?? 0}`);
+    });
+    await expect(
+      buildCommand({
+        lessonkit: interchangePath,
+        spaLesson: ["noseparator"],
+      }),
     ).rejects.toThrow("exit:1");
     exit.mockRestore();
     process.chdir(join(workDir, "course"));

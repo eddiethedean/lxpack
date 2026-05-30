@@ -84,10 +84,7 @@ export function init(): void {
     return false;
   }
 
-  function isNavItemReachable(
-    targetId: string,
-    options?: { allowLinearPrevious?: boolean },
-  ): boolean {
+  function isNavItemReachable(targetId: string): boolean {
     const hasFlow = Boolean(config.manifest.flow?.length);
     if (!hasFlow) return true;
     const currentId = navItems[currentIndex]?.id ?? "";
@@ -101,11 +98,33 @@ export function init(): void {
       runtime.getFlowContext(),
     );
     if (nextId === targetId) return true;
-    if (options?.allowLinearPrevious) {
-      const prevId = resolvePreviousActivityId(config.manifest, currentId);
-      if (prevId === targetId) return true;
-    }
     return false;
+  }
+
+  function canGoPrev(currentId: string): boolean {
+    const hasFlow = Boolean(config.manifest.flow?.length);
+    if (!hasFlow) {
+      return activityOrder.indexOf(currentId) > 0;
+    }
+    const prevId = resolvePreviousActivityId(config.manifest, currentId);
+    return Boolean(prevId && isNavItemReachable(prevId));
+  }
+
+  function canGoNext(currentId: string): boolean {
+    const hasFlow = Boolean(config.manifest.flow?.length);
+    const nextId = resolveNextActivityId(
+      config.manifest,
+      currentId,
+      runtime.getFlowContext(),
+    );
+    if (nextId && isNavItemReachable(nextId)) return true;
+    if (!hasFlow) {
+      return currentIndex < navItems.length - 1;
+    }
+    if (activityOrder.indexOf(currentId) >= activityOrder.length - 1) {
+      return true;
+    }
+    return currentIndex < navItems.length - 1;
   }
 
   function getPassedAssessments(): Set<string> {
@@ -170,19 +189,14 @@ export function init(): void {
         const idx = navItems.findIndex((n) => n.id === id);
         if (idx >= 0) void showItem(idx);
       },
-      (id) => isNavItemReachable(id, { allowLinearPrevious: true }),
+      (id) => isNavItemReachable(id),
     );
 
     updateProgressBar(runtime.getCompletionRatio());
 
     const currentId = navItems[index]?.id ?? "";
-    const hasFlow = Boolean(config.manifest.flow?.length);
-    const atStart = activityOrder.indexOf(currentId) <= 0;
-    const atEnd =
-      activityOrder.indexOf(currentId) >= activityOrder.length - 1 &&
-      !hasFlow;
-    prevBtn.disabled = atStart;
-    nextBtn.disabled = atEnd && !hasFlow;
+    prevBtn.disabled = !canGoPrev(currentId);
+    nextBtn.disabled = !canGoNext(currentId);
 
     const isLesson = item.kind === "lesson";
     completeBtn.hidden = !isLesson;

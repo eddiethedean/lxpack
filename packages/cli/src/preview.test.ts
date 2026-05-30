@@ -468,6 +468,50 @@ describe("previewCommand", () => {
     vi.restoreAllMocks();
   });
 
+  it("exits when lessonkit preview has invalid lxpack.config.json", async () => {
+    const { mkdtemp, writeFile, mkdir, rm } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const dir = await mkdtemp(join(tmpdir(), "lxpack-lk-preview-config-"));
+    const spaDir = join(dir, "spa-dist");
+    await mkdir(spaDir, { recursive: true });
+    await writeFile(join(spaDir, "index.html"), "<html></html>");
+    await writeFile(join(dir, "lxpack.config.json"), "{ bad");
+    const interchangePath = join(dir, "lessonkit.json");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        course: { title: "LK Preview Config" },
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+
+    const exit = vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+      throw new Error(`exit:${code ?? 0}`);
+    });
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await expect(
+      previewCommands.previewCommand({
+        lessonkit: interchangePath,
+        spaLesson: [`spa1=${spaDir}`],
+        port: 4011,
+        host: "127.0.0.1",
+      }),
+    ).rejects.toThrow("exit:1");
+    expect(
+      error.mock.calls.some((c) =>
+        String(c[0]).includes("lxpack.config.json"),
+      ),
+    ).toBe(true);
+
+    exit.mockRestore();
+    error.mockRestore();
+    await rm(dir, { recursive: true, force: true });
+  });
+
   it("exits when lessonkit preview validation fails", async () => {
     const exit = vi.spyOn(process, "exit").mockImplementation((code?: number) => {
       throw new Error(`exit:${code ?? 0}`);

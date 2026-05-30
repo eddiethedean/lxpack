@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-05-30
+
+### Added
+
+- **Flow:** optional `from` on flow rules limits when a rule is evaluated (activity id the learner is on); `interaction.done` and `assessment.passed` rules infer `from` when omitted
+- **Validators:** warn when `variable.eq` flow rules omit `from` (migration hint)
+
+### Fixed
+
+- **Runtime:** position-aware flow navigation — persistent variables no longer redirect learners on unrelated steps; branching-demo basic path skips `component_lesson`
+- **Runtime:** sidebar disabled state matches click reachability; Prev/Next buttons disabled when flow blocks the target
+- **CLI:** `lxpack preview --lessonkit` fails on invalid `lxpack.config.json` (parity with validate/build)
+- **CLI:** malformed `--spa-lesson` values exit with a clear error instead of an uncaught exception
+- **CLI:** `findCourseDir` and unexpected build errors print friendly messages and exit 1
+
 ## [0.6.2] - 2026-05-30
 
 ### Fixed

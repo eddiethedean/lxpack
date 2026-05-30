@@ -13,7 +13,7 @@ import {
 import {
   buildSpaDirsFromInterchange,
   loadLessonkitInterchangeFile,
-  parseSpaLessonOption,
+  parseSpaLessonOptions,
   resolveLessonkitConfigDir,
   validateSpaDirsForInterchange,
 } from "../lib/lessonkit-build.js";
@@ -62,7 +62,7 @@ export async function buildCommand(options: {
         process.exit(1);
       }
 
-      const spaLessons = (options.spaLesson ?? []).map(parseSpaLessonOption);
+      const spaLessons = parseSpaLessonOptions(options.spaLesson ?? []);
       const spaDirs = buildSpaDirsFromInterchange(
         loaded.data,
         spaLessons,
@@ -105,7 +105,13 @@ export async function buildCommand(options: {
       return;
     }
 
-    const courseDir = findCourseDir();
+    let courseDir: string;
+    try {
+      courseDir = findCourseDir();
+    } catch (err) {
+      console.error(pc.red(formatErrorMessage(err)));
+      process.exit(1);
+    }
 
     if (options.dir) {
       const outputDir = options.output
@@ -152,6 +158,7 @@ export async function buildCommand(options: {
       console.error(pc.red(`Cannot build: ${err.message}`));
       process.exit(1);
     }
-    throw err;
+    console.error(pc.red(formatErrorMessage(err)));
+    process.exit(1);
   }
 }

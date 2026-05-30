@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/conformance",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Shared LessonKit/LXPack export conformance fixtures and matrix runner",
   "license": "Apache-2.0",
   "repository": {

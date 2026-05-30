@@ -1,6 +1,6 @@
-# Internal refactor contract (v0.6.2)
+# Internal refactor contract (v0.6.3)
 
-This document records invariants for the SOLID refactor. **Current release:** v0.6.2.
+This document records invariants for the SOLID refactor. **Current release:** v0.6.3.
 
 ## Public export surfaces (must remain stable)
 

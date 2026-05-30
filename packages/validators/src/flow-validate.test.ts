@@ -38,6 +38,43 @@ describe("validateFlow", () => {
     expect(issues.filter((i) => i.severity === "error")).toHaveLength(0);
   });
 
+  it("rejects unknown from activity", () => {
+    const issues = validateFlow({
+      ...baseManifest,
+      flow: [
+        { from: "missing", when: { variable: { eq: ["track", "a"] } }, goto: "lab" },
+      ],
+    });
+    expect(issues.some((i) => i.path.includes(".from"))).toBe(true);
+  });
+
+  it("warns when variable.eq rule omits from", () => {
+    const issues = validateFlow({
+      ...baseManifest,
+      flow: [{ when: { variable: { eq: ["track", "a"] } }, goto: "lab" }],
+    });
+    expect(
+      issues.some(
+        (i) => i.severity === "warning" && i.message.includes("variable.eq"),
+      ),
+    ).toBe(true);
+  });
+
+  it("accepts flow rule with explicit from", () => {
+    const issues = validateFlow({
+      ...baseManifest,
+      flow: [
+        {
+          from: "intro",
+          when: { variable: { eq: ["track", "b"] } },
+          goto: "lab",
+        },
+      ],
+    });
+    expect(issues.filter((i) => i.severity === "error")).toHaveLength(0);
+    expect(issues.filter((i) => i.severity === "warning")).toHaveLength(0);
+  });
+
   it("rejects unknown goto target", () => {
     const issues = validateFlow({
       ...baseManifest,

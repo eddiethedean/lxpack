@@ -1,8 +1,8 @@
 # API stability (LessonKit 1.0)
 
-Targets for **LXPack v0.6.2** interoperability with **LessonKit 1.0.0** ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)).
+Targets for **LXPack v0.6.3** interoperability with **LessonKit 1.0.0** ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)).
 
-## Stable in v0.6.2
+## Stable in v0.6.3
 
 ### `lxpackBridge.v1`
 

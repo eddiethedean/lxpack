@@ -18,7 +18,7 @@ const manifest: CourseManifest = {
   ],
   variables: { flag: { default: false, type: "boolean" } },
   flow: [
-    { when: { variable: { eq: ["flag", true] } }, goto: "b" },
+    { from: "a", when: { variable: { eq: ["flag", true] } }, goto: "b" },
   ],
 };
 
@@ -40,7 +40,112 @@ describe("flow", () => {
       isAssessmentPassed: () => false,
       isInteractionDone: () => false,
     };
-    expect(resolveFlowGoto(manifest, ctx)).toBe("b");
+    expect(resolveFlowGoto(manifest, ctx, "a")).toBe("b");
+    expect(resolveFlowGoto(manifest, ctx, "b")).toBeNull();
+  });
+
+  it("only applies variable flow rules from the current activity when from is set", () => {
+    const withFrom = {
+      ...manifest,
+      flow: [
+        { from: "a", when: { variable: { eq: ["flag", true] } }, goto: "b" },
+      ],
+    };
+    const ctx = {
+      getVariable: () => true,
+      isAssessmentPassed: () => false,
+      isInteractionDone: () => false,
+    };
+    expect(resolveFlowGoto(withFrom, ctx, "a")).toBe("b");
+    expect(resolveFlowGoto(withFrom, ctx, "b")).toBeNull();
+  });
+
+  it("infers from for assessment.passed rules", () => {
+    const flowManifest = {
+      title: "T",
+      version: "1",
+      lessons: [{ id: "wrap", type: "markdown" as const, file: "wrap.md" }],
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      flow: [{ when: { assessment: { passed: "quiz" } }, goto: "wrap" }],
+    };
+    const ctx = {
+      getVariable: () => false,
+      isAssessmentPassed: (id: string) => id === "quiz",
+      isInteractionDone: () => false,
+    };
+    expect(resolveFlowGoto(flowManifest, ctx, "quiz")).toBe("wrap");
+    expect(resolveFlowGoto(flowManifest, ctx, "wrap")).toBeNull();
+  });
+
+  it("infers from nested all conditions", () => {
+    const flowManifest = {
+      title: "T",
+      version: "1",
+      lessons: [
+        { id: "lab", type: "html" as const, path: "interactions/lab" },
+        { id: "wrap", type: "markdown" as const, file: "wrap.md" },
+      ],
+      flow: [
+        {
+          when: {
+            all: [
+              { interaction: { done: "lab" } },
+              { variable: { eq: ["flag", true] } },
+            ],
+          },
+          goto: "wrap",
+        },
+      ],
+      variables: { flag: { default: false, type: "boolean" as const } },
+    };
+    const ctx = {
+      getVariable: () => true,
+      isAssessmentPassed: () => false,
+      isInteractionDone: (id: string) => id === "lab",
+    };
+    expect(resolveFlowGoto(flowManifest, ctx, "lab")).toBe("wrap");
+    expect(resolveFlowGoto(flowManifest, ctx, "wrap")).toBeNull();
+  });
+
+  it("infers from nested any conditions", () => {
+    const flowManifest = {
+      title: "T",
+      version: "1",
+      lessons: [{ id: "wrap", type: "markdown" as const, file: "wrap.md" }],
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      flow: [
+        {
+          when: { any: [{ assessment: { passed: "quiz" } }] },
+          goto: "wrap",
+        },
+      ],
+    };
+    const ctx = {
+      getVariable: () => false,
+      isAssessmentPassed: (id: string) => id === "quiz",
+      isInteractionDone: () => false,
+    };
+    expect(resolveFlowGoto(flowManifest, ctx, "quiz")).toBe("wrap");
+    expect(resolveFlowGoto(flowManifest, ctx, "wrap")).toBeNull();
+  });
+
+  it("infers from for interaction.done rules", () => {
+    const flowManifest = {
+      title: "T",
+      version: "1",
+      lessons: [
+        { id: "lab", type: "html" as const, path: "interactions/lab" },
+        { id: "wrap", type: "markdown" as const, file: "wrap.md" },
+      ],
+      flow: [{ when: { interaction: { done: "lab" } }, goto: "wrap" }],
+    };
+    const ctx = {
+      getVariable: () => false,
+      isAssessmentPassed: () => false,
+      isInteractionDone: (id: string) => id === "lab",
+    };
+    expect(resolveFlowGoto(flowManifest, ctx, "lab")).toBe("wrap");
+    expect(resolveFlowGoto(flowManifest, ctx, "wrap")).toBeNull();
   });
 
   it("falls back to linear next", () => {
@@ -96,6 +201,7 @@ describe("flow", () => {
       flow: [{ when: { variable: { eq: ["flag", true] } }, goto: "a" }],
     };
     expect(resolveNextActivityId(withSelfGoto, "a", ctx)).toBe("b");
+    expect(resolveFlowGoto(withSelfGoto, ctx, "a")).toBe("a");
   });
 
   it("returns explicit flow target when it differs from current", () => {
