@@ -6,7 +6,7 @@
 
 Large language models are trained on stale data. They will guess wrong about:
 
-- Which `lxpack` CLI flags exist in **v0.5.0**
+- Which `lxpack` CLI flags exist in **v0.6.2**
 - How `course.yaml` must reference lessons and quizzes
 - What HTML interactions need for SCORM completion tracking
 

@@ -8,7 +8,7 @@
 
 Programmatic **validate** and **build** API for LXPack courses — the same logic the CLI uses, with structured results for Node integrations (LessonKit, CI, custom exporters).
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) · [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/).
+Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) · [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/).
 
 | Related | Package |
 |---------|---------|

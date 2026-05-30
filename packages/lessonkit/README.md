@@ -6,7 +6,9 @@
 [![License](https://img.shields.io/github/license/eddiethedean/lxpack)](https://github.com/eddiethedean/lxpack/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/badge/node-18%20%7C%2020-brightgreen)](https://nodejs.org/)
 
-LessonKit integration facade for LXPack: `packageLessonkit`, interchange validation, SPA bridge, and telemetry mapping.
+Optional **LXPack meta-package** — re-exports `@lxpack/api`, `@lxpack/spa-bridge`, interchange validation, and telemetry mapping for integrators who prefer the `@lxpack/*` npm scope.
+
+**React authors:** use [**LessonKit 1.0**](https://github.com/eddiethedean/lessonkit) and **`@lessonkit/lxpack`** for LMS packaging (`lessonkit package`). You do not need `@lxpack/lessonkit` in a standard LessonKit project.
 
 ## Install
 
@@ -21,8 +23,12 @@ import {
   packageLessonkit,
   parseLessonkitInterchange,
   getLxpackBridge,
-  mapLessonkitTelemetryToBridgeAction,
+  mapLessonkitTelemetryToLxpack,
 } from "@lxpack/lessonkit";
 ```
 
-See [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/).
+## Docs
+
+- [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/)
+- [LessonKit packages reference](https://lxpack.readthedocs.io/en/latest/reference/lessonkit-packages/)
+- [LessonKit repository](https://github.com/eddiethedean/lessonkit) · [lessonkit.readthedocs.io](https://lessonkit.readthedocs.io/en/latest/)

@@ -1,6 +1,6 @@
 # Get started
 
-New to LXPack? Follow this path once — then jump to [workflows](../guides/workflow-overview.md) or [AI authoring](../guides/prompts-for-claude.md) when you are ready.
+New to LXPack? Start with [File-based authoring](../guides/file-based/index.md) — then jump to [AI-assisted authoring](../guides/ai-assisted/index.md) when you are ready.
 
 <div class="grid cards" markdown>
 
@@ -46,7 +46,7 @@ New to LXPack? Follow this path once — then jump to [workflows](../guides/work
 
 | Next step | Guide |
 |-----------|--------|
-| Pick Claude vs Cursor vs IDE-only | [Workflow overview](../guides/workflow-overview.md) |
+| Pick Claude vs Cursor vs IDE-only | [AI-assisted authoring](../guides/ai-assisted/index.md) |
 | Understand folders and files | [Course structure](../guides/course-structure.md) |
 | Copy prompts for Claude/Cursor | [Prompts](../guides/prompts-for-claude.md) |
 | Install agent Library Skills | [Library Skills](../guides/library-skills.md) |

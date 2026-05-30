@@ -1,33 +1,22 @@
-# Migrating from `@lessonkit/lxpack` to `@lxpack/lessonkit`
+# `@lessonkit/lxpack` vs `@lxpack/lessonkit`
 
-**v0.6.0** adds `@lxpack/lessonkit`, a thin facade over LXPack packaging and bridge APIs.
+!!! note "LessonKit 1.0"
+    **`@lessonkit/lxpack` remains the primary packaging adapter** in [LessonKit 1.0](https://github.com/eddiethedean/lessonkit). You do not need to migrate away from it.
 
-## Install
+    See **[LessonKit and LXPack packages](../reference/lessonkit-packages.md)** for the full package map.
 
-```bash
-npm install @lxpack/lessonkit
-```
+## Quick reference
 
-## API mapping
+| Need | Package |
+|------|---------|
+| React course + LMS export | `@lessonkit/lxpack` + `@lessonkit/cli` |
+| LXPack-only re-exports | `@lxpack/lessonkit` |
+| Raw validate/build | `@lxpack/api` |
+| YAML/markdown courses | `@lxpack/cli` |
 
-| `@lessonkit/lxpack` (legacy) | `@lxpack/lessonkit` / LXPack |
-|------------------------------|------------------------------|
-| Package descriptor → files | `packageLessonkit({ interchange, spaDirs, target })` |
-| Bridge helpers | `getLxpackBridge`, `normalizeScore` from re-export |
-| Interchange types | `LessonkitInterchangeV1`, `parseLessonkitInterchange` |
-| Telemetry mapping | `mapLessonkitTelemetryToLxpack` |
+**LessonKit docs:** [lessonkit.readthedocs.io](https://lessonkit.readthedocs.io/en/latest/) · **LXPack reference:** [LessonKit interoperability](../reference/lessonkit-interoperability.md)
 
-LessonKit should keep React authoring and Vite CLI; call LXPack for validate/build/preview.
+## Related
 
-## Conformance
-
-Run the shared matrix in CI:
-
-```bash
-pnpm --filter @lxpack/conformance test
-```
-
-## See also
-
-- [LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md](../LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md)
-- [lessonkit interoperability](lessonkit-interoperability.md)
+- [LessonKit and LXPack packages](../reference/lessonkit-packages.md)
+- [LessonKit interoperability](../reference/lessonkit-interoperability.md)

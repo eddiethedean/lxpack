@@ -7,9 +7,21 @@ edit_uri: edit/main/docs/
 
 copyright: Copyright &copy; LXPack contributors — Apache-2.0
 
-# Snippet partials for pymdownx (--8<--); not standalone pages.
+# Snippet partials and source markdown for pymdownx (--8<--); not standalone pages.
 not_in_nav: |
   /includes/**
+  CLI.md
+  COURSE_YAML.md
+  LXPACK_CONFIG.md
+  TRACKING_AND_COMPLETION.md
+  SPA_BRIDGE.md
+  LESSONKIT_INTERCHANGE.md
+  TROUBLESHOOTING.md
+  LESSONKIT_INTEROPERABILITY.md
+  LESSONKIT_PACKAGES.md
+  LXPACK_UPGRADES_FOR_LESSONKIT.md
+  LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md
+  README.md
 
 theme:
   name: material
@@ -76,6 +88,8 @@ markdown_extensions:
   - pymdownx.snippets:
       base_path:
         - docs/includes
+        - docs
+        - .
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -102,33 +116,36 @@ extra:
 
 nav:
   - Home: index.md
-  - Get started:
-      - getting-started/index.md
-      - getting-started/what-you-need.md
-      - getting-started/install-cli.md
-      - getting-started/your-first-course.md
-      - getting-started/glossary.md
-  - Workflows:
-      - guides/workflow-overview.md
-      - guides/workflow-claude-design.md
-      - guides/workflow-cursor.md
-      - guides/workflow-claude-code.md
-      - guides/lessonkit-interoperability.md
-      - guides/scorm-spa-recipes.md
-      - guides/migrating-from-lessonkit-lxpack-adapter.md
-      - guides/migrating-from-legacy-tools.md
-  - Build courses:
-      - guides/build-overview.md
-      - guides/course-structure.md
-      - guides/writing-lessons.md
-      - guides/building-interactions.md
-      - guides/quizzes-and-assessments.md
-      - guides/branching-and-paths.md
-      - guides/preview-and-review.md
-      - guides/export-to-lms.md
-  - AI authoring:
-      - guides/prompts-for-claude.md
-      - guides/library-skills.md
+  - Examples: examples/index.md
+  - Guides:
+      - File-based authoring:
+          - guides/file-based/index.md
+          - getting-started/what-you-need.md
+          - getting-started/install-cli.md
+          - getting-started/your-first-course.md
+          - guides/build-overview.md
+          - guides/course-structure.md
+          - guides/writing-lessons.md
+          - guides/building-interactions.md
+          - guides/quizzes-and-assessments.md
+          - guides/branching-and-paths.md
+          - guides/preview-and-review.md
+          - guides/export-to-lms.md
+          - getting-started/glossary.md
+      - AI-assisted authoring:
+          - guides/ai-assisted/index.md
+          - guides/workflow-overview.md
+          - guides/workflow-claude-design.md
+          - guides/workflow-cursor.md
+          - guides/workflow-claude-code.md
+          - guides/prompts-for-claude.md
+          - guides/library-skills.md
+      - LessonKit & React:
+          - guides/lessonkit/index.md
+          - guides/scorm-spa-recipes.md
+          - guides/migrating-from-lessonkit-lxpack-adapter.md
+      - Migration:
+          - guides/migrating-from-legacy-tools.md
   - Reference:
       - reference/index.md
       - reference/cli.md
@@ -137,17 +154,15 @@ nav:
       - reference/lesson-types.md
       - reference/components.md
       - reference/tracking-and-completion.md
+      - reference/lessonkit-interoperability.md
+      - reference/lessonkit-packages.md
       - reference/lessonkit-interchange.md
       - reference/spa-bridge.md
+      - reference/lxpack-upgrades.md
       - reference/troubleshooting.md
-  - Developer:
+  - Project:
+      - project/changelog.md
       - developer/index.md
-      - developer/SPEC.md
-      - developer/PLAN.md
       - developer/ROADMAP.md
-      - developer/ARCHITECTURE.md
-      - developer/REFACTORING.md
       - developer/api-stability.md
-  - Maintainers:
       - readthedocs-setup.md
-  - Changelog: https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md

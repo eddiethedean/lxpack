@@ -1,23 +1,133 @@
-/* LXPack docs — light modern polish on MkDocs Material */
+/* LXPack docs — modern layer on MkDocs Material (aligned with LessonKit doc patterns) */
 
 :root {
   --lxpack-accent: #6366f1;
+  --lx-brand-primary: #6366f1;
+  --lx-brand-content: #4338ca;
 }
 
-.md-typeset .grid.cards > ul > li {
-  border-radius: 0.5rem;
+/* ── Landing hero ───────────────────────────────────────────── */
+.lx-hero {
+  margin: -0.5rem 0 2.5rem;
+  padding: 2.75rem 2rem 2.5rem;
+  border-radius: 1.25rem;
   border: 1px solid var(--md-default-fg-color--lightest);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background:
+    radial-gradient(ellipse 120% 80% at 100% -20%, rgba(99, 102, 241, 0.14), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 0% 100%, rgba(124, 58, 237, 0.1), transparent 50%),
+    var(--md-default-bg-color--light);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-md-color-scheme="slate"] .lx-hero {
+  background:
+    radial-gradient(ellipse 120% 80% at 100% -20%, rgba(99, 102, 241, 0.18), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 0% 100%, rgba(124, 58, 237, 0.12), transparent 50%),
+    var(--md-default-bg-color--light);
+}
+
+.lx-hero-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+  background: linear-gradient(120deg, var(--md-default-fg-color) 0%, var(--lx-brand-primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-md-color-scheme="slate"] .lx-hero-title {
+  background: linear-gradient(120deg, #f1f5f9 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.lx-lead {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--md-default-fg-color--light);
+  max-width: 42rem;
+  margin: 0 0 1.5rem;
+}
+
+.lx-hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.lx-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color--light);
+}
+
+.lx-badge--accent {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--lx-brand-content);
+}
+
+[data-md-color-scheme="slate"] .lx-badge--accent {
+  color: #a5b4fc;
+}
+
+/* ── Callouts ───────────────────────────────────────────────── */
+.lx-callout {
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0 2rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid var(--lx-brand-primary);
+  background: rgba(99, 102, 241, 0.06);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+[data-md-color-scheme="slate"] .lx-callout {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* ── Cards & content polish ─────────────────────────────────── */
+.md-typeset .grid.cards > ul > li {
+  border-radius: 1rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  transition: transform 0.2s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .md-typeset .grid.cards > ul > li:hover {
+  transform: translateY(-2px);
   border-color: var(--lxpack-accent);
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
+  box-shadow: 0 12px 40px -12px rgba(99, 102, 241, 0.2);
 }
 
 .md-typeset h1 {
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+.md-typeset h2 {
+  margin-top: 2.5rem;
+}
+
+.md-typeset table:not([class]) {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset table:not([class]) thead {
+  background: var(--md-default-bg-color--light);
 }
 
 .md-typeset .md-button {
@@ -46,4 +156,9 @@
   color: var(--md-accent-fg-color);
   vertical-align: middle;
   margin-left: 0.35rem;
+}
+
+/* Section labels on home */
+h2#documentation-map {
+  margin-top: 2.5rem;
 }

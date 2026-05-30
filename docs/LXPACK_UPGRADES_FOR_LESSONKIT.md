@@ -1,9 +1,10 @@
 # LXPack upgrades for LessonKit interoperability
 
-!!! note "Status (v0.5.0)"
-    **v0.4.0** shipped SPA lessons, `@lxpack/api`, `lessonkit.json` merge, and `@lxpack/tracking-schema`. **v0.5.0** shipped thin packaging (`packageLessonkit`, interchange schema v1, `lxpack build --lessonkit`). Items below marked **deferred** remain **v0.6+** work.
+> **For LXPack maintainers:** see **[Upgrade plan for maintainers](lxpack-upgrades.md#upgrade-plan-for-lxpack-maintainers)** for the forward-looking upgrade plan (responsibility shifts, proposed APIs, release sequence). This page is the historical checklist and LessonKit-side integration status.
+>
+> **LessonKit [1.0.0](https://github.com/eddiethedean/lessonkit)** ships `@lessonkit/lxpack`, `@lessonkit/cli`, and the golden packaging example. **LXPack v0.4.0–v0.6.2** shipped SPA lessons, `@lxpack/api`, `packageLessonkit()`, `@lxpack/spa-bridge`, `@lxpack/conformance`, and `@lxpack/lessonkit`. See [LessonKit interoperability](lessonkit-interoperability.md) for current usage.
 
-This document proposes improvements to [LXPack](https://github.com/eddiethedean/lxpack) so it works
+This document captures the improvements we wanted in [LXPack](https://github.com/eddiethedean/lxpack) so it works
 better as the **packaging and LMS export layer** for
 [LessonKit](https://github.com/eddiethedean/lessonkit).
 
@@ -12,29 +13,35 @@ runtime (`course.yaml`, markdown/HTML/component lessons, SCORM/xAPI/cmi5 export)
 are complementary: LessonKit owns the developer experience; LXPack owns validation, preview, and LMS
 artifacts.
 
-Related LessonKit docs:
+Related LessonKit docs ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)):
 
-- [`ROADMAP.md`](https://github.com/eddiethedean/lessonkit/blob/main/ROADMAP.md) — integration strategy (0.6.0+)
-- [`SPEC.md`](https://github.com/eddiethedean/lessonkit/blob/main/SPEC.md) — LessonKit technical spec
-- [`PLAN.md`](https://github.com/eddiethedean/lessonkit/blob/main/PLAN.md) — product vision
-
----
-
-## Current integration plan (LessonKit side)
-
-LessonKit’s preferred path is **Strategy A** from the roadmap:
-
-1. Author courses in React with `@lessonkit/react`.
-2. Export to an LXPack project via `@lessonkit/lxpack` (planned).
-3. Run `lxpack validate` and `lxpack build --target …` for LMS delivery.
-
-Today that adapter must **translate** LessonKit’s component tree into LXPack’s `course.yaml` +
-markdown/HTML/component lessons. That translation is lossy and expensive without LXPack support
-for React-authored content.
+- [Documentation](https://lessonkit.readthedocs.io/en/latest/) — guides, CLI, packaging, identity
+- [`ROADMAP.md`](https://github.com/eddiethedean/lessonkit/blob/main/ROADMAP.md) — framework roadmap (1.0 shipped)
+- [`SPEC.md`](https://github.com/eddiethedean/lessonkit/blob/main/SPEC.md) — technical spec
+- [`PACKAGING.md`](https://github.com/eddiethedean/lessonkit/blob/main/docs/PACKAGING.md) — `@lessonkit/lxpack` workflow
 
 ---
 
-## Design goals for interoperability
+## Current integration (LessonKit 1.0)
+
+LessonKit’s **shipped** path:
+
+1. Author courses in React with `@lessonkit/react` (`courseId`, `lessonId`, `checkId`).
+2. Describe the course in a **`LessonkitCourseDescriptor`** or root **`lessonkit.json`** (`schemaVersion: 1`).
+3. Build with Vite (`lessonkit build` → `dist/`).
+4. Package with **`@lessonkit/lxpack`** (`packageLessonkitCourse`) or **`lessonkit package --target scorm12`**.
+
+LXPack validates, runs the learner shell, and emits SCORM/xAPI/cmi5 artifacts via `@lxpack/api` **0.6.2+**.
+
+See [LessonKit packaging](https://lessonkit.readthedocs.io/en/latest/reference/packaging.html) and [examples/lxpack-golden](https://github.com/eddiethedean/lessonkit/tree/main/examples/lxpack-golden).
+
+---
+
+## Historical integration plan (pre–SPA lesson type)
+
+Before LXPack `type: spa` and `@lessonkit/lxpack`, exporting React courses required lossy translation to markdown/HTML. The goals below drove the v0.4–v0.6 interoperability work (now shipped).
+
+## Design goals
 
 | Goal | Why it matters |
 |------|----------------|
@@ -260,15 +267,13 @@ runtime:
 
 ---
 
-### P3 — Documentation and examples
+### P3 — Documentation and examples (shipped)
 
-Add to LXPack docs (Read the Docs):
+Delivered in LXPack v0.6.x:
 
-- **Guide:** “Package a React (LessonKit) course”
-- **Example repo:** `examples/lessonkit-spa/` with Vite build + `lxpack build`
-- **Migration table:** LessonKit component → LXPack lesson type
-
----
+- **Guide:** [LessonKit interoperability](lessonkit-interoperability.md)
+- **Example:** [`examples/lessonkit-spa/`](https://github.com/eddiethedean/lxpack/tree/main/examples/lessonkit-spa) and [LessonKit lxpack-golden](https://github.com/eddiethedean/lessonkit/tree/main/examples/lxpack-golden)
+- **Package map:** [LessonKit and LXPack packages](lessonkit-packages.md)
 
 ## Suggested division of responsibility
 
@@ -278,7 +283,7 @@ flowchart TB
     LK["LessonKit React app\n(@lessonkit/react)"]
   end
 
-  subgraph bridge [Bridge - planned]
+  subgraph bridge [Bridge - shipped]
     LKL["@lessonkit/lxpack\nexport + metadata"]
   end
 

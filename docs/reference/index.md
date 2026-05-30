@@ -40,6 +40,24 @@ Quick lookup for **v0.6.2** — CLI commands, manifest fields, and common fixes.
 
     Completion threshold, SCORM suspend data, xAPI.
 
+-   :octicons-link-24: **[LessonKit interoperability](lessonkit-interoperability.md)**
+
+    ---
+
+    React packaging, SPA layouts, bridge API, conformance.
+
+-   :octicons-package-24: **[LessonKit packages](lessonkit-packages.md)**
+
+    ---
+
+    `@lessonkit/lxpack` vs `@lxpack/lessonkit` and npm install map.
+
+-   :octicons-file-code-24: **[lessonkit.json interchange](lessonkit-interchange.md)**
+
+    ---
+
+    Interchange schema v1 for SPA projects.
+
 -   :octicons-tools-24: **[Troubleshooting](troubleshooting.md)**
 
     ---

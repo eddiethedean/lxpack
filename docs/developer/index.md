@@ -34,7 +34,26 @@ Technical references for **v0.6.2** contributors and integrators.
 
     Invariants and CI commands.
 
+-   :octicons-shield-check-24: **[API stability](api-stability.md)**
+
+    ---
+
+    LessonKit 1.0 bridge and interchange contracts.
+
 </div>
+
+## Deep specification
+
+Full technical docs (linked from nav cards above):
+
+| Document | Purpose |
+|----------|---------|
+| [SPEC](SPEC.md) | Functional requirements, manifest, runtime |
+| [PLAN](PLAN.md) | Product goals and architecture narrative |
+| [ARCHITECTURE](ARCHITECTURE.md) | Package boundaries |
+| [REFACTORING](REFACTORING.md) | Internal refactor invariants |
+| [API stability](api-stability.md) | LessonKit interoperability contracts |
+| [Documentation README](../README.md) | Docs contributor guide |
 
 ## Release phases
 
@@ -47,7 +66,7 @@ Technical references for **v0.6.2** contributors and integrators.
 | **0.5 — LessonKit integration depth** | **v0.5.0** | Shipped | `packageLessonkit()`, interchange schema v1, `lxpack build --lessonkit` |
 | **0.6 — LessonKit bridge & conformance** | **v0.6.0** | Shipped | `@lxpack/spa-bridge`, telemetry map, `preview --lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit` |
 | **0.6.1 — Patch** | **v0.6.1** | Shipped | Packaging/metadata fixes, LessonKit config path, SCORM session guards, export CSS parity, xAPI auth/flush |
-| **0.6.2 — Patch** | **v0.6.2** | Shipped | Node.js 18 and 20; runtime navigation fixes; LessonKit/API parity; validator and init `--force` cleanup |
+| **0.6.2 — Patch** | **v0.6.2** | Shipped | Node.js 18 and 20; runtime navigation fixes; LessonKit **1.0** packaging parity |
 | **5 — AI tooling** | **v0.6+** | Planned | Claude integration, AI repair, AI-generated interactions |
 | **6 — Ecosystem** | **v0.6+** | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **7 — Enterprise platform** | **v0.7+** | Planned | Cloud deployment, compliance tooling, hosted runtime |
@@ -67,13 +86,13 @@ Technical references for **v0.6.2** contributors and integrators.
 | `@lxpack/tracking-schema` | Shared tracking event types |
 | `@lxpack/spa-bridge` | SPA iframe bridge SDK |
 | `@lxpack/conformance` | Shared export conformance matrix |
-| `@lxpack/lessonkit` | LessonKit integration facade |
+| `@lxpack/lessonkit` | Optional re-exports for LXPack-centric integrators (LessonKit apps use `@lessonkit/lxpack`) |
 
-Package READMEs live under `packages/*/README.md` in the repository.
+**Related project:** [LessonKit 1.0](https://github.com/eddiethedean/lessonkit) — React authoring, `@lessonkit/lxpack`, `lessonkit package`. Docs: [lessonkit.readthedocs.io](https://lessonkit.readthedocs.io/en/latest/).
 
 ## Publishing
 
-Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [CHANGELOG](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) accurate for the release version.
+Prerequisites: green [CI](https://github.com/eddiethedean/lxpack/actions/workflows/ci.yml) on `main`, `NPM_TOKEN` configured for the Release workflow, and [Changelog](../project/changelog.md) accurate for the release version.
 
 ```bash
 # From a clean main with matching versions in all packages/*/package.json

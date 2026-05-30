@@ -52,9 +52,10 @@ Deep manifest reference: read `references/manifest.md` only when editing manifes
 
 ## LessonKit / programmatic API
 
+- **React courses:** authors use [LessonKit 1.0](https://github.com/eddiethedean/lessonkit) (`lessonkit package`) via `@lessonkit/lxpack` — not `@lxpack/lessonkit`.
 - Optional `lessonkit.json` at course root merges SPA lesson metadata before `lxpack validate` / `build` (same as `@lxpack/api`).
-- For CI integrations, prefer `@lxpack/api` (`validateCourse`, `buildCourse`) over shelling to the CLI.
-- Guide: https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/
+- For CI integrations, prefer `@lxpack/api` (`validateCourse`, `buildCourse`, `packageLessonkit`) or `@lessonkit/lxpack` (`packageLessonkitCourse`).
+- Guide: https://lxpack.readthedocs.io/en/latest/guides/lessonkit/
 
 ## Assessments
 

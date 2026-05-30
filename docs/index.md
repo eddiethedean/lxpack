@@ -1,45 +1,58 @@
-# LXPack
+---
+hide:
+  - title
+---
 
-<span class="version-badge">v0.6.2</span>
+<div class="lx-hero">
+  <div class="lx-hero-badges">
+    <span class="lx-badge lx-badge--accent">v0.6.2</span>
+    <span class="lx-badge">SCORM · xAPI · cmi5</span>
+    <span class="lx-badge">AI-native authoring</span>
+  </div>
+  <p class="lx-hero-title">Build learning experiences that ship to your LMS</p>
+  <p class="lx-lead">LXPack turns courses into <strong>web-native learning experiences</strong> — Markdown lessons, interactive labs, and quizzes in simple files — then <strong>preview</strong>, <strong>validate</strong>, and <strong>export</strong> for your LMS.</p>
+</div>
 
-<p class="hero-lead">
-LXPack turns courses into <strong>web-native learning experiences</strong> — Markdown lessons, interactive labs, and quizzes in simple files — then <strong>preview</strong>, <strong>validate</strong>, and <strong>export</strong> SCORM, xAPI, or cmi5 for your LMS. Built for instructional designers and AI-assisted authoring (Claude, Cursor).
-</p>
+Pick the path that matches how you work:
 
 <div class="grid cards" markdown>
 
--   :octicons-rocket-24: **Get started in 15 minutes**
+-   :octicons-file-code-24: **File-based authoring**
 
     ---
 
-    Install the CLI, scaffold a course, preview in the browser, and build your first SCORM ZIP.
+    `course.yaml`, Markdown lessons, HTML labs, YAML quizzes — no React required.
 
-    [:octicons-arrow-right-24: Start here](getting-started/index.md)
+    [:octicons-arrow-right-24: Start here](guides/file-based/index.md)
 
--   :octicons-workflow-24: **Choose your workflow**
-
-    ---
-
-    Claude Design, Cursor without AI, or Claude Code — same `lxpack` commands, different tools.
-
-    [:octicons-arrow-right-24: Workflow overview](guides/workflow-overview.md)
-
--   :octicons-sparkles-24: **AI authoring**
+-   :octicons-sparkles-24: **AI-assisted authoring**
 
     ---
 
-    Copy-paste prompts with clipboard buttons, plus installable Library Skills for agents.
+    Claude Design, Cursor, or Claude Code — copy-paste prompts and Library Skills.
 
-    [:octicons-arrow-right-24: Prompts & skills](guides/prompts-for-claude.md)
+    [:octicons-arrow-right-24: AI workflows](guides/ai-assisted/index.md)
+
+-   :octicons-code-24: **LessonKit & React**
+
+    ---
+
+    React courses with LessonKit 1.0; package via `@lessonkit/lxpack`.
+
+    [:octicons-arrow-right-24: Integrator hub](guides/lessonkit/index.md)
 
 -   :octicons-package-24: **Ship to your LMS**
 
     ---
 
-    Pick SCORM 1.2, SCORM 2004, xAPI, or cmi5 and hand off a package your LMS admin can import.
+    SCORM 1.2, SCORM 2004, xAPI, cmi5, or standalone ZIP.
 
     [:octicons-arrow-right-24: Export guide](guides/export-to-lms.md)
 
+</div>
+
+<div class="lx-callout">
+  <strong>Node.js:</strong> 18 or 20 for <code>lxpack</code> CLI · LessonKit <code>lessonkit package</code> requires <code>@lxpack/api</code> 0.6.2+.
 </div>
 
 ## How it works
@@ -54,14 +67,6 @@ flowchart LR
   lms[LMS]
   plan --> files --> validate --> preview --> build --> lms
 ```
-
-| Step | What happens |
-|------|----------------|
-| **Structure** | `course.yaml` lists lessons, labs, and quizzes |
-| **Author** | Markdown, HTML interactions, YAML assessments |
-| **Check** | Validation catches broken paths and schema issues |
-| **Review** | Local preview in the browser before publish |
-| **Export** | ZIP under `.lxpack/` for your LMS |
 
 ## Quick start
 
@@ -79,24 +84,13 @@ lxpack preview
 
 | You are… | Go to |
 |----------|--------|
-| New to LXPack | [Get started](getting-started/index.md) |
+| New to LXPack | [File-based authoring](guides/file-based/index.md) |
+| Using AI tools | [AI-assisted authoring](guides/ai-assisted/index.md) |
+| **React / LessonKit author** | [LessonKit & React](guides/lessonkit/index.md) |
 | Leaving Storyline / Rise / Captivate | [Legacy migration](guides/migrating-from-legacy-tools.md) |
-| Using Cursor (no Claude) | [Cursor workflow](guides/workflow-cursor.md) |
-| Developer with Claude Code | [Claude Code workflow](guides/workflow-claude-code.md) |
 | LMS or technical reviewer | [Export](guides/export-to-lms.md) · [CLI reference](reference/cli.md) |
-| Contributing to LXPack | [Developer docs](developer/index.md) |
+| Contributing to LXPack | [Project docs](developer/index.md) |
 
-## Example courses
+## Examples
 
-Clone the repo and open these folders:
-
-| Example | Demonstrates |
-|---------|----------------|
-| [`security-awareness`](https://github.com/eddiethedean/lxpack/tree/main/examples/security-awareness) | Linear course, SCORM 1.2 |
-| [`branching-demo`](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo) | Variables, flow, components |
-| [`xapi-awareness`](https://github.com/eddiethedean/lxpack/tree/main/examples/xapi-awareness) | xAPI + `tracking.xapi` |
-| [`cmi5-demo`](https://github.com/eddiethedean/lxpack/tree/main/examples/cmi5-demo) | cmi5 export |
-| [`lessonkit-spa`](https://github.com/eddiethedean/lxpack/tree/main/examples/lessonkit-spa) | SPA lesson + bridge API, SCORM 1.2 |
-
-!!! info "Roadmap"
-    **v0.6.2** is the current release (`@lxpack/spa-bridge`, `lxpack preview --lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit`). **v0.5.0** added `packageLessonkit` and interchange schema v1. **v0.4.0** added SPA lessons and `@lxpack/api`. AI CLI tooling remains planned for a future phase.
+See [Example courses](examples/index.md) — `security-awareness`, `branching-demo`, `lessonkit-spa`, and [LessonKit lxpack-golden](https://github.com/eddiethedean/lessonkit/tree/main/examples/lxpack-golden).

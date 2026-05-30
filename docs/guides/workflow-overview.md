@@ -68,5 +68,5 @@ See [Build courses](build-overview.md) for lesson, quiz, and export depth. For A
 - [Prompts for Claude & Cursor](prompts-for-claude.md)
 - [Library Skills](library-skills.md)
 
-!!! info "v0.5.0 scope"
-    **v0.5.0** adds `lxpack build --lessonkit` and `packageLessonkit()` for SPA-first LessonKit workflows. No `lxpack repair` or bundled AI CLI yet — Claude edits files; `lxpack` validates and packages. Phase 5 may add more automation.
+!!! info "v0.6.2 / LessonKit 1.0"
+    **v0.6.2** supports LessonKit **1.0** via `@lessonkit/lxpack` and `lxpack build --lessonkit`. React authors should start at [github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit) (`lessonkit package`). YAML/markdown authors use `lxpack` directly. Phase 5 may add more LXPack-side automation.

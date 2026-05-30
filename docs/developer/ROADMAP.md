@@ -267,12 +267,11 @@ Shipped checklist: [LXPACK_UPGRADES_FOR_LESSONKIT.md](../LXPACK_UPGRADES_FOR_LES
 - **Interchange schema** — optional `lessonkit.json` / `lxpack.import.json` merged at validate/build (CLI and API)
 - **Shared tracking event catalog** — `@lxpack/tracking-schema`
 - **Assessment build-time injection** — pass `assessments` to `buildCourse` without on-disk YAML
-- **Docs and examples** — [LessonKit interoperability](../guides/lessonkit-interoperability.md)
+- **Docs and examples** — [LessonKit interoperability](../reference/lessonkit-interoperability.md)
 
-### Deferred to v0.6+
+### Remaining for v0.7+
 
-- **v0.6+** — `@lxpack/spa-bridge`, telemetry map, preview from interchange, conformance harness, `@lxpack/lessonkit` meta-package (see Phase 0.5 and [v0.6+](#v06-lessonkit-integration-and-platform))
-- **Extensibility for custom lesson runtimes (plugin slot)** — runtime registration hooks (v0.6+ ecosystem)
+- **Extensibility for custom lesson runtimes (plugin slot)** — runtime registration hooks (v0.7+ ecosystem)
 
 ## Phase 0.5 — LessonKit integration depth (shipped — v0.5.0)
 
@@ -326,10 +325,10 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 - **`lxpack preview --lessonkit`** — preview from interchange + SPA dist
 - **SCORM SPA recipes** — [scorm-spa-recipes](../guides/scorm-spa-recipes.md); `inferScormSpaLayout()`; interchange warnings for shared paths
 - **`@lxpack/conformance`** — export-target matrix for shared CI
-- **`@lxpack/lessonkit`** — meta-package; [migration guide](../guides/migrating-from-lessonkit-lxpack-adapter.md)
-- **API stability** — [api-stability.md](api-stability.md) documents LessonKit 1.0 gate contracts
+- **`@lxpack/lessonkit`** — meta-package; [LessonKit & React hub](../guides/lessonkit/index.md)
+- **API stability** — [api-stability.md](api-stability.md) documents LessonKit **1.0.0** interoperability contracts
 
-Coordinate with LessonKit **0.9.x** (adopt `@lxpack/conformance`) and **1.0.0** (stable public API).
+**LessonKit 1.0.0** is the stable public API ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)). LXPack **0.6.2** is the supported packaging/runtime baseline (`@lxpack/api` 0.6.2+, Node 18+).
 
 ## v0.6+ — LessonKit integration and platform
 

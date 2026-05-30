@@ -8,7 +8,7 @@
 
 Command-line tool for scaffolding, previewing, validating, and packaging LXPack courses.
 
-Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/) · [Get started](https://lxpack.readthedocs.io/en/latest/getting-started/).
+Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/) · [File-based authoring](https://lxpack.readthedocs.io/en/latest/guides/file-based/).
 
 | Related | Package |
 |---------|---------|
@@ -141,7 +141,7 @@ if (!result.ok) {
 await buildCourse({ courseDir: "/path/to/course", target: "scorm12" });
 ```
 
-For lower-level control, depend on `@lxpack/validators`, `@lxpack/scorm`, `@lxpack/runtime`, and `@lxpack/components` directly. LessonKit workflows: [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/).
+For lower-level control, depend on `@lxpack/validators`, `@lxpack/scorm`, `@lxpack/runtime`, and `@lxpack/components` directly. LessonKit workflows: [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/).
 
 ## Development
 

@@ -14,7 +14,7 @@ Replace `ALL_CAPS` placeholders. After every change, run:
 
 Use this at the start of a new Claude or Cursor conversation so the model knows LXPack rules.
 
-```text title="LXPack session context (v0.5.0)"
+```text title="LXPack session context (v0.6.2)"
 You are helping author an LXPack v0.6.2 course.
 
 Rules:
@@ -381,7 +381,7 @@ Open the **existing HTML folder** and an **empty or pilot LXPack course** in the
 @EXISTING_HTML_FOLDER/
 @LXPACK_COURSE_ROOT/course.yaml
 
-Migrate this legacy HTML course into the LXPack course folder (v0.5.0). Work in the LXPack tree only; treat the HTML folder as read-only reference.
+Migrate this legacy HTML course into the LXPack course folder (v0.6.2). Work in the LXPack tree only; treat the HTML folder as read-only reference.
 
 Course title: COURSE_TITLE
 LMS build target: TARGET (default scorm12)

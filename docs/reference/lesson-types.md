@@ -57,7 +57,7 @@ Built web app folder (e.g. Vite output) with an `index.html` entrypoint. The les
     path: dist/lessons/phishing-101
 ```
 
-Authoring: [LessonKit interoperability](../guides/lessonkit-interoperability.md).
+Authoring: [LessonKit interoperability](lessonkit-interoperability.md).
 
 ## Choosing a type
 

@@ -17,9 +17,11 @@ lxpack validate --target TARGET
 lxpack build --target TARGET
 ```
 
-### LessonKit interchange (v0.5.0)
+### LessonKit packaging
 
-Package from `lessonkit.json` without a hand-written `course.yaml`:
+**React authors ([LessonKit 1.0](https://github.com/eddiethedean/lessonkit)):** use `lessonkit package --target scorm12` after `lessonkit build` (calls `@lessonkit/lxpack` → `@lxpack/api`).
+
+**Interchange-only / CI:** package from `lessonkit.json` without a hand-written `course.yaml`:
 
 ```bash
 lxpack build --lessonkit ./lessonkit.json \
@@ -27,7 +29,7 @@ lxpack build --lessonkit ./lessonkit.json \
   --target scorm12
 ```
 
-Or use `@lxpack/api` `packageLessonkit()` from Node/CI.
+Or use `@lxpack/api` `packageLessonkit()` / `@lessonkit/lxpack` `packageLessonkitCourse()` from Node/CI.
 
 Default output: `.lxpack/<course>-<target>.zip` unless `-o` or `lxpack.config.json` overrides.
 

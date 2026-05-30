@@ -2,18 +2,16 @@
 
 **Audience:** [LXPack](https://github.com/eddiethedean/lxpack) maintainers and contributors.  
 **Purpose:** Prioritize LXPack changes that reduce duplication, tighten the LessonKit integration contract, and move packaging/runtime concerns to the right layer.  
-**Roadmap:** **v0.5.0** = [Phase 0.5](developer/ROADMAP.md#phase-05--lessonkit-integration-depth-planned--v050) (thin packaging + interchange schema). **v0.6+** = remaining LessonKit integration, AI tooling, ecosystem — [ROADMAP.md](developer/ROADMAP.md#v06-lessonkit-integration-and-platform).  
-**LessonKit reference:** [`@lessonkit/lxpack`](https://github.com/eddiethedean/lessonkit/tree/main/packages/lxpack) (adapter, v0.8.0) · [golden example](https://github.com/eddiethedean/lessonkit/tree/main/examples/lxpack-golden) · [packaging guide](PACKAGING.md)
+**Roadmap:** **v0.5.0–v0.6.2** delivered interchange, thin packaging, bridge SDK, conformance, and `@lxpack/lessonkit`. **LessonKit 1.0.0** is the stable public API on the LessonKit side.  
+**LessonKit reference:** [`@lessonkit/lxpack`](https://github.com/eddiethedean/lessonkit/tree/main/packages/lxpack) (**1.0.0**) · [golden example](https://github.com/eddiethedean/lessonkit/tree/main/examples/lxpack-golden) · [packaging docs](https://lessonkit.readthedocs.io/en/latest/reference/packaging.html)
 
 ---
 
 ## Executive summary
 
-LessonKit authors **React** courses; LXPack **validates, packages, and runs** them in LMS contexts. **v0.4.0** delivered the critical baseline (SPA lessons, `@lxpack/api`, `lessonkit.json` merge, in-memory assessments, `lxpackBridge.v1`).
+LessonKit authors **React** courses; LXPack **validates, packages, and runs** them in LMS contexts. **v0.4.0–v0.6.2** delivered SPA lessons, `@lxpack/api`, `packageLessonkit()`, `@lxpack/spa-bridge`, shared conformance, and interchange schema v1. **LessonKit 1.0.0** ships `@lessonkit/lxpack` and `lessonkit package` on top of that stack.
 
-The next wins are not “more lesson types”—they are **shrinking `@lessonkit/lxpack`** so LXPack owns interchange, project materialization, bridge contracts, and conformance. LessonKit should keep React authoring, telemetry catalog, and thin CLI wiring.
-
-**Target end state:** `@lessonkit/lxpack` becomes a small facade (or is retired in favor of `@lxpack/api` + `@lxpack/lessonkit`).
+**Ongoing direction:** shrink duplicate YAML/bridge logic in `@lessonkit/lxpack` as LXPack APIs mature; keep LessonKit focused on React authoring and the author CLI.
 
 ---
 
@@ -49,7 +47,7 @@ The next wins are not “more lesson types”—they are **shrinking `@lessonkit
 4. **No first-class “package from interchange” API** — Adapter must write a full LXPack project tree before every build.
 5. **Tracking vocabularies diverge** — LessonKit `telemetry` events vs LXPack `track()` / xAPI export paths are aligned by convention, not schema.
 6. **Preview gap** — Authors use Vite for dev; LXPack preview requires a materialized project; parity testing is manual.
-7. **Conformance is one-sided** — LessonKit 0.9.x plans Playwright parity tests; LXPack has no shared fixture contract.
+7. **Conformance** — shared matrix exists (`@lxpack/conformance`); LessonKit 1.0 runs `conformance:lxpack` and Playwright export parity in CI.
 
 ---
 
@@ -286,7 +284,7 @@ lxpack preview --lessonkit ./lessonkit.json --spa dist/
 
 **Acceptance criteria:**
 
-- Documented workflow in [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) guide.
+- Documented workflow in [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/reference/lessonkit-interoperability/) guide.
 - No `assessments/*.yaml` required on disk when passing `--assessments` JSON path or embedded in interchange.
 
 ---
@@ -309,7 +307,7 @@ lxpack preview --lessonkit ./lessonkit.json --spa dist/
 
 ### P2 — Shared conformance harness (`@lxpack/conformance` or `test/fixtures/lessonkit`)
 
-**Problem:** LessonKit 0.9.x plans export parity tests; LXPack risks regressions without shared fixtures.
+**Problem:** Export parity is covered by LessonKit 1.0 e2e/conformance scripts and `@lxpack/conformance`; keep fixtures aligned when changing export targets.
 
 **Proposal:**
 
@@ -354,19 +352,25 @@ lxpack preview --lessonkit ./lessonkit.json --spa dist/
 
 ---
 
-## Suggested LXPack release sequence
+## LXPack release history and future work
 
-Aligned with [ROADMAP.md](developer/ROADMAP.md): **v0.5.0** ships thin packaging; **v0.6+** ships the rest.
+**Shipped (v0.5.0–v0.6.2):**
 
 | Release | Theme | Key deliverables |
 |---------|--------|------------------|
-| **v0.5.0** | Thin packaging | `packageLessonkit()`, interchange Zod schema, docs update |
-| **v0.6+** | Bridge SDK | `@lxpack/spa-bridge`, versioning doc, validator warnings |
-| **v0.6+** | Tracking + theme | Telemetry map, expanded interchange `runtime`, preview flags, SCORM recipes |
-| **v0.6+** | Conformance | Shared fixtures package, export-target matrix |
-| **v0.6+** | Meta-package | `@lxpack/lessonkit`; deprecate duplicate adapter surface |
+| **v0.5.0** | Thin packaging | `packageLessonkit()`, interchange Zod schema, `lxpack build --lessonkit` |
+| **v0.6.0** | Bridge SDK + conformance | `@lxpack/spa-bridge`, telemetry map, `lxpack preview --lessonkit`, `@lxpack/conformance`, `@lxpack/lessonkit` |
+| **v0.6.1** | Packaging fixes | Omit interchange from LMS ZIPs; config resolution beside `lessonkit.json` |
+| **v0.6.2** | Node 18 + runtime fixes | Node 18/20 CI matrix; navigation fixes; `packageLessonkit({ configDir })` |
 
-Coordinate with LessonKit **0.9.x** (conformance harness) and **1.0.0** (stable public API).
+**Future (v0.7+):**
+
+| Release | Theme | Key deliverables |
+|---------|--------|------------------|
+| **v0.7+** | Platform | Plugin slot for custom lesson runtimes; bridge v2 negotiation |
+| **v0.7+** | AI tooling | Claude integration, AI repair (Phase 5) |
+
+Coordinate with **LessonKit 1.0.0** (stable `@lessonkit/*` public API; [`lessonkit.readthedocs.io`](https://lessonkit.readthedocs.io/en/latest/)).
 
 ---
 
@@ -414,8 +418,8 @@ Artifacts: `examples/lxpack-golden/.lxpack/course/.lxpack/out/course-scorm12.zip
 
 | Document | Audience |
 |----------|----------|
-| [Product ROADMAP — Phase 0.5 / v0.6+](developer/ROADMAP.md#phase-05--lessonkit-integration-depth-planned--v050) | v0.5.0 scope vs v0.6+ deferred work |
-| [LessonKit packaging guide](PACKAGING.md) | LessonKit authors |
-| [Historical upgrade checklist (LessonKit)](LXPACK_UPGRADES_FOR_LESSONKIT.md) | What v0.4.0 already shipped |
-| [LXPack LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) | LXPack docs (maintain alongside this plan) |
-| [LessonKit ROADMAP](../ROADMAP.md) | 0.9.x conformance, 1.0.0 gate |
+| [Product ROADMAP — Phase 0.6](../developer/ROADMAP.md#phase-06--lessonkit-bridge-and-conformance-shipped--v060) | Shipped v0.6.0–v0.6.2 scope |
+| [LessonKit packaging guide](https://lessonkit.readthedocs.io/en/latest/reference/packaging.html) | LessonKit authors |
+| [Historical upgrade checklist](lxpack-upgrades.md#historical-checklist-lessonkit-team) | What v0.4.0–v0.6.2 shipped |
+| [LXPack LessonKit interoperability](lessonkit-interoperability.md) | LXPack docs (maintain alongside this plan) |
+| [LessonKit ROADMAP](https://github.com/eddiethedean/lessonkit/blob/main/ROADMAP.md) | 1.0 framework; LessonKit Studio (visual authoring) post-1.0 |

@@ -61,6 +61,19 @@ Plain-language definitions for LXPack and LMS terms used in this documentation.
 | **Claude Design** | Anthropic tool for visual/storyboard-oriented design; pairs with editing files in LXPack. |
 | **Claude Code** | Agentic coding in Cursor or similar IDE — optional developer track. |
 
+## LessonKit and React
+
+| Term | Meaning |
+|------|---------|
+| **LessonKit** | React-first framework for authoring courses ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)). |
+| **`lessonkit.json`** | Project manifest at repo root (`schemaVersion: 1`) tying React props to LMS packaging metadata. |
+| **`schemaVersion`** | LessonKit manifest version (`1` in LessonKit 1.0). Distinct from LXPack interchange `"format": "lessonkit"`, `"version": "1"`. |
+| **`@lessonkit/lxpack`** | Primary adapter: descriptor → `course.yaml` + SPA copy → `@lxpack/api` build. |
+| **`lxpackBridge.v1`** | Parent iframe API for SPA lessons (`completeLesson`, `submitAssessment`, `track`). |
+| **`type: spa`** | LXPack lesson type for Vite/React build output (folder with `index.html`). |
+
+See [LessonKit interoperability](../reference/lessonkit-interoperability.md).
+
 ## Security (author-facing)
 
 | Term | Meaning |

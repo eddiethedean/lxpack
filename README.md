@@ -20,7 +20,7 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 | Package | npm | README | Docs |
 |---------|-----|--------|------|
 | `@lxpack/cli` | [npm](https://www.npmjs.com/package/@lxpack/cli) | [packages/cli](packages/cli/README.md) | [CLI](https://lxpack.readthedocs.io/en/latest/reference/cli/) |
-| `@lxpack/api` | [npm](https://www.npmjs.com/package/@lxpack/api) | [packages/api](packages/api/README.md) | [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) |
+| `@lxpack/api` | [npm](https://www.npmjs.com/package/@lxpack/api) | [packages/api](packages/api/README.md) | [LessonKit & React](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) |
 | `@lxpack/runtime` | [npm](https://www.npmjs.com/package/@lxpack/runtime) | [packages/runtime](packages/runtime/README.md) | [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/) |
 | `@lxpack/validators` | [npm](https://www.npmjs.com/package/@lxpack/validators) | [packages/validators](packages/validators/README.md) | [course.yaml](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) |
 | `@lxpack/scorm` | [npm](https://www.npmjs.com/package/@lxpack/scorm) | [packages/scorm](packages/scorm/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
@@ -29,7 +29,7 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 | `@lxpack/xapi` | [npm](https://www.npmjs.com/package/@lxpack/xapi) | [packages/xapi](packages/xapi/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
 | `@lxpack/cmi5` | [npm](https://www.npmjs.com/package/@lxpack/cmi5) | [packages/cmi5](packages/cmi5/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
 | `@lxpack/spa-bridge` | [npm](https://www.npmjs.com/package/@lxpack/spa-bridge) | [packages/spa-bridge](packages/spa-bridge/README.md) | [SPA bridge](https://lxpack.readthedocs.io/en/latest/reference/spa-bridge/) |
-| `@lxpack/lessonkit` | [npm](https://www.npmjs.com/package/@lxpack/lessonkit) | [packages/lessonkit](packages/lessonkit/README.md) | [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) |
+| `@lxpack/lessonkit` | [npm](https://www.npmjs.com/package/@lxpack/lessonkit) | [packages/lessonkit](packages/lessonkit/README.md) | [LessonKit & React](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) |
 | `@lxpack/conformance` | [npm](https://www.npmjs.com/package/@lxpack/conformance) | [packages/conformance](packages/conformance/README.md) | [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
 
 ## Features
@@ -134,7 +134,7 @@ pnpm exec lxpack validate
 pnpm exec lxpack build --target scorm12
 ```
 
-See [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/).
+See [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/). For full React authoring, start at [github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit) (`npx @lessonkit/cli init`).
 
 ## Programmatic API
 
@@ -423,16 +423,17 @@ Planned work and phase history: [Roadmap](https://lxpack.readthedocs.io/en/lates
 
 | Audience | Start here |
 |----------|------------|
-| Everyone new | [Get started](https://lxpack.readthedocs.io/en/latest/getting-started/) |
-| Instructional designers | [Claude Design workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-design/) · [Prompts](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/) |
+| Everyone new | [File-based authoring](https://lxpack.readthedocs.io/en/latest/guides/file-based/) |
+| Instructional designers | [AI-assisted authoring](https://lxpack.readthedocs.io/en/latest/guides/ai-assisted/) · [Prompts](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/) |
 | Migrating from Storyline / Rise / HTML | [Legacy migration](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) · [HTML → LXPack prompts](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/#migration-from-legacy-tools) |
-| LessonKit / React SPAs | [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/guides/lessonkit-interoperability/) |
+| LessonKit / React SPAs | [LessonKit repo](https://github.com/eddiethedean/lessonkit) · [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) |
 | Cursor (no Claude) | [Cursor workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-cursor/) |
-| Developers | [Claude Code workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-code/) · [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
+| Developers | [Claude Code workflow](https://lxpack.readthedocs.io/en/latest/guides/workflow-claude-code/) · [Project docs](https://lxpack.readthedocs.io/en/latest/developer/) |
 | AI agents | [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/) |
 
-- [Changelog](CHANGELOG.md)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 - [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/)
+- [Examples](https://lxpack.readthedocs.io/en/latest/examples/)
 - [Branching and paths](https://lxpack.readthedocs.io/en/latest/guides/branching-and-paths/)
 - [Tracking and completion](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/)
 - [Read the Docs setup](https://lxpack.readthedocs.io/en/latest/readthedocs-setup/) (maintainers)

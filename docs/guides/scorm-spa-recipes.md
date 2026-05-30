@@ -1,5 +1,7 @@
 # SCORM layout recipes for SPA courses
 
+For **LessonKit 1.0** React projects, prefer `lessonkit package --target scorm12` (or `scorm2004`) after `lessonkit build` — see [LessonKit packaging](https://lessonkit.readthedocs.io/en/latest/reference/packaging.html). The recipes below also apply to **`lxpack build --lessonkit`** and `@lxpack/api` interchange packaging.
+
 ## Recipe A — Single SCO SPA (default)
 
 One `type: spa` lesson; in-app routing inside the SPA. SCORM 1.2 and single-SCO SCORM 2004 launches use one package entry.
@@ -31,5 +33,6 @@ LXPack warns when multiple lessons share the same `path` (multi-SCO needs separa
 
 ## See also
 
+- [LessonKit & React hub](../guides/lessonkit/index.md)
 - [Export to LMS](export-to-lms.md)
 - [lessonkit interchange](../reference/lessonkit-interchange.md)
