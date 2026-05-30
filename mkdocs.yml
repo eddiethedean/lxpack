@@ -7,9 +7,9 @@ edit_uri: edit/main/docs/
 
 copyright: Copyright &copy; LXPack contributors — Apache-2.0
 
-# Snippet partials and source markdown for pymdownx (--8<--); not standalone pages.
-not_in_nav: |
-  /includes/**
+# Snippet-only and source markdown — not built as standalone pages (MkDocs 1.6+).
+exclude_docs: |
+  README.md
   CLI.md
   COURSE_YAML.md
   LXPACK_CONFIG.md
@@ -21,7 +21,11 @@ not_in_nav: |
   LESSONKIT_PACKAGES.md
   LXPACK_UPGRADES_FOR_LESSONKIT.md
   LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md
-  README.md
+  includes/**
+
+# Legacy: keep sources out of nav if exclude_docs is unavailable.
+not_in_nav: |
+  /includes/**
 
 theme:
   name: material

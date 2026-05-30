@@ -23,7 +23,7 @@ Guides **link to** reference; they do not duplicate schema tables.
 
 ## Source-of-truth files (`docs/*.md`)
 
-These files are listed in `mkdocs.yml` `not_in_nav` and included by thin wrappers under `reference/`:
+These files are listed in `mkdocs.yml` `exclude_docs` and included by thin wrappers under `reference/`:
 
 | Source | Wrapper |
 |--------|---------|
@@ -68,5 +68,5 @@ Strict build matches CI and Read the Docs. See [readthedocs-setup.md](readthedoc
 
 1. Write authoritative content in `docs/TOPIC.md` (links relative to `reference/`).
 2. Add `docs/reference/topic.md` with title + `--8<-- "TOPIC.md"`.
-3. Add `TOPIC.md` to `not_in_nav` in `mkdocs.yml`.
+3. Add the filename to `exclude_docs` in `mkdocs.yml`.
 4. Link from guides; do not duplicate tables in guides.

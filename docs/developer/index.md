@@ -53,7 +53,7 @@ Full technical docs (linked from nav cards above):
 | [ARCHITECTURE](ARCHITECTURE.md) | Package boundaries |
 | [REFACTORING](REFACTORING.md) | Internal refactor invariants |
 | [API stability](api-stability.md) | LessonKit interoperability contracts |
-| [Documentation README](../README.md) | Docs contributor guide |
+| [Documentation README](https://github.com/eddiethedean/lxpack/blob/main/docs/README.md) | Docs contributor guide |
 
 ## Release phases
 

@@ -202,7 +202,7 @@ Out of scope for v0.2: xAPI, cmi5, hot reload, theme wiring, plugin marketplace.
 - `lessonkit.json` / `lxpack.import.json` interchange merge
 - `@lxpack/tracking-schema` and in-memory assessment injection
 
-See [ROADMAP.md](ROADMAP.md#phase-04--lessonkit-interoperability-shipped--v040) for full shipped list.
+See [ROADMAP.md](ROADMAP.md#phase-04-lessonkit-interoperability-shipped-v040) for full shipped list.
 
 ---
 
@@ -216,18 +216,18 @@ See [ROADMAP.md](ROADMAP.md#phase-04--lessonkit-interoperability-shipped--v040) 
 
 ## Phase 0.6.1 — Bugfix patch (shipped — v0.6.1)
 
-Packaging, LessonKit config resolution, runtime/SCORM/xAPI fixes — see [CHANGELOG](../../CHANGELOG.md#061---2026-05-29).
+Packaging, LessonKit config resolution, runtime/SCORM/xAPI fixes — see [Changelog](../project/changelog.md#061-2026-05-29).
 
 ## Phase 0.6.2 — Node.js 18 support (shipped — v0.6.2)
 
-Node.js 18 and 20, runtime navigation fixes, LessonKit/API parity, validator cleanup — see [CHANGELOG](../../CHANGELOG.md#062---2026-05-30).
+Node.js 18 and 20, runtime navigation fixes, LessonKit/API parity, validator cleanup — see [Changelog](../project/changelog.md#062-2026-05-30).
 
 ## Phase 0.6 — LessonKit bridge and conformance (shipped — v0.6.0)
 
 - `@lxpack/spa-bridge`, telemetry map, theme presets, `lxpack preview --lessonkit`
 - `@lxpack/conformance`, `@lxpack/lessonkit`, SCORM SPA recipes, [API stability](api-stability.md)
 
-See [ROADMAP.md](ROADMAP.md#phase-06--lessonkit-bridge-and-conformance-shipped--v060).
+See [ROADMAP.md](ROADMAP.md#phase-06-lessonkit-bridge-and-conformance-shipped-v060).
 
 ---
 

@@ -418,7 +418,7 @@ Artifacts: `examples/lxpack-golden/.lxpack/course/.lxpack/out/course-scorm12.zip
 
 | Document | Audience |
 |----------|----------|
-| [Product ROADMAP — Phase 0.6](../developer/ROADMAP.md#phase-06--lessonkit-bridge-and-conformance-shipped--v060) | Shipped v0.6.0–v0.6.2 scope |
+| [Product ROADMAP — Phase 0.6](../developer/ROADMAP.md#phase-06-lessonkit-bridge-and-conformance-shipped-v060) | Shipped v0.6.0–v0.6.2 scope |
 | [LessonKit packaging guide](https://lessonkit.readthedocs.io/en/latest/reference/packaging.html) | LessonKit authors |
 | [Historical upgrade checklist](lxpack-upgrades.md#historical-checklist-lessonkit-team) | What v0.4.0–v0.6.2 shipped |
 | [LXPack LessonKit interoperability](lessonkit-interoperability.md) | LXPack docs (maintain alongside this plan) |
