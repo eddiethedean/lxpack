@@ -12,9 +12,9 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [LessonKit &
 
 | Related | Package |
 |---------|---------|
-| CLI (wraps this package) | [`@lxpack/cli`](../cli/README.md) |
-| Schemas & filesystem checks | [`@lxpack/validators`](../validators/README.md) |
-| ZIP / directory export | [`@lxpack/scorm`](../scorm/README.md) |
+| CLI (wraps this package) | [`@lxpack/cli`](https://github.com/eddiethedean/lxpack/blob/main/packages/cli/README.md) |
+| Schemas & filesystem checks | [`@lxpack/validators`](https://github.com/eddiethedean/lxpack/blob/main/packages/validators/README.md) |
+| ZIP / directory export | [`@lxpack/scorm`](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) |
 
 ## Install
 
@@ -151,7 +151,7 @@ pnpm --filter @lxpack/api typecheck
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
 - [Documentation](https://lxpack.readthedocs.io/en/latest/)
 - [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/)
-- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 

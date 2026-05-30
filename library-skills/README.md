@@ -7,7 +7,7 @@
 
 LLMs do not know your project's current CLI flags, validation rules, or folder layout. These skills act as **lazy-loaded expertise**: the agent reads a short `description` in frontmatter first, then loads the full `SKILL.md` (and `references/` only when needed) instead of pasting huge prompts every session.
 
-**Human guides:** [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/) · [Prompts for Claude and Cursor](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/) · [Documentation home](https://lxpack.readthedocs.io/en/latest/).
+**Human guides:** [Library Skills](https://lxpack.readthedocs.io/en/latest/guides/library-skills/) · [Prompts for Claude and Cursor](https://lxpack.readthedocs.io/en/latest/guides/prompts-for-claude/) · [Documentation](https://lxpack.readthedocs.io/en/latest/).
 
 ## Included skills
 
@@ -66,6 +66,12 @@ Re-run install after `git pull` to refresh skills from upstream.
 | HTML labs | [Building interactions](https://lxpack.readthedocs.io/en/latest/guides/building-interactions/) |
 | LMS ZIP | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
 | Legacy / HTML migration | [Migrating from legacy tools](https://lxpack.readthedocs.io/en/latest/guides/migrating-from-legacy-tools/) |
+
+## Links
+
+- [LXPack repository](https://github.com/eddiethedean/lxpack)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 

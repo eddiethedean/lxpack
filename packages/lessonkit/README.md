@@ -8,6 +8,8 @@
 
 Optional **LXPack meta-package** — re-exports `@lxpack/api`, `@lxpack/spa-bridge`, interchange validation, and telemetry mapping for integrators who prefer the `@lxpack/*` npm scope.
 
+Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) · [LessonKit packages](https://lxpack.readthedocs.io/en/latest/reference/lessonkit-packages/).
+
 **React authors:** use [**LessonKit 1.0**](https://github.com/eddiethedean/lessonkit) and **`@lessonkit/lxpack`** for LMS packaging (`lessonkit package`). You do not need `@lxpack/lessonkit` in a standard LessonKit project.
 
 ## Install
@@ -27,8 +29,15 @@ import {
 } from "@lxpack/lessonkit";
 ```
 
-## Docs
+## Links
 
+- [LXPack repository](https://github.com/eddiethedean/lxpack)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
 - [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/)
 - [LessonKit packages reference](https://lxpack.readthedocs.io/en/latest/reference/lessonkit-packages/)
 - [LessonKit repository](https://github.com/eddiethedean/lessonkit) · [lessonkit.readthedocs.io](https://lessonkit.readthedocs.io/en/latest/)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
+
+## License
+
+Apache-2.0

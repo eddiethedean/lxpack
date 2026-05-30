@@ -12,10 +12,10 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Components 
 
 | Related | Package |
 |---------|---------|
-| CLI / build | [`@lxpack/cli`](../cli/README.md) |
-| Component ID validation | [`@lxpack/validators`](../validators/README.md) (`BUILTIN_COMPONENT_IDS`) |
-| Runtime mounting | [`@lxpack/runtime`](../runtime/README.md) (`renderComponentLesson`) |
-| Packaging | [`@lxpack/scorm`](../scorm/README.md) (`lxpack-components.js`) |
+| CLI / build | [`@lxpack/cli`](https://github.com/eddiethedean/lxpack/blob/main/packages/cli/README.md) |
+| Component ID validation | [`@lxpack/validators`](https://github.com/eddiethedean/lxpack/blob/main/packages/validators/README.md) (`BUILTIN_COMPONENT_IDS`) |
+| Runtime mounting | [`@lxpack/runtime`](https://github.com/eddiethedean/lxpack/blob/main/packages/runtime/README.md) (`renderComponentLesson`) |
+| Packaging | [`@lxpack/scorm`](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) (`lxpack-components.js`) |
 
 ## Install
 
@@ -40,7 +40,7 @@ Requires Node.js 18 or 20 (18+) for the build toolchain. The published browser b
 | `image-card` | Image with caption |
 | `checklist` | Interactive checklist |
 
-Built-in IDs are validated at course build time via [`BUILTIN_COMPONENT_IDS`](../validators/src/components.ts) in `@lxpack/validators`.
+Built-in IDs are validated at course build time via [`BUILTIN_COMPONENT_IDS`](https://github.com/eddiethedean/lxpack/blob/main/packages/validators/src/components.ts) in `@lxpack/validators`.
 
 ## Authoring
 
@@ -95,7 +95,7 @@ The Vite build produces `dist/bundle.js`, which registers built-ins and exposes 
 window.__LXPACK_COMPONENTS__
 ```
 
-[`@lxpack/runtime`](../runtime/README.md) `renderComponentLesson()` looks up mounts from this global when rendering component lessons.
+[`@lxpack/runtime`](https://github.com/eddiethedean/lxpack/blob/main/packages/runtime/README.md) `renderComponentLesson()` looks up mounts from this global when rendering component lessons.
 
 ## Build output
 
@@ -119,10 +119,10 @@ pnpm --filter @lxpack/components typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
 - [Components reference](https://lxpack.readthedocs.io/en/latest/reference/components/)
 - [Branching demo example](https://github.com/eddiethedean/lxpack/tree/main/examples/branching-demo) · [Branching guide](https://lxpack.readthedocs.io/en/latest/guides/branching-and-paths/)
-- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 

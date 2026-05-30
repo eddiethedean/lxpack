@@ -12,11 +12,11 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack) — an AI-native learni
 
 | Related | Package |
 |---------|---------|
-| CLI | [`@lxpack/cli`](../cli/README.md) |
-| Programmatic API | [`@lxpack/api`](../api/README.md) |
-| Packaging | [`@lxpack/scorm`](../scorm/README.md) |
-| Runtime | [`@lxpack/runtime`](../runtime/README.md) |
-| Components | [`@lxpack/components`](../components/README.md) |
+| CLI | [`@lxpack/cli`](https://github.com/eddiethedean/lxpack/blob/main/packages/cli/README.md) |
+| Programmatic API | [`@lxpack/api`](https://github.com/eddiethedean/lxpack/blob/main/packages/api/README.md) |
+| Packaging | [`@lxpack/scorm`](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) |
+| Runtime | [`@lxpack/runtime`](https://github.com/eddiethedean/lxpack/blob/main/packages/runtime/README.md) |
+| Components | [`@lxpack/components`](https://github.com/eddiethedean/lxpack/blob/main/packages/components/README.md) |
 
 ## Install
 
@@ -138,7 +138,7 @@ Author assessments live as YAML under `assessments/` in the course repo. At buil
 4. **Configs** — per-assessment quiz behavior (`maxAttempts`, `shuffleChoices`, `showFeedback`).
 5. **Feedback** — `questionId → explanation` for immediate/end feedback (not shipped as separate files).
 
-The CLI and [`@lxpack/scorm`](../scorm/README.md) embed all of this in the HTML config JSON. Exported ZIPs **do not** include `assessments/` files, so answer keys are not fetchable as static assets.
+The CLI and [`@lxpack/scorm`](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) embed all of this in the HTML config JSON. Exported ZIPs **do not** include `assessments/` files, so answer keys are not fetchable as static assets.
 
 ## Development
 
@@ -153,10 +153,10 @@ pnpm --filter @lxpack/validators typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
 - [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/)
 - [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
-- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 

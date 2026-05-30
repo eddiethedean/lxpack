@@ -19,18 +19,18 @@ LXPack treats courses as programmable learning applications (markdown lessons, H
 
 | Package | npm | README | Docs |
 |---------|-----|--------|------|
-| `@lxpack/cli` | [npm](https://www.npmjs.com/package/@lxpack/cli) | [packages/cli](packages/cli/README.md) | [CLI](https://lxpack.readthedocs.io/en/latest/reference/cli/) |
-| `@lxpack/api` | [npm](https://www.npmjs.com/package/@lxpack/api) | [packages/api](packages/api/README.md) | [LessonKit & React](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) |
-| `@lxpack/runtime` | [npm](https://www.npmjs.com/package/@lxpack/runtime) | [packages/runtime](packages/runtime/README.md) | [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/) |
-| `@lxpack/validators` | [npm](https://www.npmjs.com/package/@lxpack/validators) | [packages/validators](packages/validators/README.md) | [course.yaml](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) |
-| `@lxpack/scorm` | [npm](https://www.npmjs.com/package/@lxpack/scorm) | [packages/scorm](packages/scorm/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
-| `@lxpack/components` | [npm](https://www.npmjs.com/package/@lxpack/components) | [packages/components](packages/components/README.md) | [Components](https://lxpack.readthedocs.io/en/latest/reference/components/) |
-| `@lxpack/tracking-schema` | [npm](https://www.npmjs.com/package/@lxpack/tracking-schema) | [packages/tracking-schema](packages/tracking-schema/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
-| `@lxpack/xapi` | [npm](https://www.npmjs.com/package/@lxpack/xapi) | [packages/xapi](packages/xapi/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
-| `@lxpack/cmi5` | [npm](https://www.npmjs.com/package/@lxpack/cmi5) | [packages/cmi5](packages/cmi5/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
-| `@lxpack/spa-bridge` | [npm](https://www.npmjs.com/package/@lxpack/spa-bridge) | [packages/spa-bridge](packages/spa-bridge/README.md) | [SPA bridge](https://lxpack.readthedocs.io/en/latest/reference/spa-bridge/) |
-| `@lxpack/lessonkit` | [npm](https://www.npmjs.com/package/@lxpack/lessonkit) | [packages/lessonkit](packages/lessonkit/README.md) | [LessonKit & React](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) |
-| `@lxpack/conformance` | [npm](https://www.npmjs.com/package/@lxpack/conformance) | [packages/conformance](packages/conformance/README.md) | [Developer docs](https://lxpack.readthedocs.io/en/latest/developer/) |
+| `@lxpack/cli` | [npm](https://www.npmjs.com/package/@lxpack/cli) | [packages/cli](https://github.com/eddiethedean/lxpack/blob/main/packages/cli/README.md) | [CLI](https://lxpack.readthedocs.io/en/latest/reference/cli/) |
+| `@lxpack/api` | [npm](https://www.npmjs.com/package/@lxpack/api) | [packages/api](https://github.com/eddiethedean/lxpack/blob/main/packages/api/README.md) | [LessonKit & React](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) |
+| `@lxpack/runtime` | [npm](https://www.npmjs.com/package/@lxpack/runtime) | [packages/runtime](https://github.com/eddiethedean/lxpack/blob/main/packages/runtime/README.md) | [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/) |
+| `@lxpack/validators` | [npm](https://www.npmjs.com/package/@lxpack/validators) | [packages/validators](https://github.com/eddiethedean/lxpack/blob/main/packages/validators/README.md) | [course.yaml](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/) |
+| `@lxpack/scorm` | [npm](https://www.npmjs.com/package/@lxpack/scorm) | [packages/scorm](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
+| `@lxpack/components` | [npm](https://www.npmjs.com/package/@lxpack/components) | [packages/components](https://github.com/eddiethedean/lxpack/blob/main/packages/components/README.md) | [Components](https://lxpack.readthedocs.io/en/latest/reference/components/) |
+| `@lxpack/tracking-schema` | [npm](https://www.npmjs.com/package/@lxpack/tracking-schema) | [packages/tracking-schema](https://github.com/eddiethedean/lxpack/blob/main/packages/tracking-schema/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
+| `@lxpack/xapi` | [npm](https://www.npmjs.com/package/@lxpack/xapi) | [packages/xapi](https://github.com/eddiethedean/lxpack/blob/main/packages/xapi/README.md) | [Tracking](https://lxpack.readthedocs.io/en/latest/reference/tracking-and-completion/) |
+| `@lxpack/cmi5` | [npm](https://www.npmjs.com/package/@lxpack/cmi5) | [packages/cmi5](https://github.com/eddiethedean/lxpack/blob/main/packages/cmi5/README.md) | [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/) |
+| `@lxpack/spa-bridge` | [npm](https://www.npmjs.com/package/@lxpack/spa-bridge) | [packages/spa-bridge](https://github.com/eddiethedean/lxpack/blob/main/packages/spa-bridge/README.md) | [SPA bridge](https://lxpack.readthedocs.io/en/latest/reference/spa-bridge/) |
+| `@lxpack/lessonkit` | [npm](https://www.npmjs.com/package/@lxpack/lessonkit) | [packages/lessonkit](https://github.com/eddiethedean/lxpack/blob/main/packages/lessonkit/README.md) | [LessonKit & React](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) |
+| `@lxpack/conformance` | [npm](https://www.npmjs.com/package/@lxpack/conformance) | [packages/conformance](https://github.com/eddiethedean/lxpack/blob/main/packages/conformance/README.md) | [LessonKit interoperability](https://lxpack.readthedocs.io/en/latest/reference/lessonkit-interoperability/) |
 
 ## Features
 
@@ -404,14 +404,14 @@ pnpm --filter @lxpack/cli build
 
 To cut a release:
 
-1. Bump versions and update [CHANGELOG.md](CHANGELOG.md).
+1. Bump versions and update [CHANGELOG.md](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md).
 2. Ensure the GitHub secret `NPM_TOKEN` is set for the npm user that owns `@lxpack/*` (e.g. `eddiethedean`):
    - **Classic automation token** (recommended for CI), or
    - **Granular token** with **Read and write** on `@lxpack/*` and **Bypass 2FA for publish** enabled.
    The release workflow passes this token to `setup-node` so `.npmrc` is authenticated before `pnpm publish`.
 3. Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`
 
-The release workflow runs all CI checks before publishing. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The release workflow runs all CI checks before publishing. See [CHANGELOG.md](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md) for release notes.
 
 ## Roadmap
 

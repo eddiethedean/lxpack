@@ -12,10 +12,10 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Export to L
 
 | Related | Package |
 |---------|---------|
-| CLI | [`@lxpack/cli`](../cli/README.md) |
-| Manifest validation | [`@lxpack/validators`](../validators/README.md) |
-| Embedded client | [`@lxpack/runtime`](../runtime/README.md) |
-| Components bundle | [`@lxpack/components`](../components/README.md) |
+| CLI | [`@lxpack/cli`](https://github.com/eddiethedean/lxpack/blob/main/packages/cli/README.md) |
+| Manifest validation | [`@lxpack/validators`](https://github.com/eddiethedean/lxpack/blob/main/packages/validators/README.md) |
+| Embedded client | [`@lxpack/runtime`](https://github.com/eddiethedean/lxpack/blob/main/packages/runtime/README.md) |
+| Components bundle | [`@lxpack/components`](https://github.com/eddiethedean/lxpack/blob/main/packages/components/README.md) |
 
 ## Install
 
@@ -97,7 +97,7 @@ await packageStandaloneDir({
 });
 ```
 
-Most users should use `lxpack build` from [`@lxpack/cli`](../cli/README.md) instead of calling these APIs directly. See [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/) for `--target` options.
+Most users should use `lxpack build` from [`@lxpack/cli`](https://github.com/eddiethedean/lxpack/blob/main/packages/cli/README.md) instead of calling these APIs directly. See [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/) for `--target` options.
 
 ## Exports
 
@@ -164,12 +164,12 @@ pnpm --filter @lxpack/scorm typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
 - [Export to LMS](https://lxpack.readthedocs.io/en/latest/guides/export-to-lms/)
 - [course.yaml — tracking.xapi](https://lxpack.readthedocs.io/en/latest/reference/course-yaml/)
 - [Architecture](https://lxpack.readthedocs.io/en/latest/developer/ARCHITECTURE/)
 - [Roadmap & phases](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/)
-- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 

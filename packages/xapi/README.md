@@ -12,12 +12,12 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Export to L
 
 | Related | Package |
 |---------|---------|
-| CLI build | [`@lxpack/cli`](../cli/README.md) (`lxpack build --target xapi`) |
-| Packaging | [`@lxpack/scorm`](../scorm/README.md) |
-| Runtime analytics | [`@lxpack/runtime`](../runtime/README.md) |
-| cmi5 manifests | [`@lxpack/cmi5`](../cmi5/README.md) |
+| CLI build | [`@lxpack/cli`](https://github.com/eddiethedean/lxpack/blob/main/packages/cli/README.md) (`lxpack build --target xapi`) |
+| Packaging | [`@lxpack/scorm`](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) |
+| Runtime analytics | [`@lxpack/runtime`](https://github.com/eddiethedean/lxpack/blob/main/packages/runtime/README.md) |
+| cmi5 manifests | [`@lxpack/cmi5`](https://github.com/eddiethedean/lxpack/blob/main/packages/cmi5/README.md) |
 
-Example course: [examples/xapi-awareness](https://github.com/eddiethedean/lxpack/tree/main/examples/xapi-awareness) · [example README](../../examples/xapi-awareness/README.md).
+Example course: [examples/xapi-awareness](https://github.com/eddiethedean/lxpack/tree/main/examples/xapi-awareness) · [example README](https://github.com/eddiethedean/lxpack/blob/main/examples/xapi-awareness/README.md).
 
 ## Install
 
@@ -41,9 +41,10 @@ pnpm --filter @lxpack/xapi test
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
 - [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/)
 - [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 

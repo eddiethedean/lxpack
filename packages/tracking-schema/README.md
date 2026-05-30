@@ -12,8 +12,8 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Tracking an
 
 | Related | Package |
 |---------|---------|
-| Runtime `track()` | [`@lxpack/runtime`](../runtime/README.md) |
-| xAPI transport | [`@lxpack/xapi`](../xapi/README.md) |
+| Runtime `track()` | [`@lxpack/runtime`](https://github.com/eddiethedean/lxpack/blob/main/packages/runtime/README.md) |
+| xAPI transport | [`@lxpack/xapi`](https://github.com/eddiethedean/lxpack/blob/main/packages/xapi/README.md) |
 
 ## Install
 
@@ -62,7 +62,7 @@ pnpm --filter @lxpack/tracking-schema typecheck
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
 - [Documentation](https://lxpack.readthedocs.io/en/latest/)
-- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 

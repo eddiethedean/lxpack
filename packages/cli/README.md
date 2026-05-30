@@ -12,11 +12,11 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [CLI referen
 
 | Related | Package |
 |---------|---------|
-| Programmatic API | [`@lxpack/api`](../api/README.md) |
-| Validation | [`@lxpack/validators`](../validators/README.md) |
-| Browser runtime | [`@lxpack/runtime`](../runtime/README.md) |
-| Export / ZIP | [`@lxpack/scorm`](../scorm/README.md) |
-| Lesson widgets | [`@lxpack/components`](../components/README.md) |
+| Programmatic API | [`@lxpack/api`](https://github.com/eddiethedean/lxpack/blob/main/packages/api/README.md) |
+| Validation | [`@lxpack/validators`](https://github.com/eddiethedean/lxpack/blob/main/packages/validators/README.md) |
+| Browser runtime | [`@lxpack/runtime`](https://github.com/eddiethedean/lxpack/blob/main/packages/runtime/README.md) |
+| Export / ZIP | [`@lxpack/scorm`](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) |
+| Lesson widgets | [`@lxpack/components`](https://github.com/eddiethedean/lxpack/blob/main/packages/components/README.md) |
 
 ## Install
 
@@ -65,7 +65,7 @@ Authoritative option list: [CLI reference](https://lxpack.readthedocs.io/en/late
 | `-o, --output <path>` | Output ZIP file or directory |
 | `--dir` | Write an unpacked directory instead of a ZIP |
 
-`build` and `preview` use the same validation rules: errors fail the command (exit code 1). `build` reuses the validated manifest and bakes a sanitized [assessment bundle](../validators/README.md#assessment-packaging) into the exported HTML config.
+`build` and `preview` use the same validation rules: errors fail the command (exit code 1). `build` reuses the validated manifest and bakes a sanitized [assessment bundle](https://github.com/eddiethedean/lxpack/blob/main/packages/validators/README.md#assessment-packaging) into the exported HTML config.
 
 **SCORM 2004** builds produce a multi-SCO ZIP: one launch page per activity under `sco/<activityId>/index.html`, plus shared `lxpack-runtime.js` and `lxpack-components.js`.
 
@@ -128,7 +128,7 @@ See [course.yaml reference](https://lxpack.readthedocs.io/en/latest/reference/co
 
 ## Programmatic use
 
-The CLI is built with [Commander](https://github.com/tj/commander.js). `validate` and `build` delegate to [`@lxpack/api`](../api/README.md), which returns structured results instead of exiting the process.
+The CLI is built with [Commander](https://github.com/tj/commander.js). `validate` and `build` delegate to [`@lxpack/api`](https://github.com/eddiethedean/lxpack/blob/main/packages/api/README.md), which returns structured results instead of exiting the process.
 
 ```ts
 import { validateCourse, buildCourse } from "@lxpack/api";
@@ -159,7 +159,7 @@ pnpm --filter @lxpack/cli typecheck
 - [Documentation](https://lxpack.readthedocs.io/en/latest/)
 - [CLI reference](https://lxpack.readthedocs.io/en/latest/reference/cli/)
 - [Roadmap & phases](https://lxpack.readthedocs.io/en/latest/developer/ROADMAP/)
-- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 

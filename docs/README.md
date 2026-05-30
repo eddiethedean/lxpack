@@ -1,6 +1,6 @@
 # LXPack documentation
 
-Source for [lxpack.readthedocs.io](https://lxpack.readthedocs.io/en/latest/). Built with **MkDocs Material**; config at repo root [`mkdocs.yml`](../mkdocs.yml).
+Source for [lxpack.readthedocs.io](https://lxpack.readthedocs.io/en/latest/). Built with **MkDocs Material**; config at repo root [`mkdocs.yml`](https://github.com/eddiethedean/lxpack/blob/main/mkdocs.yml).
 
 ## Audience tracks
 
@@ -16,8 +16,8 @@ Source for [lxpack.readthedocs.io](https://lxpack.readthedocs.io/en/latest/). Bu
 
 | Layer | Contains | Example |
 |-------|----------|---------|
-| **Guide** | Steps, personas, workflows, prompts | [Your first course](getting-started/your-first-course.md) |
-| **Reference** | Flags, YAML keys, APIs, error tables | [CLI](reference/cli.md) → includes [`CLI.md`](CLI.md) |
+| **Guide** | Steps, personas, workflows, prompts | [Your first course](https://github.com/eddiethedean/lxpack/blob/main/docs/getting-started/your-first-course.md) |
+| **Reference** | Flags, YAML keys, APIs, error tables | [CLI](https://github.com/eddiethedean/lxpack/blob/main/docs/reference/cli.md) → includes [`CLI.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/CLI.md) |
 
 Guides **link to** reference; they do not duplicate schema tables.
 
@@ -27,17 +27,17 @@ These files are listed in `mkdocs.yml` `exclude_docs` and included by thin wrapp
 
 | Source | Wrapper |
 |--------|---------|
-| [`CLI.md`](CLI.md) | `reference/cli.md` |
-| [`COURSE_YAML.md`](COURSE_YAML.md) | `reference/course-yaml.md` |
-| [`LXPACK_CONFIG.md`](LXPACK_CONFIG.md) | `reference/lxpack-config.md` |
-| [`TRACKING_AND_COMPLETION.md`](TRACKING_AND_COMPLETION.md) | `reference/tracking-and-completion.md` |
-| [`SPA_BRIDGE.md`](SPA_BRIDGE.md) | `reference/spa-bridge.md` |
-| [`LESSONKIT_INTERCHANGE.md`](LESSONKIT_INTERCHANGE.md) | `reference/lessonkit-interchange.md` |
-| [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) | `reference/troubleshooting.md` |
-| [`LESSONKIT_INTEROPERABILITY.md`](LESSONKIT_INTEROPERABILITY.md) | `reference/lessonkit-interoperability.md` |
-| [`LESSONKIT_PACKAGES.md`](LESSONKIT_PACKAGES.md) | `reference/lessonkit-packages.md` |
-| [`LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md`](LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md) | `reference/lxpack-upgrades.md` (partial) |
-| [`LXPACK_UPGRADES_FOR_LESSONKIT.md`](LXPACK_UPGRADES_FOR_LESSONKIT.md) | `reference/lxpack-upgrades.md` (partial) |
+| [`CLI.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/CLI.md) | `reference/cli.md` |
+| [`COURSE_YAML.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/COURSE_YAML.md) | `reference/course-yaml.md` |
+| [`LXPACK_CONFIG.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/LXPACK_CONFIG.md) | `reference/lxpack-config.md` |
+| [`TRACKING_AND_COMPLETION.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/TRACKING_AND_COMPLETION.md) | `reference/tracking-and-completion.md` |
+| [`SPA_BRIDGE.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/SPA_BRIDGE.md) | `reference/spa-bridge.md` |
+| [`LESSONKIT_INTERCHANGE.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/LESSONKIT_INTERCHANGE.md) | `reference/lessonkit-interchange.md` |
+| [`TROUBLESHOOTING.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/TROUBLESHOOTING.md) | `reference/troubleshooting.md` |
+| [`LESSONKIT_INTEROPERABILITY.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/LESSONKIT_INTEROPERABILITY.md) | `reference/lessonkit-interoperability.md` |
+| [`LESSONKIT_PACKAGES.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/LESSONKIT_PACKAGES.md) | `reference/lessonkit-packages.md` |
+| [`LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/LXPACK_UPGRADE_PLAN_FOR_MAINTAINERS.md) | `reference/lxpack-upgrades.md` (partial) |
+| [`LXPACK_UPGRADES_FOR_LESSONKIT.md`](https://github.com/eddiethedean/lxpack/blob/main/docs/LXPACK_UPGRADES_FOR_LESSONKIT.md) | `reference/lxpack-upgrades.md` (partial) |
 
 **Link convention:** author root sources with paths relative to `reference/` (where wrappers render), e.g. `cli.md`, `../guides/export-to-lms.md`.
 
@@ -62,7 +62,7 @@ bash scripts/build-docs.sh
 mkdocs serve   # optional live preview
 ```
 
-Strict build matches CI and Read the Docs. See [readthedocs-setup.md](readthedocs-setup.md).
+Strict build matches CI and Read the Docs. See [readthedocs-setup.md](https://github.com/eddiethedean/lxpack/blob/main/docs/readthedocs-setup.md).
 
 ## Adding a new reference topic
 

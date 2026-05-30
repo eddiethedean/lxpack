@@ -4,7 +4,7 @@
 
 Demonstrates a **`type: spa`** lesson: a folder with `index.html` (stand-in for a Vite/React build) that reports progress through `window.parent.lxpackBridge.v1`.
 
-**Docs:** [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) · [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/).
+**Docs:** [Examples index](https://lxpack.readthedocs.io/en/latest/examples/) · [LessonKit & React hub](https://lxpack.readthedocs.io/en/latest/guides/lessonkit/) · [SPA bridge](https://lxpack.readthedocs.io/en/latest/reference/spa-bridge/) · [Lesson types](https://lxpack.readthedocs.io/en/latest/reference/lesson-types/).
 
 ```bash
 cd examples/lessonkit-spa
@@ -14,3 +14,9 @@ lxpack preview
 ```
 
 SPA assets live under `spa/lessons/phishing-101/` (not under `dist/`, which is gitignored in the monorepo). In a real LessonKit workflow, point `path` at your Vite output directory instead.
+
+## Links
+
+- [Examples index](https://lxpack.readthedocs.io/en/latest/examples/)
+- [@lxpack/spa-bridge](https://github.com/eddiethedean/lxpack/blob/main/packages/spa-bridge/README.md)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)

@@ -12,12 +12,12 @@ Part of [LXPack](https://github.com/eddiethedean/lxpack). **Docs:** [Lesson type
 
 | Related | Package |
 |---------|---------|
-| CLI / preview | [`@lxpack/cli`](../cli/README.md) |
-| Programmatic build | [`@lxpack/api`](../api/README.md) |
-| Validation & bundles | [`@lxpack/validators`](../validators/README.md) |
-| Export shell | [`@lxpack/scorm`](../scorm/README.md) |
-| UI widgets | [`@lxpack/components`](../components/README.md) |
-| Track event types | [`@lxpack/tracking-schema`](../tracking-schema/README.md) |
+| CLI / preview | [`@lxpack/cli`](https://github.com/eddiethedean/lxpack/blob/main/packages/cli/README.md) |
+| Programmatic build | [`@lxpack/api`](https://github.com/eddiethedean/lxpack/blob/main/packages/api/README.md) |
+| Validation & bundles | [`@lxpack/validators`](https://github.com/eddiethedean/lxpack/blob/main/packages/validators/README.md) |
+| Export shell | [`@lxpack/scorm`](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) |
+| UI widgets | [`@lxpack/components`](https://github.com/eddiethedean/lxpack/blob/main/packages/components/README.md) |
+| Track event types | [`@lxpack/tracking-schema`](https://github.com/eddiethedean/lxpack/blob/main/packages/tracking-schema/README.md) |
 
 ## Install
 
@@ -49,7 +49,7 @@ The CLI and SCORM packager embed `@lxpack/runtime/client` into exported courses.
 - Tracks lesson completion, manifest variables (`v:` prefix in suspend data), and assessment scores
 - Persists progress via SCORM `suspend_data` / CMI (compact JSON, size-safe) or `localStorage` in preview mode
 
-Config is injected by the packager using [`safeJsonForHtml`](../scorm/README.md) from `@lxpack/scorm`.
+Config is injected by the packager using [`safeJsonForHtml`](https://github.com/eddiethedean/lxpack/blob/main/packages/scorm/README.md) from `@lxpack/scorm`.
 
 ### SPA lessons and bridge API
 
@@ -182,11 +182,11 @@ pnpm --filter @lxpack/runtime typecheck
 ## Links
 
 - [LXPack repository](https://github.com/eddiethedean/lxpack)
-- [Documentation home](https://lxpack.readthedocs.io/en/latest/)
+- [Documentation](https://lxpack.readthedocs.io/en/latest/)
 - [Preview and review](https://lxpack.readthedocs.io/en/latest/guides/preview-and-review/)
 - [Technical specification](https://lxpack.readthedocs.io/en/latest/developer/SPEC/)
 - [Architecture](https://lxpack.readthedocs.io/en/latest/developer/ARCHITECTURE/)
-- [Changelog](https://github.com/eddiethedean/lxpack/blob/main/CHANGELOG.md)
+- [Changelog](https://lxpack.readthedocs.io/en/latest/project/changelog/)
 
 ## License
 
