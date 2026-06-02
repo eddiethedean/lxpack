@@ -213,26 +213,29 @@ export function validateFlow(
   return issues;
 }
 
-function inferFlowRuleSource(condition: Condition): string | null {
+function collectFlowRuleSources(condition: Condition): Set<string> {
+  const sources = new Set<string>();
   if ("interaction" in condition && condition.interaction?.done) {
-    return condition.interaction.done;
+    sources.add(condition.interaction.done);
   }
   if ("assessment" in condition && condition.assessment?.passed) {
-    return condition.assessment.passed;
+    sources.add(condition.assessment.passed);
   }
   if ("all" in condition && condition.all?.length) {
     for (const c of condition.all) {
-      const inferred = inferFlowRuleSource(c);
-      if (inferred !== null) return inferred;
+      for (const id of collectFlowRuleSources(c)) {
+        sources.add(id);
+      }
     }
   }
   if ("any" in condition && condition.any?.length) {
     for (const c of condition.any) {
-      const inferred = inferFlowRuleSource(c);
-      if (inferred !== null) return inferred;
+      for (const id of collectFlowRuleSources(c)) {
+        sources.add(id);
+      }
     }
   }
-  return null;
+  return sources;
 }
 
 function ruleAppliesFromActivity(
@@ -242,9 +245,9 @@ function ruleAppliesFromActivity(
   if (rule.from !== undefined) {
     return rule.from === currentActivityId;
   }
-  const inferred = inferFlowRuleSource(rule.when);
-  if (inferred !== null) {
-    return inferred === currentActivityId;
+  const inferred = collectFlowRuleSources(rule.when);
+  if (inferred.size > 0) {
+    return inferred.has(currentActivityId);
   }
   return true;
 }
@@ -259,7 +262,7 @@ function conditionCouldApplyAt(
     return currentActivityId === condition.assessment.passed;
   }
   if ("interaction" in condition && condition.interaction?.done) {
-    return interactionIds.has(currentActivityId);
+    return currentActivityId === condition.interaction.done;
   }
   if ("all" in condition && condition.all) {
     return (

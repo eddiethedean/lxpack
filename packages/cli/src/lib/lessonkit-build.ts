@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, resolve, isAbsolute } from "node:path";
 import pc from "picocolors";
 import {
   parseLessonkitInterchange,
@@ -21,6 +21,11 @@ export function parseSpaLessonOption(value: string): { id: string; path: string 
   const id = value.slice(0, eq).trim();
   const path = value.slice(eq + 1).trim();
   if (!id || !path) {
+    throw new Error(
+      `Invalid --spa-lesson value "${value}" (expected lessonId=/absolute/path)`,
+    );
+  }
+  if (!isAbsolute(path)) {
     throw new Error(
       `Invalid --spa-lesson value "${value}" (expected lessonId=/absolute/path)`,
     );

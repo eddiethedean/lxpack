@@ -202,10 +202,12 @@ export async function startPreviewFromLessonkit(options: {
     config,
   ) as ExportTarget;
   const assessments = resolvePackageAssessments(loaded.data, loaded.data.assessments);
+  const componentsBundleJs = await readComponentsBundle();
   const validation = await validateCourseWithInterchange(courseDir, {
     exportTarget,
     assessmentData: assessments,
     interchange: loaded.data,
+    hasComponentsBundle: componentsBundleJs !== undefined,
   });
 
   if (!validation.valid || !validation.manifest) {
@@ -260,8 +262,10 @@ export async function startPreview(
   const ctx = await loadValidatedCourseContext(courseDir, { exportTarget });
 
   if (!ctx) {
+    const componentsBundleJs = await readComponentsBundle();
     const validation = await validateCourseWithInterchange(courseDir, {
       exportTarget,
+      hasComponentsBundle: componentsBundleJs !== undefined,
     });
     if (!validation.manifest) {
       console.error(pc.red("Cannot preview: course manifest is invalid"));

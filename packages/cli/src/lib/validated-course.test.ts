@@ -8,6 +8,16 @@ import {
   printValidationIssues,
 } from "./validated-course.js";
 
+vi.mock("./bundle-io.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./bundle-io.js")>();
+  return {
+    ...actual,
+    readComponentsBundle: vi.fn(actual.readComponentsBundle),
+  };
+});
+
+import { readComponentsBundle } from "./bundle-io.js";
+
 describe("printValidationIssues", () => {
   it("prints warnings and errors with distinct labels", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -91,5 +101,13 @@ assessments:
     expect(ctx!.manifest.lessons.some((l) => l.type === "spa")).toBe(true);
 
     await rm(courseDir, { recursive: true, force: true });
+  });
+
+  it("fails when component lessons exist but components bundle is unavailable", async () => {
+    vi.mocked(readComponentsBundle).mockResolvedValueOnce(undefined);
+    const ctx = await loadValidatedCourseContext(
+      fixturePath("branching-demo"),
+    );
+    expect(ctx).toBeNull();
   });
 });

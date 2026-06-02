@@ -7,6 +7,7 @@ import {
   type ValidateCourseOptions,
 } from "@lxpack/validators";
 import pc from "picocolors";
+import { readComponentsBundle } from "./bundle-io.js";
 
 export interface ValidatedCourseContext {
   courseDir: string;
@@ -19,7 +20,11 @@ export async function loadValidatedCourseContext(
   courseDir: string,
   options?: ValidateCourseOptions,
 ): Promise<ValidatedCourseContext | null> {
-  const validation = await validateCourseWithInterchange(courseDir, options);
+  const componentsBundleJs = await readComponentsBundle();
+  const validation = await validateCourseWithInterchange(courseDir, {
+    ...options,
+    hasComponentsBundle: componentsBundleJs !== undefined,
+  });
   if (!validation.valid || !validation.manifest) {
     return null;
   }

@@ -218,6 +218,10 @@ See [ROADMAP.md](ROADMAP.md#phase-04-lessonkit-interoperability-shipped-v040) fo
 
 Packaging, LessonKit config resolution, runtime/SCORM/xAPI fixes — see [Changelog](../project/changelog.md#061-2026-05-29).
 
+## Phase 0.6.4 — Flow and validation patch (shipped — v0.6.4)
+
+Flow multi-branch inference, nav UX, validation parity, API/CLI footguns — see [Changelog](../project/changelog.md#064-2026-06-01).
+
 ## Phase 0.6.3 — Flow and navigation patch (shipped — v0.6.3)
 
 Position-aware flow (`from`), runtime nav UX, CLI error-handling parity — see [Changelog](../project/changelog.md#063-2026-05-30).

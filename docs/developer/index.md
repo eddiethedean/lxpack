@@ -1,6 +1,6 @@
 # Developer documentation
 
-Technical references for **v0.6.3** contributors and integrators.
+Technical references for **v0.6.4** contributors and integrators.
 
 <div class="grid cards" markdown>
 
@@ -26,7 +26,7 @@ Technical references for **v0.6.3** contributors and integrators.
 
     ---
 
-    Package boundaries (v0.6.3).
+    Package boundaries (v0.6.4).
 
 -   :octicons-tools-24: **[REFACTORING](REFACTORING.md)**
 
@@ -68,11 +68,12 @@ Full technical docs (linked from nav cards above):
 | **0.6.1 — Patch** | **v0.6.1** | Shipped | Packaging/metadata fixes, LessonKit config path, SCORM session guards, export CSS parity, xAPI auth/flush |
 | **0.6.2 — Patch** | **v0.6.2** | Shipped | Node.js 18 and 20; runtime navigation fixes; LessonKit **1.0** packaging parity |
 | **0.6.3 — Patch** | **v0.6.3** | Shipped | Position-aware flow (`from`); runtime nav UX; CLI config/parse error parity |
+| **0.6.4 — Patch** | **v0.6.4** | Shipped | Flow multi-branch inference; nav end-of-path UX; preview/lessonkit validation parity |
 | **5 — AI tooling** | **v0.6+** | Planned | Claude integration, AI repair, AI-generated interactions |
 | **6 — Ecosystem** | **v0.6+** | Planned | Plugin marketplace, component marketplace, hosted previews |
 | **7 — Enterprise platform** | **v0.7+** | Planned | Cloud deployment, compliance tooling, hosted runtime |
 
-## Published npm packages (v0.6.3)
+## Published npm packages (v0.6.4)
 
 | Package | Role |
 |---------|------|

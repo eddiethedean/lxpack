@@ -129,6 +129,42 @@ describe("flow", () => {
     expect(resolveFlowGoto(flowManifest, ctx, "wrap")).toBeNull();
   });
 
+  it("infers from all branches in nested any conditions", () => {
+    const flowManifest = {
+      title: "T",
+      version: "1",
+      lessons: [
+        { id: "lab", type: "html" as const, path: "interactions/lab" },
+        { id: "wrap", type: "markdown" as const, file: "wrap.md" },
+      ],
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      flow: [
+        {
+          when: {
+            any: [
+              { assessment: { passed: "quiz" } },
+              { interaction: { done: "lab" } },
+            ],
+          },
+          goto: "wrap",
+        },
+      ],
+    };
+    const quizCtx = {
+      getVariable: () => false,
+      isAssessmentPassed: (id: string) => id === "quiz",
+      isInteractionDone: () => false,
+    };
+    const labCtx = {
+      getVariable: () => false,
+      isAssessmentPassed: () => false,
+      isInteractionDone: (id: string) => id === "lab",
+    };
+    expect(resolveFlowGoto(flowManifest, quizCtx, "quiz")).toBe("wrap");
+    expect(resolveFlowGoto(flowManifest, labCtx, "lab")).toBe("wrap");
+    expect(resolveFlowGoto(flowManifest, labCtx, "wrap")).toBeNull();
+  });
+
   it("infers from for interaction.done rules", () => {
     const flowManifest = {
       title: "T",

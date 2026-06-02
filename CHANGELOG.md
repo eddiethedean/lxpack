@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-06-01
+
+### Fixed
+
+- **Validators / CLI:** component-lesson bundle check in preview and `--lessonkit` validate/preview paths (parity with `lxpack build`)
+- **Runtime / flow:** `any`/`all` flow rules without `from` apply on all inferrable source activities, not just the first nested branch
+- **Runtime:** Next button disabled when no reachable next step in a branching course
+- **Runtime:** warn when flow `goto` target is not in the current nav list
+- **Validators:** flow cycle detection for `interaction.done` aligned with runtime (specific lesson id)
+- **Validators:** HTML interactions using `parent.lxpackBridge` no longer warn incorrectly
+- **API:** `packageLessonkit()` resolves relative output against `configDir` by default
+- **CLI:** reject relative paths in `--spa-lesson`
+
 ## [0.6.3] - 2026-05-30
 
 ### Added

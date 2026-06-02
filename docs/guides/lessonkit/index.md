@@ -23,7 +23,7 @@ lessonkit build
 lessonkit package --target scorm12
 ```
 
-Requires **`@lxpack/api` 0.6.3+** and Node.js **18+**.
+Requires **`@lxpack/api` 0.6.4+** and Node.js **18+**.
 
 ## LXPack-specific guides
 

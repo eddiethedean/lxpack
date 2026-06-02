@@ -47,6 +47,15 @@ describe("warnDirectLxpackApiInInteractionHtml", () => {
       ),
     ).toBeNull();
   });
+
+  it("does not warn when parent.lxpackBridge is used", () => {
+    expect(
+      warnDirectLxpackApiInInteractionHtml(
+        "window.parent.lxpackBridge.v1.completeLesson('lab');",
+        "lessons.lab.path",
+      ),
+    ).toBeNull();
+  });
 });
 
 describe("validateHtmlLesson", () => {

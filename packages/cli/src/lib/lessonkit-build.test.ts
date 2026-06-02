@@ -28,6 +28,7 @@ describe("lessonkit-build helpers", () => {
     expect(() => parseSpaLessonOption("noseparator")).toThrow(/Invalid/);
     expect(() => parseSpaLessonOption("=onlypath")).toThrow(/Invalid/);
     expect(() => parseSpaLessonOption("idonly=")).toThrow(/Invalid/);
+    expect(() => parseSpaLessonOption("spa1=dist/spa1")).toThrow(/absolute/);
   });
 
   it("loadLessonkitInterchangeFile reports schema validation errors", async () => {

@@ -489,6 +489,31 @@ describe("buildCommand", () => {
     process.chdir(join(workDir, "course"));
   });
 
+  it("exits when --spa-lesson path is relative", async () => {
+    const interchangePath = join(workDir, "lessonkit-relative-spa.json");
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(
+      interchangePath,
+      JSON.stringify({
+        format: "lessonkit",
+        version: "1",
+        lessons: [{ id: "spa1", type: "spa", path: "dist/spa1" }],
+      }),
+    );
+    process.chdir(workDir);
+    const exit = vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+      throw new Error(`exit:${code ?? 0}`);
+    });
+    await expect(
+      buildCommand({
+        lessonkit: interchangePath,
+        spaLesson: ["spa1=dist/spa1"],
+      }),
+    ).rejects.toThrow("exit:1");
+    exit.mockRestore();
+    process.chdir(join(workDir, "course"));
+  });
+
   it("exits when spa-lesson id is unknown for lessonkit build", async () => {
     const interchangePath = join(workDir, "lessonkit-unknown-spa.json");
     const { writeFile } = await import("node:fs/promises");

@@ -26,7 +26,7 @@ export interface PackageLessonkitOptions {
   dir?: boolean;
   courseDir?: string;
   outputBaseDir?: string;
-  /** Resolve relative output paths against this directory (defaults to process.cwd()). */
+  /** Resolve relative output paths against this directory (defaults to configDir). */
   outputAnchorDir?: string;
   writeAuthoringFiles?: boolean;
   debug?: boolean;
@@ -81,7 +81,7 @@ export async function packageLessonkit(
       output: options.output,
       dir: options.dir,
       outputBaseDir,
-      outputAnchorDir: options.outputAnchorDir ?? process.cwd(),
+      outputAnchorDir: options.outputAnchorDir ?? configDir,
       assessments,
       interchange: options.interchange,
     });

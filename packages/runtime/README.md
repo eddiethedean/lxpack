@@ -149,16 +149,16 @@ import { LxpackRuntime, type RuntimeConfig } from "@lxpack/runtime";
 const runtime = new LxpackRuntime({
   manifest,
   mode: "scorm12", // "scorm2004" | "preview"
-  defaultPassingScores: { quiz: 0.7 },
 });
 
 runtime.completeLesson("intro");
 runtime.getAPI().setVariable("track", "advanced");
 runtime.getAPI().submitAssessment("quiz", 0.85, 0.7);
 runtime.getProgress();
+runtime.terminate();
 ```
 
-`LxpackAPI` methods include `track()`, `submitAssessment()`, `getProgress()`, `setVariable()` / `getVariable()`, and `terminate()` (guarded against double finish).
+`LxpackAPI` methods include `track()`, `submitAssessment()`, `getProgress()`, and `setVariable()` / `getVariable()`. Call `runtime.terminate()` once when tearing down a SCORM session (guarded against double finish).
 
 ## Build output
 

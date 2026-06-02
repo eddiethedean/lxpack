@@ -29,6 +29,9 @@ export function warnDirectLxpackApiInInteractionHtml(
   html: string,
   issuePath: string,
 ): ValidationIssue | null {
+  if (/window\.parent\.lxpackBridge|parent\.lxpackBridge/.test(html)) {
+    return null;
+  }
   if (/window\.parent\.lxpack|parent\.lxpack/.test(html)) {
     return null;
   }

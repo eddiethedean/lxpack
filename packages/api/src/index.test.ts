@@ -240,5 +240,62 @@ describe("@lxpack/api", () => {
     await rm(spaSource, { recursive: true, force: true });
     await rm(projectDir, { recursive: true, force: true });
   });
+
+  it("packageLessonkit resolves relative output against configDir when outputAnchorDir omitted", async () => {
+    const { mkdtemp, rm, writeFile } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+
+    const projectDir = await mkdtemp(join(tmpdir(), "lxpack-pkg-anchor-"));
+    const otherCwd = await mkdtemp(join(tmpdir(), "lxpack-pkg-cwd-"));
+    await writeFile(
+      join(projectDir, "lxpack.config.json"),
+      JSON.stringify({ output: { dir: ".lxpack" } }),
+    );
+
+    const spaSource = await mkdtemp(join(tmpdir(), "lxpack-pkg-spa-"));
+    await writeFile(
+      join(spaSource, "index.html"),
+      "<!doctype html><html><body>spa</body></html>",
+    );
+
+    const previousCwd = process.cwd();
+    process.chdir(otherCwd);
+    try {
+      const result = await packageLessonkit({
+        configDir: projectDir,
+        interchange: {
+          format: "lessonkit",
+          version: "1",
+          course: { title: "Anchor Test" },
+          lessons: [
+            {
+              id: "spa1",
+              type: "spa",
+              path: "spa/app",
+              title: "SPA",
+            },
+          ],
+        },
+        spaDirs: { spa1: spaSource },
+        target: "scorm12",
+        dir: true,
+        output: "anchor-out",
+        debug: true,
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.outputDir).toContain(join(projectDir, "anchor-out"));
+        await rm(result.courseDir!, { recursive: true, force: true });
+      }
+    } finally {
+      process.chdir(previousCwd);
+    }
+
+    await rm(spaSource, { recursive: true, force: true });
+    await rm(projectDir, { recursive: true, force: true });
+    await rm(otherCwd, { recursive: true, force: true });
+  });
 });
 

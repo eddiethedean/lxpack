@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/tracking-schema",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Shared tracking event schema for LXPack and adapters",
   "license": "Apache-2.0",
   "repository": {

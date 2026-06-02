@@ -288,6 +288,17 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 - **CLI** — `lxpack build --lessonkit` with `--spa-lesson` / `--spa-dist`
 - **Docs** — [lessonkit interchange reference](../reference/lessonkit-interchange.md)
 
+## Phase 0.6.4 — Flow and validation patch (shipped — v0.6.4)
+
+**Latest release in phase:** v0.6.4
+
+### Shipped in v0.6.4
+
+- **Flow inference** — `any`/`all` rules without `from` apply on all inferrable source activities
+- **Runtime navigation** — Next disabled at end of branching path; warn on unreachable flow `goto`
+- **Validation parity** — component bundle check in preview and `--lessonkit` validate/preview
+- **API / CLI** — `packageLessonkit()` output anchor defaults to `configDir`; `--spa-lesson` requires absolute paths
+
 ## Phase 0.6.3 — Flow and navigation patch (shipped — v0.6.3)
 
 **Latest release in phase:** v0.6.3
@@ -339,7 +350,7 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 - **`@lxpack/lessonkit`** — meta-package; [LessonKit & React hub](../guides/lessonkit/index.md)
 - **API stability** — [api-stability.md](api-stability.md) documents LessonKit **1.0.0** interoperability contracts
 
-**LessonKit 1.0.0** is the stable public API ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)). LXPack **0.6.3** is the supported packaging/runtime baseline (`@lxpack/api` 0.6.3+, Node 18+).
+**LessonKit 1.0.0** is the stable public API ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)). LXPack **0.6.4** is the supported packaging/runtime baseline (`@lxpack/api` 0.6.4+, Node 18+).
 
 ## v0.6+ — LessonKit integration and platform
 

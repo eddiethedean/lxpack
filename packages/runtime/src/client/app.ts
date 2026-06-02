@@ -79,6 +79,10 @@ export function init(): void {
         console.warn(
           `[lxpack] Flow goto "${target}" is not available in this SCORM launch activity`,
         );
+      } else {
+        console.warn(
+          `[lxpack] Flow goto "${target}" is not in the course navigation list`,
+        );
       }
     }
     return false;
@@ -121,10 +125,7 @@ export function init(): void {
     if (!hasFlow) {
       return currentIndex < navItems.length - 1;
     }
-    if (activityOrder.indexOf(currentId) >= activityOrder.length - 1) {
-      return true;
-    }
-    return currentIndex < navItems.length - 1;
+    return false;
   }
 
   function getPassedAssessments(): Set<string> {

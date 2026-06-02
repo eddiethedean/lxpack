@@ -1,6 +1,6 @@
 # Reference
 
-Quick lookup for **v0.6.3** — CLI commands, manifest fields, and common fixes.
+Quick lookup for **v0.6.4** — CLI commands, manifest fields, and common fixes.
 
 <div class="grid cards" markdown>
 

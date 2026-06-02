@@ -109,7 +109,7 @@ describe("client navigation fallbacks", () => {
     );
   });
 
-  it("keeps next enabled on the last lesson when flow rules exist", async () => {
+  it("disables next on the last reachable lesson when flow rules exist", async () => {
     init();
     const next = document.getElementById("lxpack-next") as HTMLButtonElement;
     next.click();
@@ -124,7 +124,7 @@ describe("client navigation fallbacks", () => {
         document.querySelector('[data-nav-id="c"]')?.classList.contains("active"),
       ).toBe(true),
     );
-    expect(next.disabled).toBe(false);
+    expect(next.disabled).toBe(true);
   });
 
   it("does not apply flow jump for unrelated track events", async () => {

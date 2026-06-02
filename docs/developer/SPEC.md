@@ -1,7 +1,7 @@
 
 # LXPack Technical Specification
 
-> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.6.3. See the [documentation home](../index.md).
+> **Doc sync:** Release phases match [ROADMAP.md](ROADMAP.md) and [PLAN.md](PLAN.md). **Current release:** v0.6.4. See the [documentation home](../index.md).
 
 ## Overview
 

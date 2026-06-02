@@ -7,7 +7,7 @@ import {
 } from "@lxpack/validators";
 import type { ExportTarget } from "@lxpack/scorm";
 import pc from "picocolors";
-import { findCourseDir, loadLxpackConfig } from "../utils.js";
+import { findCourseDir, loadLxpackConfig, readComponentsBundle } from "../utils.js";
 import {
   formatInvalidTargetMessage,
   isValidExportTarget,
@@ -112,10 +112,12 @@ export async function validateCommand(options?: {
 
     const courseDir = materialized.courseDir;
     try {
+      const componentsBundleJs = await readComponentsBundle();
       const validation = await validateCourseWithInterchange(courseDir, {
         exportTarget: target,
         assessmentData: loaded.data.assessments,
         interchange: loaded.data,
+        hasComponentsBundle: componentsBundleJs !== undefined,
       });
       printValidationResult(
         validation.issues,
