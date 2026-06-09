@@ -157,7 +157,11 @@ describe("app navigation", () => {
       expect(document.querySelector(".lxpack-markdown")).toBeTruthy(),
     );
 
-    window.lxpack?.track({ type: "interaction", id: "phishing-lab" });
+    window.lxpack?.track({
+      type: "interaction",
+      id: "phishing_detected",
+      data: true,
+    });
 
     expect(
       window.lxpack?.getProgress().suspendData["interaction_phishing-lab"],

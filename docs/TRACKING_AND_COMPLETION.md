@@ -50,7 +50,9 @@ cmi5 packages include `cmi5.xml`. When the LMS launch URL includes a `fetch` par
 window.parent.lxpack.track({ type: 'interaction', id: 'event_name' });
 ```
 
-Used for analytics and `interaction.done` flow conditions.
+The `id` is the analytics event name (for example `phishing_detected`). It may differ from the html or spa lesson `id` in `course.yaml`.
+
+`interaction.done` in `flow` always references the **lesson id**. On truthy completion, the player mirrors progress to `interaction_<lesson_id>` in suspend data so branching works even when the track event name differs or the learner has already navigated away from the lab page.
 
 ## Assessment events
 

@@ -74,7 +74,7 @@ flow:
     goto: advanced_topic
 ```
 
-The `done` value matches the lesson `id` of the **html** lesson, not the folder name.
+The `done` value matches the lesson `id` of the **html** lesson, not the folder name. The `id` passed to `track()` on success may be a different event name; the player maps completion to the lesson id for flow rules.
 
 ## Assets
 
