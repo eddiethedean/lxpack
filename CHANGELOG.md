@@ -18,7 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Docs** — quizzes, assessments, LessonKit interoperability, and validator references updated for multi-select MCQ
+- **Docs** — quizzes, assessments, LessonKit interoperability, and validator references updated for multi-select MCQ; `interaction.done` / `track()` id contract documented
+
+### Fixed
+
+- **Validators:** reject undeclared injected assessments in client bundles
+- **Runtime:** apply flow jump after native quiz submit
+- **Runtime:** apply flow jump after SPA bridge `submitAssessment`
+- **Runtime:** prune assessment scores and attempts atomically in SCORM suspend data
+- **Runtime / validators:** `variable.eq` flow rules without `from` are ignored at runtime (validator warns); no longer apply from every activity
+- **Runtime:** mirror `interaction.done` onto the html/spa lesson id when `track()` uses a different event id or the learner navigated away before completion
 
 ## [0.6.4] - 2026-06-01
 

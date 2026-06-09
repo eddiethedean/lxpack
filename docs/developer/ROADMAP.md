@@ -298,6 +298,7 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 - **Validators** — multi-select schema (≥2 correct choices); array answer keys in runtime bundles
 - **Runtime** — checkbox UI, mixed single-/multi-select assessments, SCORM export embedding
 - **Conformance** — SCORM 1.2/2004 multi-select pass/fail matrix (`multi-select-valid` fixture)
+- **Audit fixes** — undeclared injected assessments blocked; quiz and SPA bridge flow navigation; SCORM assessment suspend-data pruning; position-aware `variable.eq` flow rules; `interaction.done` lesson-id mirroring after navigate-away
 
 ## Phase 0.6.4 — Flow and validation patch (shipped — v0.6.4)
 
