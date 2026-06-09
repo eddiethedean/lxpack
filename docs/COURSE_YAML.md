@@ -80,7 +80,7 @@ flow:
     goto: completion
 ```
 
-Optional `from` is the activity id the learner must be on for the rule to run. Use `from` with `variable.eq` so persistent variables do not redirect learners on unrelated steps. Rules with `interaction.done` or `assessment.passed` infer `from` when omitted.
+Optional `from` is the activity id the learner must be on for the rule to run. `variable.eq` rules without `from` are ignored at runtime (the validator warns); set `from` on the step where the branch should fire. Rules with `interaction.done` or `assessment.passed` infer `from` when omitted.
 
 See [Branching and paths](../guides/branching-and-paths.md).
 

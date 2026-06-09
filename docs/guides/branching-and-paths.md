@@ -59,7 +59,7 @@ flow:
 | `interaction.done: <lesson_id>` | HTML or SPA lesson tracked completion |
 | `all: [...]` / `any: [...]` | Combine conditions |
 
-`interaction.done` and `assessment.passed` rules infer `from` when omitted. `variable.eq` rules without `from` apply on every navigation (validator warns).
+`interaction.done` and `assessment.passed` rules infer `from` when omitted. `variable.eq` rules without `from` are ignored at runtime (the validator warns); set `from` to the activity where the branch should fire.
 
 ## Full example
 

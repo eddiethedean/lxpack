@@ -182,8 +182,16 @@ describe("detectFlowCycles", () => {
     const manifest: CourseManifest = {
       ...baseManifest,
       flow: [
-        { when: { variable: { eq: ["track", "a"] } }, goto: "lab" },
-        { when: { variable: { eq: ["track", "b"] } }, goto: "intro" },
+        {
+          from: "intro",
+          when: { variable: { eq: ["track", "a"] } },
+          goto: "lab",
+        },
+        {
+          from: "lab",
+          when: { variable: { eq: ["track", "b"] } },
+          goto: "intro",
+        },
       ],
     };
     expect(detectFlowCycles(manifest).some((e) => e.includes("Flow cycle"))).toBe(
@@ -203,8 +211,16 @@ describe("detectFlowCycles", () => {
     const manifest: CourseManifest = {
       ...baseManifest,
       flow: [
-        { when: { variable: { eq: ["track", "a"] } }, goto: "lab" },
-        { when: { variable: { eq: ["track", "b"] } }, goto: "intro" },
+        {
+          from: "intro",
+          when: { variable: { eq: ["track", "a"] } },
+          goto: "lab",
+        },
+        {
+          from: "lab",
+          when: { variable: { eq: ["track", "b"] } },
+          goto: "intro",
+        },
       ],
     };
     expect(detectFlowCycles(manifest).some((e) => e.includes("intro"))).toBe(true);
