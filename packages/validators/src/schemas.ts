@@ -18,20 +18,42 @@ const choiceSchema = z
   })
   .strict();
 
+export const selectionModeSchema = z.enum(["single", "multiple"]);
+
 export const assessmentQuestionSchema = z
   .object({
     id: z.string().min(1),
     prompt: z.string().min(1),
     choices: z.array(choiceSchema).min(1),
     explanation: z.string().optional(),
+    selectionMode: selectionModeSchema.optional(),
   })
   .strict()
   .superRefine((question, ctx) => {
-    const correctCount = question.choices.filter((c) => c.correct === true).length;
-    if (correctCount !== 1) {
+    const correctChoices = question.choices.filter((c) => c.correct === true);
+    const correctCount = correctChoices.length;
+    if (correctCount < 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Each question must have exactly one correct choice",
+        message: "Each question must have at least one correct choice",
+        path: ["choices"],
+      });
+      return;
+    }
+    const inferredMode =
+      question.selectionMode ??
+      (correctCount > 1 ? ("multiple" as const) : ("single" as const));
+    if (inferredMode === "single" && correctCount !== 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Single-select questions must have exactly one correct choice",
+        path: ["choices"],
+      });
+    }
+    if (inferredMode === "multiple" && correctCount < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Multi-select questions must have at least two correct choices",
         path: ["choices"],
       });
     }

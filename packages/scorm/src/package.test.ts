@@ -100,6 +100,37 @@ describe("packageCourse", () => {
     expect(runtime).toBe(RUNTIME_JS);
   });
 
+  it("embeds multi-select answer keys in SCORM 1.2 packages", async () => {
+    const loaded = await loadManifest(fixturePath("multi-select-valid"));
+    if (Array.isArray(loaded)) throw new Error("fixture failed to load");
+    const assessmentBundle = await buildRuntimeAssessmentBundle(
+      fixturePath("multi-select-valid"),
+      loaded.manifest,
+    );
+
+    const outDir = await mkdtemp(join(tmpdir(), "lxpack-multiselect-"));
+    const zipPath = join(outDir, "course.zip");
+    outputPaths.push(outDir);
+
+    await packageCourse({
+      courseDir: fixturePath("multi-select-valid"),
+      manifest: loaded.manifest,
+      outputPath: zipPath,
+      target: "scorm12",
+      runtimeClientJs: RUNTIME_JS,
+      runtimeCss: RUNTIME_CSS,
+      assessmentBundle,
+    });
+
+    const buffer = await readFile(zipPath);
+    const zip = await JSZip.loadAsync(buffer);
+    const index = await zip.file("index.html")?.async("string");
+    expect(index).toContain('"answerKeys"');
+    expect(index).toContain('"a"');
+    expect(index).toContain('"c"');
+    expect(index).toContain('"selectionMode":"multiple"');
+  });
+
   it("includes components bundle when provided", async () => {
     const outDir = await mkdtemp(join(tmpdir(), "lxpack-components-"));
     const zipPath = join(outDir, "course.zip");

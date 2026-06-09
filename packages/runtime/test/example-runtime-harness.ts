@@ -243,19 +243,22 @@ export function expectAssessmentPassed(
 }
 
 export async function submitQuizWithAnswerKey(
-  answerKey: Record<string, string>,
+  answerKey: Record<string, string | string[]>,
 ): Promise<void> {
   await waitForSelector(".lxpack-assessment form");
-  for (const [questionId, choiceId] of Object.entries(answerKey)) {
-    const input = document.querySelector(
-      `input[name="q-${questionId}"][value="${choiceId}"]`,
-    ) as HTMLInputElement | null;
-    if (!input) {
-      throw new Error(
-        `Quiz choice ${choiceId} for question ${questionId} not found`,
-      );
+  for (const [questionId, choiceIds] of Object.entries(answerKey)) {
+    const ids = Array.isArray(choiceIds) ? choiceIds : [choiceIds];
+    for (const choiceId of ids) {
+      const input = document.querySelector(
+        `input[name="q-${questionId}"][value="${choiceId}"]`,
+      ) as HTMLInputElement | null;
+      if (!input) {
+        throw new Error(
+          `Quiz choice ${choiceId} for question ${questionId} not found`,
+        );
+      }
+      input.checked = true;
     }
-    input.checked = true;
   }
   (
     document.querySelector(".lxpack-assessment form") as HTMLFormElement

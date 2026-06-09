@@ -1,0 +1,17 @@
+id: quiz
+title: Multi Select Quiz
+passingScore: 0.7
+questions:
+  - id: q1
+    prompt: Which are security best practices?
+    choices:
+      - id: a
+        text: Use strong passwords
+        correct: true
+      - id: b
+        text: Share credentials in chat
+      - id: c
+        text: Enable MFA
+        correct: true
+      - id: d
+        text: Click unknown links

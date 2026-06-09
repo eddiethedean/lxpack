@@ -192,7 +192,7 @@ describe("courseManifestSchema", () => {
     ).toBe(false);
   });
 
-  it("requires exactly one correct choice per question", () => {
+  it("requires at least one correct choice per question", () => {
     expect(
       assessmentSchema.safeParse({
         id: "quiz",
@@ -202,6 +202,43 @@ describe("courseManifestSchema", () => {
             prompt: "?",
             choices: [
               { id: "a", text: "A" },
+              { id: "b", text: "B" },
+            ],
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts multi-select questions with multiple correct choices", () => {
+    const result = assessmentSchema.safeParse({
+      id: "quiz",
+      questions: [
+        {
+          id: "q1",
+          prompt: "Select all",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "b", text: "B", correct: true },
+            { id: "c", text: "C" },
+          ],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects multi-select with fewer than two correct choices", () => {
+    expect(
+      assessmentSchema.safeParse({
+        id: "quiz",
+        questions: [
+          {
+            id: "q1",
+            prompt: "Select all",
+            selectionMode: "multiple",
+            choices: [
+              { id: "a", text: "A", correct: true },
               { id: "b", text: "B" },
             ],
           },
