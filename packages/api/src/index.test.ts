@@ -81,6 +81,58 @@ describe("@lxpack/api", () => {
     await rm(courseDir, { recursive: true, force: true });
   });
 
+  it("builds with injected multi-select assessments and array answer keys", async () => {
+    const { mkdtemp, cp, rm, writeFile, readFile } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-api-multiselect-"));
+    await cp(fixturePath("minimal-valid"), courseDir, { recursive: true });
+    await rm(join(courseDir, "assessments"), { recursive: true, force: true });
+    await writeFile(
+      join(courseDir, "course.yaml"),
+      `title: Multi Injected\nversion: 1.0.0\nlessons:\n  - id: intro\n    type: markdown\n    file: lessons/intro.md\nassessments:\n  - id: quiz\n    file: assessments/quiz.yaml\n`,
+    );
+
+    const result = await buildCourse({
+      courseDir,
+      target: "standalone",
+      dir: true,
+      output: "out",
+      assessments: [
+        {
+          id: "quiz",
+          passingScore: 0.7,
+          questions: [
+            {
+              id: "q1",
+              prompt: "Select all",
+              choices: [
+                { id: "a", text: "A", correct: true },
+                { id: "b", text: "B" },
+                { id: "c", text: "C", correct: true },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok && result.outputDir) {
+      const html = await readFile(join(result.outputDir, "index.html"), "utf-8");
+      const configMatch = html.match(
+        /<script type="application\/json" id="lxpack-config">([\s\S]*?)<\/script>/,
+      );
+      const config = JSON.parse(configMatch![1]!) as {
+        answerKeys?: Record<string, Record<string, string | string[]>>;
+      };
+      expect(config.answerKeys?.quiz?.q1).toEqual(["a", "c"]);
+    }
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
   it("merges lessonkit.json spa lessons into the manifest", async () => {
     const { mkdtemp, cp, rm, writeFile, mkdir } = await import("node:fs/promises");
     const { tmpdir } = await import("node:os");

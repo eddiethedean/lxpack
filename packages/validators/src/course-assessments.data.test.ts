@@ -48,6 +48,42 @@ describe("loadParsedAssessmentsFromData", () => {
 });
 
 describe("buildRuntimeAssessmentBundleFromData", () => {
+  it("round-trips injected multi-select assessments to array answer keys", () => {
+    const manifest = {
+      title: "T",
+      version: "1.0.0",
+      lessons: [{ id: "intro", type: "markdown", file: "lessons/intro.md" }],
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    } as const;
+
+    const result = buildRuntimeAssessmentBundleFromData(manifest as never, [
+      {
+        id: "quiz",
+        passingScore: 0.7,
+        questions: [
+          {
+            id: "q1",
+            prompt: "Select all",
+            choices: [
+              { id: "a", text: "A", correct: true },
+              { id: "b", text: "B" },
+              { id: "c", text: "C", correct: true },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    expect(result.issues.filter((i) => i.severity === "error")).toHaveLength(0);
+    expect(result.bundle?.answerKeys.quiz.q1).toEqual(["a", "c"]);
+    expect(result.bundle?.assessments.quiz.questions[0]?.selectionMode).toBe(
+      "multiple",
+    );
+    expect(JSON.stringify(result.bundle?.assessments.quiz)).not.toContain(
+      '"correct"',
+    );
+  });
+
   it("returns errors when injected data is invalid", () => {
     const manifest = {
       title: "T",

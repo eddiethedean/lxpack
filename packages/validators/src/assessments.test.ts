@@ -122,6 +122,25 @@ describe("toLearnerAssessment", () => {
     expect(config.maxAttempts).toBe(1);
   });
 
+  it("keeps string answer keys for single-select questions (backward compatible)", () => {
+    const assessment = assessmentSchema.parse({
+      id: "quiz",
+      questions: [
+        {
+          id: "q1",
+          prompt: "Pick one",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "b", text: "B" },
+          ],
+        },
+      ],
+    });
+    const { answerKey } = toLearnerAssessment(assessment);
+    expect(answerKey.q1).toBe("a");
+    expect(Array.isArray(answerKey.q1)).toBe(false);
+  });
+
   it("builds array answer keys for multi-select questions", () => {
     const assessment = assessmentSchema.parse({
       id: "quiz",

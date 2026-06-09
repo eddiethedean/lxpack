@@ -48,6 +48,38 @@ describe("buildIndexHtml", () => {
     expect(html).toContain('id="lxpack-config"');
   });
 
+  it("embeds multi-select array answer keys in config JSON", () => {
+    const html = buildIndexHtml({
+      manifest: { title: "T", version: "1.0.0", lessons: manifest.lessons },
+      runtimeCss: "",
+      mode: "scorm12",
+      assessmentBundle: {
+        assessments: {
+          quiz: {
+            id: "quiz",
+            passingScore: 0.7,
+            questions: [
+              {
+                id: "q1",
+                prompt: "Select all",
+                selectionMode: "multiple",
+                choices: [
+                  { id: "a", text: "A" },
+                  { id: "c", text: "C" },
+                ],
+              },
+            ],
+          },
+        },
+        answerKeys: { quiz: { q1: ["a", "c"] } },
+      },
+    });
+    expect(html).toContain('"answerKeys"');
+    expect(html).toContain('"a"');
+    expect(html).toContain('"c"');
+    expect(html).not.toMatch(/<script[^>]*>[\s\S]*<\/script><img/);
+  });
+
   it("embeds assessment bundle in config when provided", () => {
     const html = buildIndexHtml({
       manifest: { title: "T", version: "1.0.0", lessons: manifest.lessons },

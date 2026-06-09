@@ -51,6 +51,7 @@ Default targets: `standalone`, `scorm12`, `scorm2004`, `xapi`, `cmi5`.
 | `runConformanceMatrix(options?)` | Run `packageLessonkit()` for each target; returns per-target pass/fail |
 | `DEFAULT_CONFORMANCE_TARGETS` | Default export target list |
 | `conformanceInterchange()` | Minimal v1 `lessonkit.json` payload for tests |
+| `conformanceMultiSelectInterchange()` | Same fixture with inline multi-select MCQ for answer-key bundle tests |
 | `conformanceSpaDir()` | Path to bundled SPA fixture HTML |
 
 ## Development
