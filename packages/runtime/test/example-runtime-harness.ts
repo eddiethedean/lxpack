@@ -270,7 +270,9 @@ export function expectAssessmentPassed(
 
 export async function submitQuizWithSelections(
   selections: Record<string, string[]>,
+  options: { waitForResult?: boolean } = {},
 ): Promise<void> {
+  const { waitForResult = true } = options;
   await waitForSelector(".lxpack-assessment form");
   for (const [questionId, choiceIds] of Object.entries(selections)) {
     for (const choiceId of choiceIds) {
@@ -288,6 +290,7 @@ export async function submitQuizWithSelections(
   (
     document.querySelector(".lxpack-assessment form") as HTMLFormElement
   ).requestSubmit();
+  if (!waitForResult) return;
   await vi.waitFor(
     () => {
       const text = document.body.textContent ?? "";
@@ -299,12 +302,14 @@ export async function submitQuizWithSelections(
 
 export async function submitQuizWithAnswerKey(
   answerKey: Record<string, string | string[]>,
+  options: { waitForResult?: boolean } = {},
 ): Promise<void> {
   const selections: Record<string, string[]> = {};
   for (const [questionId, choiceIds] of Object.entries(answerKey)) {
     selections[questionId] = Array.isArray(choiceIds) ? choiceIds : [choiceIds];
   }
-  await submitQuizWithSelections(selections);
+  await submitQuizWithSelections(selections, options);
+  if (options.waitForResult === false) return;
   await vi.waitFor(
     () => {
       const result = document.querySelector(".lxpack-assessment-result");
