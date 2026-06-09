@@ -136,6 +136,61 @@ describe("renderAssessment", () => {
     expect(contentEl.textContent).toContain("Passed!");
   });
 
+  it("adds aria-live to feedback when showFeedback is configured", () => {
+    const contentEl = document.createElement("div");
+    renderAssessment(
+      contentEl,
+      {
+        ...assessment,
+        config: { maxAttempts: 1, shuffleChoices: false, showFeedback: "immediate" },
+      },
+      { q1: "a" },
+      mockRuntime(),
+      vi.fn(),
+    );
+    const feedbackEl = contentEl.querySelector("#lxpack-assessment-feedback");
+    expect(feedbackEl?.getAttribute("aria-live")).toBe("polite");
+  });
+
+  it("submits multi-select with partial credit and passes when threshold met", () => {
+    const contentEl = document.createElement("div");
+    const runtime = mockRuntime();
+    renderAssessment(
+      contentEl,
+      {
+        id: "quiz",
+        title: "Quiz",
+        passingScore: 0.5,
+        questions: [
+          {
+            id: "q1",
+            prompt: "Select all",
+            selectionMode: "multiple",
+            choices: [
+              { id: "a", text: "A" },
+              { id: "b", text: "B" },
+              { id: "c", text: "C" },
+            ],
+          },
+        ],
+        config: { maxAttempts: 1, shuffleChoices: false, showFeedback: "never" },
+      },
+      { q1: ["a", "b"] },
+      runtime,
+      vi.fn(),
+    );
+    for (const id of ["a", "b"]) {
+      const input = contentEl.querySelector(
+        `input[value="${id}"]`,
+      ) as HTMLInputElement;
+      input.checked = true;
+    }
+    contentEl.querySelector("form")?.dispatchEvent(
+      new Event("submit", { cancelable: true }),
+    );
+    expect(runtime.submitAssessment).toHaveBeenCalledWith("quiz", 1, 0.5);
+  });
+
   it("renders checkboxes for multi-select questions", () => {
     const contentEl = document.createElement("div");
     renderAssessment(
