@@ -82,7 +82,7 @@ lxpack validate
 
 - `course.yaml` schema (Zod, strict)
 - Lesson types: `markdown` (`file`), `html` (`path`)
-- Assessment YAML structure (MCQ; one correct choice per question)
+- Assessment YAML structure (MCQ; single- or multi-select with at least one correct choice per question)
 - Duplicate lesson ID detection
 - Referenced files exist on disk
 - Path containment (including symlink escape checks)

@@ -101,6 +101,48 @@ Required for `build --target xapi|cmi5`: HTTPS `activityIri`.
 
 Implementers: [Developer SPEC](../developer/SPEC.md).
 
+## Assessments (author YAML)
+
+Referenced from `course.yaml` via `assessments[].file`. Author files live under `assessments/` and are **not** shipped in export ZIPs — keys are embedded at build time.
+
+```yaml
+id: hazards_quiz
+title: Select all risks
+passingScore: 0.7
+questions:
+  - id: q1
+    prompt: Select all social-engineering risks
+    choices:
+      - id: phishing
+        text: Phishing email
+        correct: true
+      - id: portal
+        text: IT service portal
+      - id: tailgating
+        text: Tailgating
+        correct: true
+```
+
+### Question fields
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique question id |
+| `prompt` | Question text |
+| `choices` | At least one choice; each needs unique `id` and `text` |
+| `correct` | Mark one or more choices `correct: true` |
+| `selectionMode` | Optional `single` or `multiple`. Omitted: infer from correct count (`1` → single, `2+` → multiple) |
+| `explanation` | Optional feedback text (embedded at build) |
+
+### Validation rules
+
+- At least one `correct: true` per question
+- `selectionMode: single` requires exactly one correct choice
+- `selectionMode: multiple` (or inferred multi-select) requires at least two correct choices
+- `passingScore` is a fraction from 0 to 1
+
+See [Quizzes and assessments](../guides/quizzes-and-assessments.md) for scoring semantics.
+
 ## Related
 
 - [Lesson types](lesson-types.md)

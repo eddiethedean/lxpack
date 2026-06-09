@@ -29,9 +29,30 @@ questions:
         text: Wrong answer
 ```
 
+## Multi-select (select all that apply)
+
+Mark **two or more** choices `correct: true`, or set `selectionMode: multiple`:
+
+```yaml
+questions:
+  - id: q1
+    prompt: Select all risks
+    choices:
+      - id: phishing
+        text: Phishing email
+        correct: true
+      - id: tailgating
+        text: Tailgating
+        correct: true
+      - id: portal
+        text: IT service portal
+```
+
 ## Validation rules
 
-- Exactly one `correct: true` per question
+- At least one `correct: true` per question
+- `selectionMode: single` requires exactly one correct choice
+- `selectionMode: multiple` (or inferred from 2+ correct) requires at least two correct choices
 - Unique `id` per question and per choice within a question
 - `passingScore` between 0 and 1
 
