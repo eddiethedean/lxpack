@@ -261,6 +261,58 @@ assessments:
     await rm(courseDir, { recursive: true, force: true });
   });
 
+  it("validateCourseWithInterchange rejects undeclared injected assessments", async () => {
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-extra-"));
+    await cp(fixturePath("minimal-valid"), courseDir, { recursive: true });
+    await rm(join(courseDir, "assessments"), { recursive: true, force: true });
+    await writeFile(
+      join(courseDir, "course.yaml"),
+      `title: Minimal Injected
+version: 1.0.0
+lessons:
+  - id: intro
+    type: markdown
+    file: lessons/intro.md
+assessments:
+  - id: quiz
+    file: assessments/quiz.yaml
+`,
+    );
+
+    const quizAssessment = {
+      id: "quiz",
+      title: "Quiz",
+      passingScore: 0.7,
+      questions: [
+        {
+          id: "q1",
+          prompt: "One?",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "b", text: "B", correct: false },
+          ],
+        },
+      ],
+    };
+
+    const result = await validateCourseWithInterchange(courseDir, {
+      assessmentData: [
+        quizAssessment,
+        { ...quizAssessment, id: "secret_admin_quiz" },
+      ],
+    });
+
+    expect(result.valid).toBe(false);
+    expect(
+      result.issues.some(
+        (i) =>
+          i.severity === "error" && i.path === "assessments.secret_admin_quiz",
+      ),
+    ).toBe(true);
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
   it("validateCourseWithInterchange returns manifest parse errors after merge", async () => {
     const courseDir = await mkdtemp(join(tmpdir(), "lxpack-ix-parse-"));
     await writeFile(

@@ -81,6 +81,58 @@ describe("@lxpack/api", () => {
     await rm(courseDir, { recursive: true, force: true });
   });
 
+  it("rejects undeclared injected assessments", async () => {
+    const { mkdtemp, cp, rm, writeFile } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+
+    const courseDir = await mkdtemp(join(tmpdir(), "lxpack-api-extra-assess-"));
+    await cp(fixturePath("minimal-valid"), courseDir, { recursive: true });
+    await rm(join(courseDir, "assessments"), { recursive: true, force: true });
+    await writeFile(
+      join(courseDir, "course.yaml"),
+      `title: Minimal Injected\nversion: 1.0.0\nlessons:\n  - id: intro\n    type: markdown\n    file: lessons/intro.md\nassessments:\n  - id: quiz\n    file: assessments/quiz.yaml\n`,
+    );
+
+    const quizAssessment = {
+      id: "quiz",
+      title: "Quiz",
+      passingScore: 0.7,
+      questions: [
+        {
+          id: "q1",
+          prompt: "One?",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "b", text: "B", correct: false },
+          ],
+        },
+      ],
+    };
+
+    const extraAssessments = [
+      quizAssessment,
+      { ...quizAssessment, id: "secret_admin_quiz" },
+    ];
+
+    const build = await buildCourse({
+      courseDir,
+      target: "standalone",
+      dir: true,
+      output: "out",
+      assessments: extraAssessments,
+    });
+    expect(build.ok).toBe(false);
+    expect(
+      build.issues.some(
+        (i) =>
+          i.severity === "error" && i.path === "assessments.secret_admin_quiz",
+      ),
+    ).toBe(true);
+
+    await rm(courseDir, { recursive: true, force: true });
+  });
+
   it("builds with injected multi-select assessments and array answer keys", async () => {
     const { mkdtemp, cp, rm, writeFile, readFile } = await import("node:fs/promises");
     const { tmpdir } = await import("node:os");
