@@ -226,6 +226,44 @@ describe("flow", () => {
     ).toBe(true);
   });
 
+  it("does not apply variable-only rules without from from unrelated activities", () => {
+    const flowManifest = {
+      title: "T",
+      version: "1",
+      lessons: [
+        { id: "intro", type: "markdown" as const, file: "intro.md" },
+        { id: "advanced_lab", type: "markdown" as const, file: "advanced.md" },
+      ],
+      variables: { path: { default: "intro", type: "string" as const } },
+      flow: [
+        {
+          when: { variable: { eq: ["path", "advanced"] } },
+          goto: "advanced_lab",
+        },
+      ],
+    };
+    const ctx = {
+      getVariable: (n: string) => (n === "path" ? "advanced" : undefined),
+      isAssessmentPassed: () => false,
+      isInteractionDone: () => false,
+    };
+    expect(resolveFlowGoto(flowManifest, ctx, "intro")).toBeNull();
+    expect(resolveFlowGoto(flowManifest, ctx, "advanced_lab")).toBeNull();
+
+    const withFrom = {
+      ...flowManifest,
+      flow: [
+        {
+          from: "intro",
+          when: { variable: { eq: ["path", "advanced"] } },
+          goto: "advanced_lab",
+        },
+      ],
+    };
+    expect(resolveFlowGoto(withFrom, ctx, "intro")).toBe("advanced_lab");
+    expect(resolveFlowGoto(withFrom, ctx, "advanced_lab")).toBeNull();
+  });
+
   it("uses linear next when flow goto is the current activity", () => {
     const ctx = {
       getVariable: () => true,
@@ -237,7 +275,7 @@ describe("flow", () => {
       flow: [{ when: { variable: { eq: ["flag", true] } }, goto: "a" }],
     };
     expect(resolveNextActivityId(withSelfGoto, "a", ctx)).toBe("b");
-    expect(resolveFlowGoto(withSelfGoto, ctx, "a")).toBe("a");
+    expect(resolveFlowGoto(withSelfGoto, ctx, "a")).toBeNull();
   });
 
   it("returns explicit flow target when it differs from current", () => {

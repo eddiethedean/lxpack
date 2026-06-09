@@ -15,7 +15,9 @@ describe("client navigation fallbacks", () => {
           { id: "c", type: "markdown", file: "lessons/c.md" },
         ],
         variables: { path: { default: "a", type: "string" } },
-        flow: [{ when: { variable: { eq: ["path", "jump"] } }, goto: "c" }],
+        flow: [
+          { from: "a", when: { variable: { eq: ["path", "jump"] } }, goto: "c" },
+        ],
       },
       baseUrl: "/course",
       mode: "preview",

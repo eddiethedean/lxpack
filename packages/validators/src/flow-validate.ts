@@ -249,7 +249,7 @@ function ruleAppliesFromActivity(
   if (inferred.size > 0) {
     return inferred.has(currentActivityId);
   }
-  return true;
+  return false;
 }
 
 function conditionCouldApplyAt(
