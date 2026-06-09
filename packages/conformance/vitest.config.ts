@@ -3,6 +3,7 @@ import { coverageConfig } from "../../vitest.shared.ts";
 
 export default defineConfig({
   test: {
+    setupFiles: ["./test/setup-dom.ts"],
     testTimeout: 120_000,
     coverage: {
       ...coverageConfig,

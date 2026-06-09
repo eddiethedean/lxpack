@@ -44,6 +44,10 @@ if (!result.ok) {
 
 Default targets: `standalone`, `scorm12`, `scorm2004`, `xapi`, `cmi5`.
 
+### Multi-select MCQ conformance
+
+Canonical fixture: `test/fixtures/multi-select-valid/` (validate → SCORM 1.2/2004 build → happy-dom quiz pass/fail). LessonKit `@lessonkit/lxpack` can map `answers: string[]` descriptors to the same assessment shape for shell injection.
+
 ## Exports
 
 | Export | Description |

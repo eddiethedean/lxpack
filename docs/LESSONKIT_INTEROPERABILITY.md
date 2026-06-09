@@ -183,6 +183,8 @@ LessonKit runs LXPack conformance in CI (`npm run conformance:lxpack`). LXPack m
 pnpm --filter @lxpack/conformance test
 ```
 
+**Multi-select MCQ:** `@lessonkit/lxpack` can map `answers: string[]` on `Quiz` / `KnowledgeCheck` descriptors to assessment YAML with multiple `correct: true` flags (same shape as `test/fixtures/multi-select-valid/`). LXPack conformance tests validate → SCORM 1.2/2004 build → learner-shell pass/fail scoring.
+
 Validate against the golden example:
 
 ```bash
