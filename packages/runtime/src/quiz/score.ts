@@ -1,21 +1,54 @@
-import type { LearnerAssessment } from "@lxpack/validators";
+import type { AnswerKeyValue, LearnerAssessment, LearnerQuestion } from "@lxpack/validators";
+
+function isMultipleQuestion(
+  question: LearnerQuestion,
+  answerKey: AnswerKeyValue | undefined,
+): boolean {
+  return (
+    question.selectionMode === "multiple" || Array.isArray(answerKey)
+  );
+}
+
+function scoreQuestion(
+  question: LearnerQuestion,
+  answerKey: AnswerKeyValue | undefined,
+  form: HTMLFormElement,
+): number {
+  if (!answerKey) return 0;
+
+  if (!isMultipleQuestion(question, answerKey)) {
+    const correctId = Array.isArray(answerKey) ? answerKey[0] : answerKey;
+    const selected = form.querySelector(
+      `input[name="q-${question.id}"]:checked`,
+    ) as HTMLInputElement | null;
+    return selected && correctId && selected.value === correctId ? 1 : 0;
+  }
+
+  const correctIds = new Set(
+    Array.isArray(answerKey) ? answerKey : [answerKey],
+  );
+  const selected = Array.from(
+    form.querySelectorAll(`input[name="q-${question.id}"]:checked`),
+  ).map((el) => (el as HTMLInputElement).value);
+
+  if (selected.some((id) => !correctIds.has(id))) {
+    return 0;
+  }
+
+  const correctSelected = selected.filter((id) => correctIds.has(id)).length;
+  return correctIds.size ? correctSelected / correctIds.size : 0;
+}
 
 export function scoreAssessmentForm(
   assessment: LearnerAssessment,
-  answerKey: Record<string, string>,
+  answerKey: Record<string, AnswerKeyValue>,
   form: HTMLFormElement,
 ): number {
-  let correct = 0;
+  let total = 0;
   for (const q of assessment.questions) {
-    const selected = form.querySelector(
-      `input[name="q-${q.id}"]:checked`,
-    ) as HTMLInputElement | null;
-    const correctId = answerKey[q.id];
-    if (selected && correctId && selected.value === correctId) {
-      correct++;
-    }
+    total += scoreQuestion(q, answerKey[q.id], form);
   }
-  return assessment.questions.length ? correct / assessment.questions.length : 0;
+  return assessment.questions.length ? total / assessment.questions.length : 0;
 }
 
 export function shuffleQuestions<T>(items: T[]): T[] {

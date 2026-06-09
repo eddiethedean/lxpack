@@ -30,6 +30,21 @@ describe("buildRuntimeAssessmentBundle", () => {
     expect(bundle.assessments).toEqual({});
   });
 
+  it("builds multi-select answer keys from fixture assessments", async () => {
+    const bundle = await buildRuntimeAssessmentBundle(
+      fixturePath("multi-select-valid"),
+      {
+        title: "T",
+        version: "1.0.0",
+        lessons: [{ id: "intro", type: "markdown", file: "lessons/intro.md" }],
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+      },
+    );
+
+    expect(bundle.answerKeys.quiz.q1).toEqual(["a", "c"]);
+    expect(bundle.assessments.quiz.questions[0]?.selectionMode).toBe("multiple");
+  });
+
   it("strips correct flags from learner assessments", async () => {
     const bundle = await buildRuntimeAssessmentBundle(
       fixturePath("minimal-valid"),
@@ -105,6 +120,26 @@ describe("toLearnerAssessment", () => {
     expect(learner.questions[0]?.choices[0]).toEqual({ id: "a", text: "A" });
     expect(feedback.q1).toBeUndefined();
     expect(config.maxAttempts).toBe(1);
+  });
+
+  it("builds array answer keys for multi-select questions", () => {
+    const assessment = assessmentSchema.parse({
+      id: "quiz",
+      questions: [
+        {
+          id: "q1",
+          prompt: "Select all",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "b", text: "B", correct: true },
+            { id: "c", text: "C" },
+          ],
+        },
+      ],
+    });
+    const { learner, answerKey } = toLearnerAssessment(assessment);
+    expect(answerKey.q1).toEqual(["a", "b"]);
+    expect(learner.questions[0]?.selectionMode).toBe("multiple");
   });
 
   it("embeds explanations and assessment options in bundle metadata", () => {

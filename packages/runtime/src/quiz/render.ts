@@ -1,9 +1,17 @@
+import type { AnswerKeyValue } from "@lxpack/validators";
 import type { AssessmentHost } from "./host.js";
 import {
   DEFAULT_ASSESSMENT_CONFIG,
   type RuntimeAssessmentPayload,
 } from "./types.js";
 import { scoreAssessmentForm, shuffleQuestions } from "./score.js";
+
+function isMultipleQuestion(
+  selectionMode: "single" | "multiple" | undefined,
+  answerKey: AnswerKeyValue | undefined,
+): boolean {
+  return selectionMode === "multiple" || Array.isArray(answerKey);
+}
 
 function escapeHtml(text: string): string {
   const div = document.createElement("div");
@@ -14,7 +22,7 @@ function escapeHtml(text: string): string {
 export function renderAssessment(
   contentEl: HTMLElement,
   payload: RuntimeAssessmentPayload,
-  answerKey: Record<string, string>,
+  answerKey: Record<string, AnswerKeyValue>,
   runtime: AssessmentHost,
   onSubmitted: () => void,
 ): void {
@@ -66,14 +74,22 @@ export function renderAssessment(
 
   const questionsHtml = questions
     .map(
-      (q, qi) => `
+      (q, qi) => {
+        const multiple = isMultipleQuestion(q.selectionMode, answerKey[q.id]);
+        const inputType = multiple ? "checkbox" : "radio";
+        return `
       <fieldset class="lxpack-question" data-question-id="${escapeHtml(q.id)}">
         <legend>${qi + 1}. ${escapeHtml(q.prompt)}</legend>
+        ${
+          multiple
+            ? `<p class="lxpack-hint lxpack-select-all-hint">Select all that apply.</p>`
+            : ""
+        }
         ${q.choices
           .map(
             (c) => `
           <label class="lxpack-choice">
-            <input type="radio" name="q-${escapeHtml(q.id)}" value="${escapeHtml(c.id)}" />
+            <input type="${inputType}" name="q-${escapeHtml(q.id)}" value="${escapeHtml(c.id)}" />
             ${escapeHtml(c.text)}
           </label>
         `,
@@ -85,7 +101,8 @@ export function renderAssessment(
             : ""
         }
       </fieldset>
-    `,
+    `;
+      },
     )
     .join("");
 
@@ -114,6 +131,7 @@ export function renderAssessment(
 
   if (config.showFeedback === "immediate") {
     form.querySelectorAll('input[type="radio"]').forEach((input) => {
+      // Multi-select questions require explicit submit before feedback.
       input.addEventListener("change", () => {
         const el = input as HTMLInputElement;
         const qid = el.name.replace(/^q-/, "");

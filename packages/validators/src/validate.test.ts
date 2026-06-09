@@ -61,6 +61,12 @@ describe("validateCourse", () => {
     expect(result.manifest?.lessons).toHaveLength(2);
   });
 
+  it("passes for multi-select assessment fixtures", async () => {
+    const result = await validateCourse(fixturePath("multi-select-valid"));
+    expect(result.valid).toBe(true);
+    expect(result.issues).toHaveLength(0);
+  });
+
   it("reports missing markdown lesson files", async () => {
     const result = await validateCourse(fixturePath("missing-markdown"));
     expect(result.valid).toBe(false);

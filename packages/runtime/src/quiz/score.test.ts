@@ -47,6 +47,81 @@ describe("scoreAssessmentForm", () => {
     const score = scoreAssessmentForm(assessment, {}, form);
     expect(score).toBe(0);
   });
+
+  it("scores multi-select with partial credit when no incorrect choices", () => {
+    const multiAssessment = {
+      id: "quiz",
+      passingScore: 0.7,
+      questions: [
+        {
+          id: "q1",
+          prompt: "Select all",
+          selectionMode: "multiple" as const,
+          choices: [
+            { id: "a", text: "A" },
+            { id: "b", text: "B" },
+            { id: "c", text: "C" },
+          ],
+        },
+      ],
+    };
+    const form = document.createElement("form");
+    form.innerHTML = `
+      <input type="checkbox" name="q-q1" value="a" checked />
+      <input type="checkbox" name="q-q1" value="b" checked />
+    `;
+    const score = scoreAssessmentForm(multiAssessment, { q1: ["a", "b"] }, form);
+    expect(score).toBe(1);
+  });
+
+  it("scores zero for multi-select when an incorrect choice is selected", () => {
+    const multiAssessment = {
+      id: "quiz",
+      passingScore: 0.7,
+      questions: [
+        {
+          id: "q1",
+          prompt: "Select all",
+          selectionMode: "multiple" as const,
+          choices: [
+            { id: "a", text: "A" },
+            { id: "b", text: "B" },
+            { id: "c", text: "C" },
+          ],
+        },
+      ],
+    };
+    const form = document.createElement("form");
+    form.innerHTML = `
+      <input type="checkbox" name="q-q1" value="a" checked />
+      <input type="checkbox" name="q-q1" value="c" checked />
+    `;
+    const score = scoreAssessmentForm(multiAssessment, { q1: ["a", "b"] }, form);
+    expect(score).toBe(0);
+  });
+
+  it("scores partial credit for multi-select with subset of correct choices", () => {
+    const multiAssessment = {
+      id: "quiz",
+      passingScore: 0.7,
+      questions: [
+        {
+          id: "q1",
+          prompt: "Select all",
+          selectionMode: "multiple" as const,
+          choices: [
+            { id: "a", text: "A" },
+            { id: "b", text: "B" },
+            { id: "c", text: "C" },
+          ],
+        },
+      ],
+    };
+    const form = document.createElement("form");
+    form.innerHTML = `<input type="checkbox" name="q-q1" value="a" checked />`;
+    const score = scoreAssessmentForm(multiAssessment, { q1: ["a", "b"] }, form);
+    expect(score).toBe(0.5);
+  });
 });
 
 describe("getAttemptCount", () => {

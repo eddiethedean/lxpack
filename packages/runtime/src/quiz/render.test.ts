@@ -136,6 +136,35 @@ describe("renderAssessment", () => {
     expect(contentEl.textContent).toContain("Passed!");
   });
 
+  it("renders checkboxes for multi-select questions", () => {
+    const contentEl = document.createElement("div");
+    renderAssessment(
+      contentEl,
+      {
+        id: "quiz",
+        title: "Quiz",
+        passingScore: 0.5,
+        questions: [
+          {
+            id: "q1",
+            prompt: "Select all",
+            selectionMode: "multiple",
+            choices: [
+              { id: "a", text: "A" },
+              { id: "b", text: "B" },
+            ],
+          },
+        ],
+        config: { maxAttempts: 1, shuffleChoices: false, showFeedback: "never" },
+      },
+      { q1: ["a", "b"] },
+      mockRuntime(),
+      vi.fn(),
+    );
+    expect(contentEl.querySelector('input[type="checkbox"]')).toBeTruthy();
+    expect(contentEl.textContent).toContain("Select all that apply");
+  });
+
   it("shows end feedback and removes submit when attempts are exhausted", () => {
     const contentEl = document.createElement("div");
     const runtime = mockRuntime();

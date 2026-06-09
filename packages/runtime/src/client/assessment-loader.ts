@@ -1,8 +1,10 @@
 import { parse as parseYaml } from "yaml";
 import type {
+  AnswerKeyValue,
   AssessmentRuntimeConfig,
   LearnerAssessment,
   QuestionFeedback,
+  SelectionMode,
 } from "@lxpack/validators";
 import type { RuntimeConfig } from "../types.js";
 import type { RuntimeAssessmentPayload } from "../quiz/types.js";
@@ -15,7 +17,7 @@ export async function loadAssessment(
   file: string,
 ): Promise<{
   assessment: LearnerAssessment;
-  answerKey: Record<string, string>;
+  answerKey: Record<string, AnswerKeyValue>;
   payload?: RuntimeAssessmentPayload;
 }> {
   const embedded = config.assessments?.[assessmentId];
@@ -61,17 +63,23 @@ export async function loadAssessment(
       id: string;
       prompt: string;
       explanation?: string;
+      selectionMode?: SelectionMode;
       choices: Array<{ id: string; text: string; correct?: boolean }>;
     }>;
   };
 
-  const answerKey: Record<string, string> = {};
+  const answerKey: Record<string, AnswerKeyValue> = {};
   for (const q of raw.questions ?? []) {
-    const correct = q.choices?.find(
+    const correctChoices = (q.choices ?? []).filter(
       (c) => "correct" in c && c.correct === true,
     );
-    if (correct) {
-      answerKey[q.id] = correct.id;
+    const selectionMode =
+      q.selectionMode ??
+      (correctChoices.length > 1 ? ("multiple" as const) : ("single" as const));
+    if (selectionMode === "multiple") {
+      answerKey[q.id] = correctChoices.map((c) => c.id);
+    } else if (correctChoices[0]) {
+      answerKey[q.id] = correctChoices[0].id;
     }
   }
 
@@ -79,11 +87,20 @@ export async function loadAssessment(
     id: raw.id ?? assessmentId,
     title: raw.title,
     passingScore: raw.passingScore ?? 0.7,
-    questions: (raw.questions ?? []).map((q) => ({
-      id: q.id,
-      prompt: q.prompt,
-      choices: q.choices.map((c) => ({ id: c.id, text: c.text })),
-    })),
+    questions: (raw.questions ?? []).map((q) => {
+      const correctChoices = (q.choices ?? []).filter(
+        (c) => "correct" in c && c.correct === true,
+      );
+      const selectionMode =
+        q.selectionMode ??
+        (correctChoices.length > 1 ? ("multiple" as const) : ("single" as const));
+      return {
+        id: q.id,
+        prompt: q.prompt,
+        choices: q.choices.map((c) => ({ id: c.id, text: c.text })),
+        selectionMode,
+      };
+    }),
   };
 
   const assessmentConfig: AssessmentRuntimeConfig = {

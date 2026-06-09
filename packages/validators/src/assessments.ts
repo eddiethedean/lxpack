@@ -5,10 +5,15 @@ export interface LearnerChoice {
   text: string;
 }
 
+export type SelectionMode = "single" | "multiple";
+
+export type AnswerKeyValue = string | string[];
+
 export interface LearnerQuestion {
   id: string;
   prompt: string;
   choices: LearnerChoice[];
+  selectionMode?: SelectionMode;
 }
 
 export interface LearnerAssessment {
@@ -30,23 +35,36 @@ export interface QuestionFeedback {
 
 export interface RuntimeAssessmentBundle {
   assessments: Record<string, LearnerAssessment>;
-  answerKeys: Record<string, Record<string, string>>;
+  answerKeys: Record<string, Record<string, AnswerKeyValue>>;
   configs: Record<string, AssessmentRuntimeConfig>;
   feedback: Record<string, QuestionFeedback>;
 }
 
+function resolveSelectionMode(
+  question: Assessment["questions"][number],
+  correctChoices: Array<{ id: string }>,
+): SelectionMode {
+  return (
+    question.selectionMode ??
+    (correctChoices.length > 1 ? "multiple" : "single")
+  );
+}
+
 export function toLearnerAssessment(assessment: Assessment): {
   learner: LearnerAssessment;
-  answerKey: Record<string, string>;
+  answerKey: Record<string, AnswerKeyValue>;
   config: AssessmentRuntimeConfig;
   feedback: QuestionFeedback;
 } {
-  const answerKey: Record<string, string> = {};
+  const answerKey: Record<string, AnswerKeyValue> = {};
   const feedback: QuestionFeedback = {};
   const questions: LearnerQuestion[] = assessment.questions.map((q) => {
-    const correct = q.choices.find((c) => c.correct === true);
-    if (correct) {
-      answerKey[q.id] = correct.id;
+    const correctChoices = q.choices.filter((c) => c.correct === true);
+    const selectionMode = resolveSelectionMode(q, correctChoices);
+    if (selectionMode === "multiple") {
+      answerKey[q.id] = correctChoices.map((c) => c.id);
+    } else if (correctChoices[0]) {
+      answerKey[q.id] = correctChoices[0].id;
     }
     if (q.explanation) {
       feedback[q.id] = q.explanation;
@@ -55,6 +73,7 @@ export function toLearnerAssessment(assessment: Assessment): {
       id: q.id,
       prompt: q.prompt,
       choices: q.choices.map((c) => ({ id: c.id, text: c.text })),
+      selectionMode,
     };
   });
 
