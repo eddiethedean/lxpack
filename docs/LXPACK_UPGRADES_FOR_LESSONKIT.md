@@ -31,7 +31,7 @@ LessonKit’s **shipped** path:
 3. Build with Vite (`lessonkit build` → `dist/`).
 4. Package with **`@lessonkit/lxpack`** (`packageLessonkitCourse`) or **`lessonkit package --target scorm12`**.
 
-LXPack validates, runs the learner shell, and emits SCORM/xAPI/cmi5 artifacts via `@lxpack/api` **0.6.4+**.
+LXPack validates, runs the learner shell, and emits SCORM/xAPI/cmi5 artifacts via `@lxpack/api` **0.7.0+**.
 
 See [LessonKit packaging](https://lessonkit.readthedocs.io/en/latest/reference/packaging.html) and [examples/lxpack-golden](https://github.com/eddiethedean/lessonkit/tree/main/examples/lxpack-golden).
 

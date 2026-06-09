@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/validators",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "description": "Course manifest validation for LXPack",
   "license": "Apache-2.0",
   "repository": {

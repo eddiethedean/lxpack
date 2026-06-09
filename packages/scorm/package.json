@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/scorm",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "description": "SCORM and standalone HTML export for LXPack",
   "license": "Apache-2.0",
   "repository": {

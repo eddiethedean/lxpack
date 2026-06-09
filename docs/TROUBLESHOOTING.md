@@ -34,7 +34,7 @@ Plain-language fixes for common `lxpack validate` and `lxpack build` messages.
 
 | Problem | Fix |
 |---------|-----|
-| React course packaging | Use [LessonKit 1.0](https://github.com/eddiethedean/lessonkit): `lessonkit package --target scorm12` (requires `@lxpack/api` **0.6.4+**, Node **18+**) |
+| React course packaging | Use [LessonKit 1.0](https://github.com/eddiethedean/lessonkit): `lessonkit package --target scorm12` (requires `@lxpack/api` **0.7.0+**, Node **18+**) |
 | `lxpack build --lessonkit` ignores project `lxpack.config.json` | Keep `lxpack.config.json` in the **same folder as `lessonkit.json`** (v0.6.1+), or pass `configDir` to `packageLessonkit()` |
 | `lessonkit.json` appears inside LMS ZIP | Upgrade to v0.6.1+; interchange files are author metadata and are excluded from exports |
 

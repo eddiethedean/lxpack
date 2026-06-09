@@ -41,7 +41,7 @@ Verify:
 lxpack --version
 ```
 
-**Success looks like:** a version number (for example `0.6.4`), not “command not found.”
+**Success looks like:** a version number (for example `0.7.0`), not “command not found.”
 
 Details: [Install the CLI](install-cli.md).
 

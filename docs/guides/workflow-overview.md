@@ -68,5 +68,5 @@ See [Build courses](build-overview.md) for lesson, quiz, and export depth. For A
 - [Prompts for Claude & Cursor](prompts-for-claude.md)
 - [Library Skills](library-skills.md)
 
-!!! info "v0.6.4 / LessonKit 1.0"
-    **v0.6.4** supports LessonKit **1.0** via `@lessonkit/lxpack` and `lxpack build --lessonkit`. React authors should start at [github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit) (`lessonkit package`). YAML/markdown authors use `lxpack` directly. Phase 5 may add more LXPack-side automation.
+!!! info "v0.7.0 / LessonKit 1.0"
+    **v0.7.0** supports LessonKit **1.0** via `@lessonkit/lxpack` and `lxpack build --lessonkit`. React authors should start at [github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit) (`lessonkit package`). YAML/markdown authors use `lxpack` directly. Phase 5 may add more LXPack-side automation.

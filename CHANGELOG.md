@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-09
+
+### Added
+
+- **Multi-select MCQ** — assessments support checkbox “select all that apply” questions (`selectionMode: multiple` or inferred from multiple correct choices); partial credit when only correct choices are selected
+- **Validators** — multi-select schema validation (at least two correct choices); array answer keys in runtime bundles (`choiceId[]`)
+- **Runtime** — checkbox UI, multi-select scoring, mixed single-/multi-select assessments in one quiz
+- **Conformance** — SCORM 1.2/2004 multi-select MCQ export and learner-shell pass/fail matrix (`test/fixtures/multi-select-valid/`)
+
+### Changed
+
+- **Docs** — quizzes, assessments, LessonKit interoperability, and validator references updated for multi-select MCQ
+
 ## [0.6.4] - 2026-06-01
 
 ### Fixed

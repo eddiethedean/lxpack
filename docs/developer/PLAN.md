@@ -218,6 +218,10 @@ See [ROADMAP.md](ROADMAP.md#phase-04-lessonkit-interoperability-shipped-v040) fo
 
 Packaging, LessonKit config resolution, runtime/SCORM/xAPI fixes — see [Changelog](../project/changelog.md#061-2026-05-29).
 
+## Phase 0.7.0 — Multi-select MCQ (shipped — v0.7.0)
+
+Multi-select checkbox quizzes, array answer keys, SCORM conformance — see [Changelog](../project/changelog.md#070-2026-06-09).
+
 ## Phase 0.6.4 — Flow and validation patch (shipped — v0.6.4)
 
 Flow multi-branch inference, nav UX, validation parity, API/CLI footguns — see [Changelog](../project/changelog.md#064-2026-06-01).

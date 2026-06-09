@@ -288,6 +288,17 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 - **CLI** — `lxpack build --lessonkit` with `--spa-lesson` / `--spa-dist`
 - **Docs** — [lessonkit interchange reference](../reference/lessonkit-interchange.md)
 
+## Phase 0.7.0 — Multi-select MCQ (shipped — v0.7.0)
+
+**Latest release in phase:** v0.7.0
+
+### Shipped in v0.7.0
+
+- **Multi-select MCQ** — checkbox “select all that apply” questions with partial credit scoring
+- **Validators** — multi-select schema (≥2 correct choices); array answer keys in runtime bundles
+- **Runtime** — checkbox UI, mixed single-/multi-select assessments, SCORM export embedding
+- **Conformance** — SCORM 1.2/2004 multi-select pass/fail matrix (`multi-select-valid` fixture)
+
 ## Phase 0.6.4 — Flow and validation patch (shipped — v0.6.4)
 
 **Latest release in phase:** v0.6.4
@@ -350,7 +361,7 @@ Thin packaging and interchange schema for LessonKit; see **Phase 0.6** for bridg
 - **`@lxpack/lessonkit`** — meta-package; [LessonKit & React hub](../guides/lessonkit/index.md)
 - **API stability** — [api-stability.md](api-stability.md) documents LessonKit **1.0.0** interoperability contracts
 
-**LessonKit 1.0.0** is the stable public API ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)). LXPack **0.6.4** is the supported packaging/runtime baseline (`@lxpack/api` 0.6.4+, Node 18+).
+**LessonKit 1.0.0** is the stable public API ([github.com/eddiethedean/lessonkit](https://github.com/eddiethedean/lessonkit)). LXPack **0.7.0** is the supported packaging/runtime baseline (`@lxpack/api` 0.7.0+, Node 18+).
 
 ## v0.6+ — LessonKit integration and platform
 

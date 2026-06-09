@@ -1,6 +1,6 @@
 {
   "name": "@lxpack/lessonkit",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "description": "LessonKit integration facade for LXPack (package, bridge, interchange)",
   "license": "Apache-2.0",
   "repository": {
