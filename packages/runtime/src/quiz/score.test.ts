@@ -140,6 +140,111 @@ describe("scoreAssessmentForm", () => {
     expect(score).toBe(1);
   });
 
+  it("returns zero for an empty assessment", () => {
+    const form = document.createElement("form");
+    const score = scoreAssessmentForm(
+      { id: "quiz", passingScore: 0.7, questions: [] },
+      {},
+      form,
+    );
+    expect(score).toBe(0);
+  });
+
+  it("infers multi-select from array answer keys without selectionMode", () => {
+    const form = document.createElement("form");
+    form.innerHTML = `
+      <input type="checkbox" name="q-q1" value="a" checked />
+      <input type="checkbox" name="q-q1" value="b" checked />
+    `;
+    const score = scoreAssessmentForm(
+      {
+        id: "quiz",
+        passingScore: 0.7,
+        questions: [
+          {
+            id: "q1",
+            prompt: "Select all",
+            choices: [
+              { id: "a", text: "A" },
+              { id: "b", text: "B" },
+            ],
+          },
+        ],
+      },
+      { q1: ["a", "b"] },
+      form,
+    );
+    expect(score).toBe(1);
+  });
+
+  it("scores single-select using the first array entry when answer key is an array", () => {
+    const form = document.createElement("form");
+    form.innerHTML = `<input type="radio" name="q-q1" value="a" checked />`;
+    const score = scoreAssessmentForm(
+      {
+        id: "quiz",
+        passingScore: 0.7,
+        questions: [
+          {
+            id: "q1",
+            prompt: "Pick one",
+            selectionMode: "single",
+            choices: [
+              { id: "a", text: "A" },
+              { id: "b", text: "B" },
+            ],
+          },
+        ],
+      },
+      { q1: ["a"] },
+      form,
+    );
+    expect(score).toBe(1);
+  });
+
+  it("scores multi-select with a string answer key", () => {
+    const form = document.createElement("form");
+    form.innerHTML = `<input type="checkbox" name="q-q1" value="a" checked />`;
+    const score = scoreAssessmentForm(
+      {
+        id: "quiz",
+        passingScore: 0.7,
+        questions: [
+          {
+            id: "q1",
+            prompt: "Select all",
+            selectionMode: "multiple" as const,
+            choices: [{ id: "a", text: "A" }],
+          },
+        ],
+      },
+      { q1: "a" },
+      form,
+    );
+    expect(score).toBe(1);
+  });
+
+  it("returns zero when multi-select answer key is an empty array", () => {
+    const form = document.createElement("form");
+    const score = scoreAssessmentForm(
+      {
+        id: "quiz",
+        passingScore: 0.7,
+        questions: [
+          {
+            id: "q1",
+            prompt: "Select all",
+            selectionMode: "multiple" as const,
+            choices: [{ id: "a", text: "A" }],
+          },
+        ],
+      },
+      { q1: [] },
+      form,
+    );
+    expect(score).toBe(0);
+  });
+
   it("scores partial credit for multi-select with subset of correct choices", () => {
     const multiAssessment = {
       id: "quiz",

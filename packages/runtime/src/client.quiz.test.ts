@@ -181,6 +181,36 @@ questions:
     expect(answerKey).toEqual({});
   });
 
+  it("builds array answer keys for multi-select YAML in preview", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      text: async () => `id: quiz
+questions:
+  - id: q1
+    prompt: Select all
+    explanation: Because both matter.
+    choices:
+      - id: a
+        text: A
+        correct: true
+      - id: b
+        text: B
+      - id: c
+        text: C
+        correct: true
+`,
+    } as Response);
+    const { assessment, answerKey, payload } = await loadAssessment(
+      emptyConfig,
+      "/course",
+      "quiz",
+      "assessments/multi.yaml",
+    );
+    expect(answerKey.q1).toEqual(["a", "c"]);
+    expect(assessment.questions[0]?.selectionMode).toBe("multiple");
+    expect(payload?.feedback?.q1).toBe("Because both matter.");
+  });
+
   it("skips answer keys for choices without a correct flag", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: true,

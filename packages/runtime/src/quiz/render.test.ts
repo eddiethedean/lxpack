@@ -64,6 +64,55 @@ describe("renderAssessment", () => {
     expect(contentEl.textContent).toContain("Attempts: 2");
   });
 
+  it("shows no attempts remaining when max attempts are exhausted without a score", () => {
+    const contentEl = document.createElement("div");
+    const runtime = {
+      ...mockRuntime({
+        suspendData: { assessment_attempts_quiz: 2 },
+      }),
+      getAssessmentAttemptCount: () => 2,
+      isAssessmentPassed: () => false,
+    };
+
+    renderAssessment(
+      contentEl,
+      {
+        id: "quiz",
+        passingScore: 0.5,
+        questions: assessment.questions,
+        config: { maxAttempts: 2, shuffleChoices: false, showFeedback: "never" },
+      },
+      { q1: "a" },
+      runtime,
+      vi.fn(),
+    );
+
+    expect(contentEl.textContent).toContain("quiz");
+    expect(contentEl.textContent).toContain("No attempts remaining");
+    expect(contentEl.textContent).toContain("Attempts used: 2");
+  });
+
+  it("ignores duplicate form submissions while processing", () => {
+    const contentEl = document.createElement("div");
+    const runtime = mockRuntime();
+    renderAssessment(
+      contentEl,
+      {
+        ...assessment,
+        config: { maxAttempts: 1, shuffleChoices: false, showFeedback: "never" },
+      },
+      { q1: "a" },
+      runtime,
+      vi.fn(),
+    );
+    const radio = contentEl.querySelector('input[value="a"]') as HTMLInputElement;
+    radio.checked = true;
+    const form = contentEl.querySelector("form") as HTMLFormElement;
+    form.dispatchEvent(new Event("submit", { cancelable: true }));
+    form.dispatchEvent(new Event("submit", { cancelable: true }));
+    expect(runtime.submitAssessment).toHaveBeenCalledTimes(1);
+  });
+
   it("shows attempts remaining when multiple tries are allowed", () => {
     const contentEl = document.createElement("div");
     renderAssessment(
