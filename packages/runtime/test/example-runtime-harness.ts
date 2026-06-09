@@ -7,6 +7,7 @@ import {
 } from "@lxpack/validators";
 import type { RuntimeConfig } from "../src/types.js";
 import { examplePath } from "../../../test/helpers/examples.js";
+import { fixturePath } from "../../../test/helpers/paths.js";
 
 export async function loadExampleRuntimeConfig(
   exampleName: string,
@@ -34,6 +35,31 @@ export async function loadExampleRuntimeConfig(
   if (activityIri) {
     config.activityIri = activityIri;
   }
+
+  return { courseDir, config };
+}
+
+export async function loadFixtureRuntimeConfig(
+  fixtureName: string,
+  mode: RuntimeConfig["mode"] = "preview",
+): Promise<{ courseDir: string; config: RuntimeConfig }> {
+  const courseDir = fixturePath(fixtureName);
+  const loaded = await loadManifest(courseDir);
+  if (Array.isArray(loaded)) {
+    throw new Error(`Failed to load fixture ${fixtureName}: ${loaded.join(", ")}`);
+  }
+  const { manifest } = loaded;
+  const bundle = await buildRuntimeAssessmentBundle(courseDir, manifest);
+
+  const config: RuntimeConfig = {
+    manifest,
+    baseUrl: "/course",
+    mode,
+    assessments: bundle.assessments,
+    answerKeys: bundle.answerKeys,
+    assessmentConfigs: bundle.configs,
+    assessmentFeedback: bundle.feedback,
+  };
 
   return { courseDir, config };
 }

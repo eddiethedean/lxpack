@@ -45,7 +45,7 @@ The CLI and SCORM packager embed `@lxpack/runtime/client` into exported courses.
 - Applies optional `manifest.runtime.cssVariables` as CSS custom properties on the learner shell root
 - Resolves **next/previous** navigation with the flow engine when `course.yaml` defines `flow`; otherwise linear lesson order
 - Loads assessments from embedded config (`assessments`, `answerKeys`, `configs`, `feedback`); does not fetch author YAML in production exports
-- Renders quizzes with `renderAssessment()` — retakes, choice shuffle, and feedback modes from per-assessment config
+- Renders quizzes with `renderAssessment()` — single-select (radio) or multi-select (checkbox) MCQ, retakes, choice shuffle, and feedback modes from per-assessment config
 - Tracks lesson completion, manifest variables (`v:` prefix in suspend data), and assessment scores
 - Persists progress via SCORM `suspend_data` / CMI (compact JSON, size-safe) or `localStorage` in preview mode
 
@@ -101,6 +101,17 @@ import {
 ```
 
 Supports `maxAttempts`, `shuffleChoices`, and `showFeedback` (`immediate` | `end` | `never`) from the build-time assessment bundle.
+
+### Multi-select scoring
+
+When the answer key contains `string[]` for a question (or `selectionMode: multiple`), the UI renders checkboxes. Scoring per question:
+
+- **Single-select:** 0 or 1 (unchanged)
+- **Multi-select:** partial credit = (correct choices selected) ÷ (total correct choices); **0** if any incorrect choice is selected
+- **Assessment score:** average across all questions (mixed single- and multi-select assessments use the same aggregation)
+- **Pass:** `score >= passingScore` (0–1 fraction on the whole assessment)
+
+Multi-select questions require an explicit **Submit assessment** click; immediate per-choice feedback applies only to radio (single-select) questions.
 
 ## SCORM 1.2
 

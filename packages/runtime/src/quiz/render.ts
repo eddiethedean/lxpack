@@ -120,7 +120,16 @@ export function renderAssessment(
         ${questionsHtml}
         <button type="submit" class="lxpack-complete-btn">Submit assessment</button>
       </form>
-      <div id="lxpack-assessment-feedback" class="lxpack-assessment-feedback" hidden></div>
+      <div
+        id="lxpack-assessment-feedback"
+        class="lxpack-assessment-feedback"
+        ${
+          config.showFeedback === "immediate" || config.showFeedback === "end"
+            ? 'aria-live="polite"'
+            : ""
+        }
+        hidden
+      ></div>
     </article>
   `;
 

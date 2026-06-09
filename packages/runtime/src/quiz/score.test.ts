@@ -100,6 +100,46 @@ describe("scoreAssessmentForm", () => {
     expect(score).toBe(0);
   });
 
+  it("averages single- and multi-select question scores in one assessment", () => {
+    const mixedAssessment = {
+      id: "quiz",
+      passingScore: 0.7,
+      questions: [
+        {
+          id: "q1",
+          prompt: "Pick one",
+          selectionMode: "single" as const,
+          choices: [
+            { id: "a", text: "A" },
+            { id: "b", text: "B" },
+          ],
+        },
+        {
+          id: "q2",
+          prompt: "Select all",
+          selectionMode: "multiple" as const,
+          choices: [
+            { id: "a", text: "A" },
+            { id: "b", text: "B" },
+            { id: "c", text: "C" },
+          ],
+        },
+      ],
+    };
+    const form = document.createElement("form");
+    form.innerHTML = `
+      <input type="radio" name="q-q1" value="a" checked />
+      <input type="checkbox" name="q-q2" value="a" checked />
+      <input type="checkbox" name="q-q2" value="b" checked />
+    `;
+    const score = scoreAssessmentForm(
+      mixedAssessment,
+      { q1: "a", q2: ["a", "b"] },
+      form,
+    );
+    expect(score).toBe(1);
+  });
+
   it("scores partial credit for multi-select with subset of correct choices", () => {
     const multiAssessment = {
       id: "quiz",
