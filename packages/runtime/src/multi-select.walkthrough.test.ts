@@ -1,13 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { init } from "./client.js";
 import {
+  getNavBtn,
   installCourseFetchMock,
   loadFixtureRuntimeConfig,
   setupExampleDom,
   submitQuizWithAnswerKey,
+  submitQuizWithSelections,
   expectAssessmentPassed,
+  expectAssessmentFailed,
   teardownExampleDom,
   waitForActiveNav,
+  waitForSelector,
 } from "../test/example-runtime-harness.js";
 
 describe("multi-select fixture walkthrough", () => {
@@ -41,5 +45,24 @@ describe("multi-select fixture walkthrough", () => {
 
     await submitQuizWithAnswerKey(config.answerKeys!.quiz);
     expectAssessmentPassed("quiz", config.assessments!.quiz.passingScore);
+  });
+
+  it("fails when one correct and one incorrect choice are selected", async () => {
+    const { courseDir, config } = await loadFixtureRuntimeConfig(
+      "multi-select-valid",
+    );
+    installCourseFetchMock(courseDir);
+    setupExampleDom();
+    window.__LXPACK_CONFIG__ = config;
+    init();
+
+    await vi.waitFor(() => {
+      expect(document.querySelector(".lxpack-nav-item")).toBeTruthy();
+    });
+    getNavBtn("quiz").click();
+
+    await waitForSelector(".lxpack-assessment form");
+    await submitQuizWithSelections({ q1: ["a", "b"] });
+    expectAssessmentFailed("quiz", config.assessments!.quiz.passingScore);
   });
 });

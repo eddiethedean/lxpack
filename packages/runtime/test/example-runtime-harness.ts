@@ -268,13 +268,12 @@ export function expectAssessmentPassed(
   expect(score).toBeGreaterThanOrEqual(passingScore);
 }
 
-export async function submitQuizWithAnswerKey(
-  answerKey: Record<string, string | string[]>,
+export async function submitQuizWithSelections(
+  selections: Record<string, string[]>,
 ): Promise<void> {
   await waitForSelector(".lxpack-assessment form");
-  for (const [questionId, choiceIds] of Object.entries(answerKey)) {
-    const ids = Array.isArray(choiceIds) ? choiceIds : [choiceIds];
-    for (const choiceId of ids) {
+  for (const [questionId, choiceIds] of Object.entries(selections)) {
+    for (const choiceId of choiceIds) {
       const input = document.querySelector(
         `input[name="q-${questionId}"][value="${choiceId}"]`,
       ) as HTMLInputElement | null;
@@ -291,10 +290,36 @@ export async function submitQuizWithAnswerKey(
   ).requestSubmit();
   await vi.waitFor(
     () => {
+      const text = document.body.textContent ?? "";
+      expect(text).toMatch(/Passed!|Not passed|\bPassed\b/);
+    },
+    { timeout: 3000 },
+  );
+}
+
+export async function submitQuizWithAnswerKey(
+  answerKey: Record<string, string | string[]>,
+): Promise<void> {
+  const selections: Record<string, string[]> = {};
+  for (const [questionId, choiceIds] of Object.entries(answerKey)) {
+    selections[questionId] = Array.isArray(choiceIds) ? choiceIds : [choiceIds];
+  }
+  await submitQuizWithSelections(selections);
+  await vi.waitFor(
+    () => {
       const result = document.querySelector(".lxpack-assessment-result");
       const passedNow = document.body.textContent?.includes("Passed!");
       expect(result || passedNow).toBeTruthy();
     },
     { timeout: 3000 },
   );
+}
+
+export function expectAssessmentFailed(
+  assessmentId: string,
+  passingScore: number,
+): void {
+  const score = window.lxpack?.getProgress().assessmentScores[assessmentId];
+  expect(score).toBeDefined();
+  expect(score!).toBeLessThan(passingScore);
 }
