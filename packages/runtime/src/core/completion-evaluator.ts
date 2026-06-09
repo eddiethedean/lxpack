@@ -2,7 +2,7 @@ import type { CourseManifest } from "@lxpack/validators";
 import type { AssessmentRuntimeConfig } from "@lxpack/validators";
 import type { CourseProgress } from "../types.js";
 import type { CompletionState } from "../lms/completion-state.js";
-import { getAttemptCount } from "../quiz/score.js";
+import { getAttemptCount, isAssessmentExhaustedFlag } from "../quiz/score.js";
 
 export interface ScormActivityScope {
   id: string;
@@ -124,11 +124,13 @@ function buildScopedCompletionState(
   const id = scope.id;
   const passed = passedAssessments.has(id);
   const attempted = id in progress.assessmentScores;
+  const exhausted = isAssessmentExhaustedFlag(progress.suspendData, id);
   const maxAttempts = options.assessmentConfigs[id]?.maxAttempts ?? 1;
   const failed =
-    attempted &&
     !passed &&
-    getAttemptCount(progress.suspendData, id) >= maxAttempts;
+    (exhausted ||
+      (attempted &&
+        getAttemptCount(progress.suspendData, id) >= maxAttempts));
   const ratio = passed ? 1 : 0;
 
   return {

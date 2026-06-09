@@ -246,6 +246,31 @@ describe("progress-persist", () => {
     warn.mockRestore();
   });
 
+  it("does not leave orphaned attempt keys when minimal snapshot drops scores", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const progress: CourseProgress = {
+      currentLessonId: "a",
+      completedLessons: Array.from({ length: 80 }, (_, i) => `lesson-${i}`),
+      assessmentScores: { quiz: 0.2 },
+      suspendData: {
+        assessment_attempts_quiz: 3,
+        assessment_passing_quiz: 0.7,
+        assessment_passed_quiz: false,
+        assessment_exhausted_quiz: true,
+        blob: "x".repeat(8000),
+      },
+    };
+    const serialized = serializeProgressForStorage(progress, 256);
+    const { progress: restored } = parseStoredProgress(serialized, defaults);
+    const hasScore = restored.assessmentScores.quiz !== undefined;
+    const hasAttempts =
+      restored.suspendData.assessment_attempts_quiz !== undefined;
+    expect(hasScore || !hasAttempts).toBe(true);
+    expect(restored.suspendData.assessment_exhausted_quiz).toBe(true);
+    expect(restored.suspendData.assessment_passed_quiz).toBe(false);
+    warn.mockRestore();
+  });
+
   it("emits parseable minimal progress when pruning is insufficient", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const suspendData: Record<string, unknown> = {

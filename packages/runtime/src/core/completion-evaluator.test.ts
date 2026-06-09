@@ -60,6 +60,20 @@ describe("buildCompletionState", () => {
     expect(state.anyAssessmentFailed).toBe(true);
   });
 
+  it("reports failed from exhausted flag without score or attempts", () => {
+    const progress: CourseProgress = {
+      ...baseProgress,
+      assessmentScores: {},
+      suspendData: {
+        assessment_passed_quiz: false,
+        assessment_exhausted_quiz: true,
+      },
+    };
+    const state = evaluate(progress, new Set(), { id: "quiz", kind: "assessment" });
+    expect(state.anyAssessmentFailed).toBe(true);
+    expect(state.allAssessmentsPassed).toBe(false);
+  });
+
   it("scopes lesson SCO to a single lesson", () => {
     const state = evaluate(
       { ...baseProgress, completedLessons: ["intro"] },

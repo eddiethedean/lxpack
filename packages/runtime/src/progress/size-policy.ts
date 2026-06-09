@@ -1,4 +1,5 @@
 import type { CourseProgress } from "../types.js";
+import { removeAssessmentAttemptKey } from "../quiz/score.js";
 import { SCORM_SUSPEND_DATA_MAX } from "./constants.js";
 import { compactProgress, parseStoredProgress } from "./codec.js";
 
@@ -37,7 +38,9 @@ function isEssentialSuspendKey(key: string): boolean {
     key.startsWith("interaction_") ||
     key.startsWith("v:") ||
     key.startsWith("assessment_attempts_") ||
-    key.startsWith("assessment_passing_")
+    key.startsWith("assessment_passing_") ||
+    key.startsWith("assessment_passed_") ||
+    key.startsWith("assessment_exhausted_")
   );
 }
 
@@ -72,15 +75,28 @@ function pruneNonEssentialSuspendKeys(
   return { ...progress, suspendData };
 }
 
-function preserveAssessmentSuspendKeys(
+function preserveAssessmentOutcomeKeys(
   progress: CourseProgress,
 ): Record<string, unknown> {
   const suspendData: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(progress.suspendData)) {
     if (
-      key.startsWith("assessment_attempts_") ||
-      key.startsWith("assessment_passing_")
+      key.startsWith("assessment_passing_") ||
+      key.startsWith("assessment_passed_") ||
+      key.startsWith("assessment_exhausted_")
     ) {
+      suspendData[key] = value;
+    }
+  }
+  return suspendData;
+}
+
+function preserveAssessmentSuspendKeys(
+  progress: CourseProgress,
+): Record<string, unknown> {
+  const suspendData = preserveAssessmentOutcomeKeys(progress);
+  for (const [key, value] of Object.entries(progress.suspendData)) {
+    if (key.startsWith("assessment_attempts_")) {
       suspendData[key] = value;
     }
   }
@@ -154,7 +170,9 @@ function buildMinimalSerializedProgress(
 
   const scoreIds = Object.keys(minimal.assessmentScores);
   while (scoreIds.length > 0) {
-    delete minimal.assessmentScores[scoreIds.pop()!];
+    const removedId = scoreIds.pop()!;
+    delete minimal.assessmentScores[removedId];
+    removeAssessmentAttemptKey(minimal.suspendData, removedId);
     if (fitsLimit(minimal, maxBytes)) {
       return JSON.stringify(compactProgress(minimal));
     }
@@ -165,7 +183,7 @@ function buildMinimalSerializedProgress(
     completedLessons: [],
     assessmentScores: {},
     suspendData: mergeSuspendKeys(
-      preserveAssessmentSuspendKeys(progress),
+      preserveAssessmentOutcomeKeys(progress),
       flowSuspend,
     ),
   };

@@ -4,7 +4,11 @@ import {
   DEFAULT_ASSESSMENT_CONFIG,
   type RuntimeAssessmentPayload,
 } from "./types.js";
-import { scoreAssessmentForm, shuffleQuestions } from "./score.js";
+import {
+  isAssessmentExhaustedFlag,
+  scoreAssessmentForm,
+  shuffleQuestions,
+} from "./score.js";
 
 function isMultipleQuestion(
   selectionMode: "single" | "multiple" | undefined,
@@ -35,14 +39,33 @@ export function renderAssessment(
   const effectiveAttempts =
     existingScore !== undefined ? Math.max(attempts, 1) : attempts;
   const retakesRemaining = config.maxAttempts - effectiveAttempts;
+  const exhausted = isAssessmentExhaustedFlag(
+    progress.suspendData,
+    assessment.id,
+  );
 
-  if (attempts >= config.maxAttempts && existingScore === undefined) {
+  if (
+    (attempts >= config.maxAttempts && existingScore === undefined) ||
+    (exhausted && !passed && existingScore === undefined)
+  ) {
     contentEl.innerHTML = `
       <article class="lxpack-assessment lxpack-assessment-result">
         <h2>${escapeHtml(assessment.title ?? assessment.id)}</h2>
         <p class="lxpack-error">
           No attempts remaining (maximum: ${config.maxAttempts}).
           ${attempts > 0 ? ` · Attempts used: ${attempts}` : ""}
+        </p>
+      </article>
+    `;
+    return;
+  }
+
+  if (passed && existingScore === undefined) {
+    contentEl.innerHTML = `
+      <article class="lxpack-assessment lxpack-assessment-result">
+        <h2>${escapeHtml(assessment.title ?? assessment.id)}</h2>
+        <p class="lxpack-success-text">
+          Passed (required: ${Math.round(assessment.passingScore * 100)}%)
         </p>
       </article>
     `;
