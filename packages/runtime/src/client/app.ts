@@ -287,8 +287,10 @@ export function init(): void {
       runtime.completeCourse();
       afterBridgeCompletion();
     },
-    submitAssessment: (id, score, passingScore) =>
-      runtime.submitAssessment(id, score, passingScore),
+    submitAssessment: (id, score, passingScore) => {
+      runtime.submitAssessment(id, score, passingScore);
+      applyFlowJump();
+    },
     track: (event) => lxpackApi.track(event as never),
   });
 

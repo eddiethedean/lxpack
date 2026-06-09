@@ -303,6 +303,84 @@ describe("client navigation fallbacks", () => {
     );
   });
 
+  it("jumps via flow after SPA bridge submitAssessment", async () => {
+    window.__LXPACK_CONFIG__ = {
+      manifest: {
+        title: "Nav",
+        version: "1.0.0",
+        lessons: [
+          { id: "intro", type: "markdown", file: "lessons/intro.md" },
+          { id: "spa_lesson", type: "spa", path: "spa/lesson" },
+          { id: "wrap", type: "markdown", file: "lessons/wrap.md" },
+        ],
+        assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+        flow: [
+          {
+            from: "spa_lesson",
+            when: { assessment: { passed: "quiz" } },
+            goto: "wrap",
+          },
+        ],
+      },
+      assessments: {
+        quiz: {
+          id: "quiz",
+          title: "Quiz",
+          passingScore: 0.5,
+          questions: [
+            {
+              id: "q1",
+              prompt: "Ok?",
+              choices: [
+                { id: "a", text: "Yes", correct: true },
+                { id: "b", text: "No" },
+              ],
+            },
+          ],
+        },
+      },
+      answerKeys: { quiz: { q1: "a" } },
+      assessmentConfigs: { quiz: { maxAttempts: 3 } },
+      baseUrl: "/course",
+      mode: "preview",
+    };
+
+    init();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="intro"]')?.classList.contains(
+          "active",
+        ),
+      ).toBe(true),
+    );
+
+    const next = document.getElementById("lxpack-next") as HTMLButtonElement;
+    next.click();
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="spa_lesson"]')?.classList.contains(
+          "active",
+        ),
+      ).toBe(true),
+    );
+    await vi.waitFor(() => expect(window.lxpackBridge?.v1).toBeDefined());
+
+    window.lxpackBridge!.v1.submitAssessment({
+      id: "quiz",
+      score: 1,
+      passingScore: 0.5,
+      passed: true,
+    });
+
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-nav-id="wrap"]')?.classList.contains(
+          "active",
+        ),
+      ).toBe(true),
+    );
+  });
+
   it("warns when SCORM 2004 single-SCO flow goto is outside launch nav", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     window.__LXPACK_CONFIG__ = {
