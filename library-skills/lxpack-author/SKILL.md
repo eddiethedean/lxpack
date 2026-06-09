@@ -59,7 +59,8 @@ Deep manifest reference: read `references/manifest.md` only when editing manifes
 
 ## Assessments
 
-- MCQ only; **exactly one** `correct: true` per question
+- MCQ only; **at least one** `correct: true` per question (single-select: one correct; multi-select: two or more)
+- Optional `selectionMode: single | multiple` (inferred from correct count when omitted)
 - `passingScore` 0–1 (0.7 = 70%)
 - Optional: `maxAttempts`, `shuffleChoices`, `showFeedback: immediate|end|never`
 

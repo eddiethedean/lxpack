@@ -210,6 +210,47 @@ describe("courseManifestSchema", () => {
     ).toBe(false);
   });
 
+  it("accepts single-select questions with exactly one correct choice", () => {
+    const result = assessmentSchema.safeParse({
+      id: "quiz",
+      questions: [
+        {
+          id: "q1",
+          prompt: "Pick one",
+          selectionMode: "single",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "b", text: "B" },
+          ],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects selectionMode single with two correct choices", () => {
+    const result = assessmentSchema.safeParse({
+      id: "quiz",
+      questions: [
+        {
+          id: "q1",
+          prompt: "Pick one",
+          selectionMode: "single",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "b", text: "B", correct: true },
+          ],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.message.includes("exactly one"))).toBe(
+        true,
+      );
+    }
+  });
+
   it("accepts multi-select questions with multiple correct choices", () => {
     const result = assessmentSchema.safeParse({
       id: "quiz",

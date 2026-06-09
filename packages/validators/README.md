@@ -101,7 +101,8 @@ isPathContained(courseDir, abs); // true if inside course root
 | `buildRuntimeAssessmentBundle(dir, manifest)` | Load assessments; split learner view, keys, configs, feedback |
 | `buildRuntimeAssessmentBundleFromData(manifest, data)` | Same bundle shape from in-memory assessment objects |
 | `loadParsedAssessmentsFromData(manifest, data)` | Parse injected assessment payloads with manifest cross-checks |
-| `toLearnerAssessment(assessment)` | Strip `correct` from choices; extract config and feedback maps |
+| `toLearnerAssessment(assessment)` | Strip `correct` from choices; build `string \| string[]` answer keys; extract config and feedback maps |
+| `AnswerKeyValue`, `SelectionMode` | Types for per-question answer keys and selection mode |
 | `validateFlow(manifest)` | Flow rule and target validation |
 | `detectFlowCycles(manifest)` | Flow-jump cycle detection for branching graphs |
 | `collectActivityIds(manifest)` | Lesson and assessment IDs for flow targets |
@@ -123,7 +124,7 @@ Author-facing rules: [Course structure](https://lxpack.readthedocs.io/en/latest/
 - `runtime.cssVariables` — optional map of CSS custom properties for the learner shell
 - Component IDs: built-in IDs or course overrides under `components/<id>/`
 - Flow rules: condition grammar, `goto` targets that reference known activity IDs, acyclic flow (errors for cycles)
-- Assessment YAML: strict MCQ schemas; optional `maxAttempts`, `shuffleChoices`, `showFeedback`; `explanation` per question
+- Assessment YAML: strict MCQ schemas (single- or multi-select); optional `selectionMode`, `maxAttempts`, `shuffleChoices`, `showFeedback`; `explanation` per question
 - Duplicate lesson IDs
 - Path containment — referenced files must stay inside the course directory (including via symlinks)
 - On-disk assets: files exist and assessment paths are regular files
@@ -134,7 +135,7 @@ Author assessments live as YAML under `assessments/` in the course repo. At buil
 
 1. `buildRuntimeAssessmentBundle()` reads each assessment file.
 2. **Learner payload** — questions and choices without `correct` flags.
-3. **Answer keys** — `questionId → choiceId` map for scoring.
+3. **Answer keys** — `questionId → choiceId` (single-select) or `questionId → choiceId[]` (multi-select) for scoring.
 4. **Configs** — per-assessment quiz behavior (`maxAttempts`, `shuffleChoices`, `showFeedback`).
 5. **Feedback** — `questionId → explanation` for immediate/end feedback (not shipped as separate files).
 
