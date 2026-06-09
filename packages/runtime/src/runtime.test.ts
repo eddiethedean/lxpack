@@ -785,6 +785,40 @@ describe("LxpackRuntime", () => {
     runtime.submitAssessment("quiz", 0.9, 0.7);
     expect(runtime.getAssessmentAttemptCount("quiz")).toBe(2);
     expect(runtime.isAssessmentPassed("quiz")).toBe(false);
+    expect(
+      runtime.getProgress().suspendData.assessment_exhausted_quiz,
+    ).toBe(true);
+  });
+
+  it("restored exhausted flag blocks re-submission without score or attempts", () => {
+    const manifestWithQuiz = {
+      ...manifest,
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    };
+    const runtime = new LxpackRuntime({
+      manifest: manifestWithQuiz,
+      baseUrl: ".",
+      mode: "preview",
+      assessmentConfigs: {
+        quiz: { maxAttempts: 3, shuffleChoices: false, showFeedback: "never" },
+      },
+      progress: {
+        currentLessonId: "a",
+        completedLessons: [],
+        assessmentScores: {},
+        suspendData: {
+          assessment_passed_quiz: false,
+          assessment_exhausted_quiz: true,
+          assessment_passing_quiz: 0.7,
+        },
+      },
+    });
+
+    expect(runtime.isAssessmentPassed("quiz")).toBe(false);
+    expect(runtime.getAssessmentAttemptCount("quiz")).toBe(0);
+    runtime.submitAssessment("quiz", 0.9, 0.7);
+    expect(runtime.getProgress().assessmentScores.quiz).toBeUndefined();
+    expect(runtime.isAssessmentPassed("quiz")).toBe(false);
   });
 
   it("ignores submitAssessment when already passed", () => {

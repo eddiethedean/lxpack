@@ -82,3 +82,24 @@ export function incrementAttemptCount(
   suspendData[`assessment_attempts_${assessmentId}`] = next;
   return next;
 }
+
+export function isAssessmentExhaustedFlag(
+  suspendData: Record<string, unknown>,
+  assessmentId: string,
+): boolean {
+  return suspendData[`assessment_exhausted_${assessmentId}`] === true;
+}
+
+export function isAssessmentPassedFlag(
+  suspendData: Record<string, unknown>,
+  assessmentId: string,
+): boolean {
+  return suspendData[`assessment_passed_${assessmentId}`] === true;
+}
+
+export function removeAssessmentAttemptKey(
+  suspendData: Record<string, unknown>,
+  assessmentId: string,
+): void {
+  delete suspendData[`assessment_attempts_${assessmentId}`];
+}

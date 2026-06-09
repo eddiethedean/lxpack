@@ -175,6 +175,14 @@ export class LxpackRuntime implements AssessmentHost {
     this.state.recordAssessmentAttempt(assessmentId);
     this.state.applyAssessmentResult(assessmentId, score, passingScore);
     const passed = this.isAssessmentPassed(assessmentId);
+    if (
+      !passed &&
+      this.getAssessmentAttemptCount(assessmentId) >=
+        this.getMaxAttempts(assessmentId)
+    ) {
+      this.state.progress.suspendData[`assessment_exhausted_${assessmentId}`] =
+        true;
+    }
     this.analytics.onAssessmentSubmitted(assessmentId, score, passed);
     this.updateCompletion();
     this.persist();
@@ -187,6 +195,12 @@ export class LxpackRuntime implements AssessmentHost {
 
   private canAcceptAssessmentSubmission(assessmentId: string): boolean {
     if (this.isAssessmentPassed(assessmentId)) {
+      return false;
+    }
+    if (
+      this.state.progress.suspendData[`assessment_exhausted_${assessmentId}`] ===
+      true
+    ) {
       return false;
     }
     const maxAttempts = this.getMaxAttempts(assessmentId);

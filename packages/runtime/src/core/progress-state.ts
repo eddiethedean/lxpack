@@ -1,6 +1,10 @@
 import type { CourseManifest } from "@lxpack/validators";
 import type { CourseProgress } from "../types.js";
-import { getAttemptCount, incrementAttemptCount } from "../quiz/score.js";
+import {
+  getAttemptCount,
+  incrementAttemptCount,
+  isAssessmentPassedFlag,
+} from "../quiz/score.js";
 
 export class ProgressState {
   progress: CourseProgress;
@@ -31,6 +35,13 @@ export class ProgressState {
         this.passedAssessments.add(id);
       }
     }
+    for (const key of Object.keys(this.progress.suspendData)) {
+      if (!key.startsWith("assessment_passed_")) continue;
+      const id = key.slice("assessment_passed_".length);
+      if (isAssessmentPassedFlag(this.progress.suspendData, id)) {
+        this.passedAssessments.add(id);
+      }
+    }
   }
 
   applyAssessmentResult(
@@ -41,7 +52,10 @@ export class ProgressState {
     this.progress.assessmentScores[assessmentId] = score;
     this.progress.suspendData[`assessment_passing_${assessmentId}`] =
       passingScore;
-    if (score >= passingScore) {
+    const passed = score >= passingScore;
+    this.progress.suspendData[`assessment_passed_${assessmentId}`] = passed;
+    if (passed) {
+      delete this.progress.suspendData[`assessment_exhausted_${assessmentId}`];
       this.passedAssessments.add(assessmentId);
     } else {
       this.passedAssessments.delete(assessmentId);
