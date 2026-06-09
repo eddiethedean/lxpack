@@ -167,7 +167,9 @@ export function init(): void {
         config.baseUrl,
         item,
         () => {
-          void showItem(currentIndex);
+          if (!applyFlowJump()) {
+            void showItem(currentIndex);
+          }
         },
         () => seq !== renderSeq,
       );

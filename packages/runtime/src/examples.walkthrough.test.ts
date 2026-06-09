@@ -142,7 +142,10 @@ describe("all example courses", () => {
     await clickNext();
     await waitForActiveNav("final_quiz");
     await waitForSelector("#lxpack-assessment-form");
-    await submitQuizWithAnswerKey(config.answerKeys!.final_quiz);
+    await submitQuizWithAnswerKey(config.answerKeys!.final_quiz, {
+      waitForResult: false,
+    });
+    await waitForActiveNav("wrap_up");
     expectAssessmentPassed("final_quiz");
 
     window.dispatchEvent(new Event("beforeunload"));
