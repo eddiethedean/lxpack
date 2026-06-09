@@ -1,5 +1,6 @@
 import {
   buildActivityOrder,
+  resolveFlowGoto,
   resolveNextActivityId,
   resolvePreviousActivityId,
 } from "../flow.js";
@@ -11,7 +12,11 @@ import { renderItem } from "./render-item.js";
 import { escapeHtml } from "./html-utils.js";
 import { isInteractionComplete } from "../interaction-complete.js";
 import { createLxpackBridgeHost } from "@lxpack/spa-bridge";
-import { findHtmlSpaLessonByInteractionId } from "./interaction-lesson.js";
+import {
+  pushPendingInteractionLesson,
+  removePendingInteractionLesson,
+  resolveInteractionLessonForCompletion,
+} from "./interaction-lesson.js";
 
 export function init(): void {
   const config = getConfig();
@@ -66,6 +71,7 @@ export function init(): void {
   let currentIndex = indexForId(runtime.getProgress().currentLessonId);
 
   let renderSeq = 0;
+  const pendingInteractionLessons: string[] = [];
 
   function applyFlowJump(): boolean {
     const target = runtime.resolveFlowNavigation();
@@ -153,6 +159,14 @@ export function init(): void {
   async function showItem(index: number): Promise<void> {
     const item = navItems[index];
     if (!item) return;
+
+    if (
+      item.kind === "lesson" &&
+      (item.lesson.type === "html" || item.lesson.type === "spa") &&
+      !runtime.getFlowContext().isInteractionDone(item.lesson.id)
+    ) {
+      pushPendingInteractionLesson(pendingInteractionLessons, item.lesson.id);
+    }
 
     const seq = ++renderSeq;
     runtime.setCurrentLesson(item.id);
@@ -257,24 +271,32 @@ export function init(): void {
   const originalTrack = lxpackApi.track.bind(lxpackApi);
   lxpackApi.track = (event) => {
     originalTrack(event);
+    let completedInteractionLessonId: string | undefined;
     if (event.type === "interaction" && event.id && isInteractionComplete(event.data)) {
-      const byInteractionId = findHtmlSpaLessonByInteractionId(
+      const lessonId = resolveInteractionLessonForCompletion(
         navItems,
+        currentIndex,
         event.id,
+        pendingInteractionLessons,
       );
-      const current = navItems[currentIndex];
-      const item =
-        byInteractionId ??
-        (current?.kind === "lesson" &&
-        (current.lesson.type === "html" || current.lesson.type === "spa")
-          ? current
-          : undefined);
-      if (item?.kind === "lesson") {
-        runtime.markInteractionLessonDone(item.lesson.id);
+      if (lessonId) {
+        runtime.markInteractionLessonDone(lessonId);
+        removePendingInteractionLesson(pendingInteractionLessons, lessonId);
+        completedInteractionLessonId = lessonId;
       }
     }
     if (event.type === "interaction" || event.type === "assessment") {
-      applyFlowJump();
+      if (!applyFlowJump() && completedInteractionLessonId) {
+        const target = resolveFlowGoto(
+          config.manifest,
+          runtime.getFlowContext(),
+          completedInteractionLessonId,
+        );
+        if (target && target !== navItems[currentIndex]?.id) {
+          const idx = navItems.findIndex((n) => n.id === target);
+          if (idx >= 0) void showItem(idx);
+        }
+      }
     }
   };
 
