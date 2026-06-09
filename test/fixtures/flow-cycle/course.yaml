@@ -11,11 +11,13 @@ lessons:
     type: markdown
     file: lessons/lab.md
 flow:
-  - when:
+  - from: intro
+    when:
       variable:
         eq: [track, a]
     goto: lab
-  - when:
+  - from: lab
+    when:
       variable:
         eq: [track, b]
     goto: intro
