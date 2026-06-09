@@ -45,6 +45,103 @@ describe("loadParsedAssessmentsFromData", () => {
     const result = loadParsedAssessmentsFromData(manifest as never, []);
     expect(result.issues.some((i) => i.severity === "error")).toBe(true);
   });
+
+  it("errors when injected data contains undeclared assessment id", () => {
+    const manifest = {
+      title: "T",
+      version: "1.0.0",
+      lessons: [{ id: "intro", type: "markdown", file: "lessons/intro.md" }],
+      assessments: [{ id: "quiz", file: "assessments/quiz.yaml" }],
+    } as const;
+
+    const assessment = {
+      id: "quiz",
+      passingScore: 0.7,
+      questions: [
+        {
+          id: "q1",
+          prompt: "P",
+          choices: [
+            { id: "a", text: "A", correct: true },
+            { id: "b", text: "B", correct: false },
+          ],
+        },
+      ],
+    };
+
+    const result = loadParsedAssessmentsFromData(manifest as never, [
+      assessment,
+      {
+        ...assessment,
+        id: "secret_admin_quiz",
+      },
+    ]);
+
+    expect(
+      result.issues.some(
+        (i) =>
+          i.severity === "error" &&
+          i.path === "assessments.secret_admin_quiz" &&
+          i.message.includes("not declared"),
+      ),
+    ).toBe(true);
+
+    const bundleResult = buildRuntimeAssessmentBundleFromData(manifest as never, [
+      assessment,
+      { ...assessment, id: "secret_admin_quiz" },
+    ]);
+    expect(bundleResult.issues.some((i) => i.severity === "error")).toBe(true);
+    expect(bundleResult.bundle.answerKeys.secret_admin_quiz).toBeUndefined();
+  });
+
+  it("errors when manifest has no assessments but data is injected", () => {
+    const manifest = {
+      title: "T",
+      version: "1.0.0",
+      lessons: [{ id: "intro", type: "markdown", file: "lessons/intro.md" }],
+    } as const;
+
+    const result = loadParsedAssessmentsFromData(manifest as never, [
+      {
+        id: "quiz",
+        passingScore: 0.7,
+        questions: [
+          {
+            id: "q1",
+            prompt: "P",
+            choices: [
+              { id: "a", text: "A", correct: true },
+              { id: "b", text: "B", correct: false },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    expect(
+      result.issues.some(
+        (i) => i.severity === "error" && i.path === "assessments.quiz",
+      ),
+    ).toBe(true);
+
+    const bundleResult = buildRuntimeAssessmentBundleFromData(manifest as never, [
+      {
+        id: "quiz",
+        passingScore: 0.7,
+        questions: [
+          {
+            id: "q1",
+            prompt: "P",
+            choices: [
+              { id: "a", text: "A", correct: true },
+              { id: "b", text: "B", correct: false },
+            ],
+          },
+        ],
+      },
+    ]);
+    expect(bundleResult.bundle.answerKeys.quiz).toBeUndefined();
+  });
 });
 
 describe("buildRuntimeAssessmentBundleFromData", () => {

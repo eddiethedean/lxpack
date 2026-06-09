@@ -186,6 +186,8 @@ export function loadParsedAssessmentsFromData(
   }
 
   const declared = manifest.assessments ?? [];
+  const declaredIds = new Set(declared.map((ref) => ref.id));
+
   if (declared.length) {
     for (const ref of declared) {
       if (!parsed.has(ref.id)) {
@@ -196,6 +198,16 @@ export function loadParsedAssessmentsFromData(
           severity: "error",
         });
       }
+    }
+  }
+
+  for (const id of parsed.keys()) {
+    if (!declaredIds.has(id)) {
+      issues.push({
+        path: `assessments.${id}`,
+        message: `Assessment "${id}" was provided in injected assessment data but is not declared in the course manifest`,
+        severity: "error",
+      });
     }
   }
 
