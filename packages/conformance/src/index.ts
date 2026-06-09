@@ -4,4 +4,8 @@ export {
   type ConformanceMatrixResult,
   type ConformanceTargetResult,
 } from "./run-matrix.js";
-export { conformanceInterchange, conformanceSpaDir } from "./fixture.js";
+export {
+  conformanceInterchange,
+  conformanceMultiSelectInterchange,
+  conformanceSpaDir,
+} from "./fixture.js";

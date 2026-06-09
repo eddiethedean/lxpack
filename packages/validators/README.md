@@ -135,7 +135,7 @@ Author assessments live as YAML under `assessments/` in the course repo. At buil
 
 1. `buildRuntimeAssessmentBundle()` reads each assessment file.
 2. **Learner payload** — questions and choices without `correct` flags.
-3. **Answer keys** — `questionId → choiceId` (single-select) or `questionId → choiceId[]` (multi-select) for scoring.
+3. **Answer keys** — `questionId → choiceId` (single-select) or `questionId → choiceId[]` (multi-select) for scoring. Additive shape: `AnswerKeyValue = string | string[]` — existing single-select courses keep string keys.
 4. **Configs** — per-assessment quiz behavior (`maxAttempts`, `shuffleChoices`, `showFeedback`).
 5. **Feedback** — `questionId → explanation` for immediate/end feedback (not shipped as separate files).
 

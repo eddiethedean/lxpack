@@ -32,3 +32,28 @@ export function conformanceInterchange(): LessonkitInterchangeV1 {
     },
   };
 }
+
+/** Interchange with inline multi-select MCQ for answer-key bundle conformance. */
+export function conformanceMultiSelectInterchange(): LessonkitInterchangeV1 {
+  return {
+    ...conformanceInterchange(),
+    assessments: [
+      {
+        id: "conformance_quiz",
+        title: "Conformance Multi-Select",
+        passingScore: 0.7,
+        questions: [
+          {
+            id: "q1",
+            prompt: "Select all that apply",
+            choices: [
+              { id: "a", text: "Correct A", correct: true },
+              { id: "b", text: "Wrong B" },
+              { id: "c", text: "Correct C", correct: true },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+}
